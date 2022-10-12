@@ -20,7 +20,7 @@ def main():
 
     comment = "err: map marker zoom"
     comment = "merge fix: #10"
-    comment = "impl: begin project"
+    comment = "impl: remove node modules"
 
     if same_comment:
         if not comment:
