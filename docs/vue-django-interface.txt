@@ -1,0 +1,9 @@
+{
+    "auth": {
+        "status": True,
+        "access-token": "",
+        "refresh-token": ""
+    },
+    "payload": {},
+    "debug": ""
+}
