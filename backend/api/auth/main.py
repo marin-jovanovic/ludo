@@ -11,7 +11,11 @@ todo which one?
 from secrets import token_hex
 
 
+def create_user(username, password):
+    print(f"{username=}")
+    print(f"{password=}")
 
+    pass
 
 def obtain_tokens(username, password):
     print(f"{username=}")
