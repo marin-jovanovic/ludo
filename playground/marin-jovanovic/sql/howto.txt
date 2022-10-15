@@ -1,0 +1,44 @@
+
+
+SELECT * FROM a
+UNION/ intersect/ except
+SELECT * FROM polozioProgr;
+
+distinct
+
+kartazijev produkt
+	svak sa svakim
+	select * from a,b
+	select * from a cross join b
+
+preimenuj
+	select a AS b
+
+natural join
+	a.x == b.x
+
+	select * from a,b where a.x = b.x
+	select * from a join b on a.x = b.x
+	select * from a join b using(x)
+	select * from a natural join b;
+
+agregacije
+	count
+	sum
+	avg
+	min
+	max
+
+	select avg(a1) from a
+
+	select x, avg(y) from a group by (x)
+
+
+null
+	x is null
+	x is not null
+
+outer join
+	select * from a left outer join b on a.x = b.x
+	select * from a right outer join b on a.x = b.x
+	select * from a full outer join b on a.x = b.x
