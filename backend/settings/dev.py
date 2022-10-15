@@ -10,7 +10,7 @@ MIDDLEWARE = [
     # "backend.api.middleware.msgBodyCheckMiddleware.MsgBodyCheckMiddleware",
     # "backend.api.middleware.CSRFCheckMiddleware.CSRFCheckMiddleware",
 
-    "backend.api.middleware.jumperMiddleware.JumperMiddleware",
+    "backend.api.middleware.jumper_middleware.JumperMiddleware",
 
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -110,7 +110,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # AUTH_USER_MODEL = 'backend.api.authentication_backends.user.User'
 AUTHENTICATION_BACKENDS = [
-    "backend.api.authentication_backends.keycloakBackend.KeycloakBackend",
+    # "backend.api.authentication_backends.keycloakBackend.KeycloakBackend",
 
     # 'django.contrib.auth.backends.ModelBackend',
     # 'allauth.account.auth_backends.AuthenticationBackend',
