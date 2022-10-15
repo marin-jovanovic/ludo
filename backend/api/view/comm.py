@@ -1,4 +1,4 @@
-from api.comm.constants import INTERNAL_SERVER_ERROR_MESSAGE
+from backend.api.comm.constants import INTERNAL_SERVER_ERROR_MESSAGE
 
 
 def get_auth_ok_response_template(request):
