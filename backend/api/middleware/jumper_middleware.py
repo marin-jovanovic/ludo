@@ -1,7 +1,5 @@
 from decouple import config
 
-from backend.api.cqrs_q.csrf import get_by_ip
-from backend.api.comm.comm import bytes_to_json
 
 class JumperMiddleware:
     def __init__(self, get_response):
