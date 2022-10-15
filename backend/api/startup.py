@@ -1,5 +1,5 @@
 from backend.api.assets.printer import print_logo
-from backend.api.role_action_validation.role_validator import SchemeValidator
+from backend.api.comm.scheme_validator import SchemeValidator
 
 class StartupConfig:
 
