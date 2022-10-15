@@ -1,0 +1,37 @@
+
+
+Implement a web multiplayer game Ludo. The players should have the option
+to start the game via nickname login after which, they are redirected
+to the lobby. The lobby should display a list of rooms with details such
+ as the number of players and their nicknames. The players can join an
+  existing game room, or host their own game room. While waiting for
+   the room to fill, provide the users with the room status
+   (periodically refresh the status, e.g. every 5 seconds).
+   The maximum number of players in the game room is 4. After the
+    room is full, the game begins. The players can always chat in the room.
+
+At the start of the game, every player should roll the dice by clicking on a designated button. The player with the highest number starts first and the other players have their turns in the clockwise direction. The game over when all players finish - that is when they get their figurines inside the home column. The winner is the player who gets all the figurines to their home column first. Once a player ends the game, they can play another game immediately. Implement the game Ludo by studying the game rules.
+Store the players' statistics in the database and implement a profile page, which shows the player's number of played games, number of wins and the result distribution (number of times they finished 1st, 2nd, 3rd and 4th).
+During implementation, use web technologies such as MongoDB, Express.js, Node.js and the socket.io library for real-time communication. You can also use any other Node.js libraries, which can be installed using npm (Node Package Manager). For the front-end graphical user interface, you can use HTML5 and Bootstrap CSS framework.
+
+The grading for this assignment is as follows:
+
+Basic task set (50%)
+
+    implemented front-end graphical user interface, game board
+    user registration and login
+    lobby page with periodical refreshing
+    create game option
+    join game option
+    working real-time multiplayer Ludo game according to rules
+
+Advanced task set (20%)
+
+    game chat
+    storing players' statistics in the database and showing their statistics on their profile page
+
+Bonus task set (20%)
+
+    animations and sound effects (rolling the dice, victory, returning the opponent's figurine to their yard)
+
+Good code (10%)
