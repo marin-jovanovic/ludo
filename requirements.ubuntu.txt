@@ -1,0 +1,4 @@
+libpq-dev
+python3.10-dev
+install libnss3-tools
+mkcert
