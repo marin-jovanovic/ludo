@@ -1,4 +1,3 @@
-
 class SchemeValidator:
     """check if role can perform given action"""
 
