@@ -13,8 +13,6 @@ class SignUpView(APIView):
         password = request.headers['password']
         # print(f"{password=}")
 
-
-
         # todo add to db
         # todo hash
 
