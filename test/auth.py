@@ -1,18 +1,14 @@
 import json
-import random
 import requests
 
 
-def create_user(u,p):
+def create_user(u, p):
     url = "http://localhost:8000/signup"
 
     t = requests.post(
         f"{url}/{u}",
-        headers= {
+        headers={
             'password': p
-        },
-        data={
-            # "portfolio": portfolio
         },
         verify=False
     )
@@ -21,16 +17,13 @@ def create_user(u,p):
     return json.loads(t.text)
 
 
-def auth_user(u,p):
+def auth_user(u, p):
     url = "http://localhost:8000/login"
 
     t = requests.post(
         f"{url}/{u}",
-        headers= {
+        headers={
             'password': p
-        },
-        data={
-            # "portfolio": portfolio
         },
         verify=False
     )
@@ -38,15 +31,14 @@ def auth_user(u,p):
     print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
     return json.loads(t.text)
 
-def is_valid(u,p):
+
+def is_valid(u, p):
     url = "http://localhost:8000/validate"
 
     t = requests.post(
         f"{url}/{u}",
-        headers= {
+        headers={
             'accessToken': p
-        },
-        data={
         },
         verify=False
     )
@@ -54,21 +46,21 @@ def is_valid(u,p):
     print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
     return json.loads(t.text)
 
-def logout(u,a):
+
+def logout(u, a):
     url = "http://localhost:8000/logout"
 
     t = requests.post(
         f"{url}/{u}",
-        headers= {
+        headers={
             'accessToken': a
-        },
-        data={
         },
         verify=False
     )
 
     print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
     return json.loads(t.text)
+
 
 def main():
     print('running tests')
@@ -79,7 +71,6 @@ def main():
     create_user(username, password)
     print(80 * "-")
 
-    # generate access token
     access_token = auth_user(username, password)["payload"]["payload"]["access_token"]
     print(f"{access_token=}")
     print(80 * "-")
