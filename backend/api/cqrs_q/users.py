@@ -23,7 +23,17 @@ from bcrypt import hashpw, gensalt
 
 
 def is_username_in_db(username):
+
     return Users.objects.filter(username=username).exists()
+
+
+def is_access_token_correct(username, access_token):
+    if not is_username_in_db(username):
+        return False
+
+    r = Users.objects.get(username=username).access_token == access_token
+
+    return {'status': True, 'payload': r}
 
 
 def is_authenticated(username, password):
@@ -35,13 +45,5 @@ def is_authenticated(username, password):
     pass_transformed = base64.b64encode(
         hashlib.sha256(pass_long).digest())
 
-    pwd_from_db = Users.objects.filter(username=username).encode('utf-8')
-
+    pwd_from_db = Users.objects.get(username=username).password_hash.encode('utf-8')
     return bcrypt.checkpw(pass_transformed, pwd_from_db)
-    #
-    #
-    # return Users.objects.filter(username=username, password=password).exists()
-    #
-    #
-    #
-    # return
