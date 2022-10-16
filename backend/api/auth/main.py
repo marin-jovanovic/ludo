@@ -4,55 +4,84 @@ only access token with unlimited lifetime
 
 password is stored as hash
 
+
 todo which one?
 
 """
+import base64
+import hashlib
+from secrets import token_hex
+
+from bcrypt import gensalt, hashpw
+
 
 def generate_access_token():
     return token_hex(256)
 
-from secrets import token_hex
+
+def get_hashed_password(password: str) -> (str, str):
+    """
+    returns all decoded to utf-8
+
+    from https://pypi.org/project/bcrypt/
+
+    The bcrypt algorithm only handles passwords up to 72 characters, any
+    characters beyond that are ignored. To work around this, a common approach
+    is to hash a password with a cryptographic hash (such as sha256) and then
+    base64 encode it to prevent NULL byte problems before hashing the result
+    with bcrypt:
+    """
+
+    pass_long = password.encode() * 10
+
+    salt = gensalt()
+
+    hashed = hashpw(base64.b64encode(hashlib.sha256(pass_long).digest()),
+                    salt).decode("utf-8")
+
+    return hashed
 
 
-if __name__ == '__main__':
-    print(token_hex(256))
-    print(type(token_hex(24)))
+def is_pass_ok(password: str) -> bool:
+    """
+    checks if {password} is strong enough
+    new parameters can be easily added by appending to the current list of
+    parameters
 
-def create_user(username, password):
-    print(f"{username=}")
-    print(f"{password=}")
+    :param password: password which needs to be checked
+    :return: is_password_strong_enough: bool
+    """
 
-    pass
+    # todo remove
+    return True
 
-def obtain_tokens(username, password):
-    print(f"{username=}")
-    print(f"{password=}")
+    flag = True
 
-    return {
-        'is_valid': False,
-        "accessToken":  token_hex(256),
+    # length
+    if len(password) < 8:
+        print("len of pass not enough")
+        flag = False
 
-    }
+    # special chars
+    test_list = ["?", "!", "%", "&", "@", "$",
+                 "+", "-", ".", "_", ",", "\"", "\'"]
+    if not any(item in list(password) for item in test_list):
+        print("not one special char from ", test_list)
+        flag = False
 
-def logout():
-    pass
-    # remove from db
+    # digit
+    if not any(char.isdigit() for char in password):
+        print("no numbers in password")
+        flag = False
 
-    # return status
+    # upper case
+    if not any(char.isupper() for char in password):
+        print("no upper chars in password")
+        flag = False
 
-def _is_valid_access_token(username, access_token):
-    pass
+    # lower case
+    if not any(char.islower() for char in password):
+        print("no lower chars in password")
+        flag = False
 
-def _is_valid_password(username, password):
-    pass
-
-def is_valid(
-        username,
-        choice_access_token_or_password,
-        flag_access_token_or_password):
-
-    if flag_access_token_or_password:
-        return _is_valid_access_token(username, choice_access_token_or_password)
-
-    else:
-        return _is_valid_password(username, choice_access_token_or_password)
+    return flag
