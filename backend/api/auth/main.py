@@ -8,8 +8,15 @@ todo which one?
 
 """
 
+def generate_access_token():
+    return token_hex(256)
+
 from secrets import token_hex
 
+
+if __name__ == '__main__':
+    print(token_hex(256))
+    print(type(token_hex(24)))
 
 def create_user(username, password):
     print(f"{username=}")
