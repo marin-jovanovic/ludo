@@ -6,4 +6,4 @@ class Users(models.Model):
     username = models.TextField()
 
     password_hash = models.TextField()
-    access_token = models.TextField()
+    access_token = models.TextField(null=True)
