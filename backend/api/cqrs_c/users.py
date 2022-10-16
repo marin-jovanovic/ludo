@@ -5,6 +5,20 @@ from backend.api.cqrs_q.users import is_username_in_db, is_authenticated
 # todo change username
 # todo access token
 
+def auth_user(username, password):
+    if not is_authenticated(username, password):
+        return {'status': False, 'debug': 'user + pass combination err'}
+
+    access_token = 'ac token'
+
+    k, _ = Users.objects.update_or_create(
+        username=username, defaults={"access_token": access_token}
+    )
+    k.save()
+
+    return {'status': True, 'payload': {'access_token': access_token}}
+
+
 
 def create_user(username, password):
 
@@ -12,6 +26,8 @@ def create_user(username, password):
     #     encoding = 'utf-8'
     #     key = key.decode(encoding)
 
+
+    # username unique
     if is_username_in_db(username):
         return {'status': False, 'debug': 'user already in db'}
 
