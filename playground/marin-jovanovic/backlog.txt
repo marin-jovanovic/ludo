@@ -1,0 +1,3 @@
+generate access token
+write access token to db
+return in payload rest
