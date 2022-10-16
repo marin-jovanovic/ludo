@@ -18,7 +18,7 @@ def main():
     comment = "impl: create / update portfolio"
     comment = 'ref: rewrite db scheme'
 
-    comment = "impl: create user in db"
+    comment = "impl: login api"
 
 
     if same_comment:
