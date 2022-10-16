@@ -1,5 +1,5 @@
 from backend.api.model.users import Users
-from backend.api.auth.user_menagment import get_hashed_password, is_pass_ok
+from api.auth.main import get_hashed_password, is_pass_ok
 from backend.api.cqrs_q.users import is_username_in_db, is_authenticated, is_access_token_correct
 from backend.api.auth.main import generate_access_token
 # todo change username
