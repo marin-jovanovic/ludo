@@ -7,16 +7,10 @@ from backend.api.cqrs_c.users import create_user
 class SignUpView(APIView):
 
     def post(self, request, username):
-
-        # print("signup post", username)
+        # input: username, password
+        # output: create user in db
 
         password = request.headers['password']
-        # print(f"{password=}")
-
-        # todo add to db
-        # todo hash
-
-        # return tokens
 
         response = get_auth_ok_response_template(request)
         response["payload"]["status"] = create_user(username, password)
