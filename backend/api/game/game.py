@@ -461,6 +461,12 @@ def get_config():
         "tokens per player": 4,
         "dice number of sides": 6,
 
+        # assumption: talking for each player individually
+        # if True: all tokens must reach the same destination
+        # else: each token has it unique(multiple can go to same destination, but it is not a rule)
+        # destination location
+        "flag: same destination": True,
+
         # highest: highest goes first and then clockwise or anticlockwise (6, right, right, right)
         # order: 1st, 2nd, 3rd, 4th highest roll (6, 3, 2, 1)
         'choice: highest; order': True,
@@ -648,30 +654,11 @@ class Board:
                 column = token_global_position['column']
                 self.board_state[row][column].add(token)
 
-        # for row, m_c_to_tokens in self.board_state.items():
-        #     for column, tokens in m_c_to_tokens.items():
-        #         print(row, column, [str(i) for i in tokens])
-        #         for token in tokens:
-        #             print(token)
-        #             token_global_position = token.normalize_position()
-        #             row = token_global_position['row']
-        #             column = token_global_position['column']
-        #             self.board_state[row][column].add(token)
-
-        # print('board init')
-        # self.print_board_state()
-
-        # print()
-        # print(self.board_state)
-
-    # def construct_tile_mappings(self):
     def move_token(self, player, token_id, step):
         token = Token(id_=token_id, owner=player, destination_position=None, moves=None)
         token_global_position = self.players[player][token_id].normalize_position()
         row = token_global_position['row']
         column = token_global_position['column']
-        # print(self.board_state[row][column])
-        # print(token_id)
 
         to_remove = None
         for token in self.board_state[row][column]:
@@ -703,20 +690,11 @@ class Board:
         self.board_state[row][column].add(self.players[player][token_id])
 
     def print_board_state(self):
-        # print('board state')
-        # for p_id, p in self.players.items():
-        #     print('player', p_id)
-        #     for t_id, t in p.items():
-        #         print(t_id, t, t.position)
-        #     print()
 
         for row, m_c_to_tokens in self.board_state.items():
-            # print(row)
             for column, tokens in m_c_to_tokens.items():
                 print(row, column, [str(i) for i in tokens])
         print()
-        # [print(i) for i in self.board_state.items()]
-        # print(self.board_state)
 
 class Player:
 
@@ -758,60 +736,117 @@ class Token:
     def __str__(self):
         return f'{self.owner=}, {self.id_=}'
 
+def alt():
+
+    token_paths = {
+        0 : get_player_two_moves(),
+        1 : get_player_one_moves(),
+
+    }
+
+    token_one_path = None
+    token_two_path = None
+
+def board_configuration():
+
+    def player_to_path_config():
+        return {
+            0: get_player_one_moves(),
+            1: get_player_one_moves(),
+            2: get_player_two_moves(),
+            3: get_player_one_moves()
+        }
+
+    r = {}
+    for i in range(get_config()['number of players']):
+        t = {}
+        for j in range(get_config()['tokens per player']):
+            t[j] = player_to_path_config()[i]
+        r[i] = t
+
+    print('111111')
+    print(r)
+
+    # player id
+    #     token id
+
+    return {
+        0: {
+            0:  player_to_path_config()[0],
+            1: 'path1',
+            2: 'path1',
+            3: 'path1',
+        },
+        1: {
+            0: 'path1',
+            1: 'path1',
+            2: 'path1',
+            3: 'path1',
+        },
+    }
+
 def main():
 
-    todo_destination_p = 500
+    board_configuration()
 
-    players = {}
-    for i in range(get_config()["number of players"]):
-        tokens = {}
+    f_same_destination = get_config()["flag: same destination"]
 
-        if i == 0:
-            moves = get_player_one_moves()
-        elif i == 1:
-            moves = get_player_two_moves()
+    if f_same_destination:
+        print('same destination')
+        players_id = [i for i in range(get_config()['number of players'])]
+        print(players_id)
 
-        for j in range(get_config()['tokens per player']):
-            tokens[j] = Token(j, destination_position=todo_destination_p, owner=i, moves=moves)
+        # p = {i: for i in players_id}
 
-        players[i] = tokens
+    else:
+        print('not same destination')
 
-    # tokens = {i: Token(i) for i in range(get_config()['tokens per player'])}
-    # print(f'{tokens=}')
-    # [print(str(i)) for i in tokens]
 
-    # players = {i: Player({k:v for k,v in tokens.items()}) for i in range(get_config()["number of players"])}
 
-    # players = [Player(tokens[::]) for _ in range(get_config()["number of players"])]
-    # print(players)
-    # [print(i) for i in players.items()]
 
-    # players, tokens
-    b = Board(row_count=15, column_count=15, players=players)
+    # todo_destination_p = 500
     #
+    # players = {}
+    # for i in range(get_config()["number of players"]):
+    #     tokens = {}
+    #
+    #     if i == 0:
+    #         moves = get_player_one_moves()
+    #     elif i == 1:
+    #         moves = get_player_two_moves()
+    #
+    #     for j in range(get_config()['tokens per player']):
+    #         tokens[j] = Token(j, destination_position=todo_destination_p, owner=i, moves=moves)
+    #
+    #     players[i] = tokens
+    #
+    # # players, tokens
+    # b = Board(row_count=15, column_count=15, players=players)
+    # #
+    #
+    # # move
+    # print('move')
+    # b.move_token(player=1, token_id=1, step=2)
+    # b.print_board_state()
+    #
+    # # move
+    # print('move')
+    # b.move_token(player=1, token_id=1, step=2)
+    # b.print_board_state()
+    #
+    # # multiple at same location
+    # print('multiple at the same location')
+    # b.move_token(player=1, token_id=2, step=4)
+    # b.print_board_state()
+    #
+    # print('move pl2')
+    # b.move_token(player=2, token_id=1, step=3)
+    # b.print_board_state()
+    #
+    # print('eat')
+    # b.move_token(player=2, token_id=1, step=1)
+    # b.print_board_state()
 
-    # move
-    print('move')
-    b.move_token(player=1, token_id=1, step=2)
-    b.print_board_state()
-
-    # move
-    print('move')
-    b.move_token(player=1, token_id=1, step=2)
-    b.print_board_state()
-
-    # multiple at same location
-    print('multiple at the same location')
-    b.move_token(player=1, token_id=2, step=4)
-    b.print_board_state()
-
-    print('move pl2')
-    b.move_token(player=2, token_id=1, step=3)
-    b.print_board_state()
-
-    print('eat')
-    b.move_token(player=2, token_id=1, step=1)
-    b.print_board_state()
 
 
     # game_conf = get_config()
@@ -825,7 +860,7 @@ def main():
     #
     # [print(i) for i in order]
 
-    #
+
 
     # roled = 6
     #
