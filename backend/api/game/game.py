@@ -4,10 +4,14 @@ from collections import defaultdict
 
 def get_dice_result():
     crypto_generator_object = SystemRandom()
-    return crypto_generator_object.randrange(6) + 1
+    return crypto_generator_object.randrange(get_config()['dice number of sides']) + 1
 
 def get_player_one_moves():
     return {
+        '-1': {
+            "row": -1,
+            "column": -1
+        },
         "0": {
             "row": 6,
             "column": 1
@@ -228,6 +232,10 @@ def get_player_one_moves():
 
 def get_player_two_moves():
     return {
+        '-1': {
+            "row": -1,
+            "column": -1
+        },
         "0": {
             "row": 1,
             "column": 8
@@ -451,6 +459,7 @@ def get_config():
     return {
         "number of players": 4,
         "tokens per player": 4,
+        "dice number of sides": 6,
 
         # highest: highest goes first and then clockwise or anticlockwise (6, right, right, right)
         # order: 1st, 2nd, 3rd, 4th highest roll (6, 3, 2, 1)
@@ -510,31 +519,31 @@ class TileVisitor:
     def __str__(self):
         return f"player: {self.player}, tile: {self.players_tile_translation_id}"
 
-class Token:
-
-    def __init__(
-        self,
-        owner,
-        current_tile,
-        destination_tile
-    ):
-        self.owner = owner
-
-        self.current_tile = current_tile
-
-        self.destination_tile = destination_tile
-
-    def can_move(self):
-        return self.current_tile != self.destination_tile
-
-    def move(self, step):
-
-        print('move token')
+# class Token:
+#
+#     def __init__(
+#         self,
+#         owner,
+#         current_tile,
+#         destination_tile
+#     ):
+#         self.owner = owner
+#
+#         self.current_tile = current_tile
+#
+#         self.destination_tile = destination_tile
+#
+#     def can_move(self):
+#         return self.current_tile != self.destination_tile
+#
+#     def move(self, step):
+#
+#         print('move token')
 
 
 def determine_order(number_of_players, choice_highest_or_order, choice_clockwise_or_anticlockwise, f_tie_in_order):
 
-    def driver(number_of_players, choice_highest_or_order, choice_clockwise_or_anticlockwise, f_tie_in_order):
+    def driver(number_of_players, choice_highest_or_order, choice_clockwise_or_anticlockwise):
         # pre
 
         # global, pass as arg
@@ -586,31 +595,18 @@ def determine_order(number_of_players, choice_highest_or_order, choice_clockwise
                 rollers.remove(max_r_obj['player'])
                 current_iteration_roll_history.remove(max_r_obj)
 
-    r = driver(number_of_players, choice_highest_or_order, choice_clockwise_or_anticlockwise, f_tie_in_order)
+    r = driver(number_of_players, choice_highest_or_order, choice_clockwise_or_anticlockwise)
 
-    if number_of_players > 6:
+    if number_of_players > get_config()['dice number of sides']:
         print('err')
         sys.exit(-1)
 
     while not f_tie_in_order and ['tie'] in r:
         print('tie detected')
-        r = driver(number_of_players, choice_highest_or_order, choice_clockwise_or_anticlockwise, f_tie_in_order)
-
-    # if not f_tie_in_order and ['tie'] in r:
-    #     print('tie detected')
-    #
-    #     # while
-    #     #
-    #     # b = [i for i, x in enumerate(r) if x == ['tie']]
-    #
-    #     b = r.index(['tie'])
-    #     print(b)
-    #     r = r[b:]
-    #     print(l)
-    #     # for i in r:
-
+        r = driver(number_of_players, choice_highest_or_order, choice_clockwise_or_anticlockwise)
 
     return r
+
 
 def find_max(current_iteration_roll_history):
     is_same_max = False
@@ -625,32 +621,209 @@ def find_max(current_iteration_roll_history):
     return is_same_max, max_r_obj
 
 
+class Board:
+
+    def __init__(self, row_count, column_count, players):
+        self.row_count = row_count
+        self.column_count = column_count
+        self.players = players
+
+        p = {
+            1: get_player_one_moves(),
+            2: get_player_two_moves(),
+            3: get_player_one_moves()
+        }
+        self.universal_tiles_to_player_tiles_mapping = generate_tile_mapping(p)
+
+        # for tile, tile_id in self.universal_tiles_to_player_tiles_mapping.items():
+        #     print(tile, '=>', [str(i) for i in tile_id])
+
+        self.board_state = defaultdict(lambda: defaultdict(set))
+        for p_id, p in players.items():
+            # print(p_id,p)
+            for t_id, token in p.items():
+                # print(str(token))
+                token_global_position = token.normalize_position()
+                row = token_global_position['row']
+                column = token_global_position['column']
+                self.board_state[row][column].add(token)
+
+        # for row, m_c_to_tokens in self.board_state.items():
+        #     for column, tokens in m_c_to_tokens.items():
+        #         print(row, column, [str(i) for i in tokens])
+        #         for token in tokens:
+        #             print(token)
+        #             token_global_position = token.normalize_position()
+        #             row = token_global_position['row']
+        #             column = token_global_position['column']
+        #             self.board_state[row][column].add(token)
+
+        # print('board init')
+        # self.print_board_state()
+
+        # print()
+        # print(self.board_state)
+
+    # def construct_tile_mappings(self):
+    def move_token(self, player, token_id, step):
+        token = Token(id_=token_id, owner=player, destination_position=None, moves=None)
+        token_global_position = self.players[player][token_id].normalize_position()
+        row = token_global_position['row']
+        column = token_global_position['column']
+        # print(self.board_state[row][column])
+        # print(token_id)
+
+        to_remove = None
+        for token in self.board_state[row][column]:
+            if token.id_ == token_id and token.owner == player:
+                to_remove = token
+
+        self.board_state[row][column].remove(to_remove)
+
+        self.players[player][token_id].update_position(step)
+
+        token_global_position = self.players[player][token_id].normalize_position()
+        row = token_global_position['row']
+        column = token_global_position['column']
+
+        if self.board_state[row][column]:
+            # someone is here
+            to_remove = set()
+
+            for i in self.board_state[row][column]:
+                if i.owner == player:
+                    print('mine is already here')
+                else:
+                    print('someone else is here, perform eating')
+                    to_remove.add(i)
+
+            for i in to_remove:
+                self.board_state[row][column].remove(i)
+
+        self.board_state[row][column].add(self.players[player][token_id])
+
+    def print_board_state(self):
+        # print('board state')
+        # for p_id, p in self.players.items():
+        #     print('player', p_id)
+        #     for t_id, t in p.items():
+        #         print(t_id, t, t.position)
+        #     print()
+
+        for row, m_c_to_tokens in self.board_state.items():
+            # print(row)
+            for column, tokens in m_c_to_tokens.items():
+                print(row, column, [str(i) for i in tokens])
+        print()
+        # [print(i) for i in self.board_state.items()]
+        # print(self.board_state)
+
+class Player:
+
+    def __init__(self, tokens):
+        self.tokens = tokens
+
+
+class Token:
+
+    def __init__(self, id_, destination_position, owner, moves):
+        self.id_ = id_
+        self.position = -1
+        self.destination_position = destination_position
+        self.is_at_destination = False
+        self.owner = owner
+        self.moves = moves
+
+    # def __eq__(self, other):
+    #     """Overrides the default implementation"""
+    #     if isinstance(other, Token):
+    #         return self.id_ == other.id_ and self.owner == other.owner
+    #     return False
+
+    def normalize_position(self):
+        return self.moves[str(self.position)]
+
+    def update_position(self, step):
+        if self.is_at_destination:
+            print('at destination, can not move')
+            return
+
+        self.position += step
+        if self.position >= self.destination_position:
+            self.set_is_at_destination()
+
+    def set_is_at_destination(self):
+        self.is_at_destination = True
+
+    def __str__(self):
+        return f'{self.owner=}, {self.id_=}'
+
 def main():
-    # p = {
-    #     1: get_player_one_moves(),
-    #     2: get_player_two_moves(),
-    #     3: get_player_one_moves()
-    # }
+
+    todo_destination_p = 500
+
+    players = {}
+    for i in range(get_config()["number of players"]):
+        tokens = {}
+
+        if i == 0:
+            moves = get_player_one_moves()
+        elif i == 1:
+            moves = get_player_two_moves()
+
+        for j in range(get_config()['tokens per player']):
+            tokens[j] = Token(j, destination_position=todo_destination_p, owner=i, moves=moves)
+
+        players[i] = tokens
+
+    # tokens = {i: Token(i) for i in range(get_config()['tokens per player'])}
+    # print(f'{tokens=}')
+    # [print(str(i)) for i in tokens]
+
+    # players = {i: Player({k:v for k,v in tokens.items()}) for i in range(get_config()["number of players"])}
+
+    # players = [Player(tokens[::]) for _ in range(get_config()["number of players"])]
+    # print(players)
+    # [print(i) for i in players.items()]
+
+    # players, tokens
+    b = Board(row_count=15, column_count=15, players=players)
     #
-    # m_tile_to_move = generate_tile_mapping(p)
+
+    # move
+    print('move')
+    b.move_token(player=1, token_id=1, step=2)
+    b.print_board_state()
+
+    # move
+    print('move')
+    b.move_token(player=1, token_id=1, step=2)
+    b.print_board_state()
+
+    # multiple at same location
+    print('multiple at the same location')
+    b.move_token(player=1, token_id=2, step=4)
+    b.print_board_state()
+
+    print('move pl2')
+    b.move_token(player=2, token_id=1, step=3)
+    b.print_board_state()
+
+    print('eat')
+    b.move_token(player=2, token_id=1, step=1)
+    b.print_board_state()
+
+
+    # game_conf = get_config()
     #
-    # # print(len(m_tile_to_move))
-    # for tile, tile_id in m_tile_to_move.items():
-    #     print(tile, '=>', [str(i) for i in tile_id])
-
-    game_conf = get_config()
-
-    order = determine_order(game_conf['number of players'],
-                            game_conf['choice: highest; order'],
-                            game_conf['choice: clockwise; anticlockwise'],
-                            game_conf['flag: tie in order'],
-
-    )
-
-    # print(f"{order=}")
-    [print(i) for i in order]
-
-
+    # order = determine_order(game_conf['number of players'],
+    #                         game_conf['choice: highest; order'],
+    #                         game_conf['choice: clockwise; anticlockwise'],
+    #                         game_conf['flag: tie in order'],
+    #
+    # )
+    #
+    # [print(i) for i in order]
 
     #
 
@@ -665,12 +838,7 @@ def generate_tile_mapping(p):
         for tile_id, coordinates in moves.items():
 
             tile = Tile(**coordinates)
-            # if tile in m_tile_to_move:
-            #     print('already in coordinates')
-            #     sys.exit(-1)
-            #     # break
-            #
-            # else:
+
             tile_visitor = TileVisitor(player_id, tile_id)
 
             if tile_visitor in m_tile_to_move[tile]:
