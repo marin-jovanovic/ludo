@@ -18,7 +18,7 @@ def main():
     comment = "impl: create / update portfolio"
     comment = 'ref: rewrite db scheme'
 
-    comment = "impl: game init"
+    comment = "wip: game main driver"
 
 
     if same_comment:
