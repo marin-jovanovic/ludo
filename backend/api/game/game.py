@@ -452,12 +452,16 @@ def get_config():
         "number of players": 4,
         "tokens per player": 4,
 
-        # highest: highest goes first and then clockwise or anticlockwise
-        # order: 1st, 2nd, 3rd, 4th highest roll
+        # highest: highest goes first and then clockwise or anticlockwise (6, right, right, right)
+        # order: 1st, 2nd, 3rd, 4th highest roll (6, 3, 2, 1)
         'choice: highest; order': True,
 
         # if highest then in which direction
-        'choice: clockwise; anticlockwise': True
+        'choice: clockwise; anticlockwise': False,
+
+        # when rolling dice to see who goes first
+        # skip if tie will occur
+        'flag: tie in order': False,
 
     }
 
@@ -528,79 +532,98 @@ class Token:
         print('move token')
 
 
-def determine_order(number_of_players, choice_highest_or_order, choice_clockwise_or_anticlockwise):
+def determine_order(number_of_players, choice_highest_or_order, choice_clockwise_or_anticlockwise, f_tie_in_order):
 
-    # def get_max()
+    def driver(number_of_players, choice_highest_or_order, choice_clockwise_or_anticlockwise, f_tie_in_order):
+        # pre
 
-    # order =
-    roll_history = []
+        # global, pass as arg
+        roll_history = []
 
-    needs_to_roll = {i: True for i in range(number_of_players)}
+        rollers = [i for i in range(number_of_players)]
 
-    while True:
-        print()
-        if sum([v for _, v in needs_to_roll.items()]) == 1:
-            print('one player left, he is last')
-            break
-
-        # for i in [v for k,v in needs_to_roll.items()]:
-        #     print()
-
-        r = {}
-        for player, f_needs_to_roll in needs_to_roll.items():
-            if not f_needs_to_roll:
-                continue
-
-            r[player] = get_dice_result()
-
-        [print(i) for i in r.items()]
-        # break
-
-        # r = [get_dice_result() for _ in [v for k,v in needs_to_roll.items()]]
-
-        for i, v in enumerate(r.items()):
-            roll_history.append({'player': i, 'result': v[1]})
-
-        print('roll history')
-        [print(i) for i in roll_history]
+        # driver
 
         while True:
-            m = max([roll for _, roll in r.items()])
-            # print('max', m)
-            c_m = 0
-            m_player = -1
-            for player, result in r.items():
-                if m == result:
-                    c_m += 1
-                    m_player = player
+            if len(rollers) == 1:
+                roll_history.append(['goes', rollers[0]])
+                return roll_history
 
-            # c_m = sum([1 for i in r if i == m])
-            # print('count max', c_m)
+            current_iteration_roll_history = []
+            for player in rollers:
+                pr = {'player': player, 'result': get_dice_result()}
+                roll_history.append(pr)
+                current_iteration_roll_history.append(pr)
 
-            if c_m == 1:
-                winner = m_player
-                print('first goes', winner)
+            while True:
+
+                if len(current_iteration_roll_history) == 1:
+                    roll_history.append(['goes', current_iteration_roll_history[0]['player']])
+                    return roll_history
+
+                is_same_max, max_r_obj = find_max(current_iteration_roll_history)
+
+                if is_same_max:
+                    roll_history.append(['tie'])
+                    break
+
+                winner = max_r_obj['player']
+                if choice_highest_or_order:
+                    for i, v in enumerate(current_iteration_roll_history):
+                        if max_r_obj['player'] == v['player']:
+
+                            for j in rollers:
+                                if choice_clockwise_or_anticlockwise:
+                                    c = (i + j) % len(current_iteration_roll_history)
+                                else:
+                                    c = (i - j) % len(current_iteration_roll_history)
+
+                                roll_history.append(['goes', c])
+
+                            return roll_history
+
                 roll_history.append(['goes', winner])
-                needs_to_roll[winner] = False
-                # r.remove(m)
+                rollers.remove(max_r_obj['player'])
+                current_iteration_roll_history.remove(max_r_obj)
 
-                print(f'{r=}')
-                print(f'{needs_to_roll=}')
-                # print(r.index(m))
+    r = driver(number_of_players, choice_highest_or_order, choice_clockwise_or_anticlockwise, f_tie_in_order)
 
-            else:
-                print('tie, must roll again')
-                break
+    if number_of_players > 6:
+        print('err')
+        sys.exit(-1)
 
-            break
+    while not f_tie_in_order and ['tie'] in r:
+        print('tie detected')
+        r = driver(number_of_players, choice_highest_or_order, choice_clockwise_or_anticlockwise, f_tie_in_order)
 
-        t = get_dice_result()
-        print(t)
-        break
+    # if not f_tie_in_order and ['tie'] in r:
+    #     print('tie detected')
+    #
+    #     # while
+    #     #
+    #     # b = [i for i, x in enumerate(r) if x == ['tie']]
+    #
+    #     b = r.index(['tie'])
+    #     print(b)
+    #     r = r[b:]
+    #     print(l)
+    #     # for i in r:
 
-    [print(i) for i in roll_history]
-    return [1, 2, 3, 4]
-    pass
+
+    return r
+
+def find_max(current_iteration_roll_history):
+    is_same_max = False
+    max_r_obj = None
+    for i in current_iteration_roll_history:
+        if not max_r_obj or i['result'] > max_r_obj['result']:
+            is_same_max = False
+            max_r_obj = i
+        elif i['result'] == max_r_obj['result']:
+            is_same_max = True
+
+    return is_same_max, max_r_obj
+
 
 def main():
     # p = {
@@ -619,10 +642,14 @@ def main():
 
     order = determine_order(game_conf['number of players'],
                             game_conf['choice: highest; order'],
-                            game_conf['choice: clockwise; anticlockwise']
-                            )
+                            game_conf['choice: clockwise; anticlockwise'],
+                            game_conf['flag: tie in order'],
 
-    print(f"{order=}")
+    )
+
+    # print(f"{order=}")
+    [print(i) for i in order]
+
 
 
     #
