@@ -11,6 +11,8 @@
 
     <button id="li">log in (make me active)</button>
 
+    <button id="c_au">start reloading active users</button>
+
     <hr>
     active users
     <hr>
@@ -22,67 +24,7 @@
     <br>
     access token <input type="text" id="at">
     <br>
-
     
-    <!-- <script>
-// let ws = new WebSocket('ws://localhost:8000/')
-// ws.onmessage = (data) => console.log(data.data)
-
-// console.log("send")
-
-// for (let i = 0; i < 5; i++) {
-//     // const element = array[i];
-//     ws.send("ping")
-//     console.log(i)   
-// }
-
-// a = new WebSocket("ws://localhost:8000/practice");
-// a.onmessage = (data) => console.log(data.data);
-// a.send("PING");
-
-
-        // let socket = new WebSocket("ws://127.0.0.1:8000/ws/a/");
-        let socket = new WebSocket("ws://127.0.0.1:8765/ws");
-
-        console.log("socket init")
-
-        socket.onopen = function(e) {
-            console.log("[open] Connection established");   
-            console.log("Sending to server");
-            socket.send("payload")
-        };
-
-        socket.onmessage = function(event) {
-            console.log("msg")
-            console.log(`[message] Data received from server: ${event.data}`);      
-            socket.send("payload")
-
-        };
-
-        socket.onclose = function(event) {
-            if (event.wasClean) {
-                console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
-            } else {
-                // e.g. server process killed or network down
-                // event.code is usually 1006 in this case
-                console.log('[close] Connection died');
-            }
-        };
-
-        socket.onerror = function(error) {
-            console.log(`[error] ${error.message}`);
-        };
-
-    </script> -->
-
-
-    <!-- lobby
-    <hr>
-    <button id="c">connect</button>
-
-    <div>
-    
-    </div> -->
 
     <!-- <script src="./index.js"></script> -->
     <script src="./activeUsers.js"></script>
