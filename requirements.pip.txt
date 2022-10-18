@@ -32,3 +32,10 @@ sqlparse==0.4.2
 urllib3==1.26.10
 whitenoise==5.0.1
 yarg==0.1.9
+
+websocket-client==1.2.1
+websockets==10.0
+
+
+setuptools~=57.0.0
+pyaml~=21.10.1
