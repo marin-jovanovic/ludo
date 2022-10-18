@@ -2,6 +2,7 @@
 class ActiveUsersSocket {
     constructor() {
         self.socket = new WebSocket("ws://127.0.0.1:8765/ws");
+        // self.socket = new WebSocket("ws://127.0.0.1:8000/ws");
 
         self.activeUsers = {};
         
@@ -40,6 +41,7 @@ class ActiveUsersSocket {
         };
         
         self.socket.onerror = function(error) {
+            console.log("err", error)
             console.log(`[error] ${error.message}`);
         };
         
