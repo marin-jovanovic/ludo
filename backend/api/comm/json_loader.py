@@ -1,6 +1,6 @@
+import csv
 import json
 import pathlib
-import csv
 
 
 def join_with_curr_path(p):
@@ -18,10 +18,11 @@ def _get_config(config_name, curr_dir=True, json_or_csv=True):
     else:
         with open(p, newline='') as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',',
-                       quotechar='|')
+                                    quotechar='|')
 
             return [i for i in csv_reader]
 
 
-vue_interface_path = pathlib.Path(__file__).parent.parent.parent.parent / "public" / "api_scheme" / "params.json"
+vue_interface_path = pathlib.Path(
+    __file__).parent.parent.parent.parent / "public" / "api_scheme" / "params.json"
 vue_interface_cfg = _get_config(vue_interface_path, curr_dir=False)
