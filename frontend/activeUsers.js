@@ -2,7 +2,6 @@
 class ActiveUsersSocket {
     constructor() {
         self.socket = new WebSocket("ws://127.0.0.1:8765/ws");
-        // self.socket = new WebSocket("ws://127.0.0.1:8000/ws");
 
         self.activeUsers = {};
         
@@ -12,17 +11,17 @@ class ActiveUsersSocket {
         };
         
         self.socket.onmessage = function(event) {
-            console.log(`[message] Data received from server: ${event.data}`);
-        
-            // let message = event.data;
+            
             let message = JSON.parse(event.data);
-            console.table(message)
-        
+            message = JSON.parse(message);
+
             console.log(message.message)
             if (message.message === "getUserActive") {
                 console.log("get user active")
                 
                 document.querySelector("#au").innerHTML = Object.keys(message.args)
+
+                // fetchActiveUsers();
             
             } else {
                 console.log("other msg")
@@ -46,33 +45,66 @@ class ActiveUsersSocket {
         };
         
     }
+
+    sendMessage(payload) {
+        self.socket.send(payload)
+    }
+
 }
 
 let activeUsersSocket = new ActiveUsersSocket();
 
-document.querySelector("#li").addEventListener("click", e => {
+function fetchActiveUsers() {
+    let username = document.querySelector("#u").value;
+    let accessToken = document.querySelector("#at").value;
 
-    // while (true) {
-        let username = document.querySelector("#u").value;
-        let accessToken = document.querySelector("#at").value;
-    
-        let payload = {
-            header: {
-                username: username,
-                accessToken: accessToken
-            },
-            payload: {
-                command: "getActive",
-                args: {
-                }
+    let payload = {
+        header: {
+            username: username,
+            accessToken: accessToken
+        },
+        payload: {
+            command: "getActive",
+            args: {
             }
         }
+    }
+
+    payload = JSON.stringify(payload)
+
+    console.log("Sending to server");
+    activeUsersSocket.sendMessage(payload)    
     
-        payload = JSON.stringify(payload)
-    
-        console.log("Sending to server");
-        socket.send(payload)
-    
-    // }
+}
+
+
+document.querySelector("#c_au").addEventListener("click", () => {
+    fetchActiveUsers();
+})
+
+
+
+document.querySelector("#li").addEventListener("click", () => {
+
+    let username = document.querySelector("#u").value;
+    let accessToken = document.querySelector("#at").value;
+
+    let payload = {
+        header: {
+            username: username,
+            accessToken: accessToken
+        },
+        payload: {
+            command: "logIn",
+            args: {
+            }
+        }
+    }
+
+    payload = JSON.stringify(payload)
+
+    console.log("Sending to server");
+    // socket.send(payload)
+    activeUsersSocket.sendMessage(payload)
 })
 
