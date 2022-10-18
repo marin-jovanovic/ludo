@@ -1,9 +1,11 @@
 from django.http import JsonResponse
 from rest_framework.views import APIView
 
-from backend.api.view.comm import get_auth_ok_response_template
 # from backend.api.auth.main import create_user
 from backend.api.cqrs_c.users import create_user
+from backend.api.view.comm import get_auth_ok_response_template
+
+
 class SignUpView(APIView):
 
     def post(self, request, username):
