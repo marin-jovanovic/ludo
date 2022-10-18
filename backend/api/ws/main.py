@@ -37,30 +37,46 @@ class WSServer(Server):
         print(80 * "-")
 
         # a custom function that blocks for a moment
-        def task():
+        def task(result):
+            # print(fo)
             # block for a moment
-            time.sleep(1)
+            # time.sleep(1)
             # sleep(1)
             # display a message
-            print('This is from another thread')
+            # print('This is from another thread')
             users = get_logged_users()
             # users = await database_sync_to_async(get_logged_users())()
 
-            print(f"{users=}")
+            # print(f"{users=}")
+            # result = users
+            for i in users:
+                result.append(i)
 
-        thread = Thread(target=task)
+        r = []
+        # t = []
+        thread = Thread(target=task, args=(r,))
         thread.start()
+
+        thread.join()
+
+        # print("result", r)
 
 
         # users = get_logged_users()
         # rest of the code
 
-
-        return {
+        t = json.dumps({
             "message": "getUserActive",
-            "args": {"a": "b"}
-            # "args": {k: v for k, v in self.active_users.items() if k != user_id}
-        }
+            "args": {i["username"]: {"isActive": True} for i in r}
+        })
+
+        # print("a",80 * "-")
+        # print(t)
+        return t
+        # return json.dumps({
+        #     "message": "getUserActive",
+        #     "args": json.dumps({i: json.dumps({"isActive": True}) for i in r})
+        # })
 
     def user_make_active(self, user_id):
 
@@ -133,9 +149,15 @@ class WSServer(Server):
                 )
 
             elif command == "getActive":
-                response = self.user_get_active(
-                    message.header["username"],
-                )
+
+                while True:
+                    response = self.user_get_active(
+                        message.header["username"],
+                    )
+
+                    await websocket.send(
+                        json.dumps(response)
+                    )
 
             else:
                 response["message"] = "unsupported command"
