@@ -63,8 +63,6 @@ def main():
 
     scheme_validator = SchemeValidator(role_validation_cfg)
 
-
-
     print("test ok")
 
 
