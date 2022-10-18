@@ -154,7 +154,7 @@ class WSServer(Server):
 def init_server():
     server = WSServer("localhost", 8765)
 
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    # signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
