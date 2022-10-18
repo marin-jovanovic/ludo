@@ -5,8 +5,10 @@ from backend.api.view.login_view import LoginView
 from backend.api.view.signup_view import SignUpView
 from backend.api.view.logout_view import LogoutView
 from backend.api.startup import startup_configuration
-startup_configuration.print_app_logo()
 from backend.api.view.validation_view import ValidationView
+
+
+startup_configuration.print_app_logo()
 api_router = routers.DefaultRouter()
 
 urlpatterns = [
@@ -21,5 +23,3 @@ urlpatterns = [
 ]
 
 
-# from backend.api.ws.main import init_server
-# init_server()
