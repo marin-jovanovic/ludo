@@ -19,3 +19,7 @@ urlpatterns = [
 
     # path("game/")
 ]
+
+
+# from backend.api.ws.main import init_server
+# init_server()
