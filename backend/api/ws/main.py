@@ -1,15 +1,18 @@
-import json
-import os
-import sys
 import asyncio
-import signal
-import websockets
-import time
-from util.server import Server
-from util.message import Message
-from collections import defaultdict
 import datetime
+import json
+import signal
+import time
+from collections import defaultdict
+from threading import Thread
 
+import websockets
+
+from backend.api.ws.util.message import Message
+from backend.api.ws.util.server import Server
+
+from backend.api.cqrs_q.users import get_logged_users
+from channels.db import database_sync_to_async
 
 class WSServer(Server):
 
@@ -31,9 +34,32 @@ class WSServer(Server):
         self.user_make_active("1")
 
     def user_get_active(self, user_id):
+        print(80 * "-")
+
+        # a custom function that blocks for a moment
+        def task():
+            # block for a moment
+            time.sleep(1)
+            # sleep(1)
+            # display a message
+            print('This is from another thread')
+            users = get_logged_users()
+            # users = await database_sync_to_async(get_logged_users())()
+
+            print(f"{users=}")
+
+        thread = Thread(target=task)
+        thread.start()
+
+
+        # users = get_logged_users()
+        # rest of the code
+
+
         return {
             "message": "getUserActive",
-            "args": {k: v for k,v in self.active_users.items() if k != user_id}
+            "args": {"a": "b"}
+            # "args": {k: v for k, v in self.active_users.items() if k != user_id}
         }
 
     def user_make_active(self, user_id):
