@@ -33,10 +33,10 @@ def is_authenticated(username, password):
 
 def get_logged_users():
 
-    logged_users = Users.objects.filter(access_token__isnull=True)
-    for i in logged_users:
-        print(i.username)
+    # logged_users = Users.objects.filter(access_token__isnull=False)
+    # for i in logged_users:
+    #     print(i.username)
 
-    return list(Users.objects.filter(access_token__isnull=True).values("username"))
+    return list(Users.objects.filter(access_token__isnull=False).values("username"))
 
     # return [i.username for i in logged_users]
