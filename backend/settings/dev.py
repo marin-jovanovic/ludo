@@ -31,14 +31,19 @@ import os
 
 from decouple import config
 
+# import django
+# django.setup()
+
 SETTINGS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(SETTINGS_DIR)
 
 SECRET_KEY = config("SECRET_KEY")
 
+# ASGI_APPLICATION = 'backend.asgi.application'
+WSGI_APPLICATION = 'backend.wsgi.application'
 
 DEBUG = True
-ALLOWED_HOSTS = ['localhost']
+ALLOWED_HOSTS = ['localhost', "127.0.0.1"]
 
 SITE_ID = 1
 
@@ -50,16 +55,17 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     'rest_framework',
+    'django_extensions',
+
     'backend.api',
-    'django_extensions'
+    'channels',
 ]
 
 PWD = os.path.dirname(os.path.realpath(__file__))
-
-
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
@@ -82,15 +88,14 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'backend.wsgi.application'
 
-_validation_path = 'django.contrib.auth.password_validation.'
-AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': _validation_path + '.UserAttributeSimilarityValidator'},
-    {'NAME': _validation_path + 'MinimumLengthValidator'},
-    {'NAME': _validation_path + 'CommonPasswordValidator'},
-    {'NAME': _validation_path + '.NumericPasswordValidator'},
-]
+# _validation_path = 'django.contrib.auth.password_validation.'
+# AUTH_PASSWORD_VALIDATORS = [
+#     {'NAME': _validation_path + '.UserAttributeSimilarityValidator'},
+#     {'NAME': _validation_path + 'MinimumLengthValidator'},
+#     {'NAME': _validation_path + 'CommonPasswordValidator'},
+#     {'NAME': _validation_path + '.NumericPasswordValidator'},
+# ]
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
