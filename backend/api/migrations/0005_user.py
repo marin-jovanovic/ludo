@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('api', '0004_consumptionvalues_consumptionentry'),
     ]
@@ -13,9 +12,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='User',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True, primary_key=True,
+                                        serialize=False, verbose_name='ID')),
                 ('zoom_user_location', models.BooleanField()),
-                ('username', models.CharField(blank=True, max_length=200, null=True)),
+                ('username',
+                 models.CharField(blank=True, max_length=200, null=True)),
             ],
         ),
     ]
