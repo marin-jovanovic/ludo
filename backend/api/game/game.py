@@ -1,10 +1,13 @@
 import sys
-from random import SystemRandom
 from collections import defaultdict
+from random import SystemRandom
+
 
 def get_dice_result():
     crypto_generator_object = SystemRandom()
-    return crypto_generator_object.randrange(get_config()['dice number of sides']) + 1
+    return crypto_generator_object.randrange(
+        get_config()['dice number of sides']) + 1
+
 
 def get_player_one_moves():
     return {
@@ -229,6 +232,7 @@ def get_player_one_moves():
             "column": 6
         }
     }
+
 
 def get_player_two_moves():
     return {
@@ -480,6 +484,7 @@ def get_config():
 
     }
 
+
 class Tile:
 
     def __init__(self, row, column):
@@ -525,6 +530,7 @@ class TileVisitor:
     def __str__(self):
         return f"player: {self.player}, tile: {self.players_tile_translation_id}"
 
+
 # class Token:
 #
 #     def __init__(
@@ -547,9 +553,12 @@ class TileVisitor:
 #         print('move token')
 
 
-def determine_order(number_of_players, choice_highest_or_order, choice_clockwise_or_anticlockwise, f_tie_in_order):
-
-    def driver(number_of_players, choice_highest_or_order, choice_clockwise_or_anticlockwise):
+def determine_order(
+        number_of_players, choice_highest_or_order,
+        choice_clockwise_or_anticlockwise, f_tie_in_order):
+    def driver(
+            number_of_players, choice_highest_or_order,
+            choice_clockwise_or_anticlockwise):
         # pre
 
         # global, pass as arg
@@ -573,10 +582,12 @@ def determine_order(number_of_players, choice_highest_or_order, choice_clockwise
             while True:
 
                 if len(current_iteration_roll_history) == 1:
-                    roll_history.append(['goes', current_iteration_roll_history[0]['player']])
+                    roll_history.append(
+                        ['goes', current_iteration_roll_history[0]['player']])
                     return roll_history
 
-                is_same_max, max_r_obj = find_max(current_iteration_roll_history)
+                is_same_max, max_r_obj = find_max(
+                    current_iteration_roll_history)
 
                 if is_same_max:
                     roll_history.append(['tie'])
@@ -589,9 +600,11 @@ def determine_order(number_of_players, choice_highest_or_order, choice_clockwise
 
                             for j in rollers:
                                 if choice_clockwise_or_anticlockwise:
-                                    c = (i + j) % len(current_iteration_roll_history)
+                                    c = (i + j) % len(
+                                        current_iteration_roll_history)
                                 else:
-                                    c = (i - j) % len(current_iteration_roll_history)
+                                    c = (i - j) % len(
+                                        current_iteration_roll_history)
 
                                 roll_history.append(['goes', c])
 
@@ -601,7 +614,8 @@ def determine_order(number_of_players, choice_highest_or_order, choice_clockwise
                 rollers.remove(max_r_obj['player'])
                 current_iteration_roll_history.remove(max_r_obj)
 
-    r = driver(number_of_players, choice_highest_or_order, choice_clockwise_or_anticlockwise)
+    r = driver(number_of_players, choice_highest_or_order,
+               choice_clockwise_or_anticlockwise)
 
     if number_of_players > get_config()['dice number of sides']:
         print('err')
@@ -609,7 +623,8 @@ def determine_order(number_of_players, choice_highest_or_order, choice_clockwise
 
     while not f_tie_in_order and ['tie'] in r:
         print('tie detected')
-        r = driver(number_of_players, choice_highest_or_order, choice_clockwise_or_anticlockwise)
+        r = driver(number_of_players, choice_highest_or_order,
+                   choice_clockwise_or_anticlockwise)
 
     return r
 
@@ -655,8 +670,10 @@ class Board:
                 self.board_state[row][column].add(token)
 
     def move_token(self, player, token_id, step):
-        token = Token(id_=token_id, owner=player, destination_position=None, moves=None)
-        token_global_position = self.players[player][token_id].normalize_position()
+        token = Token(id_=token_id, owner=player, destination_position=None,
+                      moves=None)
+        token_global_position = self.players[player][
+            token_id].normalize_position()
         row = token_global_position['row']
         column = token_global_position['column']
 
@@ -669,7 +686,8 @@ class Board:
 
         self.players[player][token_id].update_position(step)
 
-        token_global_position = self.players[player][token_id].normalize_position()
+        token_global_position = self.players[player][
+            token_id].normalize_position()
         row = token_global_position['row']
         column = token_global_position['column']
 
@@ -695,6 +713,7 @@ class Board:
             for column, tokens in m_c_to_tokens.items():
                 print(row, column, [str(i) for i in tokens])
         print()
+
 
 class Player:
 
@@ -736,19 +755,19 @@ class Token:
     def __str__(self):
         return f'{self.owner=}, {self.id_=}'
 
-def alt():
 
+def alt():
     token_paths = {
-        0 : get_player_two_moves(),
-        1 : get_player_one_moves(),
+        0: get_player_two_moves(),
+        1: get_player_one_moves(),
 
     }
 
     token_one_path = None
     token_two_path = None
 
-def board_configuration():
 
+def board_configuration():
     def player_to_path_config():
         return {
             0: get_player_one_moves(),
@@ -772,7 +791,7 @@ def board_configuration():
 
     return {
         0: {
-            0:  player_to_path_config()[0],
+            0: player_to_path_config()[0],
             1: 'path1',
             2: 'path1',
             3: 'path1',
@@ -785,8 +804,8 @@ def board_configuration():
         },
     }
 
-def main():
 
+def main():
     board_configuration()
 
     f_same_destination = get_config()["flag: same destination"]
@@ -800,9 +819,6 @@ def main():
 
     else:
         print('not same destination')
-
-
-
 
     # todo_destination_p = 500
     #
@@ -847,8 +863,6 @@ def main():
     # b.move_token(player=2, token_id=1, step=1)
     # b.print_board_state()
 
-
-
     # game_conf = get_config()
     #
     # order = determine_order(game_conf['number of players'],
@@ -860,11 +874,10 @@ def main():
     #
     # [print(i) for i in order]
 
-
-
     # roled = 6
     #
     # player_1_token_1 = Token(owner=1, current_tile=Tile(0, 0), destination_tile=None)
+
 
 def generate_tile_mapping(p):
     m_tile_to_move = defaultdict(set)
