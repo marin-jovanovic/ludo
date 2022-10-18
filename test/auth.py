@@ -1,4 +1,6 @@
 import json
+import time
+
 import requests
 
 
@@ -81,23 +83,48 @@ def main():
 
     logout(username, access_token)
 
-    # for i in range(15):
-    #     username = str(i)
-    #     password = str(i)
-    #
-    #     create_user(username, password)
-    #     print(80 * "-")
-    #
-    #     access_token = auth_user(username, password)["payload"]["payload"][
-    #         "access_token"]
-    #     print(f"{access_token=}")
-    #     print(80 * "-")
-    #
-    #     # validated = is_valid(username, access_token)['payload']
-    #     # print(f"{validated=}")
-    #     # print(80 * "-")
-    #
-    #     # logout(username, access_token)
+    while True:
+
+        for i in range(15):
+            time.sleep(0.5)
+
+            username = str(i)
+            password = str(i)
+
+            # create_user(username, password)
+            # print(80 * "-")
+
+            access_token = auth_user(username, password)["payload"]["payload"][
+                "access_token"]
+            print(f"{access_token=}")
+            print(80 * "-")
+
+            # validated = is_valid(username, access_token)['payload']
+            # print(f"{validated=}")
+            # print(80 * "-")
+
+            # logout(username, access_token)
+        # break
+
+        for i in range(15):
+            time.sleep(0.5)
+
+            username = str(i)
+            password = str(i)
+
+            # create_user(username, password)
+            # print(80 * "-")
+            #
+            access_token = auth_user(username, password)["payload"]["payload"][
+                "access_token"]
+            print(f"{access_token=}")
+            print(80 * "-")
+
+            # validated = is_valid(username, access_token)['payload']
+            # print(f"{validated=}")
+            # print(80 * "-")
+
+            logout(username, access_token)
 
 
 if __name__ == '__main__':
