@@ -31,6 +31,7 @@
     "jquery.easing": "^1.4.1",
     "js-cookie": "^3.0.1",
     "mixins.js": "^2.0.0",
+    "nodemon": "^2.0.20",
     "npm": "^8.15.0",
     "ol": "^6.15.1",
     "popper.js": "^1.16.1",
