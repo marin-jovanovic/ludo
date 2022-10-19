@@ -83,6 +83,8 @@ def main():
 
     logout(username, access_token)
 
+    # return
+
     while True:
 
         for i in range(15):
