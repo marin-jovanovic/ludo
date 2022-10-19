@@ -3,11 +3,15 @@ import time
 
 import requests
 
-def get_last(portfolio):
+def get_games(username, access_token):
+    url = "http://localhost:8000/game"
+
     t = requests.get(
-        f"{url}/{portfolio}",
+        f"{url}/",
+        headers={
+            "Authorization": f"Custom {username}:{access_token}"
+        },
         data={
-            "options": "last"
         },
         verify=False
     )
@@ -15,31 +19,7 @@ def get_last(portfolio):
     print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
 
 
-def patch():
 
-    t = requests.patch(
-        url + "d",
-        data={
-            "name": "d",
-            "colour": "p"
-
-        },
-        verify=False
-    )
-
-    print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
-
-def delete(portfolio):
-    print(f"{portfolio=}")
-    t = requests.delete(
-        f"{url}/{portfolio}",
-        data={
-            # "portfolio": portfolio
-        },
-        verify=False
-    )
-
-    print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
 
 def create_game(username, access_token, game_name, capacity):
     url = "http://localhost:8000/game"
@@ -48,7 +28,6 @@ def create_game(username, access_token, game_name, capacity):
         f"{url}/{game_name}",
         headers={
             "Authorization": f"Custom {username}:{access_token}"
-            # "Authorization": f"Basic {username}:{access_token}"
         },
         data={
             "capacity": capacity,
@@ -94,20 +73,72 @@ def join_game(username, access_token, game_name):
     print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
     return json.loads(t.text)
 
-def main():
+
+def create_1():
     username = "test"
     access_token = "test"
     game_id = "gn1"
     capacity = 2
-
-    # leave_game(username, access_token, game_id)
     create_game(username, access_token, game_id, capacity)
 
-    username = "1"
-    access_token = "1"
-    game_id = "gn1"
 
+def leave_1():
+    username = "test"
+    access_token = "test"
+    game_id = "gn1"
+    capacity = 2
+    leave_game(username, access_token, game_id)
+
+
+def join_2():
+    username = "a"
+    access_token = "a"
+    game_id = "gn1"
     join_game(username, access_token, game_id)
+
+
+def leave_2():
+    username = "a"
+    access_token = "a"
+    game_id = "gn1"
+    leave_game(username, access_token, game_id)
+
+
+def join_3():
+    username = "b"
+    access_token = "b"
+    game_id = "gn1"
+    join_game(username, access_token, game_id)
+
+
+def leave_3():
+    username = "b"
+    access_token = "b"
+    game_id = "gn1"
+    leave_game(username, access_token, game_id)
+
+
+def main():
+    # username = "b"
+    # access_token = "b"
+    # game_id = "gn1,"
+    # capacity = 2
+    # create_game(username, access_token, game_id, capacity)
+
+
+    # create_1()
+    # join_2()
+    # join_3()
+    # leave_2()
+    # leave_1()
+    # leave_3()
+
+    username = "test"
+    access_token = "test"
+    get_games(username, access_token)
+
+    # todo capacity = ful, adding new player?
+
 
 if __name__ == '__main__':
     main()
