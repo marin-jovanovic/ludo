@@ -73,6 +73,10 @@ def leave_game(game_name, username):
     return {"status": True}
 
 
+def join_game(game_name, username):
+    print(f"join {game_name=} {username=}")
+    pass
+
 def __delete_game(name):
     if __check_game_name_exists(name):
         return {
