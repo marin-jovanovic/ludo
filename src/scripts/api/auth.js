@@ -20,10 +20,10 @@ async function login(username, password) {
 
 }
 
-function logout() {
+function logout(username) {
     if (sessionStorage.getItem("user") !== null) {
         apiCalls.api.post(
-            "logout/",
+            `logout/${username}`,
             {},
             apiCalls.get_auth_header()
         );
