@@ -1,9 +1,11 @@
+from threading import Thread
+
 from backend.api.auth.main import generate_access_token
 from backend.api.auth.main import get_hashed_password, is_pass_ok
 from backend.api.cqrs_q.users import is_username_in_db, is_authenticated, \
     is_access_token_correct
 from backend.api.model.users import Users
-
+from backend.api.cqrs_q.users import get_logged_users
 
 # todo change username
 # todo access token
@@ -20,7 +22,56 @@ def logout(username, access_token):
     return {'status': True, 'payload': {}}
 
 
+class AuthNotifier:
+    """Represents what is being observed"""
+
+    def __init__(self):
+
+        """create an empty observer list"""
+
+        self._observers = []
+
+    def notify(self, msg):
+
+        """Alert the observers"""
+        print("-")
+        print(msg)
+        # print(msg)
+        print(self._observers)
+
+        for i in self._observers:
+            print(i)
+            i.update("a")
+
+        for observer in self._observers:
+            # if modifier != observer:
+            print("send update")
+            observer.update(msg)
+
+    def attach(self, observer):
+
+        """If the observer is not in the list,
+        append it into the list"""
+
+        if observer not in self._observers:
+            self._observers.append(observer)
+
+    def detach(self, observer):
+
+        """Remove the observer from the observer list"""
+
+        try:
+            self._observers.remove(observer)
+        except ValueError:
+            pass
+
+auth_notifier = AuthNotifier()
+
+# if __name__ == '__main__':
+#     auth_notifier.notify()
+
 def auth_user(username, password):
+
     if not is_authenticated(username, password):
         return {'status': False, 'debug': 'user + pass combination err'}
 
@@ -30,6 +81,16 @@ def auth_user(username, password):
         username=username, defaults={"access_token": access_token}
     )
     k.save()
+
+    print("notify")
+    logged_users = get_logged_users()
+    # print(f"------ {logged_users=}")
+    # print(type(logged_users))
+
+
+
+    auth_notifier.notify("bbbbbb")
+    # auth_notifier.notify(logged_users)
 
     return {'status': True, 'payload': {'access_token': access_token}}
 
