@@ -29,7 +29,7 @@ async function getPortoflios() {
 
     return await apiCalls.handleNewResponse(
         await apiCalls.api.get(
-            "portfolio/",
+            "game/",
             apiCalls.get_auth_header()
         )
     );
