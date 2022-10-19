@@ -31,6 +31,7 @@ def is_authenticated(username, password):
         'utf-8')
     return bcrypt.checkpw(pass_transformed, pwd_from_db)
 
+
 def get_logged_users():
 
     # logged_users = Users.objects.filter(access_token__isnull=False)
