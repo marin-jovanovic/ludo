@@ -1,4 +1,7 @@
+import json
+import time
 
+import requests
 
 def get_last(portfolio):
     t = requests.get(
@@ -38,12 +41,53 @@ def delete(portfolio):
 
     print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
 
+def create_game(username, access_token, game_name, capacity):
+    url = "http://localhost:8000/game"
+
+    t = requests.post(
+        f"{url}/{game_name}",
+        headers={
+            "Authorization": f"Custom {username}:{access_token}"
+            # "Authorization": f"Basic {username}:{access_token}"
+        },
+        data={
+            "capacity": capacity,
+            "tmp": 2
+        },
+        verify=False
+    )
+
+    print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
+    return json.loads(t.text)
+
+def leave_game(username, access_token, game_name):
+    url = "http://localhost:8000/game"
+
+    t = requests.put(
+        f"{url}/{game_name}",
+        headers={
+            "Authorization": f"Custom {username}:{access_token}"
+        },
+        data={
+            "leave": True,
+        },
+        verify=False
+    )
+
+    print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
+    return json.loads(t.text)
+
+
 def main():
-    # for i in range(15):
-    #     post(portfolio="portfolio_1", colour=str(i))
-    # delete("portfolio_1")
-    # get_all("portfolio_1")
-    get_last("portfolio_1")
+    username = "test"
+    access_token = "test"
+    game_id = "gn1"
+    capacity = 2
+
+    leave_game(username, access_token, game_id)
+    # create_game(username, access_token, game_id, capacity)
+
+
 
 if __name__ == '__main__':
     main()
