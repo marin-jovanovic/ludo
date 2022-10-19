@@ -39,8 +39,8 @@ BASE_DIR = os.path.dirname(SETTINGS_DIR)
 
 SECRET_KEY = config("SECRET_KEY")
 
-# ASGI_APPLICATION = 'backend.asgi.application'
-WSGI_APPLICATION = 'backend.wsgi.application'
+ASGI_APPLICATION = 'backend.asgi.application'
+# WSGI_APPLICATION = 'backend.wsgi.application'
 
 DEBUG = True
 ALLOWED_HOSTS = ['localhost', "127.0.0.1"]
@@ -48,6 +48,7 @@ ALLOWED_HOSTS = ['localhost', "127.0.0.1"]
 SITE_ID = 1
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.sites',
     'corsheaders',
     'django.contrib.admin',
@@ -63,6 +64,7 @@ INSTALLED_APPS = [
 
     'backend.api',
     'channels',
+
 ]
 
 PWD = os.path.dirname(os.path.realpath(__file__))
