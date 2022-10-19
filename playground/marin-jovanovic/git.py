@@ -5,6 +5,7 @@ import subprocess
 # git config --global user.name "Your Name"
 # git config --global user.email "youremail@yourdomain.com"
 
+# sudo lsof -i -P -n | grep LISTEN
 
 def main():
 
@@ -18,7 +19,7 @@ def main():
     comment = "impl: create / update portfolio"
     comment = 'ref: rewrite db scheme'
 
-    comment = "wip: ws observer"
+    comment = "wip: game model"
 
 
     if same_comment:
