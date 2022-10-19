@@ -26,6 +26,7 @@ function get_auth_header() {
 
 function handleNewResponse(response) {
 
+    console.log("rrrrrrrrrrr", response.data.auth)
     if (!response.data.auth.status) {
 
         // todo api response codes
