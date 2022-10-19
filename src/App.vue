@@ -25,12 +25,6 @@ export default {
     };
   },
   mounted() {
-    // console.log(this.$route.path);
-
-    // console.log(routerHelper.isPublicPath(this.$route.path));
-
-    // this.importScript("sweetalert2.all.min.js");
-
     this.importScript(
       "http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"
     );
@@ -44,7 +38,7 @@ export default {
       "https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js"
     );
     this.importScript("https://code.jquery.com/jquery-3.5.1.slim.min.js");
-    // this.importScript("https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js");
+
     activate_tab_name_changer();
   },
   methods: {
