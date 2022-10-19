@@ -28,11 +28,8 @@ http://whitenoise.evans.io/en/stable/django.html?highlight=django
 """
 
 import os
-
 from decouple import config
 
-# import django
-# django.setup()
 
 SETTINGS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(SETTINGS_DIR)
@@ -40,7 +37,6 @@ BASE_DIR = os.path.dirname(SETTINGS_DIR)
 SECRET_KEY = config("SECRET_KEY")
 
 ASGI_APPLICATION = 'backend.asgi.application'
-# WSGI_APPLICATION = 'backend.wsgi.application'
 
 DEBUG = True
 ALLOWED_HOSTS = ['localhost', "127.0.0.1"]
@@ -115,14 +111,23 @@ STATICFILES_DIRS = []
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+
+# DEFAULT_AUTHENTICATION_CLASSES = (
+#     'rest_framework.authentication.TokenAuthentication',
+# )
+#
+# DEFAULT_PERMISSION_CLASSES =  (
+#     'rest_framework.permissions.IsAuthenticated',
+# )
+
 # AUTH_USER_MODEL = 'backend.api.authentication_backends.user.User'
 AUTHENTICATION_BACKENDS = [
-    # "backend.api.authentication_backends.keycloakBackend.KeycloakBackend",
-
-    # 'django.contrib.auth.backends.ModelBackend',
-    # 'allauth.account.auth_backends.AuthenticationBackend',
-    # 'social_core.backends.keycloak.KeycloakOAuth2',
-    # 'django.contrib.auth.backends.ModelBackend'
+    "backend.api.authentication_backends.auth_backend.AuthBackend",
+#
+#     # 'django.contrib.auth.backends.ModelBackend',
+#     # 'allauth.account.auth_backends.AuthenticationBackend',
+#     # 'social_core.backends.keycloak.KeycloakOAuth2',
+#     # 'django.contrib.auth.backends.ModelBackend'
 ]
 
 DATABASES = {
