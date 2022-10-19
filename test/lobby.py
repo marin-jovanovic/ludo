@@ -77,6 +77,22 @@ def leave_game(username, access_token, game_name):
     print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
     return json.loads(t.text)
 
+def join_game(username, access_token, game_name):
+    url = "http://localhost:8000/game"
+
+    t = requests.put(
+        f"{url}/{game_name}",
+        headers={
+            "Authorization": f"Custom {username}:{access_token}"
+        },
+        data={
+            "join": True,
+        },
+        verify=False
+    )
+
+    print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
+    return json.loads(t.text)
 
 def main():
     username = "test"
@@ -84,10 +100,14 @@ def main():
     game_id = "gn1"
     capacity = 2
 
-    leave_game(username, access_token, game_id)
-    # create_game(username, access_token, game_id, capacity)
+    # leave_game(username, access_token, game_id)
+    create_game(username, access_token, game_id, capacity)
 
+    username = "1"
+    access_token = "1"
+    game_id = "gn1"
 
+    join_game(username, access_token, game_id)
 
 if __name__ == '__main__':
     main()
