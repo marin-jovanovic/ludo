@@ -1,59 +1,90 @@
+import json
+import urllib
+
 from django.http import JsonResponse
 from rest_framework.views import APIView
 
 # from backend.api.auth.main import create_user
 from backend.api.cqrs_c.users import auth_user
+from backend.api.model.game import create_game, leave_game
 from backend.api.view.comm import get_auth_ok_response_template
 
 
-class LoginView(APIView):
+class LobbyView(APIView):
 
     def get(self, request):
         response = get_auth_ok_response_template(request)
         response['payload']['status'] = True
-        response['payload']['payload'] = {
-            'free rooms': {
-                'room 1': {
-                    'users': {
-                        0: {'username': '1 user0'},
-                        1: {'username': '1 user1'},
-                    }
-                },
-                'room 4': {
-                    'users': {
-                        0: {'username': '4 user0'},
-                    }
-                },
-            },
-            'full rooms': {
-                'room 2': {
-                    'users': {
-                        0: {'username': '2 user0'},
-                        1: {'username': '2 user1'},
-                        2: {'username': '2 user2'},
-                        3: {'username': '2 user3'},
-                    }
-                },
-                'room 3': {
-                    'users': {
-                        0: {'username': '3 user0'},
-                        1: {'username': '3 user1'},
-                        2: {'username': '3 user2'},
-                        3: {'username': '3 user3'},
-                    }
-                },
-            }
-        }
+        # response['payload']['payload'] = {
+        #     'free rooms': {
+        #         'room 1': {
+        #             'users': {
+        #                 0: {'username': '1 user0'},
+        #                 1: {'username': '1 user1'},
+        #             }
+        #         },
+        #         'room 4': {
+        #             'users': {
+        #                 0: {'username': '4 user0'},
+        #             }
+        #         },
+        #     },
+        #     'full rooms': {
+        #         'room 2': {
+        #             'users': {
+        #                 0: {'username': '2 user0'},
+        #                 1: {'username': '2 user1'},
+        #                 2: {'username': '2 user2'},
+        #                 3: {'username': '2 user3'},
+        #             }
+        #         },
+        #         'room 3': {
+        #             'users': {
+        #                 0: {'username': '3 user0'},
+        #                 1: {'username': '3 user1'},
+        #                 2: {'username': '3 user2'},
+        #                 3: {'username': '3 user3'},
+        #             }
+        #         },
+        #     }
+        # }
         # response["payload"] = auth_user(username, password)
 
         return JsonResponse(response)
 
-    def post(self, request, username):
-        # return access token for provided username and password
+    def post(self, request, name):
 
-        password = request.headers['password']
+        creator_username = request.username
+
+        unquoted_body = urllib.parse.unquote(request.body)
+        body = urllib.parse.parse_qs(unquoted_body)
+
+        capacity = body["capacity"][0]
+
+        print(f"{creator_username=}")
+        print(f"{capacity=}")
 
         response = get_auth_ok_response_template(request)
-        response["payload"] = auth_user(username, password)
+        response["payload"] = create_game(creator_username, name, capacity)
 
         return JsonResponse(response)
+
+    def put(self, request, name):
+
+        username = request.username
+
+        unquoted_body = urllib.parse.unquote(request.body)
+        body = urllib.parse.parse_qs(unquoted_body)
+
+        # print(f"{body=}")
+        response = get_auth_ok_response_template(request)
+
+        if "leave" in body:
+            leave = body["leave"][0]
+
+            if leave:
+
+                response["payload"] = leave_game(name, username)
+
+        return JsonResponse(response)
+
