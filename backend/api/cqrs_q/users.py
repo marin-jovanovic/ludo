@@ -43,6 +43,11 @@ def get_logged_users():
 
     # return [i.username for i in logged_users]
 
+def get_users_in_game(game_id):
+    return {
+        "status": True,
+        "payload": list(get_user_model().objects.filter(currently_playing__name=game_id))
+    }
 
 def get_user(username):
     try:
@@ -54,3 +59,4 @@ def get_user(username):
         return {
             "status": False
         }
+
