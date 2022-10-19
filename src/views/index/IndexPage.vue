@@ -1,6 +1,6 @@
 <template>
   <BaseUserTemplate>
-    <div>t</div>
+    <div>index page</div>
   </BaseUserTemplate>
 </template>
 
