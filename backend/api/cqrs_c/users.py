@@ -1,7 +1,6 @@
-from threading import Thread
-
 from backend.api.auth.main import generate_access_token
 from backend.api.auth.main import get_hashed_password, is_pass_ok
+from backend.api.comm.comm import Notifier
 from backend.api.cqrs_q.users import is_username_in_db, is_authenticated, \
     is_access_token_correct, get_user
 from backend.api.model.users import get_user_model
@@ -23,45 +22,7 @@ def logout(username, access_token):
     return {'status': True, 'payload': {}}
 
 
-class AuthNotifier:
-    """Represents what is being observed"""
-
-    def __init__(self):
-
-        """create an empty observer list"""
-
-        self._observers = []
-
-    def notify(self, msg):
-
-        """Alert the observers"""
-        # print(msg)
-
-        for observer in self._observers:
-            # if modifier != observer:
-            # print("send update")
-            observer.update(msg)
-
-    def attach(self, observer):
-
-        """If the observer is not in the list,
-        append it into the list"""
-
-        if observer not in self._observers:
-            self._observers.append(observer)
-
-    def detach(self, observer):
-
-        """Remove the observer from the observer list"""
-
-        try:
-            self._observers.remove(observer)
-        except ValueError:
-            pass
-
-        print(self._observers)
-
-active_users_notifier = AuthNotifier()
+active_users_notifier = Notifier()
 
 
 def auth_user(username, password):
@@ -128,8 +89,30 @@ def delete_user(username, password):
 
     return {'status': True}
 
-def join_user_to_game(username, game):
-    pass
+
+def __make_user_join(username):
+
+    # fixme what if he is currently in another game?
+
+    r = get_user(username)
+    if r["status"]:
+        creator_o = r["payload"]
+    else:
+        return r
+
+    is_playing_game = __is_playing_game(player_o=creator_o)
+
+    if is_playing_game["payload"]:
+        return {"status" : False, "payload": "user role not empty"}
+
+    _assign_role_to_user(creator_o, "joined")
+
+    return {"status": True}
+
+def __is_playing_game(player_o):
+
+    return {"status":True, "payload": bool(player_o.game_role)}
+
 
 def make_user_available_to_play(username):
 
@@ -153,10 +136,10 @@ def make_user_game_creator(username):
     else:
         return r
 
-    if not creator_o.game_role:
-        print("empty")
-    else:
-        return {"status" : False, "payload": "user role not empty"}
+    is_playing_game = __is_playing_game(player_o=creator_o)
+
+    if is_playing_game["payload"]:
+        return {"status": False, "payload": "user role not empty"}
 
     _assign_role_to_user(creator_o, "creator")
 
