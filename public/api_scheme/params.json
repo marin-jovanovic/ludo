@@ -1,0 +1,87 @@
+{
+	"logout":{
+		"POST":{
+			"headers":{
+				"Authorization":true
+			},
+			"body":{
+
+			}
+		}
+	},
+	"locations":{
+		"POST":{
+			"headers":{
+				"Authorization":true
+			},
+			"body":{
+				"portfolio":true,
+				"type":true,
+				"section":true,
+				"latitude":true,
+				"longitude":true,
+				"synchronizer_token":true
+			}
+		},
+		"<str>":{
+			"GET":{
+				"headers":{
+					"Authorization":true
+				},
+				"body":{
+
+				}
+			}
+		}
+	},
+	"portfolio":{
+		"<str>":{
+			"DELETE":{
+				"headers":{
+					"Authorization":true
+				},
+				"body":{
+
+				}
+			}
+		},
+		"POST":{
+			"headers":{
+				"Authorization":true
+			},
+			"body":{
+				"currentName":true,
+				"newName":true,
+				"colour":true
+			}
+		},
+		"GET":{
+			"headers":{
+				"Authorization":true
+			},
+			"body":{
+
+			}
+		}
+	},
+	"csrf":{
+		"POST":{
+			"headers":{
+				"Authorization":true
+			},
+			"body":{
+
+			}
+		}
+	},
+	"login":{
+		"POST":{
+			"headers":{
+				"Authorization":true
+			},
+			"body":{
+
+			}
+		}
+	}
+}
