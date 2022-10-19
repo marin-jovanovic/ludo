@@ -9,12 +9,12 @@
             :selectedForChart="selected"
           ></BasePortfolioList>
         </div>
-        <div class="col">
+        <!-- <div class="col">
           <BaseChart ref="temperature"></BaseChart>
           <BaseChart ref="consumption"></BaseChart>
 
           <button @click="showSelected">show selected</button>
-        </div>
+        </div> -->
       </div>
 
       <div class="row">
@@ -26,7 +26,7 @@
 
 <script>
 import BasePortfolioList from "@/components/BasePortfolioList.vue";
-import BaseChart from "@/components/BaseChart.vue";
+// import BaseChart from "@/components/BaseChart.vue";
 import TheOptimization from "@/components/TheOptimization.vue";
 import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
 
@@ -39,13 +39,13 @@ export default {
     };
   },
   mounted() {
-    console.log("mounted", this.selected);
+    // console.log("mounted", this.selected);
   },
   methods: {
-    performOptimization() {
-      console.log("optimize with");
-      console.log(this.selectedList);
-    },
+    // performOptimization() {
+    //   console.log("optimize with");
+    //   console.log(this.selectedList);
+    // },
     updateSelectedList(pl) {
       console.log("checkobx tick", pl);
       console.log("base");
@@ -98,7 +98,7 @@ export default {
   },
   components: {
     BasePortfolioList,
-    BaseChart,
+    // BaseChart,
     TheOptimization,
     BaseUserTemplate,
   },
