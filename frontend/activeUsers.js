@@ -1,7 +1,8 @@
 
 class ActiveUsersSocket {
     constructor() {
-        self.socket = new WebSocket("ws://127.0.0.1:8765/ws");
+        // self.socket = new WebSocket("ws://127.0.0.1:8765/ws");
+        self.socket = new WebSocket("ws://127.0.0.1:8000/whole1/");
 
         self.activeUsers = {};
         
@@ -11,9 +12,11 @@ class ActiveUsersSocket {
         };
         
         self.socket.onmessage = function(event) {
-            
+            console.log(event.data, typeof(event.data))
+
+
             let message = JSON.parse(event.data);
-            message = JSON.parse(message);
+            // message = JSON.parse(message);
 
             console.log(message.message)
             if (message.message === "getUserActive") {
