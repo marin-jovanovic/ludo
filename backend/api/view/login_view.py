@@ -10,8 +10,10 @@ class LoginView(APIView):
 
     def post(self, request, username):
         # return access token for provided username and password
+        print(f"post {username=}")
 
-        password = request.headers['password']
+        password = request.headers["Authorization"].split(" ")[1].split(":")[0]
+        print(f"{password=}")
 
         response = get_auth_ok_response_template(request)
         response["payload"] = auth_user(username, password)
