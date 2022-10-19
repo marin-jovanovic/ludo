@@ -42,10 +42,11 @@ class JumperMiddleware:
                 return JsonResponse(rejection)
 
         request.username = username
+        request.refresh_token = None
 
         # fixme only for testing
         request.access_token = "tmp"
-        request.refresh_token = "tmp"
+
         request.ip = "127.0.0.1"
         request.synchronizer_token_match = True
         request.role = "role 1"
