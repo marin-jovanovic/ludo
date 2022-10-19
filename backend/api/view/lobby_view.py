@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 
 # from backend.api.auth.main import create_user
 from backend.api.cqrs_c.users import auth_user
-from backend.api.model.game import create_game, leave_game
+from backend.api.model.game import create_game, leave_game, join_game
 from backend.api.view.comm import get_auth_ok_response_template
 
 
@@ -52,6 +52,13 @@ class LobbyView(APIView):
 
         return JsonResponse(response)
 
+    # GET 	Retrieve information about the REST API resource
+    # POST 	Create a REST API resource
+    # PUT 	Update a REST API resource
+    # DELETE 	Delete a REST API resource or related component
+
+    # todo observers
+
     def post(self, request, name):
 
         creator_username = request.username
@@ -76,7 +83,6 @@ class LobbyView(APIView):
         unquoted_body = urllib.parse.unquote(request.body)
         body = urllib.parse.parse_qs(unquoted_body)
 
-        # print(f"{body=}")
         response = get_auth_ok_response_template(request)
 
         if "leave" in body:
@@ -85,6 +91,12 @@ class LobbyView(APIView):
             if leave:
 
                 response["payload"] = leave_game(name, username)
+
+        if "join" in body:
+            join = body["join"][0]
+
+            if join:
+                response["payload"] = join_game(name, username)
 
         return JsonResponse(response)
 
