@@ -6,15 +6,18 @@ from rest_framework.views import APIView
 
 # from backend.api.auth.main import create_user
 from backend.api.cqrs_c.users import auth_user
-from backend.api.model.game import create_game, leave_game, join_game
+from backend.api.model.game import create_game, leave_game, join_game, get_games
 from backend.api.view.comm import get_auth_ok_response_template
 
 
 class LobbyView(APIView):
 
     def get(self, request):
+
+        print("get games")
         response = get_auth_ok_response_template(request)
-        response['payload']['status'] = True
+        response['payload'] = get_games()
+
         # response['payload']['payload'] = {
         #     'free rooms': {
         #         'room 1': {
