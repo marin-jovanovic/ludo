@@ -9,13 +9,12 @@ import {
 export const store = createStore({
     state() {
         return {
-          
+
             // todo, this is in .env
             appMode: "development",
 
             clickedLocation: undefined,
 
-            portfolios: {},
             map: undefined,
 
             location: undefined,
@@ -33,7 +32,6 @@ export const store = createStore({
     },
     actions: {
         setPath(context, path) {
-// path = {path: "/index", isPublic: false}
             context.commit("SET_PATH", path);
         },
         setUserCoordinates(context, userCoordiantes) {
@@ -49,9 +47,7 @@ export const store = createStore({
         setMap(context, map) {
             context.commit("SET_MAP", map);
         },
-        setPortfolios(context, portfolios) {
-            context.commit("SET_PORTFOLIOS", portfolios);
-        },
+
         setZoomUserLocation(context, zoomUserLocation) {
             context.commit("SET_ZOOM_USER_LOCATION", zoomUserLocation);
         },
@@ -84,9 +80,7 @@ export const store = createStore({
         SET_MAP(state, map) {
             state.map = map;
         },
-        SET_PORTFOLIOS(state, portfolios) {
-            state.portfolios = portfolios;
-        },
+
         SELECT_LOCATION(state, location) {
             state.location = location;
         },
@@ -110,9 +104,7 @@ export const store = createStore({
         map(state) {
             return state.map;
         },
-        portfolios(state) {
-            return state.portfolios;
-        },
+
         location(state) {
             return state.location;
         },
