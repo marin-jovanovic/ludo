@@ -7,6 +7,7 @@ import SignupView from '@/views/signup/SingupView.vue';
 
 import LogoutPage from '../views/logout/LogoutPage';
 import SetttingsView from '../views/settings/SettingsView.vue';
+import { store } from "@/store/store"
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -47,18 +48,16 @@ function isPublicPath(toPath) {
 
 
 // todo fix using global store, not sure if this is creating new instance
-import { store } from "@/store/store"
 
 router.beforeEach((to, from, next) => {
 
+  console.log("going")
   let isPublic = isPublicPath(to.path);
 
-  const loggedIn = sessionStorage.getItem('user');
+  const loggedIn = sessionStorage.getItem('username');
 
   store.dispatch("setPath", { path: to.path, isPublic: isPublic });
-  // console.log(isPublicRoute)
-  // isPublicRoute = isPublic;
-  // console.log("setting public", isPublic)
+
   if (!isPublic && !loggedIn) {
     return next({
       path: '/login',
