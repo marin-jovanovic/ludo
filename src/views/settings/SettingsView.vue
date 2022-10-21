@@ -4,11 +4,8 @@
       <div class="row">
         <h1>Settings</h1>
       </div>
-      <div class="row">
-        <BaseCheckbox :isSelectedInit="zoomUserLocation" @checkboxChange="zoomToggle" ref="zoom"></BaseCheckbox>
-        zoom on user location
-      </div>
-      <!-- <div class="row">style: <BaseCheckbox></BaseCheckbox></div> -->
+
+      todo
 
       <BaseNotification ref="notifications"></BaseNotification>
     </div>
@@ -18,7 +15,6 @@
 <script>
 import BaseNotification from "@/components/BaseNotification.vue";
 import { apiSettings } from "@/scripts/api/settings";
-import BaseCheckbox from "../../components/BaseCheckbox.vue";
 import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
 export default {
   data() {
@@ -37,7 +33,6 @@ export default {
       console.log("pl", pl);
 
       this.zoomUserLocation = pl["zoomUserLocation"];
-      this.$refs.zoom.isSelected = pl["zoomUserLocation"];
     }
   },
   methods: {
@@ -71,13 +66,11 @@ export default {
         `update: user zoom`,
         `error updating user zoom`
       );
-
     },
   },
-  components: { BaseCheckbox, BaseNotification, BaseUserTemplate },
+  components: { BaseNotification, BaseUserTemplate },
 };
 </script>
   
 <style>
-
 </style>
