@@ -12,31 +12,26 @@ async function login(username, password) {
         }
     );
 
-    const user = await apiCalls.handleNewResponse(response)
-    if (user) {
-        sessionStorage.setItem('user', JSON.stringify(user));
-    }
+    const user = await apiCalls.handleNewResponse(response);
+    
     return user
 
 }
 
 async function signup(username, password) {
-    console.log('signup', username, password)
 
     const response = await apiCalls.api.post(
         `signup/${username}`,
         {},
         {
             headers: {
-                'Authorization': 'Basic ' + ((encodeURIComponent(username + ':' + password)))
+                'Authorization': 'Create ' + ((encodeURIComponent(username + ':' + password)))
             }
         }
     );
 
-    const user = await apiCalls.handleNewResponse(response)
-    if (user) {
-        sessionStorage.setItem('user', JSON.stringify(user));
-    }
+    const user = await apiCalls.handleNewResponse(response);
+
     return user
 
 }
