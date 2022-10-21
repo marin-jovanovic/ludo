@@ -14,7 +14,7 @@ async function updateSettings(settings) {
 }
 
 async function getSettings() {
-
+    console.log("get s")
     return await apiCalls.handleNewResponse(
         await apiCalls.api.get(
             "settings/",
