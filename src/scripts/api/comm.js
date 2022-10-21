@@ -12,35 +12,46 @@ const api = axios.create({
 })
 
 function get_auth_header() {
-    if (sessionStorage.getItem("user") !== null) {
-        let user = JSON.parse(window.sessionStorage.getItem('user'));
-        let access_token = user["auth"]["access-token"]
-        let refresh_token = user["auth"]["refresh-token"];
 
-        return { headers: { 'Authorization': 'Digest ' + ((encodeURIComponent(access_token + ':' + refresh_token))) } }
-    } else {
-        return { headers: { 'Authorization': 'Digest ' + ((encodeURIComponent("not" + ':' + "present_err"))) } }
+    let username = sessionStorage.getItem("username");
+    let accessToken = sessionStorage.getItem("sessionToken")
+
+
+
+    if (username && accessToken) {
+    
+
+        return { headers: { 'Authorization': 'Custom ' + ((encodeURIComponent(username + ':' + accessToken))) } }
+
+    }
+    else {
+
+
+        return { headers: {}}
+
     }
 
 }
 
 function handleNewResponse(response) {
 
-    console.log("rrrrrrrrrrr", response.data.auth)
-    if (!response.data.auth.status) {
+    if (response.data.auth.status) {
+     
+        let accessToken = response.data.auth.accessToken;
+        let username = response.data.auth.username;
 
-        // todo api response codes
+        sessionStorage.setItem('username', username);
+
+        sessionStorage.setItem('accessToken', accessToken);
+
+    } else {
+        // todo this will never be true, not implemented
         if (response.data.status === 401) {
             apiAuth.logout();
             location.reload(true);
-        } else {
-            // todo check 
-            // apiAuth.logout();
-            // location.reload(true);
+        } 
 
-        }
-
-        const error = "username password combination mismatchrr"
+        const error = response.data.payload.debug;
         return Promise.reject(error);
     }
 
