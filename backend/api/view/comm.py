@@ -2,20 +2,19 @@ from backend.api.comm.constants import INTERNAL_SERVER_ERROR_MESSAGE
 
 
 def get_auth_ok_response_template(request):
-    for i in ["access_token", "refresh_token"]:
+
+    for i in ["access_token"]:
         if not hasattr(request, i):
-            print(f"missing {i} in request")
             raise Exception(INTERNAL_SERVER_ERROR_MESSAGE)
 
     response = {
         "auth": {
             "status": True,
-            "access-token": request.access_token,
-            "refresh-token": request.refresh_token
+            "accessToken": request.access_token,
+            "username": request.username,
         },
         "payload": {
             "status": False,
-
         }
     }
     return response
