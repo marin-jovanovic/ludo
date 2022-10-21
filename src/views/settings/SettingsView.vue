@@ -5,11 +5,7 @@
         <h1>Settings</h1>
       </div>
       <div class="row">
-        <BaseCheckbox
-          :isSelectedInit="zoomUserLocation"
-          @checkboxChange="zoomToggle"
-          ref="zoom"
-        ></BaseCheckbox>
+        <BaseCheckbox :isSelectedInit="zoomUserLocation" @checkboxChange="zoomToggle" ref="zoom"></BaseCheckbox>
         zoom on user location
       </div>
       <!-- <div class="row">style: <BaseCheckbox></BaseCheckbox></div> -->
@@ -19,7 +15,7 @@
   </BaseUserTemplate>
 </template>
   
-  <script>
+<script>
 import BaseNotification from "@/components/BaseNotification.vue";
 import { apiSettings } from "@/scripts/api/settings";
 import BaseCheckbox from "../../components/BaseCheckbox.vue";
@@ -76,30 +72,12 @@ export default {
         `error updating user zoom`
       );
 
-      // let r = await apiSettings.getPortoflios();
-      // if (r["auth"]["status"]) {
-      //   let pl = r["payload"]["portfolios"];
-
-      //   for (const [key, value] of Object.entries(pl)) {
-      //     let hexColour = value["colour_hex"];
-
-      //     let r = (await apiLocation.getAllLocationsInPortfolio(value.name))
-      //       .payload.content;
-      //     let marker = this.createMarker(hexColour);
-
-      //     this.drawLocations(r, marker, key);
-      //   }
-      // }      // this.updateStore(
-      //   "setZoomUserLocation",
-      //   "zoomUserLocation",
-      //   isSelected,
-      //   "user zoom"
-      // );
     },
   },
   components: { BaseCheckbox, BaseNotification, BaseUserTemplate },
 };
 </script>
   
-  <style>
+<style>
+
 </style>
