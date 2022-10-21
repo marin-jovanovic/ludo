@@ -9,19 +9,21 @@ from backend.api.view.comm import get_auth_ok_response_template
 class SettingsView(APIView):
 
     def get(self, request):
+
+        print("get settings")
+
         response = get_auth_ok_response_template(request)
 
         # s = get_settings(username=request.username)
 
         response["payload"] = {
             "status": True,
-            "zoomUserLocation": "s.zoomUserLocation",
-            "username": "request.username"
+            "username": request.username
         }
-
         return JsonResponse(response)
 
     def post(self, request):
+        print("post settings")
         print(request.data)
 
         # zoomUserLocation
