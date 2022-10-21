@@ -5,6 +5,8 @@ from django.http import JsonResponse
 
 from backend.api.comm.comm import get_empty_response_template
 from backend.api.cqrs_q.users import is_access_token_correct
+from backend.api.cqrs_c.users import create_user
+
 
 
 class JumperMiddleware:
@@ -22,11 +24,26 @@ class JumperMiddleware:
 
         username = None
         access_token = None
+        password = None
 
         if auth_type == "Digest":
             rejection = get_empty_response_template()
             rejection["debug"] = "not implemented"
             return JsonResponse(rejection)
+
+        elif auth_type== 'Basic':
+            print('basic auth')
+            username, password = payload.split(":")
+            print(f"{username=}")
+            print(f"{password=}")
+
+            r = create_user(username, password)
+
+            if not r:
+
+                rejection = get_empty_response_template()
+                rejection["debug"] = "not is_validated"
+                return JsonResponse(rejection)
 
         elif auth_type== "Custom":
             username, access_token = payload.split(":")
