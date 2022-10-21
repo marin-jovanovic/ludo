@@ -26,7 +26,6 @@ urlpatterns = [
     path("game/<str:name>", LobbyView.as_view()),
 
     path("settings/", SettingsView.as_view()),
-
 ]
 
 
