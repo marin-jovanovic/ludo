@@ -13,7 +13,6 @@
 <script>
 import { router } from "./router/router";
 import { INACTIVE_THRESHOLD, TIME_RESOLUTION } from "./scripts/constants";
-import { activate_tab_name_changer } from "./scripts/tab_name_changer";
 import { apiAuth } from "./scripts/api/auth";
 
 export default {
@@ -38,8 +37,6 @@ export default {
       "https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js"
     );
     this.importScript("https://code.jquery.com/jquery-3.5.1.slim.min.js");
-
-    activate_tab_name_changer();
   },
   methods: {
     importScript(path) {
