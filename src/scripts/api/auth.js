@@ -20,6 +20,27 @@ async function login(username, password) {
 
 }
 
+async function signup(username, password) {
+    console.log('signup', username, password)
+
+    const response = await apiCalls.api.post(
+        `signup/${username}`,
+        {},
+        {
+            headers: {
+                'Authorization': 'Basic ' + ((encodeURIComponent(username + ':' + password)))
+            }
+        }
+    );
+
+    const user = await apiCalls.handleNewResponse(response)
+    if (user) {
+        sessionStorage.setItem('user', JSON.stringify(user));
+    }
+    return user
+
+}
+
 function logout(username) {
     if (sessionStorage.getItem("user") !== null) {
         apiCalls.api.post(
@@ -35,5 +56,6 @@ function logout(username) {
 
 export const apiAuth = {
     login,
-    logout
+    logout,
+    signup
 }
