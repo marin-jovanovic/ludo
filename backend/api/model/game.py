@@ -1,3 +1,5 @@
+import json
+
 from django.apps import apps
 from django.db import models
 
@@ -6,7 +8,13 @@ from backend.api.cqrs_c.users import make_user_game_creator, __make_user_join
 from backend.api.cqrs_q.users import get_user, get_users_in_game
 from backend.api.model.users import get_user_model
 
+from backend.api.comm.comm import Notifier
+# games_notifier = Notifier()
 
+game_created_notifier = Notifier()
+game_left_notifier = Notifier()
+game_join_notifier = Notifier()
+games_notifier = Notifier()
 class Game(models.Model):
     # primary key
     # id
@@ -18,7 +26,10 @@ class Game(models.Model):
 
 
 def create_game(creator_username, name, capacity):
+    print("create game")
     capacity = int(capacity)
+    if capacity <= 1:
+        return {"status": False, "payload": "capacity must be greater than 1"}
 
     r = get_user(creator_username)
     if not r["status"]:
@@ -32,11 +43,17 @@ def create_game(creator_username, name, capacity):
     if r["payload"]:
         return {"status": False, "payload": "duplicate game name"}
 
-    if capacity <= 1:
-        return {"status": False, "payload": "capacity must be greater than 1"}
-
     g = Game(name=name, capacity=capacity)
     g.save()
+
+    print("game created", g.name, g.capacity)
+
+    msg = json.dumps({
+        "source": "game created",
+        "name": g.name, "capacity": g.capacity})
+
+    game_created_notifier.notify(msg)
+    games_notifier.notify(json.dumps(get_games()))
 
     return __assign_user_currently_playing(creator_username, name)
 
@@ -46,23 +63,30 @@ def leave_game(game_name, username):
     if r["status"]:
         pass
     else:
+        print("err make_user_available_to_play")
         return r
 
     r = __free_user_currently_playing(username)
     if r["status"]:
         pass
     else:
+        print("err __free_user_currently_playing")
         return r
 
     r = __is_empty(game_name)
     if r["status"]:
         f_is_empty = r["payload"]
     else:
+        print("err __is_empty")
         return r
 
     if f_is_empty:
+        print("is empty")
         __delete_game(game_name)
 
+    msg = json.dumps({"source": "leave game","name": game_name, "who left": username})
+    game_left_notifier.notify(msg)
+    games_notifier.notify(json.dumps(get_games()))
     return {"status": True}
 
 
@@ -79,7 +103,15 @@ def join_game(game_name, username):
     if not r["status"]:
         return r
 
-    return __assign_user_currently_playing(username, game_name)
+    r = __assign_user_currently_playing(username, game_name)
+    if not r["status"]:
+        return r
+
+    msg = json.dumps({"source": "join game","name": game_name, "who joined": username})
+    game_join_notifier.notify(msg)
+    games_notifier.notify(json.dumps(get_games()))
+
+    return r
 
 
 def get_games():
@@ -115,6 +147,7 @@ def get_games():
             not_full.append({"name": i.name, "capacity": i.capacity,
                              "players": currently_active_players})
 
+    print(f"ret {full=} {not_full=}")
     return {"status": True, "payload": {
         "full": full,
         "not full": not_full
