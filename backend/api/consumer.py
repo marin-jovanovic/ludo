@@ -3,7 +3,7 @@ import json
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from backend.api.cqrs_c.users import active_users_notifier
 from backend.api.model.game import games_notifier, game_created_notifier,game_left_notifier,game_join_notifier
-
+from backend.api.model.message import message_notifier
 
 
 class Consumer(AsyncJsonWebsocketConsumer):
@@ -36,6 +36,16 @@ class Consumer(AsyncJsonWebsocketConsumer):
 
 #
 
+
+# trigger on new message
+class MessageConsumer(Consumer):
+
+    async def connect(self):
+        message_notifier.attach(self)
+        await self.accept()
+
+    async def disconnect(self, code):
+        message_notifier.detach(self)
 
 class GameConsumer(Consumer):
 
