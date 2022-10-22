@@ -36,7 +36,13 @@ class LobbyView(APIView):
         unquoted_body = urllib.parse.unquote(request.body)
         body = urllib.parse.parse_qs(unquoted_body)
 
-        capacity = body["capacity"][0]
+        # print(f"{request.data=}")
+        # print(f"{body=}")
+
+        try:
+            capacity = body["capacity"][0]
+        except KeyError:
+            capacity = request.data["capacity"]
 
         print(f"{creator_username=}")
         print(f"{capacity=}")
@@ -47,7 +53,7 @@ class LobbyView(APIView):
         return JsonResponse(response)
 
     def put(self, request, name):
-
+        print("put lobby", name)
         username = request.username
 
         unquoted_body = urllib.parse.unquote(request.body)
@@ -55,18 +61,23 @@ class LobbyView(APIView):
 
         response = get_auth_ok_response_template(request)
 
-        if "leave" in body:
-            leave = body["leave"][0]
+        print(f"{body=}")
+        print(f"{request.data=}")
 
-            if leave:
+        if "leave" in request.data:
+            # leave = body["leave"][0]
+            #
+            # if leave:
+            print("leave")
+            response["payload"] = leave_game(name, username)
+            print("res payload", response)
 
-                response["payload"] = leave_game(name, username)
-
-        if "join" in body:
-            join = body["join"][0]
-
-            if join:
-                response["payload"] = join_game(name, username)
+        if "join" in request.data:
+            # join = body["join"][0]
+            #
+            # if join:
+            print("join")
+            response["payload"] = join_game(name, username)
 
         return JsonResponse(response)
 
