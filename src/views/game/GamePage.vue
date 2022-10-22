@@ -38,6 +38,7 @@
 import TheDice from "./TheDice.vue";
 import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
 import { apiMessage } from "@/scripts/api/message";
+import { wsListeners } from "@/scripts/ws_listener";
 
 export default {
   data() {
@@ -54,8 +55,21 @@ export default {
     this.username = sessionStorage.getItem("username");
     this.gameId = sessionStorage.getItem("gameId");
     await this.fetchMessages();
+
+    let url = "ws://127.0.0.1:8000/msg/";
+    new wsListeners.WebSocketListener(url, this.newMsg);
+    console.log("ws init");
   },
   methods: {
+    newMsg(message) {
+      console.log("ws newmsg");
+      console.log(message);
+      console.log(typeof message);
+
+      this.messageLog.push(message);
+      //   this.fetchInitData();
+    },
+
     async sendMessage() {
       console.log("send msg", this.message);
 
