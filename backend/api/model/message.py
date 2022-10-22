@@ -19,6 +19,10 @@ games_notifier = Notifier()
 from backend.api.model.users import get_user_model
 from backend.api.model.game import _get_game_model
 
+
+from backend.api.comm.comm import Notifier
+message_notifier = Notifier()
+
 class Message(models.Model):
     # primary key
     # id
@@ -71,12 +75,19 @@ def create_message(sender, game, content):
 
     # print("game created", g.name, g.capacity)
 
-    # msg = json.dumps({
-    #     "source": "game created",
-    #     "name": g.name, "capacity": g.capacity})
+    msg = json.dumps({
+        "source": "msg created",
+        "game": g.game.name,
+
+        "timestamp": str(g.timestamp),
+        "sender": g.sender.username,
+        "content": g.content
+
+    })
+
 
     # game_created_notifier.notify(msg)
-    # games_notifier.notify(json.dumps(get_games()))
+    message_notifier.notify(msg)
 
     print("message created")
 
