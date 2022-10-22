@@ -7,8 +7,7 @@ class ActiveUsersSocket {
         self.activeUsers = {};
         
         self.socket.onopen = function(e) {
-            console.log("active users");
-            console.log("[open] Connection established");   
+            console.log("[ws open] Connection established");   
         };
         
         self.socket.onmessage = function(event) {
