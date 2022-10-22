@@ -41,13 +41,15 @@ function logout(username) {
         apiCalls.api.post(
             `logout/${username}`,
             {},
-            apiCalls.get_auth_header()
+            apiCalls.getAuthenticationHeader()
         );
         sessionStorage.removeItem('user');
 
     }
 
 }
+
+
 
 export const apiAuth = {
     login,
