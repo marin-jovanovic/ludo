@@ -156,10 +156,7 @@ export default {
         this.portfolios = Object.values(res["payload"]["payload"]["full"]).map(
           (i) => {
             console.log(i);
-            // i.forEach((element) => {
-            //   console.log(element, );
-            // });
-            // console.log(i.name);
+
             return this.castPortfolio(i.name, i.capacity, i.players, true);
           }
         );
