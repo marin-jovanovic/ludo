@@ -1,3 +1,5 @@
+import json
+
 from backend.api.auth.main import generate_access_token
 from backend.api.auth.main import get_hashed_password, is_pass_ok
 from backend.api.comm.comm import Notifier
@@ -9,6 +11,7 @@ from backend.api.cqrs_q.users import get_logged_users
 # todo change username
 # todo access token
 
+active_users_notifier = Notifier()
 
 def logout(username, access_token):
     if not is_access_token_correct(username, access_token):
@@ -20,9 +23,6 @@ def logout(username, access_token):
     k.save()
 
     return {'status': True, 'payload': {}}
-
-
-active_users_notifier = Notifier()
 
 
 def auth_user(username, password):
@@ -38,7 +38,13 @@ def auth_user(username, password):
     k.save()
 
     logged_users = get_logged_users()
-    active_users_notifier.notify(logged_users)
+
+    msg = json.dumps({
+        "message": "getUserActive",
+        "args": {i["username"]: {"isActive": True} for i in logged_users}
+    })
+
+    active_users_notifier.notify(msg)
 
     return {'status': True, 'payload': {'access_token': access_token}}
 
@@ -92,8 +98,6 @@ def delete_user(username, password):
 
 def __make_user_join(username):
 
-    # fixme what if he is currently in another game?
-
     r = get_user(username)
     if r["status"]:
         creator_o = r["payload"]
@@ -103,7 +107,7 @@ def __make_user_join(username):
     is_playing_game = __is_playing_game(player_o=creator_o)
 
     if is_playing_game["payload"]:
-        return {"status" : False, "payload": "user role not empty"}
+        return {"status" : False, "payload": "user role not empty (playing another game)"}
 
     _assign_role_to_user(creator_o, "joined")
 
