@@ -7,18 +7,17 @@ async function updateSettings(settings) {
         await apiCalls.api.post(
             "settings/",
             JSON.stringify(settings),
-            apiCalls.get_auth_header()
+            apiCalls.getAuthenticationHeader()
         )
     );
 
 }
 
 async function getSettings() {
-    console.log("get s")
     return await apiCalls.handleNewResponse(
         await apiCalls.api.get(
             "settings/",
-            apiCalls.get_auth_header()
+            apiCalls.getAuthenticationHeader()
         )
     );
 }
