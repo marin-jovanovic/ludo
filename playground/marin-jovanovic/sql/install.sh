@@ -39,7 +39,7 @@ sudo apt install pgadmin4
 ################################################################################
 
 # open pgadmin
-# create database beyond;
+# create database ludo;
 #sudo su postgres
 #psql
 #create user T with superuser password 'T';
