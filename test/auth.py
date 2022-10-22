@@ -10,7 +10,7 @@ def create_user(u, p):
     t = requests.post(
         f"{url}/{u}",
         headers={
-            'password': p
+            "Authorization": f"Create {u}:{p}"
         },
         verify=False
     )
@@ -25,7 +25,7 @@ def auth_user(u, p):
     t = requests.post(
         f"{url}/{u}",
         headers={
-            'password': p
+            "Authorization": f"Basic {u}:{p}"
         },
         verify=False
     )
@@ -40,7 +40,7 @@ def is_valid(u, p):
     t = requests.post(
         f"{url}/{u}",
         headers={
-            'accessToken': p
+            "Authorization": f"Basic {u}:{p}"
         },
         verify=False
     )
@@ -55,7 +55,7 @@ def logout(u, a):
     t = requests.post(
         f"{url}/{u}",
         headers={
-            'accessToken': a
+            "Authorization": f"Basic {u}:{p}"
         },
         verify=False
     )
@@ -73,7 +73,7 @@ def main():
     create_user(username, password)
     print(80 * "-")
 
-    access_token = auth_user(username, password)["payload"]["payload"]["access_token"]
+    access_token = auth_user(username, password)["payload"]["payload"]["accessToken"]
     print(f"{access_token=}")
     print(80 * "-")
 
@@ -97,7 +97,7 @@ def main():
             # print(80 * "-")
 
             access_token = auth_user(username, password)["payload"]["payload"][
-                "access_token"]
+                "accessToken"]
             print(f"{access_token=}")
             print(80 * "-")
 
@@ -118,7 +118,7 @@ def main():
             # print(80 * "-")
             #
             access_token = auth_user(username, password)["payload"]["payload"][
-                "access_token"]
+                "accessToken"]
             print(f"{access_token=}")
             print(80 * "-")
 
