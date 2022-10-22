@@ -11,27 +11,25 @@ const api = axios.create({
     }
 })
 
-function get_auth_header() {
-
+function getAuthenticationHeader() {
     let username = sessionStorage.getItem("username");
-    let accessToken = sessionStorage.getItem("sessionToken")
-
-
+    let accessToken = sessionStorage.getItem("accessToken")
 
     if (username && accessToken) {
-    
+  
 
         return { headers: { 'Authorization': 'Custom ' + ((encodeURIComponent(username + ':' + accessToken))) } }
 
     }
     else {
 
-
         return { headers: {}}
 
     }
 
 }
+
+
 
 function handleNewResponse(response) {
 
@@ -60,6 +58,6 @@ function handleNewResponse(response) {
 
 export const apiCalls = {
     api,
+getAuthenticationHeader,
     handleNewResponse,
-    get_auth_header,
 }
