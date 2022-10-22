@@ -1,13 +1,55 @@
 <template>
   <BaseUserTemplate>
-    <div class="container mt-2">
-      <div class="row">
-        <BasePortfolioList
-          @selectUpdate="updateSelectedList"
-          @increase-by="updateSelectedForChart"
-          :selectedForChart="selected"
-        ></BasePortfolioList>
+    <input
+      type="text"
+      class="form-control"
+      placeholder="game name"
+      v-model="gameName"
+    />
+    <input
+      type="text"
+      class="form-control"
+      placeholder="game capacity"
+      v-model="gameCapacity"
+    />
+
+    <button @click="createGame">create game</button>
+
+    <hr />
+    <h1>not full</h1>
+    <hr />
+
+    <div v-for="i in this.notFull" :key="i">
+      {{ i }}
+
+      <button @click="joinGame(i.name)">join</button>
+
+      <div v-for="p in i.players" :key="p">
+        <div v-if="p == this.username">
+          <h1>here</h1>
+          <button @click="leaveGame(i.name)">leave</button>
+        </div>
       </div>
+
+      <hr />
+    </div>
+
+    <hr />
+    <h1>full</h1>
+    <hr />
+
+    <div v-for="i in this.full" :key="i">
+      {{ i }}
+      <div v-for="p in i.players" :key="p">
+        <div v-if="p == this.username">
+          <h1>here</h1>
+          <button @click="leaveGame(i.name)">leave</button>
+
+          <button @click="leaveGame(i.name)">start</button>
+        </div>
+      </div>
+
+      <hr />
     </div>
 
     <BaseMessage ref="message"></BaseMessage>
@@ -18,68 +60,87 @@
 import { useToast } from "vue-toastification";
 import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
 import BaseMessage from "@/components/BaseMessage.vue";
-import BasePortfolioList from "@/components/BasePortfolioList.vue";
+import { apiLobby } from "@/scripts/api/lobby";
+// import BasePortfolioList from "@/components/BasePortfolioList.vue";
+import { wsListeners } from "@/scripts/ws_listener";
 
 export default {
   setup() {
     const toast = useToast();
-    // toast("notif test");
     return { toast };
   },
 
-  mounted() {
-    // this.toast("hello again");
-    // console.log("mounted");
-    // console.log("mounted", this.selected);
-    // this.$refs.message.showMessage(true, "hello", "world");
+  async mounted() {
+    this.username = sessionStorage.getItem("username");
+
+    await this.fetchInitData();
+
+    let url = "ws://127.0.0.1:8000/whole1/";
+    new wsListeners.WebSocketListener(url, this.getUserActive);
+    console.log("ws init");
   },
   data() {
     return {
-      selected: {},
-      selectedList: {},
+      gameName: "",
+      gameCapacity: "",
+
+      full: {},
+      notFull: {},
+
+      username: "",
     };
   },
   methods: {
-    updateSelectedList(pl) {
-      console.log("checkobx tick", pl);
-      console.log("base");
+    getUserActive(message) {
+      console.log("ws get user active");
+      console.log(message);
+      this.fetchInitData();
+    },
 
-      let o = {
-        portfolio: pl.portfolio,
-        section: pl.locationPayload.oldSection,
-        type: pl.locationPayload.oldType,
-      };
-      console.table(o);
-
-      let isSelected = pl.locationPayload.isSelected;
-      console.log(isSelected);
-
-      if (!(o.portfolio in this.selectedList)) {
-        console.log("new portfolio");
-        this.selectedList[o.portfolio] = new Set();
-      }
-
-      if (isSelected) {
-        this.selectedList[o.portfolio].add({
-          section: o.section,
-          type: o.type,
-        });
-      } else {
-        this.selectedList[o.portfolio].delete({
-          section: o.section,
-          type: o.type,
-        });
-      }
-
-      for (const [key, value] of Object.entries(this.selectedList)) {
-        console.log(key);
-        console.table(value);
+    async joinGame(gameName) {
+      let res = await apiLobby.joinGame(gameName);
+      console.log("load", res);
+      if (res["auth"]["status"]) {
+        if (res["payload"]["status"]) {
+          console.log("game join ok");
+        }
       }
     },
-    showSelected() {
-      console.log(this.selected);
+
+    async leaveGame(gameName) {
+      let res = await apiLobby.leaveGame(gameName);
+      console.log("load", res);
+      if (res["auth"]["status"]) {
+        if (res["payload"]["status"]) {
+          console.log("game left ok");
+        }
+      }
+    },
+    async createGame() {
+      let res = await apiLobby.createGame(this.gameName, this.gameCapacity);
+      console.log("load", res);
+      if (res["auth"]["status"]) {
+        if (res["payload"]["status"]) {
+          console.log("game created ok");
+        }
+      }
+    },
+
+    async fetchInitData() {
+      let res = await apiLobby.getGames();
+      console.log(res);
+      if (res["auth"]["status"]) {
+        this.full = res["payload"]["payload"]["full"];
+        this.notFull = res["payload"]["payload"]["not full"];
+      } else {
+        console.log("err fetching data");
+      }
     },
   },
-  components: { BaseUserTemplate, BaseMessage, BasePortfolioList },
+  components: {
+    BaseUserTemplate,
+
+    BaseMessage,
+  },
 };
 </script>
