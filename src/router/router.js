@@ -3,11 +3,13 @@ import { createRouter, createWebHistory } from 'vue-router';
 import IndexPage from '../views/index/IndexPage';
 import LoginPage from '../views/login/LoginPage';
 import SignupView from '@/views/signup/SingupView.vue';
+import GamePage from '@/views/game/GamePage.vue';
 
 
 import LogoutPage from '../views/logout/LogoutPage';
 import SetttingsView from '../views/settings/SettingsView.vue';
 import { store } from "@/store/store"
+
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -16,6 +18,11 @@ export const router = createRouter({
       path: '/settings',
       name: 'settings',
       component: SetttingsView
+    },
+    {
+      path: '/game',
+      name: 'game',
+      component: GamePage
     },
     {
       path: '/login',
