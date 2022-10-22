@@ -47,10 +47,7 @@ export default {
     return { username: undefined };
   },
   async mounted() {
-    console.log("get set");
     let r = await apiSettings.getSettings();
-    console.log("after get");
-    console.log(r);
 
     if (r["auth"]["status"]) {
       let pl = r["payload"];
