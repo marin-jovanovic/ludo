@@ -51,7 +51,6 @@ function isPublicPath(toPath) {
 
 router.beforeEach((to, from, next) => {
 
-  console.log("going")
   let isPublic = isPublicPath(to.path);
 
   const loggedIn = sessionStorage.getItem('username');
