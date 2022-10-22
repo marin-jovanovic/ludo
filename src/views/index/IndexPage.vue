@@ -45,7 +45,7 @@
           <h1>here</h1>
           <button @click="leaveGame(i.name)">leave</button>
 
-          <button @click="leaveGame(i.name)">start</button>
+          <!-- <button @click="leaveGame(i.name)">start</button> -->
         </div>
       </div>
 
@@ -63,6 +63,7 @@ import BaseMessage from "@/components/BaseMessage.vue";
 import { apiLobby } from "@/scripts/api/lobby";
 // import BasePortfolioList from "@/components/BasePortfolioList.vue";
 import { wsListeners } from "@/scripts/ws_listener";
+import { router } from "@/router/router";
 
 export default {
   setup() {
@@ -130,6 +131,20 @@ export default {
       let res = await apiLobby.getGames();
       console.log(res);
       if (res["auth"]["status"]) {
+        res["payload"]["payload"]["full"].forEach((i) => {
+          console.log(i);
+
+          i.players.forEach((j) => {
+            if (j == this.username) {
+              console.log("start game");
+
+              sessionStorage.setItem("gameId", i.name);
+
+              router.push("game");
+            }
+          });
+        });
+
         this.full = res["payload"]["payload"]["full"];
         this.notFull = res["payload"]["payload"]["not full"];
       } else {
