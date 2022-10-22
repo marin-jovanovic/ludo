@@ -21,7 +21,7 @@ def main():
 
     comment = "wip: master detail"
 
-    comment = "impl: lobby master detail"
+    comment = "impl: messaging"
 
     if same_comment:
         if not comment:
