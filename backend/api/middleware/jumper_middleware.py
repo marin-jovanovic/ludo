@@ -17,11 +17,11 @@ class JumperMiddleware:
     def __call__(self, request):
         print()
 
-        # print(f"{request.META=}")
-
         try:
             authorization_header = request.META['HTTP_AUTHORIZATION']
         except KeyError:
+            print("no authorization header")
+
             rejection = get_empty_response_template()
             rejection["payload"] = {"status": False}
             rejection["debug"] = "no authorization header"
@@ -34,6 +34,7 @@ class JumperMiddleware:
         access_token = None
 
         if auth_type == "Digest":
+            print("digest; not implemented")
             rejection = get_empty_response_template()
             rejection["debug"] = "not implemented"
             return JsonResponse(rejection)
@@ -47,6 +48,7 @@ class JumperMiddleware:
             r = create_user(username, password)
 
             if not r["status"]:
+                print("mw: can not create user")
                 rejection = get_empty_response_template()
                 rejection["payload"] = r
                 return JsonResponse(rejection)
@@ -54,6 +56,7 @@ class JumperMiddleware:
             r = auth_user(username, password)
 
             if not r["status"]:
+                print("mw: auth err user")
                 rejection = get_empty_response_template()
                 rejection["payload"] = r
                 return JsonResponse(rejection)
@@ -70,6 +73,7 @@ class JumperMiddleware:
             r = auth_user(username, password)
 
             if not r["status"]:
+                print("mw: auth err user 2")
                 rejection = get_empty_response_template()
                 rejection["payload"] = r
                 return JsonResponse(rejection)
@@ -84,11 +88,13 @@ class JumperMiddleware:
             r = is_access_token_correct(username, access_token)
 
             if not r:
+                print("err is_access_token_correct")
                 rejection = get_empty_response_template()
                 rejection["debug"] = "not is_validated"
                 return JsonResponse(rejection)
 
         request.username = username
+        print(f"{username=}")
         request.access_token = access_token
 
         # fixme only for testing
