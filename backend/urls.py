@@ -10,6 +10,11 @@ from backend.api.view.validation_view import ValidationView
 from backend.api.view.lobby_view import LobbyView
 
 from backend.api.view.settings_view import SettingsView
+from backend.api.view.game_view import GameView
+
+from backend.api.view.message_view import MessageView
+
+
 
 startup_configuration.print_app_logo()
 api_router = routers.DefaultRouter()
@@ -22,10 +27,18 @@ urlpatterns = [
 
     # path("lobby/<str:username>", ValidationView.as_view()),
 
-    path("game/", LobbyView.as_view()),
-    path("game/<str:name>", LobbyView.as_view()),
+    path("lobby/", LobbyView.as_view()),
+    path("lobby/<str:name>", LobbyView.as_view()),
+
+    path("game/", GameView.as_view()),
+    path("game/<str:name>", GameView.as_view()),
+
+    path("message/", MessageView.as_view()),
+    path("message/<str:game>", MessageView.as_view()),
 
     path("settings/", SettingsView.as_view()),
+
+    # path()
 ]
 
 
