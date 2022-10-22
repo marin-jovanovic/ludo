@@ -4,8 +4,8 @@ async function createGame(gameName, capacity) {
     return await apiCalls.handleNewResponse(
         await apiCalls.api.post(
             `game/${gameName}`,
-            JSON.stringify(capacity),
-            apiCalls.get_auth_header()
+            JSON.stringify({capacity: capacity}),
+            apiCalls.getAuthenticationHeader()
         )
     );
 
@@ -15,7 +15,7 @@ async function getGames() {
     return await apiCalls.handleNewResponse(
         await apiCalls.api.get(
             "game/",
-            apiCalls.get_auth_header()
+            apiCalls.getAuthenticationHeader()
         )
     );
 }
@@ -23,15 +23,22 @@ async function getGames() {
 // todo missing data
 async function leaveGame(gameName) {
     return await apiCalls.handleNewResponse(
-        await apiCalls.api.get(
+        await apiCalls.api.put(
             `game/${gameName}`,
-            apiCalls.get_auth_header()
+            JSON.stringify({"leave": true}),
+            apiCalls.getAuthenticationHeader()
         )
     );
 }
 
-async function joinGame() {
-
+async function joinGame(gameName) {
+    return await apiCalls.handleNewResponse(
+        await apiCalls.api.put(
+            `game/${gameName}`,
+            JSON.stringify({"join": true}),
+            apiCalls.getAuthenticationHeader()
+        )
+    );
 }
 
 export const apiLobby = {
