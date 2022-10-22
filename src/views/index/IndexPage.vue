@@ -61,7 +61,6 @@ import { useToast } from "vue-toastification";
 import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
 import BaseMessage from "@/components/BaseMessage.vue";
 import { apiLobby } from "@/scripts/api/lobby";
-// import BasePortfolioList from "@/components/BasePortfolioList.vue";
 import { wsListeners } from "@/scripts/ws_listener";
 import { router } from "@/router/router";
 
