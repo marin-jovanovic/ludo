@@ -21,7 +21,7 @@ def main():
 
     comment = "wip: master detail"
 
-    comment = "impl: messaging"
+    comment = "impl: messaging; ws updating"
 
     if same_comment:
         if not comment:
