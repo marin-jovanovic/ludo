@@ -47,8 +47,8 @@ import { apiAuth } from "../scripts/api/auth";
 export default {
   data() {
     return {
-      username: "d",
-      password: "d",
+      username: "a",
+      password: "a",
       submitted: false,
       loading: false,
       returnUrl: "",
