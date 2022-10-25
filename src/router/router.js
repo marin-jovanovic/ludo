@@ -20,7 +20,7 @@ export const router = createRouter({
       component: SetttingsView
     },
     {
-      path: '/game',
+      path: '/game/:id',
       name: 'game',
       component: GamePage
     },
