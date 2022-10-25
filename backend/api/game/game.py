@@ -556,6 +556,35 @@ class TileVisitor:
 def determine_order(
         number_of_players, choice_highest_or_order,
         choice_clockwise_or_anticlockwise, f_tie_in_order):
+
+
+    def construct_goes(player):
+        return {
+            "game": None,
+            "player": player,
+            "token": None,
+            "dice_result": None,
+            "action": "goes"
+        }
+
+    def construct_roll(player, roll):
+        return {
+            "game": None,
+            "player": player,
+            "token": None,
+            "dice_result": roll,
+            "action": "roll"
+        }
+
+    def construct_tie():
+        return {
+            "game": None,
+            "player": None,
+            "token": None,
+            "dice_result": None,
+            "action": "tie"
+        }
+
     def driver(
             number_of_players, choice_highest_or_order,
             choice_clockwise_or_anticlockwise):
@@ -570,27 +599,31 @@ def determine_order(
 
         while True:
             if len(rollers) == 1:
-                roll_history.append(['goes', rollers[0]])
+                roll_history.append(construct_goes(rollers[0]))
                 return roll_history
 
             current_iteration_roll_history = []
             for player in rollers:
-                pr = {'player': player, 'result': get_dice_result()}
-                roll_history.append(pr)
+                r = get_dice_result()
+                pr = {'player': player, 'dice_result': r}
+
+                roll_history.append(construct_roll(player, r))
+
                 current_iteration_roll_history.append(pr)
 
             while True:
 
                 if len(current_iteration_roll_history) == 1:
-                    roll_history.append(
-                        ['goes', current_iteration_roll_history[0]['player']])
+
+                    roll_history.append(construct_goes(current_iteration_roll_history[0]['player']))
+
                     return roll_history
 
                 is_same_max, max_r_obj = find_max(
                     current_iteration_roll_history)
 
                 if is_same_max:
-                    roll_history.append(['tie'])
+                    roll_history.append(construct_tie())
                     break
 
                 winner = max_r_obj['player']
@@ -606,11 +639,11 @@ def determine_order(
                                     c = (i - j) % len(
                                         current_iteration_roll_history)
 
-                                roll_history.append(['goes', c])
+                                roll_history.append(construct_goes(c))
 
                             return roll_history
 
-                roll_history.append(['goes', winner])
+                roll_history.append(construct_goes(winner))
                 rollers.remove(max_r_obj['player'])
                 current_iteration_roll_history.remove(max_r_obj)
 
@@ -621,9 +654,21 @@ def determine_order(
         print('err')
         sys.exit(-1)
 
-    while not f_tie_in_order and ['tie'] in r:
-        r = driver(number_of_players, choice_highest_or_order,
-                   choice_clockwise_or_anticlockwise)
+    if not f_tie_in_order:
+        while True:
+            is_present = False
+            for i in r:
+                if i["action"] == "tie":
+                    is_present = True
+                    break
+
+            if is_present:
+                r = driver(number_of_players, choice_highest_or_order,
+                           choice_clockwise_or_anticlockwise)
+
+            else:
+                break
+
 
     return r
 
@@ -632,10 +677,10 @@ def find_max(current_iteration_roll_history):
     is_same_max = False
     max_r_obj = None
     for i in current_iteration_roll_history:
-        if not max_r_obj or i['result'] > max_r_obj['result']:
+        if not max_r_obj or i['dice_result'] > max_r_obj['dice_result']:
             is_same_max = False
             max_r_obj = i
-        elif i['result'] == max_r_obj['result']:
+        elif i['dice_result'] == max_r_obj['dice_result']:
             is_same_max = True
 
     return is_same_max, max_r_obj
@@ -805,87 +850,88 @@ def board_configuration():
 
 
 def main():
-    game_conf = get_config()
-
-    order = determine_order(
-        game_conf['number of players'],
-        game_conf['choice: highest; order'],
-        game_conf['choice: clockwise; anticlockwise'],
-        game_conf['flag: tie in order'],
-    )
-
-    print("log")
-    [print(i) for i in order]
-
-    board_configuration()
-
-    # f_same_destination = get_config()["flag: same destination"]
+    # game_conf = get_config()
     #
-    # if f_same_destination:
-    #     # print('same destination')
-    #     players_id = [i for i in range(get_config()['number of players'])]
-    #     # print(players_id)
+    # order = determine_order(
+    #     game_conf['number of players'],
+    #     game_conf['choice: highest; order'],
+    #     game_conf['choice: clockwise; anticlockwise'],
+    #     game_conf['flag: tie in order'],
+    # )
     #
-    #     # p = {i: for i in players_id}
+    # print("log")
+    # [print(i) for i in order]
     #
-    # else:
-    #     # print('not same destination')
-    #     # print("not implemented")
-    #     sys.exit(-1)
-
-    todo_destination_p = 500
-
-    players = {}
-    for i in range(get_config()["number of players"]):
-        tokens = {}
-
-        if i == 0:
-            moves = get_player_one_moves()
-        elif i == 1:
-            moves = get_player_two_moves()
-
-        for j in range(get_config()['tokens per player']):
-            tokens[j] = Token(j, destination_position=todo_destination_p, owner=i, moves=moves)
-
-        players[i] = tokens
-
-    for k,v in players.items():
-        print("player",k)
-        for a,b in v.items():
-            print("token", a,b)
-    # print(players)
-
-    # players, tokens
-    b = Board(row_count=15, column_count=15, players=players)
+    # board_configuration()
     #
+    # # f_same_destination = get_config()["flag: same destination"]
+    # #
+    # # if f_same_destination:
+    # #     # print('same destination')
+    # #     players_id = [i for i in range(get_config()['number of players'])]
+    # #     # print(players_id)
+    # #
+    # #     # p = {i: for i in players_id}
+    # #
+    # # else:
+    # #     # print('not same destination')
+    # #     # print("not implemented")
+    # #     sys.exit(-1)
+    #
+    # todo_destination_p = 500
+    #
+    # players = {}
+    # for i in range(get_config()["number of players"]):
+    #     tokens = {}
+    #
+    #     if i == 0:
+    #         moves = get_player_one_moves()
+    #     elif i == 1:
+    #         moves = get_player_two_moves()
+    #
+    #     for j in range(get_config()['tokens per player']):
+    #         tokens[j] = Token(j, destination_position=todo_destination_p, owner=i, moves=moves)
+    #
+    #     players[i] = tokens
+    #
+    # for k,v in players.items():
+    #     print("player",k)
+    #     for a,b in v.items():
+    #         print("token", a,b)
+    # # print(players)
+    #
+    # # players, tokens
+    # b = Board(row_count=15, column_count=15, players=players)
+    # #
+    #
+    # # move
+    # print('move')
+    # b.move_token(player=1, token_id=1, step=2)
+    # order.append({"player": 1, "token": 1, "step": 2})
+    # [print(i) for i in order]
+    #
+    # b.print_board_state()
+    #
+    # # move
+    # print('move')
+    # b.move_token(player=1, token_id=1, step=2)
+    # b.print_board_state()
+    #
+    # # multiple at same location
+    # print('multiple at the same location')
+    # b.move_token(player=1, token_id=2, step=4)
+    # b.print_board_state()
+    #
+    # print('move pl2')
+    # b.move_token(player=2, token_id=1, step=3)
+    # b.print_board_state()
+    #
+    # print('eat')
+    # b.move_token(player=2, token_id=1, step=1)
+    # b.print_board_state()
 
-    # move
-    print('move')
-    b.move_token(player=1, token_id=1, step=2)
-    order.append({"player": 1, "token": 1, "step": 2})
-    [print(i) for i in order]
-
-    b.print_board_state()
-
-    # move
-    print('move')
-    b.move_token(player=1, token_id=1, step=2)
-    b.print_board_state()
-
-    # multiple at same location
-    print('multiple at the same location')
-    b.move_token(player=1, token_id=2, step=4)
-    b.print_board_state()
-
-    print('move pl2')
-    b.move_token(player=2, token_id=1, step=3)
-    b.print_board_state()
-
-    print('eat')
-    b.move_token(player=2, token_id=1, step=1)
-    b.print_board_state()
-
-    # order_driver()
+    print(80 * "-")
+    order_driver()
 
     # roled = 6
     #
@@ -901,8 +947,9 @@ def order_driver():
         game_conf['choice: clockwise; anticlockwise'],
         game_conf['flag: tie in order'],
     )
-    [print(i) for i in order]
 
+    for i in order:
+        print(i)
 
 def generate_tile_mapping(p):
     m_tile_to_move = defaultdict(set)
