@@ -19,9 +19,8 @@ def main():
     comment = "impl: create / update portfolio"
     comment = 'ref: rewrite db scheme'
 
-    comment = "wip: master detail"
+    comment = "wip: game view"
 
-    comment = "impl: user game action log"
 
     if same_comment:
         if not comment:
