@@ -622,7 +622,6 @@ def determine_order(
         sys.exit(-1)
 
     while not f_tie_in_order and ['tie'] in r:
-        print('tie detected')
         r = driver(number_of_players, choice_highest_or_order,
                    choice_clockwise_or_anticlockwise)
 
@@ -806,77 +805,103 @@ def board_configuration():
 
 
 def main():
+    game_conf = get_config()
+
+    order = determine_order(
+        game_conf['number of players'],
+        game_conf['choice: highest; order'],
+        game_conf['choice: clockwise; anticlockwise'],
+        game_conf['flag: tie in order'],
+    )
+
+    print("log")
+    [print(i) for i in order]
+
     board_configuration()
 
-    f_same_destination = get_config()["flag: same destination"]
+    # f_same_destination = get_config()["flag: same destination"]
+    #
+    # if f_same_destination:
+    #     # print('same destination')
+    #     players_id = [i for i in range(get_config()['number of players'])]
+    #     # print(players_id)
+    #
+    #     # p = {i: for i in players_id}
+    #
+    # else:
+    #     # print('not same destination')
+    #     # print("not implemented")
+    #     sys.exit(-1)
 
-    if f_same_destination:
-        print('same destination')
-        players_id = [i for i in range(get_config()['number of players'])]
-        print(players_id)
+    todo_destination_p = 500
 
-        # p = {i: for i in players_id}
+    players = {}
+    for i in range(get_config()["number of players"]):
+        tokens = {}
 
-    else:
-        print('not same destination')
+        if i == 0:
+            moves = get_player_one_moves()
+        elif i == 1:
+            moves = get_player_two_moves()
 
-    # todo_destination_p = 500
-    #
-    # players = {}
-    # for i in range(get_config()["number of players"]):
-    #     tokens = {}
-    #
-    #     if i == 0:
-    #         moves = get_player_one_moves()
-    #     elif i == 1:
-    #         moves = get_player_two_moves()
-    #
-    #     for j in range(get_config()['tokens per player']):
-    #         tokens[j] = Token(j, destination_position=todo_destination_p, owner=i, moves=moves)
-    #
-    #     players[i] = tokens
-    #
-    # # players, tokens
-    # b = Board(row_count=15, column_count=15, players=players)
-    # #
-    #
-    # # move
-    # print('move')
-    # b.move_token(player=1, token_id=1, step=2)
-    # b.print_board_state()
-    #
-    # # move
-    # print('move')
-    # b.move_token(player=1, token_id=1, step=2)
-    # b.print_board_state()
-    #
-    # # multiple at same location
-    # print('multiple at the same location')
-    # b.move_token(player=1, token_id=2, step=4)
-    # b.print_board_state()
-    #
-    # print('move pl2')
-    # b.move_token(player=2, token_id=1, step=3)
-    # b.print_board_state()
-    #
-    # print('eat')
-    # b.move_token(player=2, token_id=1, step=1)
-    # b.print_board_state()
+        for j in range(get_config()['tokens per player']):
+            tokens[j] = Token(j, destination_position=todo_destination_p, owner=i, moves=moves)
 
-    # game_conf = get_config()
+        players[i] = tokens
+
+    for k,v in players.items():
+        print("player",k)
+        for a,b in v.items():
+            print("token", a,b)
+    # print(players)
+
+    # players, tokens
+    b = Board(row_count=15, column_count=15, players=players)
     #
-    # order = determine_order(game_conf['number of players'],
-    #                         game_conf['choice: highest; order'],
-    #                         game_conf['choice: clockwise; anticlockwise'],
-    #                         game_conf['flag: tie in order'],
-    #
-    # )
-    #
-    # [print(i) for i in order]
+
+    # move
+    print('move')
+    b.move_token(player=1, token_id=1, step=2)
+    order.append({"player": 1, "token": 1, "step": 2})
+    [print(i) for i in order]
+
+    b.print_board_state()
+
+    # move
+    print('move')
+    b.move_token(player=1, token_id=1, step=2)
+    b.print_board_state()
+
+    # multiple at same location
+    print('multiple at the same location')
+    b.move_token(player=1, token_id=2, step=4)
+    b.print_board_state()
+
+    print('move pl2')
+    b.move_token(player=2, token_id=1, step=3)
+    b.print_board_state()
+
+    print('eat')
+    b.move_token(player=2, token_id=1, step=1)
+    b.print_board_state()
+
+    # order_driver()
 
     # roled = 6
     #
     # player_1_token_1 = Token(owner=1, current_tile=Tile(0, 0), destination_tile=None)
+
+
+def order_driver():
+    game_conf = get_config()
+
+    order = determine_order(
+        game_conf['number of players'],
+        game_conf['choice: highest; order'],
+        game_conf['choice: clockwise; anticlockwise'],
+        game_conf['flag: tie in order'],
+    )
+    [print(i) for i in order]
 
 
 def generate_tile_mapping(p):
