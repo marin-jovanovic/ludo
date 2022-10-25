@@ -19,7 +19,7 @@
     <h1>not full</h1>
     <hr />
 
-    <div v-for="i in this.notFull" :key="i">
+    <div v-for="i in this.notFull" :key="Object.values(i)">
       {{ i }}
 
       <button @click="joinGame(i.name)">join</button>
@@ -38,18 +38,26 @@
     <h1>full</h1>
     <hr />
 
-    <div v-for="i in this.full" :key="i">
+    <div v-for="i in this.full" :key="Object.values(i)">
       {{ i }}
       <div v-for="p in i.players" :key="p">
         <div v-if="p == this.username">
           <h1>here</h1>
+          <div v-if="this.isCreator">
+            <button @click="startGame()">start</button>
+          </div>
           <button @click="leaveGame(i.name)">leave</button>
-
-          <!-- <button @click="leaveGame(i.name)">start</button> -->
         </div>
       </div>
 
       <hr />
+    </div>
+
+    <div>
+      active users:
+      <div v-for="i in this.activeUsers" :key="i">
+        {{ i }}
+      </div>
     </div>
 
     <BaseMessage ref="message"></BaseMessage>
@@ -72,7 +80,7 @@ export default {
 
   async mounted() {
     this.username = sessionStorage.getItem("username");
-
+    console.log("this username", this.username);
     await this.fetchInitData();
 
     let url = "ws://127.0.0.1:8000/whole1/";
@@ -88,12 +96,19 @@ export default {
       notFull: {},
 
       username: "",
+
+      isCreator: false,
+      canStart: false,
+
+      activeUsers: {},
     };
   },
   methods: {
     getUserActive(message) {
       console.log("ws get user active");
       console.log(message);
+
+      this.activeUsers = message;
       this.fetchInitData();
     },
 
@@ -116,11 +131,14 @@ export default {
         }
       }
     },
+
     async createGame() {
       let res = await apiLobby.createGame(this.gameName, this.gameCapacity);
       console.log("load", res);
       if (res["auth"]["status"]) {
         if (res["payload"]["status"]) {
+          this.isCreator = true;
+
           console.log("game created ok");
         }
       }
@@ -128,24 +146,17 @@ export default {
 
     async fetchInitData() {
       let res = await apiLobby.getGames();
-      console.log(res);
       if (res["auth"]["status"]) {
-        res["payload"]["payload"]["full"].forEach((i) => {
-          console.log(i);
-
-          i.players.forEach((j) => {
-            if (j == this.username) {
-              console.log("start game");
-
-              sessionStorage.setItem("gameId", i.name);
-
-              router.push("game");
-            }
-          });
-        });
-
         this.full = res["payload"]["payload"]["full"];
         this.notFull = res["payload"]["payload"]["not full"];
+
+        let inGame = res["payload"]["payload"]["inGame"];
+
+        console.log("in game", inGame);
+
+        if (inGame in this.full) {
+          router.push(`game/${inGame}`);
+        }
       } else {
         console.log("err fetching data");
       }
@@ -153,7 +164,6 @@ export default {
   },
   components: {
     BaseUserTemplate,
-
     BaseMessage,
   },
 };
