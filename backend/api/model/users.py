@@ -33,7 +33,6 @@ class Users(models.Model):
 
     game_role = models.TextField(null=True)
 
-
 # def get_game_model():
 
 
