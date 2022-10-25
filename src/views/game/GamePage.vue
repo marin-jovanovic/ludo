@@ -1,7 +1,15 @@
 <template>
   <BaseUserTemplate>
     <!-- <hr /> -->
+    <h1>{{ this.header }}</h1>
     <br />
+
+    <button @click="leaveGame">leave game</button>
+
+    <div>
+      <div>players:</div>
+      <div v-for="i in this.players" :key="i">p: {{ i }}</div>
+    </div>
 
     <h1>now playing:</h1>
 
@@ -16,18 +24,28 @@
     </div>
 
     <div>
-      <div>messages</div>
-
-      <div>
-        <div v-for="i in this.messageLog" :key="i">
-          {{ i }}
-        </div>
-      </div>
-      <div>
-        <input type="text" v-model="this.message" placeholder="type message" />
-        <button @click="sendMessage">send</button>
-      </div>
+      <button>move 1</button>
+      <button>move 2</button>
+      <button>move 3</button>
+      <button>move 4</button>
     </div>
+
+    <hr />
+
+    <div>
+      token
+
+      <input type="text" v-model="cToken" />
+      <br />
+
+      action
+      <input type="text" v-model="cAction" />
+      <br />
+
+      <button @click="updateGame">submit</button>
+    </div>
+    <hr />
+    <TheMessages></TheMessages>
 
     <div class="row"></div>
   </BaseUserTemplate>
@@ -37,100 +55,96 @@
 <script>
 import TheDice from "./TheDice.vue";
 import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
-import { apiMessage } from "@/scripts/api/message";
-import { wsListeners } from "@/scripts/ws_listener";
+import { apiLobby } from "@/scripts/api/lobby";
+import { router } from "@/router/router";
+import TheMessages from "./TheMessages.vue";
+import { apiGame } from "@/scripts/api/game";
 
 export default {
   data() {
     return {
       canRoll: true,
-      message: "",
       username: "",
+      header: "",
+
+      // todo rewrite url with this
       gameId: "",
 
-      messageLog: {},
+      players: {},
+      capacity: -1,
+
+      cToken: "",
+      cAction: "",
     };
   },
   async mounted() {
     this.username = sessionStorage.getItem("username");
     this.gameId = sessionStorage.getItem("gameId");
-    await this.fetchMessages();
 
-    let url = "ws://127.0.0.1:8000/msg/";
-    new wsListeners.WebSocketListener(url, this.newMsg);
-    console.log("ws init");
+    let res = await apiGame.getGame(this.gameId);
+    if (res["auth"]["status"]) {
+      let p = res["payload"]["payload"];
+
+      console.table(p);
+
+      this.header = p.header;
+
+      if (p.turn === this.username) {
+        this.canRoll = true;
+      } else {
+        this.canRoll = false;
+      }
+
+      this.players = p.players;
+      this.capacity = p.capacity;
+    } else {
+      console.log("err fetching data");
+    }
+
+    // for (const [key, value] of Object.entries(this.players)) {
+    //   console.log(key, value);
+    //   console.log("roll player", value);
+    // }
   },
   methods: {
-    newMsg(message) {
-      console.log("ws newmsg");
-      console.log(message);
-      console.log(typeof message);
-
-      this.messageLog.push(message);
-      //   this.fetchInitData();
-    },
-
-    async sendMessage() {
-      console.log("send msg", this.message);
-
-      let res = await apiMessage.sendMessage(
-        this.username,
+    async updateGame() {
+      let res = await apiGame.updateGame(
         this.gameId,
-        this.message
+        this.username,
+        this.cToken,
+        this.cAction
       );
-      console.log(res);
+
       if (res["auth"]["status"]) {
-        console.log(res);
-
-        // console.log(res["payload"])
-
-        // res["payload"]["payload"]["full"].forEach((i) => {
-        //   i.players.forEach((j) => {
-        //     if (j == this.username) {
-        //       console.log("start game");
-        //       router.push("game");
-        //     }
-        //   });
-        // });
+        if (!res["payload"]["status"]) {
+          console.log("game leave err");
+        }
       } else {
-        console.log("err fetching data");
+        console.log("err update");
       }
     },
 
-    async fetchMessages() {
-      console.log("get messages");
-      let res = await apiMessage.getMessages(this.gameId);
-      console.log(res);
+    async leaveGame() {
+      let res = await apiLobby.leaveGame(this.gameId);
       if (res["auth"]["status"]) {
-        console.log(res);
-
-        console.log(res["payload"]["payload"]);
-        this.messageLog = res["payload"]["payload"];
-
-        // console.log(res["payload"])
-
-        // res["payload"]["payload"]["full"].forEach((i) => {
-        //   i.players.forEach((j) => {
-        //     if (j == this.username) {
-        //       console.log("start game");
-        //       router.push("game");
-        //     }
-        //   });
-        // });
-      } else {
-        console.log("err fetching data");
+        if (res["payload"]["status"]) {
+          router.push("/");
+        } else {
+          console.log("game leave err");
+        }
       }
     },
 
     rollDice() {
       if (!this.canRoll) {
+        console.log("can not roll");
         return;
       }
 
       this.$refs.dice.rollDice(5);
     },
   },
-  components: { TheDice, BaseUserTemplate },
+  components: { TheDice, BaseUserTemplate, TheMessages },
 };
 </script> 
 
