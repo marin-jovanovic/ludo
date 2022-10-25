@@ -1,3 +1,9 @@
 generate access token
 write access token to db
 return in payload rest
+
+
+    # GET 	Retrieve information about the REST API resource
+    # POST 	Create a REST API resource
+    # PUT 	Update a REST API resource
+    # DELETE 	Delete a REST API resource or related component
