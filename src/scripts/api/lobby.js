@@ -17,7 +17,12 @@ async function getGames() {
     return await apiCalls.handleNewResponse(
         await apiCalls.api.get(
             "lobby/",
+//             {
+//                 ...            JSON.stringify({"username": username}),
+// ...                
+//             }
             apiCalls.getAuthenticationHeader()
+    
         )
     );
 }
