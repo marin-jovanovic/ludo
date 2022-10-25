@@ -22,6 +22,16 @@ async function getGames() {
     );
 }
 
+async function getSpecificGame(name) {
+    return await apiCalls.handleNewResponse(
+        await apiCalls.api.get(
+            `lobby/${name}`,
+            apiCalls.getAuthenticationHeader()
+        )
+    );
+}
+
+
 // todo missing data
 async function leaveGame(gameName) {
     return await apiCalls.handleNewResponse(
@@ -47,6 +57,8 @@ export const apiLobby = {
     createGame,
     getGames,
     leaveGame,
-    joinGame
+    joinGame,
+    getSpecificGame,
+    
 
 }
