@@ -3,11 +3,8 @@ import urllib
 
 from django.http import JsonResponse
 from rest_framework.views import APIView
-
-# from backend.api.auth.main import create_user
-from backend.api.cqrs_c.users import auth_user
 from backend.api.cqrs_c.game import create_game, leave_game, join_game, \
-    get_specific_game, get_games
+    get_specific_game, get_games, in_which_game_is_user
 from backend.api.view.comm import get_auth_ok_response_template
 
 
@@ -20,16 +17,13 @@ class LobbyView(APIView):
         if not name:
             response = get_auth_ok_response_template(request)
             response['payload'] = get_games()
+            response["payload"]["payload"]["inGame"] = in_which_game_is_user(request.username)["payload"]
         else:
             response = get_auth_ok_response_template(request)
             response['payload'] = get_specific_game(name)
 
         return JsonResponse(response)
 
-    # GET 	Retrieve information about the REST API resource
-    # POST 	Create a REST API resource
-    # PUT 	Update a REST API resource
-    # DELETE 	Delete a REST API resource or related component
 
     # todo observers
 
@@ -39,9 +33,6 @@ class LobbyView(APIView):
 
         unquoted_body = urllib.parse.unquote(request.body)
         body = urllib.parse.parse_qs(unquoted_body)
-
-        # print(f"{request.data=}")
-        # print(f"{body=}")
 
         try:
             capacity = body["capacity"][0]
