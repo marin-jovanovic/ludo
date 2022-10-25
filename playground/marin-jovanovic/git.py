@@ -21,7 +21,7 @@ def main():
 
     comment = "wip: master detail"
 
-    comment = "impl: messaging; ws updating"
+    comment = "impl: user game action log"
 
     if same_comment:
         if not comment:
