@@ -79,10 +79,12 @@ export default {
   },
   async mounted() {
     this.username = sessionStorage.getItem("username");
-    this.gameId = sessionStorage.getItem("gameId");
+    // this.gameId = sessionStorage.getItem("gameId");
+
+    this.gameId = this.$route.params.id;
 
     let res = await apiGame.getGame(this.gameId);
-    if (res["auth"]["status"]) {
+    if (res["auth"]["status"] && res["payload"]["status"]) {
       let p = res["payload"]["payload"];
 
       console.table(p);
