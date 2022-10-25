@@ -23,9 +23,7 @@ urlpatterns = [
     path("signup/<str:username>", SignUpView.as_view()),
     path("login/<str:username>", LoginView.as_view()),
     path("logout/<str:username>", LogoutView.as_view()),
-    path("validate/<str:username>", ValidationView.as_view()),
-
-    # path("lobby/<str:username>", ValidationView.as_view()),
+    # path("validate/<str:username>", ValidationView.as_view()),
 
     path("lobby/", LobbyView.as_view()),
     path("lobby/<str:name>", LobbyView.as_view()),
@@ -38,7 +36,6 @@ urlpatterns = [
 
     path("settings/", SettingsView.as_view()),
 
-    # path()
 ]
 
 
