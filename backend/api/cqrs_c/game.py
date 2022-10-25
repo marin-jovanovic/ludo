@@ -9,7 +9,9 @@ from backend.api.model.game import Game, \
     game_join_notifier
 from backend.api.cqrs_q.game import __is_game_full, __check_game_name_exists, \
     __is_empty, __get_game
-from backend.api.model.game_state import add_to_order
+from backend.api.cqrs_c.player_order import add_to_order
+
+from backend.api.cqrs_c.game_log import add_entry
 
 
 def create_game(creator_username, name, capacity):
@@ -18,12 +20,7 @@ def create_game(creator_username, name, capacity):
     if capacity <= 1:
         return {"status": False, "payload": "capacity must be greater than 1"}
 
-
     r = get_user(creator_username)
-    if not r["status"]:
-        return r
-
-    r = make_user_game_creator(creator_username)
     if not r["status"]:
         return r
 
@@ -31,13 +28,19 @@ def create_game(creator_username, name, capacity):
     if r["payload"]:
         return {"status": False, "payload": "duplicate game name"}
 
+    r = make_user_game_creator(creator_username)
+    if not r["status"]:
+        return r
 
     g = Game(name=name, capacity=capacity)
     g.save()
 
-    # print("game created", g.name, g.capacity)
-
     r = add_to_order(creator_username, name)
+    if not r["status"]:
+        return r
+
+
+    r = add_entry(name, creator_username, None, None, "hello world")
     if not r["status"]:
         return r
 
@@ -114,9 +117,17 @@ def join_game(game_name, username):
 
     return r
 
-from backend.api.model.game_state import get_player_order
+
+from backend.api.model.player_order import get_player_order
+
+
 def get_specific_game(game_id):
-    g_o = _get_game_model().objects.get(name=game_id)
+    print(f"{game_id=}")
+
+    try:
+        g_o = _get_game_model().objects.get(name=game_id)
+    except _get_game_model().DoesNotExist:
+        return {"status": False}
 
     r = get_users_in_game(g_o.name)
     if r["status"]:
@@ -125,7 +136,7 @@ def get_specific_game(game_id):
         return r
 
     for i in currently_active_players:
-        print(f"{i.username=}")
+        print(f"{i.username=} {i.game_role=}")
 
     return {"status": True,
             "payload": {
@@ -136,14 +147,15 @@ def get_specific_game(game_id):
                 "action": "tmp_",
                 "header": "determination who goes first",
                 "state": {},
+                "creator": "tmp_",
 
             }
     }
 
 
 def get_games():
-    full = []
-    not_full = []
+    full = {}
+    not_full = {}
 
     for i in _get_game_model().objects.all():
 
@@ -166,20 +178,39 @@ def get_games():
         currently_active_players = [i.username for i in
                                     currently_active_players]
 
+        g = {
+                "name": i.name,
+                "capacity": i.capacity,
+                "players": currently_active_players
+            }
+
         if is_full:
-            full.append({"name": i.name, "capacity": i.capacity,
-                         "players": currently_active_players})
+            full[i.name] = g
 
         else:
-            not_full.append({"name": i.name, "capacity": i.capacity,
-                             "players": currently_active_players})
+            not_full[i.name] = g
 
-    print(f"ret {full=} {not_full=}")
     return {"status": True, "payload": {
         "full": full,
-        "not full": not_full
+        "not full": not_full,
+        # ""
     }}
 
+from backend.api.model.users import get_user_model
+
+def in_which_game_is_user(username):
+    # print("usernaem", username)
+
+    r = get_user_model().objects.get(username=username).currently_playing_id
+    # print(r)
+
+    try:
+        g = _get_game_model().objects.get(id=r).name
+    except _get_game_model().DoesNotExist:
+        g = None
+    # print(g.name)
+
+    return {"status": False, "payload": g}
 
 def __delete_game(name):
     if __check_game_name_exists(name):
