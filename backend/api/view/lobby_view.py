@@ -6,19 +6,23 @@ from rest_framework.views import APIView
 
 # from backend.api.auth.main import create_user
 from backend.api.cqrs_c.users import auth_user
-from backend.api.model.game import create_game, leave_game, join_game, get_games
+from backend.api.cqrs_c.game import create_game, leave_game, join_game, \
+    get_specific_game, get_games
 from backend.api.view.comm import get_auth_ok_response_template
 
 
 class LobbyView(APIView):
 
-    def get(self, request):
+    def get(self, request, name=None):
 
         print("get games")
-        response = get_auth_ok_response_template(request)
-        response['payload'] = get_games()
 
-
+        if not name:
+            response = get_auth_ok_response_template(request)
+            response['payload'] = get_games()
+        else:
+            response = get_auth_ok_response_template(request)
+            response['payload'] = get_specific_game(name)
 
         return JsonResponse(response)
 
@@ -53,7 +57,7 @@ class LobbyView(APIView):
         return JsonResponse(response)
 
     def put(self, request, name):
-        print("put lobby", name)
+        # print("put lobby", name)
         username = request.username
 
         unquoted_body = urllib.parse.unquote(request.body)
@@ -61,8 +65,8 @@ class LobbyView(APIView):
 
         response = get_auth_ok_response_template(request)
 
-        print(f"{body=}")
-        print(f"{request.data=}")
+        # print(f"{body=}")
+        # print(f"{request.data=}")
 
         if "leave" in request.data:
             # leave = body["leave"][0]
