@@ -65,6 +65,9 @@ router.beforeEach((to, from, next) => {
   store.dispatch("setPath", { path: to.path, isPublic: isPublic });
 
   if (!isPublic && !loggedIn) {
+    // router.push("/login")
+
+    // todo fix
     return next({
       path: '/login',
       query: { returnUrl: to.path }
