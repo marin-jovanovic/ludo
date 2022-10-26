@@ -119,12 +119,25 @@ def join_game(game_name, username):
 
 
 from backend.api.model.player_order import get_player_order
-from backend.api.model.game_log import get_entries, is_any_entry_present
+from backend.api.model.game_log import get_entries, is_any_entry_present, \
+    GameLog
 from backend.api.game.game import determine_order, get_config
 from backend.api.model.player_order import _get_player_order_model
 from backend.api.cqrs_c.player_order import add_to_order
 from backend.api.model.player_order import get_player_order
 from backend.api.model.game_log import get_entries
+
+def receive_instruction(game_id, instruction_id):
+    r = __get_game(game_id)
+    if not r["status"]:
+        return r
+    else:
+        game_o = r["payload"]
+
+    instr_id = not GameLog.objects.filter(game=game_o,
+                                          instruction_id=instruction_id).update(performed=True)
+
+    return {"status": True}
 
 def get_specific_game(game_id):
     print(f"{game_id=}")
@@ -191,7 +204,7 @@ def get_specific_game(game_id):
             )
 
             i["player"] = t.player.username
-
+            i["performed"] = False
             print(i)
 
             r = add_entry(**i)
