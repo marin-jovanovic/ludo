@@ -40,9 +40,9 @@ def create_game(creator_username, name, capacity):
         return r
 
 
-    r = add_entry(name, creator_username, None, None, "hello world")
-    if not r["status"]:
-        return r
+    # r = add_entry(name, creator_username, None, None, "hello world")
+    # if not r["status"]:
+    #     return r
 
     msg = json.dumps({
         "source": "game created",
@@ -119,10 +119,16 @@ def join_game(game_name, username):
 
 
 from backend.api.model.player_order import get_player_order
-
+from backend.api.model.game_log import get_entries, is_any_entry_present
+from backend.api.game.game import determine_order, get_config
+from backend.api.model.player_order import _get_player_order_model
+from backend.api.cqrs_c.player_order import add_to_order
 
 def get_specific_game(game_id):
     print(f"{game_id=}")
+
+    # get_entries(game_id)
+
 
     try:
         g_o = _get_game_model().objects.get(name=game_id)
@@ -138,6 +144,89 @@ def get_specific_game(game_id):
     for i in currently_active_players:
         print(f"{i.username=} {i.game_role=}")
 
+    r = is_any_entry_present(game=game_id)
+    if r["status"]:
+        r = r["payload"]
+    else:
+        return r
+
+    # player_order = get_player_order(game_id)
+
+    t = _get_player_order_model().objects.filter(game_id=g_o)
+
+
+
+    if r:
+        print("init roll in db")
+    else:
+        print("adding init data")
+
+        game_conf = get_config()
+
+        order = determine_order(
+            g_o.capacity,
+            # game_conf['number of players'],
+            game_conf['choice: highest; order'],
+            game_conf['choice: clockwise; anticlockwise'],
+            game_conf['flag: tie in order'],
+        )
+
+        r = __get_game(game_id)
+        if r["status"]:
+            game_o = r["payload"]
+        else:
+            return r
+
+        m_join_to_turn_index = {}
+        turn = 0
+        for i in order:
+            print(i)
+
+            if i["action"] == "goes":
+                m_join_to_turn_index[i["player"]] = turn
+
+                _get_player_order_model().objects.filter(
+                    game_id=g_o,
+                    join_index=i["player"]
+                ).update(turn_index=turn)
+
+                turn += 1
+
+        print(f"{m_join_to_turn_index=}")
+
+        for i in order:
+            print(i)
+            i["game"] = game_id
+
+            t = _get_player_order_model().objects.filter(game_id=g_o)
+            # print("game exist", t)
+            # print("join in")
+
+            t = _get_player_order_model().objects.get(
+                game_id=g_o,
+                join_index=i["player"]
+            )
+
+            # if i["action"] == "goes":
+
+
+            # t.update()
+
+            # print("join index", t, t.join_index, t.turn_index)
+            # print(t.player)
+
+            # t = get_user_model().objects.filter(
+            #     currently_playing__name=game_id,
+            #     username=
+            #     )
+
+            i["player"] = t.player.username
+
+            print(i)
+
+            r = add_entry(**i)
+            print("result add", r)
+
     return {"status": True,
             "payload": {
                 "name": g_o.name,
@@ -146,6 +235,8 @@ def get_specific_game(game_id):
                 "turn": "a",
                 "action": "tmp_",
                 "header": "determination who goes first",
+
+                # game state
                 "state": {},
                 "creator": "tmp_",
 
