@@ -74,6 +74,7 @@ def create_message(sender, game, content):
 
     })
 
+    print(f"{msg=}")
 
     # game_created_notifier.notify(msg)
     message_notifier.notify(msg)
