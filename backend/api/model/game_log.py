@@ -58,9 +58,17 @@ def get_entries(game):
     else:
         return r
     try:
-        any_entries = GameLog.objects.get(game=game_o)
+        any_entries = GameLog.objects.filter(game=game_o)
             # .exists()
+        return  {"status": True, "payload": {i.instruction_id: [
+            i.player.username,
+            i.token,
+            i.dice_result,
+            i.action
+        ] for i in any_entries
+        }}
     except GameLog.DoesNotExist:
         any_entries = None
+        return  {"status": False,}
 
-    print(f"{any_entries=}")
+    # print(f"{any_entries=}")
