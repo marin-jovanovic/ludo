@@ -688,9 +688,9 @@ def find_max(current_iteration_roll_history):
 
 class Board:
 
-    def __init__(self, row_count, column_count, players):
-        self.row_count = row_count
-        self.column_count = column_count
+    def __init__(self,  players):
+        # self.row_count = row_count
+        # self.column_count = column_count
         self.players = players
 
         p = {
@@ -847,39 +847,138 @@ def board_configuration():
             3: 'path1',
         },
     }
+def get_start_pool():
+    return {
+        "0": {
+            "0": {
+                "row": 2,
+                "column": 2
+            },
+            "1": {
+                "row": 2,
+                "column": 3
+            },
+            "2": {
+                "row": 3,
+                "column": 2
+            },
+            "3": {
+                "row": 3,
+                "column": 3
+            }
+
+        },
+        "1": {
+
+            "0": {
+                "row": 2,
+                "column": 11
+            },
+            "1": {
+                "row": 3,
+                "column": 11
+            },
+            "2": {
+                "row": 2,
+                "column": 12
+            },
+            "3": {
+                "row": 3,
+                "column": 12
+            }
+
+        },
+        "2": {
+            "0": {
+                "row": 11,
+                "column": 2
+            },
+            "1": {
+                "row": 12,
+                "column": 2
+            },
+            "2": {
+                "row": 11,
+                "column": 3
+            },
+            "3": {
+                "row": 12,
+                "column": 3
+            }
+        },
+        "3": {
+            "0": {
+                "row": 11,
+                "column": 11
+            },
+            "1": {
+                "row": 12,
+                "column": 11
+            },
+            "2": {
+                "row": 11,
+                "column": 12
+            },
+            "3": {
+                "row": 12,
+                "column": 12
+            }
+        }
+
+    };
 
 
 def main():
-    # game_conf = get_config()
-    #
-    # order = determine_order(
-    #     game_conf['number of players'],
-    #     game_conf['choice: highest; order'],
-    #     game_conf['choice: clockwise; anticlockwise'],
-    #     game_conf['flag: tie in order'],
-    # )
-    #
+
+    # print(80 * "-")
+    order_driver()
+
+    game_conf = get_config()
+
+    order = determine_order(
+        game_conf['number of players'],
+        game_conf['choice: highest; order'],
+        game_conf['choice: clockwise; anticlockwise'],
+        game_conf['flag: tie in order'],
+    )
+    print()
+
     # print("log")
     # [print(i) for i in order]
-    #
+
     # board_configuration()
+
+    # f_same_destination = get_config()["flag: same destination"]
     #
-    # # f_same_destination = get_config()["flag: same destination"]
-    # #
-    # # if f_same_destination:
-    # #     # print('same destination')
-    # #     players_id = [i for i in range(get_config()['number of players'])]
-    # #     # print(players_id)
-    # #
-    # #     # p = {i: for i in players_id}
-    # #
-    # # else:
-    # #     # print('not same destination')
-    # #     # print("not implemented")
-    # #     sys.exit(-1)
+    # if f_same_destination:
+    #     # print('same destination')
+    #     players_id = [i for i in range(get_config()['number of players'])]
+    #     # print(players_id)
     #
-    # todo_destination_p = 500
+    #     # p = {i: for i in players_id}
     #
+    # else:
+    #     # print('not same destination')
+    #     # print("not implemented")
+    #     sys.exit(-1)
+
+    todo_destination_p = 500
+
+    def move_token(game, player, token, step):
+        return {
+        'game': game,
+        'player': player,
+        'token': token,
+        'dice_result': step,
+        'action': "move"
+    }
+
+    start_pool = get_start_pool()
+
+    for player, tokens in start_pool.items():
+        for token_id, position in tokens.items():
+            print(player, token_id, position["row"], position["column"])
+
     # players = {}
     # for i in range(get_config()["number of players"]):
     #     tokens = {}
@@ -898,40 +997,40 @@ def main():
     #     print("player",k)
     #     for a,b in v.items():
     #         print("token", a,b)
-    # # print(players)
-    #
-    # # players, tokens
-    # b = Board(row_count=15, column_count=15, players=players)
-    # #
-    #
-    # # move
-    # print('move')
-    # b.move_token(player=1, token_id=1, step=2)
-    # order.append({"player": 1, "token": 1, "step": 2})
-    # [print(i) for i in order]
-    #
-    # b.print_board_state()
-    #
-    # # move
-    # print('move')
-    # b.move_token(player=1, token_id=1, step=2)
-    # b.print_board_state()
-    #
-    # # multiple at same location
-    # print('multiple at the same location')
-    # b.move_token(player=1, token_id=2, step=4)
-    # b.print_board_state()
-    #
-    # print('move pl2')
-    # b.move_token(player=2, token_id=1, step=3)
-    # b.print_board_state()
-    #
-    # print('eat')
-    # b.move_token(player=2, token_id=1, step=1)
-    # b.print_board_state()
+    # print()
+    # print(players)
 
-    print(80 * "-")
-    order_driver()
+    # todo
+    # players, tokens
+    b = Board(players=players)
+    #
+
+    # move
+    print('move')
+    b.move_token(player=1, token_id=1, step=2)
+    order.append(move_token(None, 1, 1, 2))
+    [print(i) for i in order]
+
+    b.print_board_state()
+
+    # move
+    print('move')
+    b.move_token(player=1, token_id=1, step=2)
+    b.print_board_state()
+
+    # multiple at same location
+    print('multiple at the same location')
+    b.move_token(player=1, token_id=2, step=4)
+    b.print_board_state()
+
+    print('move pl2')
+    b.move_token(player=2, token_id=1, step=3)
+    b.print_board_state()
+
+    print('eat')
+    b.move_token(player=2, token_id=1, step=1)
+    b.print_board_state()
+
 
     # roled = 6
     #
@@ -971,3 +1070,5 @@ def generate_tile_mapping(p):
 
 if __name__ == '__main__':
     main()
+
+
