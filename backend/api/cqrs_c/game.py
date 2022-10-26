@@ -126,6 +126,7 @@ from backend.api.model.player_order import _get_player_order_model
 from backend.api.cqrs_c.player_order import add_to_order
 from backend.api.model.player_order import get_player_order
 from backend.api.model.game_log import get_entries
+from django.db.models import Max
 
 def receive_instruction(game_id, instruction_id):
     r = __get_game(game_id)
@@ -134,8 +135,40 @@ def receive_instruction(game_id, instruction_id):
     else:
         game_o = r["payload"]
 
-    instr_id = not GameLog.objects.filter(game=game_o,
-                                          instruction_id=instruction_id).update(performed=True)
+    if instruction_id == "test":
+        print("test")
+
+    else:
+
+        GameLog.\
+            objects.\
+            filter(
+                game=game_o,
+                instruction_id=instruction_id
+            ).\
+            update(performed=True)
+
+    last_performed_instruction = GameLog.objects.filter(performed=True).aggregate(Max('instruction_id'))["instruction_id__max"]
+    last_instruction = GameLog.objects.aggregate(Max('instruction_id'))["instruction_id__max"]
+
+    print(f"{last_performed_instruction=}")
+    print(f"{last_instruction=}")
+
+    if (last_performed_instruction == last_instruction):
+        print("this is last instruciton, generate new")
+
+        last_command = GameLog.objects.get(instruction_id=last_performed_instruction).action
+        print(f"{last_command=}")
+        if last_command == "goes":
+            # todo here
+            print("generate board ")
+
+        else:
+            pass
+            # todo think this can only be choice if user rolled 6
+
+    else:
+        print("not last instruction")
 
     return {"status": True}
 
