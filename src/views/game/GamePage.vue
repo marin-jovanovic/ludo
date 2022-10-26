@@ -89,6 +89,8 @@ export default {
 
       console.table(p);
 
+      console.table(p["log"]);
+
       this.header = p.header;
 
       if (p.turn === this.username) {
