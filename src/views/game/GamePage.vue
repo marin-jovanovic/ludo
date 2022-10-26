@@ -15,10 +15,17 @@
 
     <hr />
 
+    <button @click="test">test</button>
+
+    <button @click="board">board</button>
+
     <div class="row">
+      <div class="col" style="border: 2px solid black">
+        <TheGame style="border: 2px solid black"></TheGame>
+      </div>
+
       <div class="col">
         <div class="row">
-          <div class="col"></div>
           <div class="col">
             <TheDice ref="dice"></TheDice>
           </div>
@@ -26,11 +33,11 @@
             <button @click="rollDice">roll dice</button>
           </div>
         </div>
+        <div class="row">
+          <div class="col"><TheMessages></TheMessages></div>
+        </div>
       </div>
-      <div class="col"><TheMessages></TheMessages></div>
     </div>
-
-    <TheGame></TheGame>
 
     <hr />
   </BaseUserTemplate>
@@ -46,6 +53,7 @@ import { router } from "@/router/router";
 import TheMessages from "./TheMessages.vue";
 import { apiGame } from "@/scripts/api/game";
 // import { wsListeners } from "@/scripts/ws_listener";
+import { apiBoard } from "@/scripts/api/board";
 
 export default {
   data() {
@@ -158,6 +166,26 @@ export default {
     }
   },
   methods: {
+    async board() {
+      let res = await apiBoard.getBoard("1", "startPool");
+
+      console.log(res["payload"]["payload"]);
+
+      if (!(res["auth"]["status"] && res["payload"]["status"])) {
+        console.log("game leave err");
+      }
+    },
+    async test() {
+      let res = await apiGame.actionPerformed(
+        this.gameId,
+        this.username,
+        "test"
+      );
+
+      if (!(res["auth"]["status"] && res["payload"]["status"])) {
+        console.log("game leave err");
+      }
+    },
     getUserActive(message) {
       console.log("ws msg received, todo");
       console.log(message);
