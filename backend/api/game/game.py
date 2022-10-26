@@ -11,10 +11,6 @@ def get_dice_result():
 
 def get_player_one_moves():
     return {
-        '-1': {
-            "row": -1,
-            "column": -1
-        },
         "0": {
             "row": 6,
             "column": 1
@@ -236,10 +232,6 @@ def get_player_one_moves():
 
 def get_player_two_moves():
     return {
-        '-1': {
-            "row": -1,
-            "column": -1
-        },
         "0": {
             "row": 1,
             "column": 8
@@ -688,9 +680,7 @@ def find_max(current_iteration_roll_history):
 
 class Board:
 
-    def __init__(self,  players):
-        # self.row_count = row_count
-        # self.column_count = column_count
+    def __init__(self,  players, start_pool=None):
         self.players = players
 
         p = {
@@ -700,24 +690,60 @@ class Board:
         }
         self.universal_tiles_to_player_tiles_mapping = generate_tile_mapping(p)
 
-        # for tile, tile_id in self.universal_tiles_to_player_tiles_mapping.items():
-        #     print(tile, '=>', [str(i) for i in tile_id])
-
         self.board_state = defaultdict(lambda: defaultdict(set))
-        for p_id, p in players.items():
+
+        # for player,
+
+        for p_id, p in self.players.items():
             # print(p_id,p)
+            # p_id = int(p_id)
             for t_id, token in p.items():
+
+                # print(p_id,  type(p_id))
+                # print(start_pool)
+                #
+                # print(start_pool[0])
+
+                token_start_position = start_pool[str(p_id)][str(token.id_)]
+                # print(f"{token_start_position=}")
+                #
+                # print(f"{token.id_=}")
+
                 # print(str(token))
-                token_global_position = token.normalize_position()
-                row = token_global_position['row']
-                column = token_global_position['column']
+                # token_global_position = token.normalize_position()
+                # row = token_global_position['row']
+                # column = token_global_position['column']
+
+                # row, column = token_start_position
+
+                row = token_start_position['row']
+                column = token_start_position['column']
+
+                # print(f"{row=} {column=}")
+
                 self.board_state[row][column].add(token)
 
+        # for player, tokens in start_pool.items():
+        #     for token_id, position in tokens.items():
+        #         print(f"{player=} {token_id=} {position=}")
+        #
+        #         self.board_state[position["row"]][position["column"]].add(token)
+        #
+        #         # print(player, token_id, position["row"], position["column"])
+        # print("************")
+
+
     def move_token(self, player, token_id, step):
-        token = Token(id_=token_id, owner=player, destination_position=None,
-                      moves=None)
+
+        # if self.players[player][
+        #     token_id].is_in_starting_pool:
+        #
+        #     print("in starting pool")
+
         token_global_position = self.players[player][
             token_id].normalize_position()
+
+
         row = token_global_position['row']
         column = token_global_position['column']
 
@@ -728,10 +754,12 @@ class Board:
 
         self.board_state[row][column].remove(to_remove)
 
+
         self.players[player][token_id].update_position(step)
 
         token_global_position = self.players[player][
             token_id].normalize_position()
+
         row = token_global_position['row']
         column = token_global_position['column']
 
@@ -769,7 +797,13 @@ class Token:
 
     def __init__(self, id_, destination_position, owner, moves):
         self.id_ = id_
-        self.position = -1
+
+        self.position = None
+        self.is_in_starting_pool = True
+
+        self.norm_row = None
+        self.norm_col = None
+
         self.destination_position = destination_position
         self.is_at_destination = False
         self.owner = owner
@@ -782,6 +816,11 @@ class Token:
     #     return False
 
     def normalize_position(self):
+        if self.is_in_starting_pool:
+            print("in starting pool")
+            return self.position
+
+        # print("norm", self.moves)
         return self.moves[str(self.position)]
 
     def update_position(self, step):
@@ -931,17 +970,17 @@ def get_start_pool():
 def main():
 
     # print(80 * "-")
-    order_driver()
-
-    game_conf = get_config()
-
-    order = determine_order(
-        game_conf['number of players'],
-        game_conf['choice: highest; order'],
-        game_conf['choice: clockwise; anticlockwise'],
-        game_conf['flag: tie in order'],
-    )
-    print()
+    # order_driver()
+    #
+    # game_conf = get_config()
+    #
+    # order = determine_order(
+    #     game_conf['number of players'],
+    #     game_conf['choice: highest; order'],
+    #     game_conf['choice: clockwise; anticlockwise'],
+    #     game_conf['flag: tie in order'],
+    # )
+    # print()
 
     # print("log")
     # [print(i) for i in order]
@@ -975,24 +1014,38 @@ def main():
 
     start_pool = get_start_pool()
 
-    for player, tokens in start_pool.items():
-        for token_id, position in tokens.items():
-            print(player, token_id, position["row"], position["column"])
+    # for player, tokens in start_pool.items():
+    #     for token_id, position in tokens.items():
+    #         print(player, token_id, position["row"], position["column"])
 
-    # players = {}
-    # for i in range(get_config()["number of players"]):
-    #     tokens = {}
-    #
-    #     if i == 0:
-    #         moves = get_player_one_moves()
-    #     elif i == 1:
-    #         moves = get_player_two_moves()
-    #
-    #     for j in range(get_config()['tokens per player']):
-    #         tokens[j] = Token(j, destination_position=todo_destination_p, owner=i, moves=moves)
-    #
-    #     players[i] = tokens
-    #
+    m_player_to_moves = {
+        0: get_player_one_moves(),
+        1: get_player_two_moves(),
+        2: get_player_one_moves(),
+        3: get_player_two_moves(),
+    }
+
+    players = {}
+    for i in range(get_config()["number of players"]):
+        tokens = {}
+
+        # moves =
+
+        # if i == 0:
+        #     moves = get_player_one_moves()
+        # elif i == 1:
+        #     moves = get_player_two_moves()
+
+        for j in range(get_config()['tokens per player']):
+            tokens[j] = Token(
+                j,
+                destination_position=todo_destination_p,
+                owner=i,
+                moves=m_player_to_moves[i]
+            )
+
+        players[i] = tokens
+
     # for k,v in players.items():
     #     print("player",k)
     #     for a,b in v.items():
@@ -1002,14 +1055,16 @@ def main():
 
     # todo
     # players, tokens
-    b = Board(players=players)
-    #
+    b = Board(players=players, start_pool = get_start_pool())
+    b.print_board_state()
+
+    print("----")
 
     # move
     print('move')
     b.move_token(player=1, token_id=1, step=2)
-    order.append(move_token(None, 1, 1, 2))
-    [print(i) for i in order]
+    # order.append(move_token(None, 1, 1, 2))
+    # [print(i) for i in order]
 
     b.print_board_state()
 
@@ -1044,6 +1099,7 @@ def order_driver():
         game_conf['number of players'],
         game_conf['choice: highest; order'],
         game_conf['choice: clockwise; anticlockwise'],
+        # True
         game_conf['flag: tie in order'],
     )
 
