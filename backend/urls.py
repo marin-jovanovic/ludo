@@ -6,14 +6,11 @@ from backend.api.view.signup_view import SignUpView
 from backend.api.view.logout_view import LogoutView
 from backend.api.startup import startup_configuration
 from backend.api.view.validation_view import ValidationView
-
 from backend.api.view.lobby_view import LobbyView
-
 from backend.api.view.settings_view import SettingsView
 from backend.api.view.game_view import GameView
-
 from backend.api.view.message_view import MessageView
-
+from backend.api.view.board_view import BoardView
 
 
 startup_configuration.print_app_logo()
@@ -35,6 +32,8 @@ urlpatterns = [
     path("message/<str:game>", MessageView.as_view()),
 
     path("settings/", SettingsView.as_view()),
+
+    path("board/<str:name>/<str:resource>", BoardView.as_view()),
 
 ]
 
