@@ -2,8 +2,10 @@
 class Canvas {
     constructor() {
         this.canvas = document.querySelector("canvas");
-        this.canvas.width = innerWidth;
-        this.canvas.height = innerHeight;
+        this.canvas.width = 600;
+        this.canvas.height = 600;
+        // this.canvas.width = innerWidth;
+        // this.canvas.height = innerHeight;
 
         this.context = this.canvas.getContext("2d");
 
