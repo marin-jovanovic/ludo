@@ -123,12 +123,11 @@ from backend.api.model.game_log import get_entries, is_any_entry_present
 from backend.api.game.game import determine_order, get_config
 from backend.api.model.player_order import _get_player_order_model
 from backend.api.cqrs_c.player_order import add_to_order
+from backend.api.model.player_order import get_player_order
+from backend.api.model.game_log import get_entries
 
 def get_specific_game(game_id):
     print(f"{game_id=}")
-
-    # get_entries(game_id)
-
 
     try:
         g_o = _get_game_model().objects.get(name=game_id)
@@ -150,12 +149,6 @@ def get_specific_game(game_id):
     else:
         return r
 
-    # player_order = get_player_order(game_id)
-
-    t = _get_player_order_model().objects.filter(game_id=g_o)
-
-
-
     if r:
         print("init roll in db")
     else:
@@ -172,15 +165,12 @@ def get_specific_game(game_id):
         )
 
         r = __get_game(game_id)
-        if r["status"]:
-            game_o = r["payload"]
-        else:
+        if not r["status"]:
             return r
 
         m_join_to_turn_index = {}
         turn = 0
         for i in order:
-            print(i)
 
             if i["action"] == "goes":
                 m_join_to_turn_index[i["player"]] = turn
@@ -192,33 +182,13 @@ def get_specific_game(game_id):
 
                 turn += 1
 
-        print(f"{m_join_to_turn_index=}")
-
         for i in order:
-            print(i)
             i["game"] = game_id
-
-            t = _get_player_order_model().objects.filter(game_id=g_o)
-            # print("game exist", t)
-            # print("join in")
 
             t = _get_player_order_model().objects.get(
                 game_id=g_o,
                 join_index=i["player"]
             )
-
-            # if i["action"] == "goes":
-
-
-            # t.update()
-
-            # print("join index", t, t.join_index, t.turn_index)
-            # print(t.player)
-
-            # t = get_user_model().objects.filter(
-            #     currently_playing__name=game_id,
-            #     username=
-            #     )
 
             i["player"] = t.player.username
 
@@ -227,19 +197,24 @@ def get_specific_game(game_id):
             r = add_entry(**i)
             print("result add", r)
 
+    r = get_entries(game_id)
+    if not r["status"]:
+        return r
+    log = r["payload"]
+
     return {"status": True,
             "payload": {
-                "name": g_o.name,
-                "capacity": g_o.capacity,
+                # "name": g_o.name,
+                # "capacity": g_o.capacity,
                 "players": get_player_order(game_name=game_id),
-                "turn": "a",
-                "action": "tmp_",
+                # "turn": "a",
+                # "action": "tmp_",
                 "header": "determination who goes first",
 
                 # game state
                 "state": {},
                 "creator": "tmp_",
-
+                "log": log
             }
     }
 
