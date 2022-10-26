@@ -31,6 +31,8 @@ class GameLog(models.Model):
     # todo extract in separate table
     action = models.TextField()
 
+    performed = models.BooleanField()
+
 from backend.api.cqrs_q.game import __get_game
 
 def is_any_entry_present(game):
@@ -60,12 +62,16 @@ def get_entries(game):
     try:
         any_entries = GameLog.objects.filter(game=game_o)
             # .exists()
-        return  {"status": True, "payload": {i.instruction_id: [
-            i.player.username,
-            i.token,
-            i.dice_result,
-            i.action
-        ] for i in any_entries
+        return  {"status": True, "payload": {i.instruction_id:
+                                                 {
+                                                     "username": i.player.username,
+                                                     "token": i.token,
+                                                     "diceResult": i.dice_result,
+                                                     "action": i.action,
+                                                     "performed": i.performed
+                                                 }
+
+        for i in any_entries
         }}
     except GameLog.DoesNotExist:
         any_entries = None
