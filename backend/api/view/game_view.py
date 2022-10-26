@@ -1,11 +1,8 @@
-import json
 import urllib
 
 from django.http import JsonResponse
 from rest_framework.views import APIView
 
-# from backend.api.auth.main import create_user
-from backend.api.cqrs_c.users import auth_user
 from backend.api.cqrs_c.game import create_game, leave_game, join_game, \
     get_games, get_specific_game
 from backend.api.model.player_order import get_player_order
