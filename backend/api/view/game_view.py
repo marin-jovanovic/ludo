@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from rest_framework.views import APIView
 
 from backend.api.cqrs_c.game import create_game, leave_game, join_game, \
-    get_games, get_specific_game
+    get_games, get_specific_game, receive_instruction
 from backend.api.model.player_order import get_player_order
 from backend.api.view.comm import get_auth_ok_response_template
 from backend.api.cqrs_c.game_log import add_entry
@@ -17,6 +17,31 @@ class GameView(APIView):
         print("get games")
         response = get_auth_ok_response_template(request)
         response['payload'] = get_specific_game(name)
+
+        return JsonResponse(response)
+
+    def put(self, request, name):
+        # todo check if authorized
+
+        print("put game, only for setting received flag")
+        response = get_auth_ok_response_template(request)
+
+        unquoted_body = urllib.parse.unquote(request.body)
+        body = urllib.parse.parse_qs(unquoted_body)
+
+        print(f"{request.body=}")
+        print(f"{request.data=}")
+
+        try:
+            instruction_id = body["instructionId"][0]
+            # action = body["action"][0]
+        except KeyError:
+            instruction_id = request.data["instructionId"]
+            # action = request.data["action"]
+
+        print(f"{instruction_id=}")
+
+        response['payload'] = receive_instruction(name, instruction_id)
 
         return JsonResponse(response)
 
