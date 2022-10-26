@@ -27,10 +27,29 @@ async function updateGame(game, player, token, action) {
 
 }
 
+async function actionPerformed(game, player, instruction_id) {
+    // console.log("action", action)
+
+    return await apiCalls.handleNewResponse(
+        await apiCalls.api.put(
+            `game/${game}`,
+            JSON.stringify({
+                player: player,
+                instructionId: instruction_id,
+            }),
+            apiCalls.getAuthenticationHeader()
+        )
+    );
+
+}
+
+
 
 
 export const apiGame = {
 getGame,
-updateGame    
+updateGame    ,
+actionPerformed,
+
 
 }
