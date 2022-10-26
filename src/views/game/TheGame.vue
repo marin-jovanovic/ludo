@@ -31,9 +31,9 @@ export default {
 };
 </script> 
     
-    <style>
+    <!-- <style>
 @import "ludo/index.css";
-</style>
+</style> -->
 
   
   
