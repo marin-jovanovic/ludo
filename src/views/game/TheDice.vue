@@ -14,8 +14,8 @@ export default {
     dice.startup();
   },
   methods: {
-    rollDice() {
-      dice.rollDice(5);
+    rollDice(value) {
+      dice.rollDice(value);
     },
   },
 };
