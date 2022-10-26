@@ -16,12 +16,12 @@ class SignUpView(APIView):
         # password = request.password
 
         response = get_auth_ok_response_template(request)
-        response["payload"]["status"] = True
-        response["payload"]["payload"] = {
-            'username': request.username,
-            'settings1': 'r 1',
-            'settings2': 'r 2',
-        }
+        # response["payload"]["status"] = True
+        # response["payload"]["payload"] = {
+        #     'username': request.username,
+        #     # 'settings1': 'r 1',
+        #     # 'settings2': 'r 2',
+        # }
         # response["payload"]["payload"] = 'if you can pass middleware you are authenticated'
 
         # response["payload"]["status"] = create_user(username, password)
