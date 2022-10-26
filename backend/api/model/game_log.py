@@ -31,3 +31,36 @@ class GameLog(models.Model):
     # todo extract in separate table
     action = models.TextField()
 
+from backend.api.cqrs_q.game import __get_game
+
+def is_any_entry_present(game):
+    r = __get_game(game)
+    if r["status"]:
+        game_o = r["payload"]
+    else:
+        return r
+    try:
+        any_entries = GameLog.objects.filter(game=game_o)
+
+        return {"status": True, "payload": True}
+        # .exists()
+    except GameLog.DoesNotExist:
+        return {"status": True, "payload": False}
+        # any_entries = None
+
+    # print(f"{any_entries=}")
+
+
+def get_entries(game):
+    r = __get_game(game)
+    if r["status"]:
+        game_o = r["payload"]
+    else:
+        return r
+    try:
+        any_entries = GameLog.objects.get(game=game_o)
+            # .exists()
+    except GameLog.DoesNotExist:
+        any_entries = None
+
+    print(f"{any_entries=}")
