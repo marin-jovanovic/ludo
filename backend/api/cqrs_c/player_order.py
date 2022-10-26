@@ -16,7 +16,7 @@ def add_to_order(username, game_name):
     for i in last_index:
         if i.player.username == username:
             return {"status": False, "debug": "already in add to order"}
-        print(i.index, i.player)
+        print(i.join_index, i.player)
         max_index += 1
 
     r = get_user(username)
@@ -28,7 +28,7 @@ def add_to_order(username, game_name):
 
     g = PlayerOrder(
         game_id=g_o,
-        index=max_index,
+        join_index=max_index,
         player = u_o,
     )
     g.save()
