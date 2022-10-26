@@ -67,7 +67,7 @@ class WebSocketListener {
 
 // }
 
-// let url = "ws://127.0.0.1:8000/whole1/";
+// let url = "ws://127.0.0.1:8000/sth/";
 
 // let wsGetUserActive = new WebSocketListener(url, getUserActive);
 
