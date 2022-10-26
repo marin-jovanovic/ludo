@@ -20,11 +20,22 @@ import { wsListeners } from "@/scripts/ws_listener";
 import { apiMessage } from "@/scripts/api/message";
 
 export default {
+  props: {
+    // gameId: String,
+  },
   data() {
-    return { username: "", gameId: "", message: "", messageLog: {} };
+    return {
+      gameId: "",
+
+      username: "",
+      message: "",
+      messageLog: {},
+    };
   },
   async mounted() {
     this.gameId = sessionStorage.getItem("gameId");
+    console.log("gameid", this.gameId);
+
     this.username = sessionStorage.getItem("username");
 
     await this.fetchMessages();
