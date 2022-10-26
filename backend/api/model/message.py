@@ -1,26 +1,15 @@
 import json
-
 from django.apps import apps
 from django.db import models
-
-from backend.api.cqrs_c.users import make_user_available_to_play
-from backend.api.cqrs_c.users import make_user_game_creator, __make_user_join
 from backend.api.cqrs_q.users import get_user, get_users_in_game
 from backend.api.model.users import get_user_model
-
+from backend.api.model.game import _get_game_model
 from backend.api.comm.comm import Notifier
-# games_notifier = Notifier()
 
 game_created_notifier = Notifier()
 game_left_notifier = Notifier()
 game_join_notifier = Notifier()
 games_notifier = Notifier()
-
-from backend.api.model.users import get_user_model
-from backend.api.model.game import _get_game_model
-
-
-from backend.api.comm.comm import Notifier
 message_notifier = Notifier()
 
 class Message(models.Model):
