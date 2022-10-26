@@ -83,7 +83,7 @@ export default {
     console.log("this username", this.username);
     await this.fetchInitData();
 
-    let url = "ws://127.0.0.1:8000/whole1/";
+    let url = "ws://127.0.0.1:8000/lobby_games/";
     new wsListeners.WebSocketListener(url, this.getUserActive);
     console.log("ws init");
   },
@@ -120,6 +120,8 @@ export default {
           console.log("game join ok");
         }
       }
+
+      sessionStorage.setItem("gameId", gameName);
     },
 
     async leaveGame(gameName) {
