@@ -19,7 +19,7 @@ def main():
     comment = "impl: create / update portfolio"
     comment = 'ref: rewrite db scheme'
 
-    comment = "impl: integrate board"
+    comment = "wip: ref game driver"
 
 
     if same_comment:
