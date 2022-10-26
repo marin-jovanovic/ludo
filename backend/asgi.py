@@ -16,10 +16,10 @@ application = ProtocolTypeRouter(
         "websocket": AllowedHostsOriginValidator(
             AuthMiddlewareStack(
                 URLRouter([
-                    path('whole1/', GameConsumer().as_asgi()),
+                    path('lobby_games/', GameConsumer().as_asgi()),
                     path('msg/', MessageConsumer().as_asgi()),
+                    # path('game_state/', MessageConsumer().as_asgi()),
 
-                    # path('whole1/', PracticeConsumer().as_asgi())
                 ])
             )
         ),
