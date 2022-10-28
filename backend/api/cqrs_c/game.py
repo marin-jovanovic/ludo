@@ -1,17 +1,23 @@
 import json
 
+from django.apps import apps
+from django.db.models import Max
+
+from backend.api.cqrs_c.game_log import add_entry
+from backend.api.cqrs_c.player_order import add_to_order
 from backend.api.cqrs_c.users import make_user_game_creator, \
     make_user_available_to_play, __make_user_join
+from backend.api.cqrs_q.game import __is_game_full, __check_game_name_exists, \
+    __is_empty, __get_game
 from backend.api.cqrs_q.users import get_user, get_users_in_game
-
+from backend.api.game.game import determine_order, get_config
 from backend.api.model.game import Game, \
     game_created_notifier, games_notifier, game_left_notifier, \
     game_join_notifier
-from backend.api.cqrs_q.game import __is_game_full, __check_game_name_exists, \
-    __is_empty, __get_game
-from backend.api.cqrs_c.player_order import add_to_order
-
-from backend.api.cqrs_c.game_log import add_entry
+from backend.api.model.game_log import get_entries, is_any_entry_present, \
+    GameLog
+from backend.api.model.player_order import _get_player_order_model, get_player_order
+from backend.api.model.users import get_user_model
 
 
 def create_game(creator_username, name, capacity):
@@ -39,7 +45,6 @@ def create_game(creator_username, name, capacity):
     if not r["status"]:
         return r
 
-
     # r = add_entry(name, creator_username, None, None, "hello world")
     # if not r["status"]:
     #     return r
@@ -56,16 +61,12 @@ def create_game(creator_username, name, capacity):
 
 def leave_game(game_name, username):
     r = make_user_available_to_play(username)
-    if r["status"]:
-        pass
-    else:
+    if not r["status"]:
         print("err make_user_available_to_play")
         return r
 
     r = __free_user_currently_playing(username)
-    if r["status"]:
-        pass
-    else:
+    if not r["status"]:
         print("err __free_user_currently_playing")
         return r
 
@@ -78,9 +79,11 @@ def leave_game(game_name, username):
 
     if f_is_empty:
         print("is empty")
-        __delete_game(game_name)
+        r = __delete_game(game_name)
+        if not r['status']:
+            return r
 
-    msg = json.dumps({"source": "leave game","name": game_name, "who left": username})
+    msg = json.dumps({"source": "leave game", "name": game_name, "who left": username})
     game_left_notifier.notify(msg)
     games_notifier.notify(json.dumps(get_games()))
     return {"status": True}
@@ -98,8 +101,7 @@ def join_game(game_name, username):
 
     r = __is_game_full(game_name)
     if not r["status"]:
-
-        return {"status": False, "payload": "capacity filled"}
+        return r
 
     r = __make_user_join(username)
     if not r["status"]:
@@ -109,24 +111,12 @@ def join_game(game_name, username):
     if not r["status"]:
         return r
 
-
-
-    msg = json.dumps({"source": "join game","name": game_name, "who joined": username})
+    msg = json.dumps({"source": "join game", "name": game_name, "who joined": username})
     game_join_notifier.notify(msg)
     games_notifier.notify(json.dumps(get_games()))
 
     return r
 
-
-from backend.api.model.player_order import get_player_order
-from backend.api.model.game_log import get_entries, is_any_entry_present, \
-    GameLog
-from backend.api.game.game import determine_order, get_config
-from backend.api.model.player_order import _get_player_order_model
-from backend.api.cqrs_c.player_order import add_to_order
-from backend.api.model.player_order import get_player_order
-from backend.api.model.game_log import get_entries
-from django.db.models import Max
 
 def receive_instruction(game_id, instruction_id):
     r = __get_game(game_id)
@@ -140,21 +130,22 @@ def receive_instruction(game_id, instruction_id):
 
     else:
 
-        GameLog.\
-            objects.\
+        GameLog. \
+            objects. \
             filter(
-                game=game_o,
-                instruction_id=instruction_id
-            ).\
+            game=game_o,
+            instruction_id=instruction_id
+        ). \
             update(performed=True)
 
-    last_performed_instruction = GameLog.objects.filter(performed=True).aggregate(Max('instruction_id'))["instruction_id__max"]
+    last_performed_instruction = GameLog.objects.filter(performed=True).aggregate(Max('instruction_id'))[
+        "instruction_id__max"]
     last_instruction = GameLog.objects.aggregate(Max('instruction_id'))["instruction_id__max"]
 
     print(f"{last_performed_instruction=}")
     print(f"{last_instruction=}")
 
-    if (last_performed_instruction == last_instruction):
+    if last_performed_instruction == last_instruction:
         print("this is last instruciton, generate new")
 
         last_command = GameLog.objects.get(instruction_id=last_performed_instruction).action
@@ -166,11 +157,13 @@ def receive_instruction(game_id, instruction_id):
         else:
             pass
             # todo think this can only be choice if user rolled 6
+            print('last command is not goes')
 
     else:
         print("not last instruction")
 
     return {"status": True}
+
 
 def get_specific_game(game_id):
     print(f"{game_id=}")
@@ -262,7 +255,7 @@ def get_specific_game(game_id):
                 "creator": "tmp_",
                 "log": log
             }
-    }
+            }
 
 
 def get_games():
@@ -291,10 +284,10 @@ def get_games():
                                     currently_active_players]
 
         g = {
-                "name": i.name,
-                "capacity": i.capacity,
-                "players": currently_active_players
-            }
+            "name": i.name,
+            "capacity": i.capacity,
+            "players": currently_active_players
+        }
 
         if is_full:
             full[i.name] = g
@@ -308,21 +301,17 @@ def get_games():
         # ""
     }}
 
-from backend.api.model.users import get_user_model
 
 def in_which_game_is_user(username):
-    # print("usernaem", username)
-
     r = get_user_model().objects.get(username=username).currently_playing_id
-    # print(r)
 
     try:
         g = _get_game_model().objects.get(id=r).name
     except _get_game_model().DoesNotExist:
         g = None
-    # print(g.name)
 
-    return {"status": False, "payload": g}
+    return {"status": True, "payload": g}
+
 
 def __delete_game(name):
     if __check_game_name_exists(name):
@@ -331,7 +320,7 @@ def __delete_game(name):
             "payload": _get_game_model().objects.filter(name=name).delete()
         }
 
-    return {"status": False}
+    return {"status": False, "debug": "game not exist"}
 
 
 def __free_user_currently_playing(username):
@@ -359,7 +348,7 @@ def __driver_assign_user_currently_playing(username, status):
     user_o.save()
 
     return {"status": True}
-from django.apps import apps
+
 
 def _get_game_model():
     return apps.get_model("api.game")
