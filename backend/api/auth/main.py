@@ -53,6 +53,7 @@ def is_pass_ok(password: str) -> bool:
     """
 
     # todo remove
+    print('auth main; not implemented')
     return True
 
     flag = True
