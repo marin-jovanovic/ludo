@@ -25,7 +25,7 @@ def add_entry(game, player, token, dice_result, action):
 
     e = GameLog(
         game=game_o,
-        instruction_id=instr_id+1,
+        instruction_id=instr_id + 1,
         player=user_o,
         token=token,
         dice_result=dice_result,
