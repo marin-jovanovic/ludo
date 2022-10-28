@@ -3,15 +3,16 @@ import json
 from backend.api.auth.main import generate_access_token
 from backend.api.auth.main import get_hashed_password, is_pass_ok
 from backend.api.comm.comm import Notifier
+from backend.api.cqrs_q.users import get_logged_users
 from backend.api.cqrs_q.users import is_username_in_db, is_authenticated, \
     is_access_token_correct, get_user
 from backend.api.model.users import get_user_model
-from backend.api.cqrs_q.users import get_logged_users
 
 # todo change username
 # todo access token
 
 active_users_notifier = Notifier()
+
 
 def logout(username, access_token):
     if not is_access_token_correct(username, access_token):
@@ -26,7 +27,6 @@ def logout(username, access_token):
 
 
 def auth_user(username, password):
-
     if not is_authenticated(username, password):
         return {'status': False, 'debug': 'user + pass combination err'}
 
@@ -97,7 +97,6 @@ def delete_user(username, password):
 
 
 def __make_user_join(username):
-
     r = get_user(username)
     if r["status"]:
         creator_o = r["payload"]
@@ -107,19 +106,18 @@ def __make_user_join(username):
     is_playing_game = __is_playing_game(player_o=creator_o)
 
     if is_playing_game["payload"]:
-        return {"status" : False, "payload": "user role not empty (playing another game)"}
+        return {"status": False, "payload": "user role not empty (playing another game)"}
 
     _assign_role_to_user(creator_o, "joined")
 
     return {"status": True}
 
-def __is_playing_game(player_o):
 
-    return {"status":True, "payload": bool(player_o.game_role)}
+def __is_playing_game(player_o):
+    return {"status": True, "payload": bool(player_o.game_role)}
 
 
 def make_user_available_to_play(username):
-
     r = get_user(username)
     if r["status"]:
         creator_o = r["payload"]
@@ -130,8 +128,8 @@ def make_user_available_to_play(username):
 
     return {"status": True}
 
-def make_user_game_creator(username):
 
+def make_user_game_creator(username):
     # fixme what if he is currently in another game?
 
     r = get_user(username)
@@ -149,6 +147,9 @@ def make_user_game_creator(username):
 
     return {"status": True}
 
+
 def _assign_role_to_user(user_o, role):
     user_o.game_role = role
     user_o.save()
+
+    return {"statue": True}
