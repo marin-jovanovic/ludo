@@ -11,7 +11,7 @@ def add_to_order(username, game_name):
     else:
         g_o = r["payload"]
 
-    last_index= _get_player_order_model().objects.filter(game_id=g_o)
+    last_index = _get_player_order_model().objects.filter(game_id=g_o)
     max_index = 0
     for i in last_index:
         if i.player.username == username:
@@ -29,7 +29,7 @@ def add_to_order(username, game_name):
     g = PlayerOrder(
         game_id=g_o,
         join_index=max_index,
-        player = u_o,
+        player=u_o,
     )
     g.save()
 
