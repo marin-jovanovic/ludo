@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from rest_framework.views import APIView
 
-from backend.api.game.game import get_start_pool
+from backend.api.game.resources import get_start_pool
 from backend.api.view.comm import get_auth_ok_response_template
 
 
