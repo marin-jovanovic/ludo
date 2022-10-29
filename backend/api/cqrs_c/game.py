@@ -10,7 +10,8 @@ from backend.api.cqrs_c.users import make_user_game_creator, \
 from backend.api.cqrs_q.game import __is_game_full, __check_game_name_exists, \
     __is_empty, __get_game
 from backend.api.cqrs_q.users import get_user, get_users_in_game
-from backend.api.game.game import determine_order, get_config
+from backend.api.game.order import determine_order
+from backend.api.game.resources import get_config
 from backend.api.model.game import Game, \
     game_created_notifier, games_notifier, game_left_notifier, \
     game_join_notifier
