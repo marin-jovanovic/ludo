@@ -1,6 +1,8 @@
 import sys
 from collections import defaultdict
 
+import backend.api.game.log
+from backend.api.game.log import construct_roll, move_token
 from backend.api.game.order import determine_order
 from backend.api.game.pre import get_start_pool_preprocessor, \
     player_moves_preprocessor
@@ -42,15 +44,8 @@ class TileVisitor:
 
 class Board:
 
-    def __init__(self,  players, start_pool=None):
+    def __init__(self,  players, start_pool):
         self.players = players
-
-        # p = {
-        #     1: get_player_one_moves(),
-        #     2: get_player_two_moves(),
-        #     3: get_player_one_moves()
-        # }
-        # self.universal_tiles_to_player_tiles_mapping = generate_tile_mapping(p)
 
         self.start_pool = start_pool
 
@@ -59,19 +54,50 @@ class Board:
         for p_id, p in self.players.items():
             for t_id, token in p.items():
 
-
-                token_start_position = start_pool[(p_id)][(token.id_)]
+                token_start_position = self.start_pool[p_id][token.id_]
 
                 row = token_start_position.row
                 column = token_start_position.column
 
-                # row = token_start_position['row']
-                # column = token_start_position['column']
-
-
                 self.board_state[row][column].add(token)
 
+    def has_any_on_board(self,player):
+        for token_id, token in self.players[player].items():
+            if not token.is_in_starting_pool:
+                return True
 
+    def get_from_start_pool(self, player):
+        r = {}
+
+        for token_id, token in self.players[player].items():
+            if  token.is_in_starting_pool:
+                r[token_id] = token
+                # return True
+
+        return r
+
+    def get_from_board(self, player):
+        r = {}
+
+        for token_id, token in self.players[player].items():
+            if not token.is_in_starting_pool:
+                r[token_id] = token
+                # return True
+
+        return r
+
+    def any_in_start_pool(self, player):
+
+        for token_id, token in self.players[player].items():
+            if token.is_in_starting_pool:
+                return True
+
+        # for token_id, tile in self.start_pool[player].items():
+        #
+        #     if self.board_state[tile.row][tile.column]:
+        #         return True
+        #
+        # return False
 
     def move_token(self, player, token_id, step):
 
@@ -222,28 +248,6 @@ class Token:
         return f'{self.owner=}, {self.id_=}'
 
 
-def main():
-
-    # get_player_one_moves_wrapper()
-    # return
-
-    # print(80 * "-")
-    # order_driver()
-    #
-    game_conf = get_config()
-    #
-    order = determine_order(
-        game_conf['number of players'],
-        game_conf['choice: highest; order'],
-        game_conf['choice: clockwise; anticlockwise'],
-        game_conf['flag: tie in order'],
-    )
-    print()
-
-    print("log")
-    [print(i) for i in order]
-    print()
-
     # board_configuration()
 
     # f_same_destination = get_config()["flag: same destination"]
@@ -260,32 +264,55 @@ def main():
     #     # print("not implemented")
     #     sys.exit(-1)
 
+from backend.api.game.dice import get_dice_result
+
+
+def main():
+    log = []
+
+    # get_player_one_moves_wrapper()
+    # return
+
+    # print(80 * "-")
+    # order_driver()
+    #
+    game_conf = get_config()
+    #
+    order = determine_order(
+        game_conf['number of players'],
+        game_conf['choice: highest; order'],
+        game_conf['choice: clockwise; anticlockwise'],
+        game_conf['flag: tie in order'],
+    )
+
+    log += order
+
+    print("log")
+    [print(i) for i in log]
+    print()
+
+
+    goes_list = []
+    number_of_players = game_conf['number of players']
+
+    for i in log:
+        if i["action"] == "goes":
+            goes_list.append(i["player"])
+
+            if len(goes_list) == number_of_players:
+                break
+
+
+
     todo_destination_p = 500
 
-    def move_token(game, player, token, step):
-        return {
-        'game': game,
-        'player': player,
-        'token': token,
-        'dice_result': step,
-        'action': "move"
-        }
 
 
-    # for player, tokens in start_pool.items():
-    #     for token_id, position in tokens.items():
-    #         print(player, token_id, position["row"], position["column"])
-
-    # m_player_to_moves = {
-    #     0: get_player_one_moves(),
-    #     1: get_player_two_moves(),
-    #     2: get_player_one_moves(),
-    #     3: get_player_two_moves(),
-    # }
     m_player_to_moves = player_moves_preprocessor()
 
     start_pool = get_start_pool_preprocessor()
-    # print(f"{start_pool=}")
+
+
 
     players = {}
     for player_id in range(get_config()["number of players"]):
@@ -294,10 +321,6 @@ def main():
         for token_id in range(get_config()['tokens per player']):
 
             start_tile = start_pool[player_id][token_id]
-
-            # print(f"{start_tile=}")
-            # print(f"destination_position = {todo_destination_p=}")
-            # print(f"moves={m_player_to_moves[player_id]=}")
 
             tokens[token_id] = Token(
                 owner=player_id,
@@ -311,25 +334,131 @@ def main():
 
         players[player_id] = tokens
 
-    # for k,v in players.items():
-    #     print("player",k)
-    #     for a,b in v.items():
-    #         print("token", a,b)
-    # print()
-    # print(players)
-
-    # todo
-    # players, tokens
-    b = Board(players=players, start_pool = get_start_pool_preprocessor())
+    b = Board(players=players, start_pool = start_pool)
 
     print("board state")
     b.print_board_state()
+
+    print(f"{goes_list=}")
+    print()
+
+    max_result = 6
+
+    for player_id in goes_list:
+        print(f"player {player_id} move")
+        # print(i)
+
+        can_roll_again = True
+
+        i = 0
+        while can_roll_again:
+            can_roll_again = False
+            i += 1
+            print("iteration", i)
+
+            roll_result = get_dice_result()
+            print(f"{roll_result=}")
+
+            choose_count = 0
+            move_from_start_pool = False
+            move_on_board = False
+
+            if roll_result == max_result:
+                can_roll_again = True
+
+            log.append(construct_roll(player=player_id, roll=roll_result))
+
+            if roll_result == max_result and b.any_in_start_pool(player=player_id):
+                choose_count += 1
+                move_from_start_pool = True
+                print("can move at least one from start pool")
+
+            if b.has_any_on_board(player=player_id):
+                choose_count += 1
+                move_on_board = True
+                print("can move at least one from board, todo one or multiple")
+
+                roll_result = b.get_from_board(player=player_id)
+                print(f"{roll_result=}")
+
+
+            else:
+                print("nothing to move from board")
+
+            if choose_count == 0:
+                print("no op, auto")
+            elif choose_count == 1:
+                print("auto")
+
+                if move_from_start_pool:
+                    sp = b.get_from_start_pool( player_id)
+                    for token_id, token in sp.items():
+                        print(token_id, token)
+
+                        b.move_token(player=player_id, token_id=token_id, step=roll_result)
+
+                        log.append(move_token(
+                            player=player_id,
+                            token=token_id,
+                            step=roll_result
+                        ))
+
+                        break
+
+
+                if move_on_board:
+                    print("todo")
+                    # get_from_board(self, player
+                    # log.append()
+
+            elif choose_count > 1:
+                print("must choose")
+
+                #     todo user input
+
+            # if choose_count > 1:
+            #     print("must choose")
+            # elif choosable:
+            #     print("automatic")
+            print()
+
+
+        # if can:
+        #     # check if can choose
+        #     log.append(choose(player_id))
+        # else:
+        #     print("perform action automatically")
+
+        # if r == 6:
+        #     print("can go")
+        #
+        #     can = b.any_in_start_pool(player=player_id)
+        #
+        #     if can:
+        #         # check if can choose
+        #         log.append(choose(player_id))
+        #     else:
+        #         print("perform action automatically")
+        #
+        # else:
+        #
+        #     # check if action can be done
+        #     log.append(skip(player_id))
+
+    print("log")
+    [print(i) for i in log]
+    print()
+
+    print("return")
+    return
 
     # print("----")
 
     # move
     print('move')
-    b.move_token(player=1, token_id=1, step=2)
+
+
+    backend.api.game.log.move_token(player=1, token_id=1, step=2)
     # order.append(move_token(None, 1, 1, 2))
     # [print(i) for i in order]
 
@@ -337,20 +466,20 @@ def main():
 
     # move
     print('move')
-    b.move_token(player=1, token_id=1, step=2)
+    backend.api.game.log.move_token(player=1, token_id=1, step=2)
     b.print_board_state()
 
     # multiple at same location
     print('multiple at the same location')
-    b.move_token(player=1, token_id=2, step=4)
+    backend.api.game.log.move_token(player=1, token_id=2, step=4)
     b.print_board_state()
 
     print('move pl2')
-    b.move_token(player=2, token_id=1, step=3)
+    backend.api.game.log.move_token(player=2, token_id=1, step=3)
     b.print_board_state()
 
     print('eat')
-    b.move_token(player=2, token_id=1, step=1)
+    backend.api.game.log.move_token(player=2, token_id=1, step=1)
     b.print_board_state()
 
 
