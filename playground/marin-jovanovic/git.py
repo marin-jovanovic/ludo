@@ -19,7 +19,7 @@ def main():
     comment = "impl: create / update portfolio"
     comment = 'ref: rewrite db scheme'
 
-    comment = "ref:"
+    comment = "wip: game business logic"
 
 
     if same_comment:
