@@ -157,6 +157,8 @@ export default {
         console.log("in game", inGame);
 
         if (inGame in this.full) {
+          sessionStorage.setItem("gameId", inGame);
+
           router.push(`game/${inGame}`);
         }
       } else {
