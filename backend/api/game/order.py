@@ -1,6 +1,7 @@
 import sys
 
 from backend.api.game.dice import get_dice_result
+from backend.api.game.log import construct_goes, construct_roll, construct_tie
 from backend.api.game.resources import get_config
 
 
@@ -9,32 +10,6 @@ def determine_order(
         choice_clockwise_or_anticlockwise, f_tie_in_order):
 
 
-    def construct_goes(player):
-        return {
-            "game": None,
-            "player": player,
-            "token": None,
-            "dice_result": None,
-            "action": "goes"
-        }
-
-    def construct_roll(player, roll):
-        return {
-            "game": None,
-            "player": player,
-            "token": None,
-            "dice_result": roll,
-            "action": "roll"
-        }
-
-    def construct_tie():
-        return {
-            "game": None,
-            "player": None,
-            "token": None,
-            "dice_result": None,
-            "action": "tie"
-        }
 
     def driver(
             number_of_players, choice_highest_or_order,
