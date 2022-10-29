@@ -1,516 +1,11 @@
 import sys
 from collections import defaultdict
-from random import SystemRandom
 
-
-def get_dice_result():
-    crypto_generator_object = SystemRandom()
-    return crypto_generator_object.randrange(
-        get_config()['dice number of sides']) + 1
-
-
-def get_player_one_moves():
-    return {
-        "0": {
-            "row": 6,
-            "column": 1
-        },
-        "1": {
-            "row": 6,
-            "column": 2
-        },
-        "2": {
-            "row": 6,
-            "column": 3
-        },
-        "3": {
-            "row": 6,
-            "column": 4
-        },
-        "4": {
-            "row": 6,
-            "column": 5
-        },
-        "5": {
-            "row": 5,
-            "column": 6
-        },
-        "6": {
-            "row": 4,
-            "column": 6
-        },
-        "7": {
-            "row": 3,
-            "column": 6
-        },
-        "8": {
-            "row": 2,
-            "column": 6
-        },
-        "9": {
-            "row": 1,
-            "column": 6
-        },
-        "10": {
-            "row": 0,
-            "column": 6
-        },
-        "11": {
-            "row": 0,
-            "column": 7
-        },
-        "12": {
-            "row": 0,
-            "column": 8
-        },
-        "13": {
-            "row": 2,
-            "column": 8
-        },
-        "14": {
-            "row": 3,
-            "column": 8
-        },
-        "15": {
-            "row": 4,
-            "column": 8
-        },
-        "16": {
-            "row": 5,
-            "column": 8
-        },
-        "17": {
-            "row": 6,
-            "column": 9
-        },
-        "18": {
-            "row": 6,
-            "column": 10
-        },
-        "19": {
-            "row": 6,
-            "column": 11
-        },
-        "20": {
-            "row": 6,
-            "column": 12
-        },
-        "21": {
-            "row": 6,
-            "column": 13
-        },
-        "22": {
-            "row": 6,
-            "column": 14
-        },
-        "23": {
-            "row": 7,
-            "column": 14
-        },
-        "24": {
-            "row": 8,
-            "column": 14
-        },
-        "25": {
-            "row": 8,
-            "column": 12
-        },
-        "26": {
-            "row": 8,
-            "column": 11
-        },
-        "27": {
-            "row": 8,
-            "column": 10
-        },
-        "28": {
-            "row": 8,
-            "column": 9
-        },
-        "29": {
-            "row": 9,
-            "column": 8
-        },
-        "30": {
-            "row": 10,
-            "column": 8
-        },
-        "31": {
-            "row": 11,
-            "column": 8
-        },
-        "32": {
-            "row": 12,
-            "column": 8
-        },
-        "33": {
-            "row": 13,
-            "column": 8
-        },
-        "34": {
-            "row": 14,
-            "column": 8
-        },
-        "35": {
-            "row": 14,
-            "column": 7
-        },
-        "36": {
-            "row": 14,
-            "column": 6
-        },
-        "37": {
-            "row": 12,
-            "column": 6
-        },
-        "38": {
-            "row": 11,
-            "column": 6
-        },
-        "39": {
-            "row": 10,
-            "column": 6
-        },
-        "40": {
-            "row": 9,
-            "column": 6
-        },
-        "41": {
-            "row": 8,
-            "column": 5
-        },
-        "42": {
-            "row": 8,
-            "column": 4
-        },
-        "43": {
-            "row": 8,
-            "column": 3
-        },
-        "44": {
-            "row": 8,
-            "column": 2
-        },
-        "45": {
-            "row": 8,
-            "column": 1
-        },
-        "46": {
-            "row": 8,
-            "column": 0
-        },
-        "47": {
-            "row": 7,
-            "column": 0
-        },
-        "48": {
-            "row": 7,
-            "column": 1
-        },
-        "49": {
-            "row": 7,
-            "column": 2
-        },
-        "50": {
-            "row": 7,
-            "column": 3
-        },
-        "51": {
-            "row": 7,
-            "column": 4
-        },
-        "52": {
-            "row": 7,
-            "column": 5
-        },
-        "53": {
-            "row": 7,
-            "column": 6
-        }
-    }
-
-
-def get_player_two_moves():
-    return {
-        "0": {
-            "row": 1,
-            "column": 8
-        },
-        "1": {
-            "row": 2,
-            "column": 8
-        },
-        "2": {
-            "row": 3,
-            "column": 8
-        },
-        "3": {
-            "row": 4,
-            "column": 8
-        },
-        "4": {
-            "row": 5,
-            "column": 8
-        },
-        "5": {
-            "row": 6,
-            "column": 9
-        },
-        "6": {
-            "row": 6,
-            "column": 10
-        },
-        "7": {
-            "row": 6,
-            "column": 11
-        },
-        "8": {
-            "row": 6,
-            "column": 12
-        },
-        "9": {
-            "row": 6,
-            "column": 13
-        },
-        "10": {
-            "row": 6,
-            "column": 14
-        },
-        "11": {
-            "row": 7,
-            "column": 14
-        },
-        "12": {
-            "row": 8,
-            "column": 14
-        },
-        "13": {
-            "row": 8,
-            "column": 12
-        },
-        "14": {
-            "row": 8,
-            "column": 11
-        },
-        "15": {
-            "row": 8,
-            "column": 10
-        },
-        "16": {
-            "row": 8,
-            "column": 9
-        },
-        "17": {
-            "row": 9,
-            "column": 8
-        },
-        "18": {
-            "row": 10,
-            "column": 8
-        },
-        "19": {
-            "row": 11,
-            "column": 8
-        },
-        "20": {
-            "row": 12,
-            "column": 8
-        },
-        "21": {
-            "row": 13,
-            "column": 8
-        },
-        "22": {
-            "row": 14,
-            "column": 8
-        },
-        "23": {
-            "row": 14,
-            "column": 7
-        },
-        "24": {
-            "row": 14,
-            "column": 6
-        },
-        "25": {
-            "row": 12,
-            "column": 6
-        },
-        "26": {
-            "row": 11,
-            "column": 6
-        },
-        "27": {
-            "row": 10,
-            "column": 6
-        },
-        "28": {
-            "row": 9,
-            "column": 6
-        },
-        "29": {
-            "row": 8,
-            "column": 5
-        },
-        "30": {
-            "row": 8,
-            "column": 4
-        },
-        "31": {
-            "row": 8,
-            "column": 3
-        },
-        "32": {
-            "row": 8,
-            "column": 2
-        },
-        "33": {
-            "row": 8,
-            "column": 1
-        },
-        "34": {
-            "row": 8,
-            "column": 0
-        },
-        "35": {
-            "row": 7,
-            "column": 0
-        },
-        "36": {
-            "row": 6,
-            "column": 0
-        },
-        "37": {
-            "row": 6,
-            "column": 2
-        },
-        "38": {
-            "row": 6,
-            "column": 3
-        },
-        "39": {
-            "row": 6,
-            "column": 4
-        },
-        "40": {
-            "row": 6,
-            "column": 5
-        },
-        "41": {
-            "row": 5,
-            "column": 6
-        },
-        "42": {
-            "row": 4,
-            "column": 6
-        },
-        "43": {
-            "row": 3,
-            "column": 6
-        },
-        "44": {
-            "row": 2,
-            "column": 6
-        },
-        "45": {
-            "row": 1,
-            "column": 6
-        },
-        "46": {
-            "row": 0,
-            "column": 6
-        },
-        "47": {
-            "row": 0,
-            "column": 7
-        },
-        "48": {
-            "row": 1,
-            "column": 7
-        },
-        "49": {
-            "row": 2,
-            "column": 7
-        },
-        "50": {
-            "row": 3,
-            "column": 7
-        },
-        "51": {
-            "row": 4,
-            "column": 7
-        },
-        "52": {
-            "row": 5,
-            "column": 7
-        },
-        "53": {
-            "row": 6,
-            "column": 7
-        }
-    }
-
-
-def get_config():
-    return {
-        "number of players": 4,
-        "tokens per player": 4,
-        "dice number of sides": 6,
-
-        # assumption: talking for each player individually
-        # if True: all tokens must reach the same destination
-        # else: each token has it unique(multiple can go to same destination, but it is not a rule)
-        # destination location
-        "flag: same destination": True,
-
-        # highest: highest goes first and then clockwise or anticlockwise (6, right, right, right)
-        # order: 1st, 2nd, 3rd, 4th highest roll (6, 3, 2, 1)
-        'choice: highest; order': True,
-
-        # if highest then in which direction
-        'choice: clockwise; anticlockwise': False,
-
-        # when rolling dice to see who goes first
-        # skip if tie will occur
-        'flag: tie in order': False,
-
-    }
-
-
-class Tile:
-
-    def __init__(self, row, column):
-        self.row = row
-        self.column = column
-
-        # self.visitors = set()
-
-    # def add_visitor(self, visitor):
-    #     if visitor in self.visitors:
-    #         print("visitor already in this")
-    #         sys.exit(-1)
-    #
-    #     self.visitors.add(visitor)
-
-    def __str__(self):
-        return f"row: {self.row}, column: {self.column}"
-
-    def __eq__(self, other):
-        """Overrides the default implementation"""
-        if isinstance(other, Tile):
-            return self.row == other.row and self.column == other.column
-        return False
-
-        # def __eq__(self, other):
-        #     if isinstance(other, self.__class__):
-        #         return self.__dict__ == other.__dict__
-        #     else:
-        #         return False
-        # return NotImplemented
-
-    def __hash__(self):
-        """Overrides the default implementation"""
-        return hash(tuple(sorted(self.__dict__.items())))
+from backend.api.game.order import determine_order
+from backend.api.game.pre import get_start_pool_preprocessor, \
+    player_moves_preprocessor
+from backend.api.game.resources import  get_config
+from backend.api.game.tile import Tile
 
 
 class TileVisitor:
@@ -545,192 +40,37 @@ class TileVisitor:
 #         print('move token')
 
 
-def determine_order(
-        number_of_players, choice_highest_or_order,
-        choice_clockwise_or_anticlockwise, f_tie_in_order):
-
-
-    def construct_goes(player):
-        return {
-            "game": None,
-            "player": player,
-            "token": None,
-            "dice_result": None,
-            "action": "goes"
-        }
-
-    def construct_roll(player, roll):
-        return {
-            "game": None,
-            "player": player,
-            "token": None,
-            "dice_result": roll,
-            "action": "roll"
-        }
-
-    def construct_tie():
-        return {
-            "game": None,
-            "player": None,
-            "token": None,
-            "dice_result": None,
-            "action": "tie"
-        }
-
-    def driver(
-            number_of_players, choice_highest_or_order,
-            choice_clockwise_or_anticlockwise):
-        # pre
-
-        # global, pass as arg
-        roll_history = []
-
-        rollers = [i for i in range(number_of_players)]
-
-        # driver
-
-        while True:
-            if len(rollers) == 1:
-                roll_history.append(construct_goes(rollers[0]))
-                return roll_history
-
-            current_iteration_roll_history = []
-            for player in rollers:
-                r = get_dice_result()
-                pr = {'player': player, 'dice_result': r}
-
-                roll_history.append(construct_roll(player, r))
-
-                current_iteration_roll_history.append(pr)
-
-            while True:
-
-                if len(current_iteration_roll_history) == 1:
-
-                    roll_history.append(construct_goes(current_iteration_roll_history[0]['player']))
-
-                    return roll_history
-
-                is_same_max, max_r_obj = find_max(
-                    current_iteration_roll_history)
-
-                if is_same_max:
-                    roll_history.append(construct_tie())
-                    break
-
-                winner = max_r_obj['player']
-                if choice_highest_or_order:
-                    for i, v in enumerate(current_iteration_roll_history):
-                        if max_r_obj['player'] == v['player']:
-
-                            for j in rollers:
-                                if choice_clockwise_or_anticlockwise:
-                                    c = (i + j) % len(
-                                        current_iteration_roll_history)
-                                else:
-                                    c = (i - j) % len(
-                                        current_iteration_roll_history)
-
-                                roll_history.append(construct_goes(c))
-
-                            return roll_history
-
-                roll_history.append(construct_goes(winner))
-                rollers.remove(max_r_obj['player'])
-                current_iteration_roll_history.remove(max_r_obj)
-
-    r = driver(number_of_players, choice_highest_or_order,
-               choice_clockwise_or_anticlockwise)
-
-    if number_of_players > get_config()['dice number of sides']:
-        print('err')
-        sys.exit(-1)
-
-    if not f_tie_in_order:
-        while True:
-            is_present = False
-            for i in r:
-                if i["action"] == "tie":
-                    is_present = True
-                    break
-
-            if is_present:
-                r = driver(number_of_players, choice_highest_or_order,
-                           choice_clockwise_or_anticlockwise)
-
-            else:
-                break
-
-
-    return r
-
-
-def find_max(current_iteration_roll_history):
-    is_same_max = False
-    max_r_obj = None
-    for i in current_iteration_roll_history:
-        if not max_r_obj or i['dice_result'] > max_r_obj['dice_result']:
-            is_same_max = False
-            max_r_obj = i
-        elif i['dice_result'] == max_r_obj['dice_result']:
-            is_same_max = True
-
-    return is_same_max, max_r_obj
-
-
 class Board:
 
     def __init__(self,  players, start_pool=None):
         self.players = players
 
-        p = {
-            1: get_player_one_moves(),
-            2: get_player_two_moves(),
-            3: get_player_one_moves()
-        }
-        self.universal_tiles_to_player_tiles_mapping = generate_tile_mapping(p)
+        # p = {
+        #     1: get_player_one_moves(),
+        #     2: get_player_two_moves(),
+        #     3: get_player_one_moves()
+        # }
+        # self.universal_tiles_to_player_tiles_mapping = generate_tile_mapping(p)
+
+        self.start_pool = start_pool
 
         self.board_state = defaultdict(lambda: defaultdict(set))
 
-        # for player,
-
         for p_id, p in self.players.items():
-            # print(p_id,p)
-            # p_id = int(p_id)
             for t_id, token in p.items():
 
-                # print(p_id,  type(p_id))
-                # print(start_pool)
-                #
-                # print(start_pool[0])
 
-                token_start_position = start_pool[str(p_id)][str(token.id_)]
-                # print(f"{token_start_position=}")
-                #
-                # print(f"{token.id_=}")
+                token_start_position = start_pool[(p_id)][(token.id_)]
 
-                # print(str(token))
-                # token_global_position = token.normalize_position()
-                # row = token_global_position['row']
-                # column = token_global_position['column']
+                row = token_start_position.row
+                column = token_start_position.column
 
-                # row, column = token_start_position
+                # row = token_start_position['row']
+                # column = token_start_position['column']
 
-                row = token_start_position['row']
-                column = token_start_position['column']
-
-                # print(f"{row=} {column=}")
 
                 self.board_state[row][column].add(token)
 
-        # for player, tokens in start_pool.items():
-        #     for token_id, position in tokens.items():
-        #         print(f"{player=} {token_id=} {position=}")
-        #
-        #         self.board_state[position["row"]][position["column"]].add(token)
-        #
-        #         # print(player, token_id, position["row"], position["column"])
-        # print("************")
 
 
     def move_token(self, player, token_id, step):
@@ -740,19 +80,32 @@ class Board:
         #
         #     print("in starting pool")
 
+
+        # print(f"{self.players[player]=}")
+
         token_global_position = self.players[player][
             token_id].normalize_position()
 
+        # print(f"{token_global_position=}")
 
-        row = token_global_position['row']
-        column = token_global_position['column']
+        row = token_global_position.row
+        column = token_global_position.column
 
-        to_remove = None
+        # row = token_global_position['row']
+        # column = token_global_position['column']
+
+        # if self.players[player][
+        #     token_id].is_in_starting_pool:
+        #     print("in starting pool, no need to check")
+
+
+        to_remove = set()
         for token in self.board_state[row][column]:
             if token.id_ == token_id and token.owner == player:
-                to_remove = token
+                to_remove.add(token)
 
-        self.board_state[row][column].remove(to_remove)
+        for i in to_remove:
+            self.board_state[row][column].remove(i)
 
 
         self.players[player][token_id].update_position(step)
@@ -760,8 +113,10 @@ class Board:
         token_global_position = self.players[player][
             token_id].normalize_position()
 
-        row = token_global_position['row']
-        column = token_global_position['column']
+        row = token_global_position.row
+        column = token_global_position.column
+        # row = token_global_position['row']
+        # column = token_global_position['column']
 
         if self.board_state[row][column]:
             # someone is here
@@ -780,9 +135,13 @@ class Board:
         self.board_state[row][column].add(self.players[player][token_id])
 
     def print_board_state(self):
+        # print(f"{self.start_pool=}")
+
+        # print("start pool")
 
         for row, m_c_to_tokens in self.board_state.items():
             for column, tokens in m_c_to_tokens.items():
+
                 print(row, column, [str(i) for i in tokens])
         print()
 
@@ -793,18 +152,29 @@ class Player:
         self.tokens = tokens
 
 
+
 class Token:
 
-    def __init__(self, id_, destination_position, owner, moves):
+    def __init__(self, start_tile,
+ id_, destination_position, owner, moves):
         self.id_ = id_
 
-        self.position = None
-        self.is_in_starting_pool = True
+        self.current_position = None
+        self.current_tile = start_tile
 
-        self.norm_row = None
-        self.norm_col = None
+        # todo logic when is in it
+
+        # todo in starting pool there is only one place where token can be
+        # token can not be placed in multiple places in starting pool
+        self.is_in_starting_pool = True
+        self.start_tile = start_tile
+
+        # self.norm_row = None
+        # self.norm_col = None
 
         self.destination_position = destination_position
+        # self.destination_tile = None
+
         self.is_at_destination = False
         self.owner = owner
         self.moves = moves
@@ -816,20 +186,33 @@ class Token:
     #     return False
 
     def normalize_position(self):
-        if self.is_in_starting_pool:
-            print("in starting pool")
-            return self.position
+        # print(f"{self.moves=}")
 
-        # print("norm", self.moves)
-        return self.moves[str(self.position)]
+        if self.is_in_starting_pool:
+            return self.start_tile
+
+        return self.moves[self.current_position]
 
     def update_position(self, step):
+        if self.is_in_starting_pool:
+            if step > 0:
+                self.is_in_starting_pool = False
+
+                # todo check: token will be placed on this tile when moved out
+                #   out of starting pool
+                self.current_position = -1
+
+            else:
+                # todo
+                print("step error")
+                sys.exit(-1)
+
         if self.is_at_destination:
             print('at destination, can not move')
             return
 
-        self.position += step
-        if self.position >= self.destination_position:
+        self.current_position += step
+        if self.current_position >= self.destination_position:
             self.set_is_at_destination()
 
     def set_is_at_destination(self):
@@ -839,151 +222,27 @@ class Token:
         return f'{self.owner=}, {self.id_=}'
 
 
-def alt():
-    token_paths = {
-        0: get_player_two_moves(),
-        1: get_player_one_moves(),
-
-    }
-
-    token_one_path = None
-    token_two_path = None
-
-
-def board_configuration():
-    def player_to_path_config():
-        return {
-            0: get_player_one_moves(),
-            1: get_player_one_moves(),
-            2: get_player_two_moves(),
-            3: get_player_one_moves()
-        }
-
-    r = {}
-    for i in range(get_config()['number of players']):
-        t = {}
-        for j in range(get_config()['tokens per player']):
-            t[j] = player_to_path_config()[i]
-        r[i] = t
-
-    print('111111')
-    print(r)
-
-    # player id
-    #     token id
-
-    return {
-        0: {
-            0: player_to_path_config()[0],
-            1: 'path1',
-            2: 'path1',
-            3: 'path1',
-        },
-        1: {
-            0: 'path1',
-            1: 'path1',
-            2: 'path1',
-            3: 'path1',
-        },
-    }
-def get_start_pool():
-    return {
-        "0": {
-            "0": {
-                "row": 2,
-                "column": 2
-            },
-            "1": {
-                "row": 2,
-                "column": 3
-            },
-            "2": {
-                "row": 3,
-                "column": 2
-            },
-            "3": {
-                "row": 3,
-                "column": 3
-            }
-
-        },
-        "1": {
-
-            "0": {
-                "row": 2,
-                "column": 11
-            },
-            "1": {
-                "row": 3,
-                "column": 11
-            },
-            "2": {
-                "row": 2,
-                "column": 12
-            },
-            "3": {
-                "row": 3,
-                "column": 12
-            }
-
-        },
-        "2": {
-            "0": {
-                "row": 11,
-                "column": 2
-            },
-            "1": {
-                "row": 12,
-                "column": 2
-            },
-            "2": {
-                "row": 11,
-                "column": 3
-            },
-            "3": {
-                "row": 12,
-                "column": 3
-            }
-        },
-        "3": {
-            "0": {
-                "row": 11,
-                "column": 11
-            },
-            "1": {
-                "row": 12,
-                "column": 11
-            },
-            "2": {
-                "row": 11,
-                "column": 12
-            },
-            "3": {
-                "row": 12,
-                "column": 12
-            }
-        }
-
-    };
-
-
 def main():
+
+    # get_player_one_moves_wrapper()
+    # return
 
     # print(80 * "-")
     # order_driver()
     #
-    # game_conf = get_config()
+    game_conf = get_config()
     #
-    # order = determine_order(
-    #     game_conf['number of players'],
-    #     game_conf['choice: highest; order'],
-    #     game_conf['choice: clockwise; anticlockwise'],
-    #     game_conf['flag: tie in order'],
-    # )
-    # print()
+    order = determine_order(
+        game_conf['number of players'],
+        game_conf['choice: highest; order'],
+        game_conf['choice: clockwise; anticlockwise'],
+        game_conf['flag: tie in order'],
+    )
+    print()
 
-    # print("log")
-    # [print(i) for i in order]
+    print("log")
+    [print(i) for i in order]
+    print()
 
     # board_configuration()
 
@@ -1010,41 +269,47 @@ def main():
         'token': token,
         'dice_result': step,
         'action': "move"
-    }
+        }
 
-    start_pool = get_start_pool()
 
     # for player, tokens in start_pool.items():
     #     for token_id, position in tokens.items():
     #         print(player, token_id, position["row"], position["column"])
 
-    m_player_to_moves = {
-        0: get_player_one_moves(),
-        1: get_player_two_moves(),
-        2: get_player_one_moves(),
-        3: get_player_two_moves(),
-    }
+    # m_player_to_moves = {
+    #     0: get_player_one_moves(),
+    #     1: get_player_two_moves(),
+    #     2: get_player_one_moves(),
+    #     3: get_player_two_moves(),
+    # }
+    m_player_to_moves = player_moves_preprocessor()
+
+    start_pool = get_start_pool_preprocessor()
+    # print(f"{start_pool=}")
 
     players = {}
-    for i in range(get_config()["number of players"]):
+    for player_id in range(get_config()["number of players"]):
         tokens = {}
 
-        # moves =
+        for token_id in range(get_config()['tokens per player']):
 
-        # if i == 0:
-        #     moves = get_player_one_moves()
-        # elif i == 1:
-        #     moves = get_player_two_moves()
+            start_tile = start_pool[player_id][token_id]
 
-        for j in range(get_config()['tokens per player']):
-            tokens[j] = Token(
-                j,
+            # print(f"{start_tile=}")
+            # print(f"destination_position = {todo_destination_p=}")
+            # print(f"moves={m_player_to_moves[player_id]=}")
+
+            tokens[token_id] = Token(
+                owner=player_id,
+                id_=token_id,
+
+                start_tile=start_tile,
+
                 destination_position=todo_destination_p,
-                owner=i,
-                moves=m_player_to_moves[i]
+                moves=m_player_to_moves[player_id]
             )
 
-        players[i] = tokens
+        players[player_id] = tokens
 
     # for k,v in players.items():
     #     print("player",k)
@@ -1055,10 +320,12 @@ def main():
 
     # todo
     # players, tokens
-    b = Board(players=players, start_pool = get_start_pool())
+    b = Board(players=players, start_pool = get_start_pool_preprocessor())
+
+    print("board state")
     b.print_board_state()
 
-    print("----")
+    # print("----")
 
     # move
     print('move')
