@@ -8,7 +8,9 @@ from backend.api.cqrs_c.game import create_game, leave_game, join_game, \
 from backend.api.model.player_order import get_player_order
 from backend.api.view.comm import get_auth_ok_response_template
 from backend.api.cqrs_c.game_log import add_entry
-from backend.api.game.game import determine_order, get_config
+from backend.api.game.order import determine_order
+from backend.api.game.resources import get_config
+
 
 class GameView(APIView):
 
