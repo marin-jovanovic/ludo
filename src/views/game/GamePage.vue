@@ -2,22 +2,14 @@
   <BaseUserTemplate>
     <!-- <hr /> -->
 
-    <h1>{{ this.header }}</h1>
-    <br />
-    <h2>order: {{ this.playingOrder }}</h2>
-    <br />
-    <button @click="leaveGame">leave game</button>
-    <div>
-      <div>players:</div>
-      <div v-for="i in this.players" :key="i">p: {{ i }}</div>
-    </div>
-    <h1>now playing:</h1>
+    <TheInfo ref="info"></TheInfo>
 
     <hr />
+    <button @click="leaveGame">leave game</button>
 
     <button @click="test">test</button>
 
-    <button @click="board">board</button>
+    <button @click="board">board scheme api</button>
 
     <div class="row">
       <div class="col" style="border: 2px solid black">
@@ -45,6 +37,7 @@
 
 
 <script>
+import TheInfo from "./TheInfo.vue";
 import TheGame from "./TheGame.vue";
 import TheDice from "./TheDice.vue";
 import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
@@ -58,22 +51,14 @@ import { apiBoard } from "@/scripts/api/board";
 export default {
   data() {
     return {
+      username: "",
+      gameId: "",
+
       canRoll: false,
       rollResult: -1,
 
-      username: "",
-      header: "",
-
-      gameId: "",
-
-      players: {},
-      capacity: -1,
-
       instructionCurrentlyPerforming: -1,
-
       lastInstructionPerformed: -1,
-
-      playingOrder: [],
     };
   },
   async mounted() {
@@ -82,10 +67,10 @@ export default {
     // console.log("ws init");
 
     this.username = sessionStorage.getItem("username");
-
     this.gameId = this.$route.params.id;
 
     let res = await apiGame.getGame(this.gameId);
+
     if (res["auth"]["status"] && res["payload"]["status"]) {
       let p = res["payload"]["payload"];
 
@@ -94,79 +79,92 @@ export default {
       for (const [key, value] of Object.entries(p["log"])) {
         console.log("instruction", key);
 
-        switch (value.action) {
-          case "goes":
-            this.playingOrder.push(value.username);
-            this.instructionCurrentlyPerforming = key;
-            this.lastInstructionPerformed = key;
-
-            await this.actionPerformed();
-
-            break;
-
-          default:
-            break;
+        if (value.action === "goes") {
+          this.$refs.info.addToPlayingOrder(value.username);
         }
 
-        if (!value.performed) {
-          if (value.username == this.username) {
-            console.log("your turn");
+        // switch (value.action) {
+        //   case "goes":
+        //     break;
 
-            switch (value.action) {
-              case "roll":
-                await this.rollDriver(key, value);
-                break;
+        //   default:
+        //     break;
+        // }
 
-              default:
-                console.log("not handled action");
-                break;
-            }
-          } else {
-            console.log("waiting for player", value.username);
-
-            switch (value.action) {
-              case "roll":
-                await this.enemyRollDriver();
-                break;
-
-              default:
-                console.log("not handled action");
-                break;
-            }
-
-            console.log("breaking");
-            break;
-          }
+        if (value.performed) {
+          await this.performed(value);
         } else {
-          console.log("this action is performed");
-
-          if (value.username === this.username) {
-            switch (value.action) {
-              case "roll":
-                this.$refs.dice.rollDice(value.diceResult);
-                break;
-              default:
-                console.log("not handled yet");
-            }
-          } else {
-            console.log("someone else performed something");
-          }
+          await this.notPefrormed(value, key);
+          break;
         }
 
-        this.lastInstructionPerformed = key;
-        console.log("last perfromed", this.lastInstructionPerformed);
+        // this.lastInstructionPerformed = key;
+        // console.log("last perfromed", this.lastInstructionPerformed);
       }
 
-      this.header = p.header;
+      this.$refs.info.setHeader(p.header);
+      this.$refs.info.setPlayers(p.players);
+      // this.$refs.info.setHeader(p.header);
+      // this.header = p.header;
 
-      this.players = p.players;
-      this.capacity = p.capacity;
+      // this.players = p.players;
+      // this.capacity = p.capacity;
     } else {
       console.log("err fetching data");
     }
   },
   methods: {
+    async notPefrormed(value, key) {
+      // for not performed instructions driver
+
+      if (value.username == this.username) {
+        console.log("your turn");
+
+        switch (value.action) {
+          case "roll":
+            await this.notPerfrormedMyRoll(key, value);
+            break;
+
+          default:
+            console.log("not handled action");
+            break;
+        }
+      } else {
+        console.log("waiting for player", value.username);
+
+        switch (value.action) {
+          case "roll":
+            await this.notPerformedEnemyRoll();
+            break;
+
+          default:
+            console.log("not handled action");
+            break;
+        }
+
+        console.log("breaking");
+        // break;
+      }
+    },
+    async performed(value) {
+      // for perfromred instructions driver
+
+      console.log("this action is performed");
+
+      if (value.username === this.username) {
+        switch (value.action) {
+          case "roll":
+            break;
+          default:
+            console.log("not handled yet");
+        }
+      } else {
+        console.log("someone else performed something");
+      }
+    },
+
     async board() {
+      // for test
       let res = await apiBoard.getBoard("1", "startPool");
 
       console.log(res["payload"]["payload"]);
@@ -175,34 +173,24 @@ export default {
         console.log("game leave err");
       }
     },
-    async test() {
-      let res = await apiGame.actionPerformed(
-        this.gameId,
-        this.username,
-        "test"
-      );
 
-      if (!(res["auth"]["status"] && res["payload"]["status"])) {
-        console.log("game leave err");
-      }
-    },
-    getUserActive(message) {
-      console.log("ws msg received, todo");
-      console.log(message);
-    },
+    // getUserActive(message) {
+    //   console.log("ws msg received, todo");
+    //   console.log(message);
+    // },
 
-    async enemyRollDriver() {
+    async notPerformedEnemyRoll() {
       console.log("enemy roll driver");
     },
 
-    async rollDriver(key, value) {
-      console.log("roll", value.diceResult);
+    async notPerfrormedMyRoll(key, value) {
       this.canRoll = true;
       this.rollResult = value.diceResult;
       this.instructionCurrentlyPerforming = key;
     },
 
     async updateGame(token, action) {
+      // post, do not know for what it is used
       let res = await apiGame.updateGame(
         this.gameId,
         this.username,
@@ -225,7 +213,11 @@ export default {
       }
     },
 
+    // async
+
     async rollDice() {
+      // runner when user clicks to roll
+
       if (!this.canRoll) {
         console.log("can not roll");
         return;
@@ -239,6 +231,8 @@ export default {
     },
 
     async actionPerformed() {
+      // when user selects token to move || when user performs roll
+
       let res = await apiGame.actionPerformed(
         this.gameId,
         this.username,
@@ -250,6 +244,6 @@ export default {
       }
     },
   },
-  components: { TheDice, BaseUserTemplate, TheMessages, TheGame },
+  components: { TheInfo, TheDice, BaseUserTemplate, TheMessages, TheGame },
 };
 </script> 
