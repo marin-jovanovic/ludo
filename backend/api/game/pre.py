@@ -1,6 +1,6 @@
 from backend.api.game.tile import Tile
 from backend.api.game.resources import get_start_pool, get_player_one_moves, \
-    get_player_two_moves
+    get_player_two_moves, mock_moves
 
 
 def get_start_pool_preprocessor():
@@ -28,10 +28,15 @@ def player_moves_preprocessor():
         return r
 
     m_player_to_moves = {
-        0: get_player_one_moves(),
-        1: get_player_two_moves(),
-        2: get_player_one_moves(),
-        3: get_player_two_moves(),
+        0: mock_moves(),
+        1: mock_moves(),
+        2: mock_moves(),
+        3: mock_moves(),
+
+        # 0: get_player_one_moves(),
+        # 1: get_player_two_moves(),
+        # 2: get_player_one_moves(),
+        # 3: get_player_two_moves(),
     }
 
     r = {}
