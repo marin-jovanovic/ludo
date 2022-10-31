@@ -4,7 +4,7 @@ import IndexPage from '../views/index/IndexPage';
 import LoginPage from '../views/login/LoginPage';
 import SignupView from '@/views/signup/SingupView.vue';
 import GamePage from '@/views/game/GamePage.vue';
-
+import GameReplayPage from "@/views/gameReplay/GameReplayPage.vue";
 
 import LogoutPage from '../views/logout/LogoutPage';
 import SetttingsView from '../views/settings/SettingsView.vue';
@@ -23,6 +23,11 @@ export const router = createRouter({
       path: '/game/:id',
       name: 'game',
       component: GamePage
+    },
+    {
+      path: '/gameReplay/:id',
+      name: 'gameReplay',
+      component: GameReplayPage
     },
     {
       path: '/login',
