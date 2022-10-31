@@ -44,7 +44,15 @@ def is_any_entry_present(game):
     try:
         any_entries = GameLog.objects.filter(game=game_o)
 
-        return {"status": True, "payload": True}
+        if bool(any_entries):
+            return {"status": True, "payload": True}
+        else:
+            return {"status": True, "payload": False}
+
+        # print(f"{any_entries=}")
+
+        # print(bool(any_entries), )
+
         # .exists()
     except GameLog.DoesNotExist:
         return {"status": True, "payload": False}
