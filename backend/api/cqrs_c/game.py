@@ -139,29 +139,41 @@ def receive_instruction(game_id, instruction_id):
         ). \
             update(performed=True)
 
-    last_performed_instruction = GameLog.objects.filter(performed=True).aggregate(Max('instruction_id'))[
-        "instruction_id__max"]
-    last_instruction = GameLog.objects.aggregate(Max('instruction_id'))["instruction_id__max"]
 
-    print(f"{last_performed_instruction=}")
-    print(f"{last_instruction=}")
+    # todo check all in log if not
 
-    if last_performed_instruction == last_instruction:
-        print("this is last instruciton, generate new")
+    is_any_performed_false = GameLog.objects.filter(performed=False, game_id=game_o)
+    print(f"{is_any_performed_false=}")
 
-        last_command = GameLog.objects.get(instruction_id=last_performed_instruction).action
-        print(f"{last_command=}")
-        if last_command == "goes":
-            # todo here
-            print("generate board ")
-
-        else:
-            pass
-            # todo think this can only be choice if user rolled 6
-            print('last command is not goes')
-
+    if is_any_performed_false:
+        print("not last instruciton, required user action")
     else:
-        print("not last instruction")
+        print("last instruction, generate new")
+
+
+    # last_performed_instruction = GameLog.objects.filter(performed=True).aggregate(Max('instruction_id'))[
+    #     "instruction_id__max"]
+    # last_instruction = GameLog.objects.aggregate(Max('instruction_id'))["instruction_id__max"]
+    #
+    # print(f"{last_performed_instruction=}")
+    # print(f"{last_instruction=}")
+    #
+    # if last_performed_instruction == last_instruction:
+    #     print("this is last instruciton, generate new")
+    #
+    #     last_command = GameLog.objects.get(instruction_id=last_performed_instruction).action
+    #     print(f"{last_command=}")
+    #     if last_command == "goes":
+    #         # todo here
+    #         print("generate board ")
+    #
+    #     else:
+    #         pass
+    #         # todo think this can only be choice if user rolled 6
+    #         print('last command is not goes')
+    #
+    # else:
+    #     print("not last instruction")
 
     return {"status": True}
 
@@ -208,12 +220,12 @@ def get_specific_game(game_id):
         if not r["status"]:
             return r
 
-        m_join_to_turn_index = {}
+        # m_join_to_turn_index = {}
         turn = 0
         for i in order:
 
             if i["action"] == "goes":
-                m_join_to_turn_index[i["player"]] = turn
+                # m_join_to_turn_index[i["player"]] = turn
 
                 _get_player_order_model().objects.filter(
                     game_id=g_o,
@@ -222,7 +234,12 @@ def get_specific_game(game_id):
 
                 turn += 1
 
-        for i in order:
+            if i["action"] == "roll":
+                i["performed"] = False
+            else:
+                i["performed"] = True
+
+            # for i in order:
             i["game"] = game_id
 
             t = _get_player_order_model().objects.get(
@@ -231,7 +248,7 @@ def get_specific_game(game_id):
             )
 
             i["player"] = t.player.username
-            i["performed"] = False
+            # i["performed"] = False
             print(i)
 
             r = add_entry(**i)
