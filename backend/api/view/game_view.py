@@ -16,13 +16,21 @@ class GameView(APIView):
 
     def get(self, request, name):
 
-        print("get games")
+        # print("get games")
         response = get_auth_ok_response_template(request)
         response['payload'] = get_specific_game(name)
 
         return JsonResponse(response)
 
     def put(self, request, name):
+        """used for sending info
+
+        set performed in game log when user rolls dice
+        so other players can update board
+
+        when user makes choice which token to move
+        """
+
         # todo check if authorized
 
         print("put game, only for setting received flag")
@@ -48,6 +56,8 @@ class GameView(APIView):
         return JsonResponse(response)
 
     def post(self, request, name):
+        # todo when is this used?
+
         response = get_auth_ok_response_template(request)
 
         creator_username = request.username
