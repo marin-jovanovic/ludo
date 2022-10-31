@@ -8,9 +8,6 @@ from backend.api.game.resources import get_config
 def determine_order(
         number_of_players, choice_highest_or_order,
         choice_clockwise_or_anticlockwise, f_tie_in_order):
-
-
-
     def driver(
             number_of_players, choice_highest_or_order,
             choice_clockwise_or_anticlockwise):
@@ -40,8 +37,8 @@ def determine_order(
             while True:
 
                 if len(current_iteration_roll_history) == 1:
-
-                    roll_history.append(construct_goes(current_iteration_roll_history[0]['player']))
+                    roll_history.append(construct_goes(
+                        current_iteration_roll_history[0]['player']))
 
                     return roll_history
 
@@ -94,7 +91,6 @@ def determine_order(
 
             else:
                 break
-
 
     return r
 
