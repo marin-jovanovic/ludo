@@ -90,6 +90,23 @@ def get_start_pool():
     }
 
 
+def mock_moves():
+    return {
+        "0": {
+            "row": 6,
+            "column": 1
+        },
+        "1": {
+            "row": 6,
+            "column": 2
+        },
+        "2": {
+            "row": 6,
+            "column": 3
+        }
+    }
+
+
 def get_player_one_moves():
     """
         tile_id is relative to this player
