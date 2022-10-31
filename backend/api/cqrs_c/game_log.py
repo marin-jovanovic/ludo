@@ -5,7 +5,7 @@ from backend.api.cqrs_q.users import get_user
 from backend.api.model.game_log import GameLog
 
 
-def add_entry(game, player, token, dice_result, action):
+def add_entry(game, player, token, dice_result, action, performed):
     r = __get_game(game)
     if r["status"]:
         game_o = r["payload"]
@@ -30,6 +30,7 @@ def add_entry(game, player, token, dice_result, action):
         token=token,
         dice_result=dice_result,
         action=action,
+        performed=performed
     )
     e.save()
 
