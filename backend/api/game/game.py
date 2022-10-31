@@ -77,6 +77,11 @@ class Board:
         return r
 
     def get_from_board(self, player):
+        """
+        return all tokens on board
+
+        """
+
         r = {}
 
         for token_id, token in self.players[player].items():
@@ -359,62 +364,214 @@ def main():
             roll_result = get_dice_result()
             print(f"{roll_result=}")
 
-            choose_count = 0
+            # choose_count = 0
             move_from_start_pool = False
             move_on_board = False
 
             if roll_result == max_result:
                 can_roll_again = True
 
-            log.append(construct_roll(player=player_id, roll=roll_result))
+            # def choose_option(player_id, token_id, step):
 
+
+            log.append(construct_roll(player=player_id, roll=roll_result))
+            #
             if roll_result == max_result and b.any_in_start_pool(player=player_id):
-                choose_count += 1
+                # choose_count += 1
                 move_from_start_pool = True
                 print("can move at least one from start pool")
 
+                # print("[action] move one from start pool")
+
             if b.has_any_on_board(player=player_id):
-                choose_count += 1
+                # choose_count += 1
                 move_on_board = True
-                print("can move at least one from board, todo one or multiple")
+                print("can move at least one from board")
 
-                roll_result = b.get_from_board(player=player_id)
-                print(f"{roll_result=}")
+            if move_from_start_pool and move_on_board:
+                print("move from start pool & move on board")
+
+                to_choose = {}
+
+                for token_id, token in b.get_from_start_pool(player_id).items():
+                    to_choose[token_id] = token
+                for token_id, token in b.get_from_board(player=player_id).items():
+                    to_choose[token_id] = token
+
+                # print(f"{sp=}")
+                # r = b.get_from_board(player=player_id)
+                # print(f"{r=}")
+                #
+                # to_choose = dict(sp.items() + r.items())
+
+                # to_choose.update(sp)
+                # to_choose.update(r)
+
+                # print("options", r)
+                for token_id, token in to_choose.items():
+                    # todo
+                    print("player choosing first option")
+                    print(token_id, token)
+                    choose(b, log, player_id, roll_result, token_id)
+                    break
 
 
-            else:
-                print("nothing to move from board")
+                print(80*"-")
 
-            if choose_count == 0:
-                print("no op, auto")
-            elif choose_count == 1:
-                print("auto")
 
-                if move_from_start_pool:
-                    sp = b.get_from_start_pool( player_id)
+            elif move_from_start_pool:
+                print("move from start pool")
+
+                sp = b.get_from_start_pool(player_id)
+                # if not sp:
+                #     print("nothing to move from start pool, all tokens out")
+                #     print("options: maybe something from board")
+                # else:
+                print("todo start pool")
+
+                sp = b.get_from_start_pool(player_id)
+
+                is_auto = True
+                # is_a
+                if is_auto:
                     for token_id, token in sp.items():
-                        print(token_id, token)
+                        print("moving from start pool", token_id, token)
 
-                        b.move_token(player=player_id, token_id=token_id, step=roll_result)
-
-                        log.append(move_token(
-                            player=player_id,
-                            token=token_id,
-                            step=roll_result
-                        ))
+                        choose(b, log, player_id, roll_result, token_id)
 
                         break
 
+                else:
+                    print("not implemented pool choose")
 
-                if move_on_board:
-                    print("todo")
-                    # get_from_board(self, player
-                    # log.append()
 
-            elif choose_count > 1:
-                print("must choose")
+            elif move_on_board:
+                print("move on board")
 
-                #     todo user input
+                # r = b.get_from_board(player=player_id)
+                # if not r:
+                #     print("nothing to move from board")
+                # else:
+                print("todo move board")
+                    # can_move["board"] = r
+
+            else:
+                print("no op")
+
+
+
+            print("TODO [wait for user action]")
+
+
+            # can_move = {}
+            #
+            # # if roll_result == max_result and b.any_in_start_pool(player=player_id):
+            # #     sp = b.get_from_start_pool(player_id)
+            # #     if not sp:
+            # #         print("nothing to move from start pool, all tokens out")
+            # #         print("options: maybe something from board")
+            # #     else:
+            # #
+            # #         can_move["start pool"] = sp
+            #
+            # r = b.get_from_board(player=player_id)
+            # if not r:
+            #     print("nothing to move from board")
+            # else:
+            #     can_move["board"] = r
+            #
+            # print("options")
+            #
+            # # if not
+            #
+            # for m,n in can_move.items():
+            #     print(m)
+            #     for l,p in n.items():
+            #         print(l,p)
+            #     # print(j
+
+            # else:
+            #     print("nothing to move from board")
+
+            # if move_from_start_pool and move_on_board:
+            #     print("TODO [wait for user action]")
+            #
+            #     can_move = {}
+            #
+            #     sp = b.get_from_start_pool(player_id)
+            #     if not sp:
+            #         print("nothing to move from start pool, all tokens out")
+            #         print("options: maybe something from board")
+            #     else:
+            #
+            #         can_move["start pool"] = sp
+            #
+            #     r = b.get_from_board(player=player_id)
+            #     if not r:
+            #         print("nothing to move from board")
+            #     else:
+            #         can_move["board"] = r
+            #
+            #     print("options")
+            #     for i in can_move.items():
+            #         print(i)
+            #
+            # elif move_from_start_pool:
+            #     print("TODO move from start pool")
+            #
+            #     sp = b.get_from_start_pool(player_id)
+            #
+            #     is_auto = True
+            #
+            #     if is_auto:
+            #         for token_id, token in sp.items():
+            #             print("moving from start pool", token_id, token)
+            #
+            #             b.move_token(player=player_id, token_id=token_id,
+            #                          step=roll_result)
+            #
+            #             log.append(move_token(
+            #                 player=player_id,
+            #                 token=token_id,
+            #                 step=roll_result
+            #             ))
+            #
+            #             break
+            #
+            #     else:
+            #         print("not implemented, is_auto")
+            #
+            #     # print(f"{sp=}")
+            #
+            #
+            # elif move_on_board:
+            #     print("TODO move on board")
+            #
+            #     # sp = b.get_from_board(player=player_id)
+            #     r = b.get_from_board(player=player_id)
+            #     print(f"get_from_board {type(r)=} {r=}")
+            #
+            #
+            #
+            #     # get_from_board(self, player
+            #     # log.append()
+            #
+            # else:
+            #     print("nothing to move ")
+
+
+            # if choose_count == 0:
+            #     print("no op, auto")
+            #     pass
+            #
+            # elif choose_count == 1:
+            #     print("auto")
+            #
+            #
+            # elif choose_count > 1:
+            #     print("must choose")
+            #
+            #     #     todo user input
 
             # if choose_count > 1:
             #     print("must choose")
@@ -423,7 +580,7 @@ def main():
             print()
 
 
-        # if can:
+    # if can:
         #     # check if can choose
         #     log.append(choose(player_id))
         # else:
@@ -448,6 +605,10 @@ def main():
     print("log")
     [print(i) for i in log]
     print()
+
+    print("board state")
+    b.print_board_state()
+
 
     print("return")
     return
@@ -486,6 +647,16 @@ def main():
     # roled = 6
     #
     # player_1_token_1 = Token(owner=1, current_tile=Tile(0, 0), destination_tile=None)
+
+
+def choose(b, log, player_id, roll_result, token_id):
+    b.move_token(player=player_id, token_id=token_id,
+                 step=roll_result)
+    log.append(move_token(
+        player=player_id,
+        token=token_id,
+        step=roll_result
+    ))
 
 
 def order_driver():
