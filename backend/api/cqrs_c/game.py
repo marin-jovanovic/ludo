@@ -1,7 +1,6 @@
 import json
 
 from django.apps import apps
-from django.db.models import Max
 
 from backend.api.cqrs_c.game_log import add_entry
 from backend.api.cqrs_c.player_order import add_to_order
@@ -17,7 +16,8 @@ from backend.api.model.game import Game, \
     game_join_notifier
 from backend.api.model.game_log import get_entries, is_any_entry_present, \
     GameLog
-from backend.api.model.player_order import _get_player_order_model, get_player_order
+from backend.api.model.player_order import _get_player_order_model, \
+    get_player_order
 from backend.api.model.users import get_user_model
 
 
@@ -84,7 +84,8 @@ def leave_game(game_name, username):
         if not r['status']:
             return r
 
-    msg = json.dumps({"source": "leave game", "name": game_name, "who left": username})
+    msg = json.dumps(
+        {"source": "leave game", "name": game_name, "who left": username})
     game_left_notifier.notify(msg)
     games_notifier.notify(json.dumps(get_games()))
     return {"status": True}
@@ -112,7 +113,8 @@ def join_game(game_name, username):
     if not r["status"]:
         return r
 
-    msg = json.dumps({"source": "join game", "name": game_name, "who joined": username})
+    msg = json.dumps(
+        {"source": "join game", "name": game_name, "who joined": username})
     game_join_notifier.notify(msg)
     games_notifier.notify(json.dumps(get_games()))
 
@@ -130,7 +132,7 @@ def receive_instruction(game_id, instruction_id):
         from backend.api.game.game import generate_whole_game
 
         # todo hardcoded
-        g = generate_whole_game(2)
+        g = generate_whole_game()
 
         for i in g:
             print(i)
@@ -150,17 +152,16 @@ def receive_instruction(game_id, instruction_id):
         ). \
             update(performed=True)
 
-
     # todo check all in log if not
 
-    is_any_performed_false = GameLog.objects.filter(performed=False, game_id=game_o)
+    is_any_performed_false = GameLog.objects.filter(performed=False,
+                                                    game_id=game_o)
     print(f"{is_any_performed_false=}")
 
     if is_any_performed_false:
         print("not last instruciton, required user action")
     else:
         print("last instruction, generate new")
-
 
     # last_performed_instruction = GameLog.objects.filter(performed=True).aggregate(Max('instruction_id'))[
     #     "instruction_id__max"]
@@ -221,9 +222,8 @@ def __add_to_log(game_id, order):
 
     return {"status": True}
 
-def get_specific_game(game_id):
-    print(f"{game_id=}")
 
+def get_specific_game(game_id):
     try:
         g_o = _get_game_model().objects.get(name=game_id)
     except _get_game_model().DoesNotExist:
@@ -235,19 +235,13 @@ def get_specific_game(game_id):
     else:
         return r
 
-    for i in currently_active_players:
-        print(f"{i.username=} {i.game_role=}")
-
     r = is_any_entry_present(game=game_id)
     if r["status"]:
         r = r["payload"]
     else:
         return r
 
-    if r:
-        print("init roll in db")
-    else:
-        print("adding init data")
+    if not r:
 
         game_conf = get_config()
 
@@ -263,7 +257,6 @@ def get_specific_game(game_id):
         for i in order:
 
             if i["action"] == "goes":
-
                 _get_player_order_model().objects.filter(
                     game_id=g_o,
                     join_index=i["player"]
@@ -271,37 +264,9 @@ def get_specific_game(game_id):
 
                 turn += 1
 
-
         r = __add_to_log(game_id, order)
         if not r["status"]:
             return r
-
-        # r = __get_game(game_id)
-        # if not r["status"]:
-        #     return r
-
-        # m_join_to_turn_index = {}
-        # turn = 0
-        # for i in order:
-        #
-        #
-        #     if i["action"] == "roll":
-        #         i["performed"] = False
-        #     else:
-        #         i["performed"] = True
-        #
-        #     i["game"] = game_id
-        #
-        #     t = _get_player_order_model().objects.get(
-        #         game_id=g_o,
-        #         join_index=i["player"]
-        #     )
-        #
-        #     i["player"] = t.player.username
-        #     print(i)
-        #
-        #     r = add_entry(**i)
-        #     print("result add", r)
 
     r = get_entries(game_id)
     if not r["status"]:
