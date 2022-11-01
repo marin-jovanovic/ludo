@@ -70,3 +70,12 @@ def move_token( player, token, step):
         'dice_result': step,
         'action': "move"
     }
+
+def log_won(player):
+    return {
+        'game': None,
+        'player': player,
+        'token': None,
+        'dice_result': None,
+        'action': "won"
+    }
