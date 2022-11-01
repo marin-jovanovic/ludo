@@ -4,9 +4,6 @@ import { Boundary } from "./boundary.js"
 // todo stop on each tile for a sec,
 // todo no diagonals
 
-// import {getStartingPool} from "./api.js"
-
-
 class CanvasLevelAdapter {
 
     constructor(canvasInstance, game) {
@@ -43,49 +40,9 @@ class CanvasLevelAdapter {
         this.level.players[player].tokens[token].restart();
     }
 
-
-    activateListeners() {
-        document.querySelector('#ulul').addEventListener('click', () => {
-            this.movePosition({ player: 0, token: 0, jumpCount: 1 })
-        })
-    
-        document.querySelector('#ulur').addEventListener('click', () => {
-            this.movePosition({ player: 0, token: 1, jumpCount: 1 })
-        })
-    
-        document.querySelector('#uldl').addEventListener('click', () => {
-            this.movePosition({ player: 0, token: 2, jumpCount: 1 })
-        })
-    
-        document.querySelector('#uldr').addEventListener('click', () => {
-            this.movePosition({ player: 0, token: 3, jumpCount: 1 })
-        })
-    
-
-        document.querySelector('#rulul').addEventListener('click', () => {
-            this.moveTokenToStart({player: 0, token: 0});
-        })
-    
-        document.querySelector('#rulur').addEventListener('click', () => {
-            this.moveTokenToStart({player: 0, token: 1});
-        })
-    
-        document.querySelector('#ruldl').addEventListener('click', () => {
-            this.moveTokenToStart({player: 0, token: 2});
-        })
-    
-        document.querySelector('#ruldr').addEventListener('click', () => {
-            this.moveTokenToStart({player: 0, token: 3});
-        })
-    
-
-
-    }
-
     animate(level, canvas) {
 
 
-        this.activateListeners();
 
         function animateDriver() {
 
@@ -103,6 +60,7 @@ class CanvasLevelAdapter {
             // tokens
 
             for (const p of Object.values(level.players)) {
+
                 for (const t of Object.values(p.tokens)) {
                     t.draw(canvas.context)
                 }
