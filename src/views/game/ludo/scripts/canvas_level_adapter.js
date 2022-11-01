@@ -23,7 +23,7 @@ class CanvasLevelAdapter {
 
     movePosition({ player, token, jumpCount }) {
 
-        let t = this.level.players[player].tokens[token]
+        let t = this.level.players[player].tokens[token];
 
         t.state += jumpCount
 
