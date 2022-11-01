@@ -1,6 +1,5 @@
+from backend.api.game.resources import get_start_pool,get_player_one_moves,get_player_two_moves, get_player_three_moves,get_player_four_moves
 from backend.api.game.tile import Tile
-from backend.api.game.resources import get_start_pool, get_player_one_moves, \
-    get_player_two_moves, mock_moves
 
 
 def get_start_pool_preprocessor():
@@ -11,7 +10,6 @@ def get_start_pool_preprocessor():
         r[int(player_id)] = {}
 
         for token_id, tile in tokens.items():
-
             r[int(player_id)][int(token_id)] = Tile(tile["row"], tile["column"])
 
     return r
@@ -28,15 +26,10 @@ def player_moves_preprocessor():
         return r
 
     m_player_to_moves = {
-        0: mock_moves(),
-        1: mock_moves(),
-        2: mock_moves(),
-        3: mock_moves(),
-
-        # 0: get_player_one_moves(),
-        # 1: get_player_two_moves(),
-        # 2: get_player_one_moves(),
-        # 3: get_player_two_moves(),
+        0: get_player_one_moves(),
+        1: get_player_two_moves(),
+        2: get_player_three_moves(),
+        3: get_player_four_moves(),
     }
 
     r = {}
