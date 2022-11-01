@@ -119,78 +119,78 @@ class WSServer(Server):
         return False
         pass
 
-    async def driver(self, websocket, _):
+    # async def driver(self, websocket, _):
+    #
+    #     async for raw_data in websocket:
+    #         print()
+    #         print(f"received: {raw_data=}")
+    #
+    #         message = Message(raw_data)
+    #         print(f"{message.header=}")
+    #         print(f"{message.payload=}")
+    #
+    #         command = message.payload["command"]
+    #         print(f"{command=}")
+    #         args = message.payload["args"]
+    #         print(f"{args=}")
+    #
+    #         response = {}
+    #
+    #         if command == "createRoom":
+    #             response["message"] = self.create_room(
+    #                 args["roomId"],
+    #                 message.header["username"],
+    #                 args["capacity"]
+    #             )
+    #
+    #         elif command == "logIn":
+    #             response["message"] = self.user_make_active(
+    #                 message.header["username"],
+    #             )
+    #
+    #         elif command == "getActive":
+    #
+    #             while True:
+    #                 response = self.user_get_active(
+    #                     message.header["username"],
+    #                 )
+    #
+    #                 await websocket.send(
+    #                     json.dumps(response)
+    #                 )
+    #
+    #         else:
+    #             response["message"] = "unsupported command"
+    #
+    #         print(f"{response=}")
+    #
+    #         time.sleep(0.4)
+    #
+    #         await websocket.send(
+    #             json.dumps(response)
+    #         )
+    #
+    #         self.debug_counter += 1
 
-        async for raw_data in websocket:
-            print()
-            print(f"received: {raw_data=}")
-
-            message = Message(raw_data)
-            print(f"{message.header=}")
-            print(f"{message.payload=}")
-
-            command = message.payload["command"]
-            print(f"{command=}")
-            args = message.payload["args"]
-            print(f"{args=}")
-
-            response = {}
-
-            if command == "createRoom":
-                response["message"] = self.create_room(
-                    args["roomId"],
-                    message.header["username"],
-                    args["capacity"]
-                )
-
-            elif command == "logIn":
-                response["message"] = self.user_make_active(
-                    message.header["username"],
-                )
-
-            elif command == "getActive":
-
-                while True:
-                    response = self.user_get_active(
-                        message.header["username"],
-                    )
-
-                    await websocket.send(
-                        json.dumps(response)
-                    )
-
-            else:
-                response["message"] = "unsupported command"
-
-            print(f"{response=}")
-
-            time.sleep(0.4)
-
-            await websocket.send(
-                json.dumps(response)
-            )
-
-            self.debug_counter += 1
-
-
-def init_server():
-    server = WSServer("localhost", 8765)
-
-    # signal.signal(signal.SIGINT, signal.SIG_DFL)
-
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-
-    print("connect on ws://" + server.host_name + ":" + str(server.port))
-
-    loop.run_until_complete(
-        websockets.serve(server.driver, server.host_name, server.port))
-    loop.run_forever()
-
-
-def main():
-    init_server()
-
-
-if __name__ == '__main__':
-    main()
+#
+# def init_server():
+#     server = WSServer("localhost", 8765)
+#
+#     # signal.signal(signal.SIGINT, signal.SIG_DFL)
+#
+#     loop = asyncio.new_event_loop()
+#     asyncio.set_event_loop(loop)
+#
+#     print("connect on ws://" + server.host_name + ":" + str(server.port))
+#
+#     loop.run_until_complete(
+#         websockets.serve(server.driver, server.host_name, server.port))
+#     loop.run_forever()
+#
+#
+# def main():
+#     init_server()
+#
+#
+# if __name__ == '__main__':
+#     main()
