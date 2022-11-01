@@ -85,13 +85,13 @@ export default {
     },
   },
   beforeMount() {
-    this.activateActivityTracker();
+    // this.activateActivityTracker();
   },
   beforeUnmount() {
-    this.deactivateActivityTracker();
-    clearTimeout(this.userActivityTimeout);
-    clearTimeout(this.userActivityThrottlerTimeout);
-    window.sessionStorage.removeItem("user");
+    // this.deactivateActivityTracker();
+    // clearTimeout(this.userActivityTimeout);
+    // clearTimeout(this.userActivityThrottlerTimeout);
+    // window.sessionStorage.removeItem("user");
   },
 };
 </script>
