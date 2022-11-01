@@ -2,14 +2,17 @@
   <BaseUserTemplate>
     <!-- <hr /> -->
 
+    <button @click="test">test: generate random game</button>
+
     <hr />
 
     <div class="row">
       <div class="col" style="border: 2px solid black">
-        <TheGame style="border: 2px solid black"></TheGame>
+        <TheGame ref="game" style="border: 2px solid black"></TheGame>
       </div>
 
       <div class="col">
+        <div>turn:</div>
         <TheDice ref="dice"></TheDice>
       </div>
     </div>
@@ -50,27 +53,95 @@ export default {
     if (res["auth"]["status"] && res["payload"]["status"]) {
       let p = res["payload"]["payload"];
 
+      // console.table(p);
       console.table(p["log"]);
+
+      let pp = p["players"]["payload"];
+      // let mappign =
+
+      // function swapKeysAndValues(obj) {
+      //   //  [{color: 'blue'}, {fruit: 'apple'}]
+      // }
+      console.log(pp);
+      console.log(p);
+      const swapped = Object.entries(pp).map(([key, value]) => ({
+        [value]: key,
+      }));
+
+      pp = Object.assign({}, ...swapped);
+
+      // swapKeysAndValues(pp);
+      console.table(pp);
+
+      console.log(p["players"]);
 
       for (const [key, value] of Object.entries(p["log"])) {
         console.log("instruction", key);
 
-        if (value.action === "goes") {
-          this.$refs.info.addToPlayingOrder(value.username);
+        if (value.action === "roll") {
+          this.$refs.dice.rollDice(value.diceResult);
+        } else if (value.action === "goes") {
+          console.log("order ", value.username);
+        } else if (value.action === "move") {
+          console.log("move who", pp[value.username]);
+
+          this.$refs.game.movePosition({
+            player: pp[value.username],
+            token: value.token,
+            jumpCount: value.diceResult,
+          });
+          await new Promise((r) => setTimeout(r, 1000));
+        } else if (value.action === "won") {
+          console.log("won", value.username);
         }
 
-        if (value.performed) {
-          await this.performed(value);
-        } else {
-          await this.notPefrormed(value, key);
-          break;
-        }
+        // await new Promise((r) => setTimeout(r, 2000));
       }
     } else {
       console.log("err fetching data");
     }
   },
   methods: {
+    async test() {
+      // actionPerformed(game, player, instruction_id)
+
+      let res = await apiGame.actionPerformed(
+        this.gameId,
+        this.username,
+        "test"
+        // this.instructionCurrentlyPerforming
+      );
+
+      if (!(res["auth"]["status"] && res["payload"]["status"])) {
+        console.log("game leave err");
+      }
+
+      // res = await apiGame.getGame(this.gameId);
+
+      // if (res["auth"]["status"] && res["payload"]["status"]) {
+      //   let p = res["payload"]["payload"];
+
+      //   console.table(p["log"]);
+
+      //   for (const [key, value] of Object.entries(p["log"])) {
+      //     console.log("instruction", key);
+
+      //     if (value.action === "goes") {
+      //       this.$refs.info.addToPlayingOrder(value.username);
+      //     }
+
+      //     if (value.performed) {
+      //       await this.performed(value);
+      //     } else {
+      //       await this.notPefrormed(value, key);
+      //       break;
+      //     }
+      //   }
+      // } else {
+      //   console.log("err fetching data");
+      // }
+    },
+
     async notPefrormed(value, key) {
       // for not performed instructions driver
 
