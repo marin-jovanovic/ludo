@@ -16,10 +16,6 @@ let canvasLevelAdapter;
 //     removeEventListener(type, listener)
 // }
 
-window.onload = function () {
-    startup();
-
-}
 
 function startup() {
     canvasInstance = new CanvasGame();
@@ -35,56 +31,46 @@ function startup() {
 
 }
 
-function    movePosition({player, token, jumpCount}) {
+function movePosition({player, token, jumpCount}) {
 
-            canvasLevelAdapter.movePosition({ player: player, token: token, jumpCount: jumpCount });
+    canvasLevelAdapter.movePosition({ player: player, token: token, jumpCount: jumpCount });
+
+    // notify();
+
 }
 
-
-// class GameDriver {
-//     constructor() {
-//         this.canvasInstance = new CanvasGame();
-//         this.levelInstance = new Level();
-//         this.gameInstance = new Game(this.levelInstance);
-    
-//         this.canvasLevelAdapter = new CanvasLevelAdapter(
-//             this.canvasInstance,
-//             this.gameInstance
-//         );
-    
-//         this.canvasLevelAdapter.startLevel();
-    
-            
-
-//     }
+function restartToken({player, token}) {
+    canvasLevelAdapter.moveTokenToStart({player: player, token: token});
 
 
-//     movePosition({player, token, jumpCount}) {
-//         this.canvasLevelAdapter.movePosition({ player: player, token: token, jumpCount: jumpCount })
+}
 
-//     }
+let subscribers = new Set();
 
+function subscribe(s) {
+    subscribers.add(s);
+}
 
+function unsubscribe(s) {
+subscribers.delete(s);
+}
 
+function notify() {
 
-
-// }
-
-// let gameDriver = new GameDriver();
-
-
-// export {Game}
-
-// class Game
-
-// function getCanvasLevel
-
-// export { addEventListenerToDocument, removeEventListenerToDocument };
-
+    subscribers.forEach((i) => {
+        i();
+    });
+}
 
 export const ludo = {
     startup,
-    movePosition
-    // gameDriver
-    }
+    movePosition,
+    restartToken,
+
+    subscribe,
+    unsubscribe,
+    notify,
+
+
+}
     
