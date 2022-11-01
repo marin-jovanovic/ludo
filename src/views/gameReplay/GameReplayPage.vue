@@ -1,8 +1,14 @@
 <template>
   <BaseUserTemplate>
-    <!-- <hr /> -->
-
     <button @click="test">test: generate random game</button>
+
+    <input
+      @change="sliderUpdate"
+      type="range"
+      min="0"
+      max="5000"
+      v-model="this.slider"
+    />
 
     <hr />
 
@@ -34,6 +40,8 @@ import { apiBoard } from "@/scripts/api/board";
 export default {
   data() {
     return {
+      slider: 5000,
+
       username: "",
       gameId: "",
 
@@ -44,6 +52,7 @@ export default {
       lastInstructionPerformed: -1,
     };
   },
+
   async mounted() {
     this.username = sessionStorage.getItem("username");
     this.gameId = this.$route.params.id;
@@ -53,55 +62,66 @@ export default {
     if (res["auth"]["status"] && res["payload"]["status"]) {
       let p = res["payload"]["payload"];
 
-      // console.table(p);
-      console.table(p["log"]);
-
       let pp = p["players"]["payload"];
-      // let mappign =
-
-      // function swapKeysAndValues(obj) {
-      //   //  [{color: 'blue'}, {fruit: 'apple'}]
-      // }
-      console.log(pp);
-      console.log(p);
       const swapped = Object.entries(pp).map(([key, value]) => ({
         [value]: key,
       }));
 
       pp = Object.assign({}, ...swapped);
 
-      // swapKeysAndValues(pp);
-      console.table(pp);
-
-      console.log(p["players"]);
-
       for (const [key, value] of Object.entries(p["log"])) {
         console.log("instruction", key);
 
-        if (value.action === "roll") {
-          this.$refs.dice.rollDice(value.diceResult);
-        } else if (value.action === "goes") {
-          console.log("order ", value.username);
-        } else if (value.action === "move") {
-          console.log("move who", pp[value.username]);
+        switch (value.action) {
+          case "roll":
+            this.$refs.dice.rollDice(value.diceResult);
+            break;
 
-          this.$refs.game.movePosition({
-            player: pp[value.username],
-            token: value.token,
-            jumpCount: value.diceResult,
-          });
-          await new Promise((r) => setTimeout(r, 1000));
-        } else if (value.action === "won") {
-          console.log("won", value.username);
+          case "goes":
+            console.log("order ", value.username);
+            break;
+
+          case "move":
+            this.$refs.game.movePosition({
+              player: pp[value.username],
+              token: value.token,
+              jumpCount: value.diceResult,
+            });
+
+            await this.sleep();
+
+            break;
+
+          case "won":
+            console.log("won", value.username);
+            break;
+
+          case "eaten":
+            this.$refs.game.restartToken({
+              player: pp[value.username],
+              token: value.token,
+            });
+
+            await this.sleep();
+            break;
+
+          default:
+            break;
         }
-
-        // await new Promise((r) => setTimeout(r, 2000));
       }
     } else {
       console.log("err fetching data");
     }
   },
   methods: {
+    async sleep() {
+      await new Promise((r) => setTimeout(r, this.slider));
+    },
+
+    sliderUpdate() {
+      console.log("slider", this.slider);
+    },
+
     async test() {
       // actionPerformed(game, player, instruction_id)
 
