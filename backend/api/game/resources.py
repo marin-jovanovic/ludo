@@ -93,17 +93,29 @@ def get_start_pool():
 def mock_moves():
     return {
         "0": {
-            "row": 6,
-            "column": 1
+            "row": 0,
+            "column": 0
         },
         "1": {
-            "row": 6,
-            "column": 2
+            "row": 0,
+            "column": 1
         },
         "2": {
-            "row": 6,
+            "row": 0,
+            "column": 2
+        },
+        "3": {
+            "row": 0,
             "column": 3
-        }
+        },
+        "4": {
+            "row": 0,
+            "column": 4
+        },
+        "5": {
+            "row": 0,
+            "column": 5
+        },
     }
 
 
@@ -561,7 +573,7 @@ def get_player_two_moves():
 def get_config():
     return {
         "number of players": 4,
-        "tokens per player": 4,
+        "tokens per player": 2,
         "dice number of sides": 6,
 
         # assumption: talking for each player individually
