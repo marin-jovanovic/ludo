@@ -569,11 +569,16 @@ def get_player_two_moves():
         }
     }
 
+def get_player_three_moves():
+    return get_player_one_moves()
+
+def get_player_four_moves():
+    return get_player_one_moves()
 
 def get_config():
     return {
-        "number of players": 4,
-        "tokens per player": 2,
+        "number of players": 2,
+        "tokens per player": 4,
         "dice number of sides": 6,
 
         # assumption: talking for each player individually
