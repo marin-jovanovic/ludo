@@ -127,7 +127,18 @@ def receive_instruction(game_id, instruction_id):
         game_o = r["payload"]
 
     if instruction_id == "test":
-        print("test")
+        from backend.api.game.game import generate_whole_game
+
+        # todo hardcoded
+        g = generate_whole_game(2)
+
+        for i in g:
+            print(i)
+
+        r = __add_to_log(game_id, g)
+        if not r["status"]:
+            return r
+        # print("test")
 
     else:
 
@@ -178,6 +189,38 @@ def receive_instruction(game_id, instruction_id):
     return {"status": True}
 
 
+def __add_to_log(game_id, order):
+    r = __get_game(game_id)
+    if not r["status"]:
+        return r
+
+    try:
+        g_o = _get_game_model().objects.get(name=game_id)
+    except _get_game_model().DoesNotExist:
+        return {"status": False}
+
+    for i in order:
+
+        if i["action"] == "roll":
+            i["performed"] = False
+        else:
+            i["performed"] = True
+
+        i["game"] = game_id
+
+        t = _get_player_order_model().objects.get(
+            game_id=g_o,
+            join_index=i["player"]
+        )
+
+        i["player"] = t.player.username
+        print(i)
+
+        r = add_entry(**i)
+        print("result add", r)
+
+    return {"status": True}
+
 def get_specific_game(game_id):
     print(f"{game_id=}")
 
@@ -216,16 +259,10 @@ def get_specific_game(game_id):
             game_conf['flag: tie in order'],
         )
 
-        r = __get_game(game_id)
-        if not r["status"]:
-            return r
-
-        # m_join_to_turn_index = {}
         turn = 0
         for i in order:
 
             if i["action"] == "goes":
-                # m_join_to_turn_index[i["player"]] = turn
 
                 _get_player_order_model().objects.filter(
                     game_id=g_o,
@@ -234,25 +271,37 @@ def get_specific_game(game_id):
 
                 turn += 1
 
-            if i["action"] == "roll":
-                i["performed"] = False
-            else:
-                i["performed"] = True
 
-            # for i in order:
-            i["game"] = game_id
+        r = __add_to_log(game_id, order)
+        if not r["status"]:
+            return r
 
-            t = _get_player_order_model().objects.get(
-                game_id=g_o,
-                join_index=i["player"]
-            )
+        # r = __get_game(game_id)
+        # if not r["status"]:
+        #     return r
 
-            i["player"] = t.player.username
-            # i["performed"] = False
-            print(i)
-
-            r = add_entry(**i)
-            print("result add", r)
+        # m_join_to_turn_index = {}
+        # turn = 0
+        # for i in order:
+        #
+        #
+        #     if i["action"] == "roll":
+        #         i["performed"] = False
+        #     else:
+        #         i["performed"] = True
+        #
+        #     i["game"] = game_id
+        #
+        #     t = _get_player_order_model().objects.get(
+        #         game_id=g_o,
+        #         join_index=i["player"]
+        #     )
+        #
+        #     i["player"] = t.player.username
+        #     print(i)
+        #
+        #     r = add_entry(**i)
+        #     print("result add", r)
 
     r = get_entries(game_id)
     if not r["status"]:
