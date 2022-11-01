@@ -38,6 +38,7 @@ def construct_tie():
         "action": "tie"
     }
 
+
 def choose(player):
     return {
         "game": None,
@@ -46,6 +47,7 @@ def choose(player):
         "dice_result": None,
         "action": "choose"
     }
+
 
 def skip(player):
     """
@@ -62,7 +64,7 @@ def skip(player):
     }
 
 
-def move_token( player, token, step):
+def move_token(player, token, step):
     return {
         'game': None,
         'player': player,
@@ -70,6 +72,17 @@ def move_token( player, token, step):
         'dice_result': step,
         'action': "move"
     }
+
+
+def log_eat_token(player, token):
+    return {
+        'game': None,
+        'player': player,
+        'token': token,
+        'dice_result': None,
+        'action': "eaten"
+    }
+
 
 def log_won(player):
     return {
