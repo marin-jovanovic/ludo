@@ -1,17 +1,5 @@
 <template>
   <div>
-    <button id="ulul">ul ul</button>
-    <button id="ulur">ul ur</button>
-    <button id="uldl">ul dl</button>
-    <button id="uldr">ul dr</button>
-    <br />
-    <button id="rulul">ret ul ul</button>
-    <button id="rulur">ret ul ur</button>
-    <button id="ruldl">ret ul dl</button>
-    <button id="ruldr">ret ul dr</button>
-
-    <hr />
-
     <canvas> </canvas>
   </div>
 </template>
@@ -22,23 +10,69 @@ import { ludo } from "@/views/game/ludo/scripts/index.js";
 
 export default {
   data() {
-    return {};
+    return {
+      backlog: [],
+      useBacklog: false,
+    };
   },
   mounted() {
     ludo.startup();
+
+    if (this.useBacklog) {
+      ludo.subscribe(this.notify);
+    }
   },
   methods: {
     movePosition({ player, token, jumpCount }) {
-      ludo.movePosition({ player: player, token: token, jumpCount: jumpCount });
-      // ludo.movePosition({player, token, jumpCount}
+      if (this.useBacklog) {
+        if (this.backlog.length === 0) {
+          ludo.movePosition({
+            player: player,
+            token: token,
+            jumpCount: jumpCount,
+          });
+        }
+
+        this.backlog.push([player, token, jumpCount]);
+      } else {
+        ludo.movePosition({
+          player: player,
+          token: token,
+          jumpCount: jumpCount,
+        });
+      }
+    },
+    restartToken({ player, token }) {
+      if (this.useBacklog) {
+        if (this.backlog.length === 0) {
+          ludo.restartToken({ player: player, token: token });
+        }
+
+        this.backlog.push([player, token]);
+      } else {
+        ludo.restartToken({ player: player, token: token });
+      }
+    },
+
+    notify() {
+      this.backlog.shift();
+
+      if (this.backlog.length === 0) {
+        return;
+      }
+
+      let first = this.backlog[0];
+
+      if (first.length === 2) {
+        ludo.restartToken({ player: first[0], token: first[1] });
+      } else {
+        ludo.movePosition({
+          player: first[0],
+          token: first[1],
+          jumpCount: first[2],
+        });
+      }
     },
   },
 };
 </script> 
-    
-    <!-- <style>
-@import "ludo/index.css";
-</style> -->
-
-  
-  
