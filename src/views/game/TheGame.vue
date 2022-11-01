@@ -27,7 +27,12 @@ export default {
   mounted() {
     ludo.startup();
   },
-  methods: {},
+  methods: {
+    movePosition({ player, token, jumpCount }) {
+      ludo.movePosition({ player: player, token: token, jumpCount: jumpCount });
+      // ludo.movePosition({player, token, jumpCount}
+    },
+  },
 };
 </script> 
     
