@@ -25,7 +25,12 @@ class Token {
 
         // todo extract to config
         // for jumping; sleep on each tile between start end destination tile
+        // one by one
         this.configSleep = true;
+
+        // move one by one tile (no diagonal => rather use first x then y ie)
+        // prevent diagonals
+        this.configOneByOne = true;
 
     }
 
@@ -46,16 +51,16 @@ class Token {
     }
 
     _isAtDestination() {
-        return this.backlog === [];
+        return this._isBacklogEmpty();
     }
 
     _isBacklogEmpty() {
-        return this.backlog === [];
+        return this.backlog.length === 0;
     }
 
     _getDestinationByOne() {
         if (this._isBacklogEmpty()) {
-            // return [false, NaN];
+            console.log('integrity error');
             return
         }
 
@@ -78,6 +83,25 @@ class Token {
 
     }
 
+    _moveByOneToDestination(des) {
+        let atNextDestination = true;
+
+        ['x', 'y'].forEach(i => {
+
+            if (this.position[i] !== des[i]) {
+                atNextDestination = false;
+
+                if (this.position[i] > des[i]) {
+                    this.position[i]--;
+                } else if (this.position[i] < des[i]) {
+                    this.position[i]++;
+                }
+            }
+        })
+
+        return atNextDestination;
+    }
+
     draw(c) {
         c.beginPath()
         c.arc(
@@ -88,44 +112,27 @@ class Token {
             Math.PI * 2,
         );
 
-        let wasAtDestination = this._isAtDestination();
+        let wasAtDestination = this._isBacklogEmpty();
 
         if (!wasAtDestination) {
-            if (this.configSleep && this.startSleeping) {
-                this._sleep();
-            } else {
-                let nextDestination = this._getDestinationByOne();
 
-                if (this._isBacklogEmpty()) {
-                    console.log('intgr err')
+            if (this.configOneByOne) {
+                if (this.configSleep && this.startSleeping) {
+                    this._sleep();
                 } else {
-                    if (nextDestination) {
-                        let atNextDestination = true;
+                    let nextDestination = this._getDestinationByOne();
 
-                        ['x', 'y'].forEach(i => {
+                    let atNextDestination = this._moveByOneToDestination(nextDestination);
 
-                            if (this.position[i] !== nextDestination[i]) {
-                                atNextDestination = false;
+                    if (atNextDestination) {
+                        this.backlog.shift();
 
-                                if (this.position[i] > nextDestination[i]) {
-                                    this.position[i]--;
-                                } else if (this.position[i] < nextDestination[i]) {
-                                    this.position[i]++;
-                                }
-                            }
-                        })
-
-                        if (atNextDestination) {
-                            this.backlog.shift();
-
-                            this.startSleeping = true;
-
-                        }
+                        this.startSleeping = true;
                     }
+
                 }
-
-
-
+            } else {
+                this._moveByOneToDestination(this.destinationPosition);
             }
         }
 
