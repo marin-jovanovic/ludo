@@ -1,5 +1,8 @@
 <template>
   <BaseUserTemplate>
+
+    <TheActions></TheActions>
+
     <button @click="test">test: generate random game</button>
 
     <input @change="sliderUpdate" type="range" min="0" max="5000" v-model="this.slider" />
@@ -30,6 +33,7 @@ import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
 
 import { apiGame } from "@/scripts/api/game";
 import { apiBoard } from "@/scripts/api/board";
+import TheActions from "./TheActions.vue";
 
 export default {
   data() {
@@ -243,7 +247,7 @@ export default {
       await this.actionPerformed();
     },
   },
-  components: { TheDice, BaseUserTemplate, TheGame },
+  components: { TheDice, BaseUserTemplate, TheGame, TheActions },
 };
 </script> 
   
