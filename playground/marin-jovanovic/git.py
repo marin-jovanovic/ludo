@@ -8,6 +8,7 @@ import subprocess
 # sudo lsof -i -P -n | grep LISTEN
 
 def main():
+    # bl api board
 
     same_comment = True
     comment = None
@@ -19,7 +20,7 @@ def main():
     comment = "impl: create / update portfolio"
     comment = 'ref: rewrite db scheme'
 
-    comment = "fix: logic err"
+    comment = "wip: logging actions"
 
     if same_comment:
         if not comment:
