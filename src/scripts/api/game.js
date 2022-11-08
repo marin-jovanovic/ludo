@@ -28,7 +28,6 @@ async function updateGame(game, player, token, action) {
 }
 
 async function actionPerformed(game, player, instruction_id) {
-    // console.log("action", action)
 
     return await apiCalls.handleNewResponse(
         await apiCalls.api.put(
@@ -47,9 +46,9 @@ async function actionPerformed(game, player, instruction_id) {
 
 
 export const apiGame = {
-getGame,
-updateGame    ,
-actionPerformed,
+    getGame,
+    updateGame,
+    actionPerformed,
 
 
 }
