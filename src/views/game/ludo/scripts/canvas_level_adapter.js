@@ -1,15 +1,14 @@
 import { Boundary } from "./boundary.js"
 
-
-// todo stop on each tile for a sec,
-// todo no diagonals
-
 class CanvasLevelAdapter {
 
     constructor(canvasInstance, game) {
         this.canvas = canvasInstance;
         this.game = game;
         this.level = this.game.currentLevel;
+
+        this.configOneByOne = true;
+
     }
 
     startLevel = () => {
@@ -18,30 +17,27 @@ class CanvasLevelAdapter {
 
     }
 
+    _tileToCoordinates(stateBoundaries) {
+        // todo extract
+        return {
+            x: stateBoundaries.column * Boundary.width + Boundary.width / 2,
+            y: stateBoundaries.row * Boundary.height + Boundary.height / 2
+        };
+
+    }
+
     movePosition({ player, token, jumpCount }) {
 
         let t = this.level.players[player].tokens[token];
 
-        let oneByOne = true;
-
-        if (oneByOne) {
-            // t.move({jumpCount: jumpCount})
-
-            // console.log(t.state)
+        if (this.configOneByOne) {
 
             for (let i = t.state; i < t.state + jumpCount; i++) {
-                // console.log(i)
-
-                // console.log(this.level.player1State)
 
                 if (i in this.level.player1State) {
                     let stateBoundaries = this.level.player1State[i]
 
-                    // todo extract
-                    let destinationPosition = {
-                        x: stateBoundaries.column * Boundary.width + Boundary.width / 2,
-                        y: stateBoundaries.row * Boundary.height + Boundary.height / 2
-                    };
+                    let destinationPosition = this._tileToCoordinates(stateBoundaries);
 
                     this.level.players[player].tokens[token].moveByOne({ destinationPosition: destinationPosition })
 
@@ -49,73 +45,17 @@ class CanvasLevelAdapter {
                     console.log('integrity error: not in state object')
                 }
 
-
-
             }
 
-            t.state += jumpCount
-
-
-            let stateBoundaries = this.level.player1State[t.state]
-            // console.log('after', stateBoundaries)
-
-            // todo extract
-            let destinationPosition = {
-                x: stateBoundaries.column * Boundary.width + Boundary.width / 2,
-                y: stateBoundaries.row * Boundary.height + Boundary.height / 2
-            }
-
-            this.level.players[player].tokens[token].setDestionationPosition(destinationPosition)
-
-            // t.state += jumpCount
-
-            // let stateBoundaries = this.level.player1State[t.state]
-            // console.log('after', stateBoundaries)
-
-            // // todo extract
-            // let destinationPosition = {
-            //     x: stateBoundaries.column * Boundary.width + Boundary.width / 2,
-            //     y: stateBoundaries.row * Boundary.height + Boundary.height / 2
-            // }
-
-            // this.level.players[player].tokens[token].setDestionationPosition(destinationPosition)
-
-
-
-        } else {
-            // t.move({jumpCount: jumpCount})
-
-            // console.log(t.state)
-
-            // let prevState = this.level.player1State[t.state];
-            // console.log('prev', prevState)
-
-            // for (let i = t.state; i < t.state + jumpCount; i++) {
-            //     // const element ;
-            //     console.log(i)
-
-            // }
-
-            // for (const [key, value] of Object.entries(this.level.player1State)) {
-            //     console.log(key, value);
-            // }
-
-
-            t.state += jumpCount
-
-            let stateBoundaries = this.level.player1State[t.state]
-            // console.log('after', stateBoundaries)
-
-            // todo extract
-            let destinationPosition = {
-                x: stateBoundaries.column * Boundary.width + Boundary.width / 2,
-                y: stateBoundaries.row * Boundary.height + Boundary.height / 2
-            }
-
-            this.level.players[player].tokens[token].setDestionationPosition(destinationPosition)
         }
 
+        t.state += jumpCount
 
+        let stateBoundaries = this.level.player1State[t.state]
+
+        let destinationPosition = this._tileToCoordinates(stateBoundaries);
+
+        this.level.players[player].tokens[token].setDestionationPosition(destinationPosition)
 
     }
 
