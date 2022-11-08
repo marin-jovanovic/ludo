@@ -19,7 +19,7 @@ def main():
     comment = "impl: create / update portfolio"
     comment = 'ref: rewrite db scheme'
 
-    comment = "impl: token jump"
+    comment = "fix: logic err"
 
     if same_comment:
         if not comment:
