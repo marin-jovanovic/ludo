@@ -5,12 +5,13 @@
 </template>
     
     
-  <script>
+<script>
 import { ludo } from "@/views/game/ludo/scripts/index.js";
 
 export default {
   data() {
     return {
+      // wait for one token to reach destination (stops moving) before other token can be moved on board
       backlog: [],
       useBacklog: false,
     };
