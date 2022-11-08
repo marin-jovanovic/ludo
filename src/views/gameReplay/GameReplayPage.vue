@@ -2,13 +2,7 @@
   <BaseUserTemplate>
     <button @click="test">test: generate random game</button>
 
-    <input
-      @change="sliderUpdate"
-      type="range"
-      min="0"
-      max="5000"
-      v-model="this.slider"
-    />
+    <input @change="sliderUpdate" type="range" min="0" max="5000" v-model="this.slider" />
 
     <hr />
 
@@ -28,7 +22,7 @@
 </template>
   
   
-  <script>
+<script>
 import TheGame from "./../game/TheGame.vue";
 import TheDice from "./../game/TheDice.vue";
 
@@ -69,8 +63,8 @@ export default {
 
       pp = Object.assign({}, ...swapped);
 
-      for (const [key, value] of Object.entries(p["log"])) {
-        console.log("instruction", key);
+      for (const value of Object.values(p["log"])) {
+        // console.log("instruction", key);
 
         switch (value.action) {
           case "roll":
