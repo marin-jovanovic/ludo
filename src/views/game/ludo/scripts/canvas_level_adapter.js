@@ -18,6 +18,9 @@ class CanvasLevelAdapter {
     }
 
     _tileToCoordinates(stateBoundaries) {
+        // tile (x,y) to coordinate (pixels x,y ?) 
+        // find center of that pixels posiiton return it
+
         // todo extract
         return {
             x: stateBoundaries.column * Boundary.width + Boundary.width / 2,
