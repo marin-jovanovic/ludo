@@ -59,8 +59,6 @@ function isPublicPath(toPath) {
 }
 
 
-// todo fix using global store, not sure if this is creating new instance
-
 router.beforeEach((to, from, next) => {
 
   let isPublic = isPublicPath(to.path);
@@ -72,7 +70,7 @@ router.beforeEach((to, from, next) => {
   if (!isPublic && !loggedIn) {
     // router.push("/login")
 
-    // todo fix
+    // todo fix when nested url (game/x)  goes to (game/login)
     return next({
       path: '/login',
       query: { returnUrl: to.path }
