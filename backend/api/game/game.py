@@ -9,6 +9,8 @@ from backend.api.game.pre import get_start_pool_preprocessor, \
     player_moves_preprocessor
 from backend.api.game.resources import get_config
 
+from backend.api.game.log import log_eat_token
+
 # todo if user gets 5 but there are only 3 spaces left then move
 #   do not wait till user gets 3 (for placing token in win position)
 todo_move_to_last_if_exceed = True
@@ -17,9 +19,10 @@ todo_move_to_last_if_exceed = True
 # done
 # action eat
 # if in end pool can not be eaten
+# move max to destination, not over
 
 # todo
-# move max to destination, not over
+# jump one by one
 
 class Board:
 
@@ -640,9 +643,6 @@ def main():
 
     for i in log:
         print(i)
-
-
-from backend.api.game.log import log_eat_token
 
 
 def choose(b, log, player_id, roll_result, token_id, already_won):
