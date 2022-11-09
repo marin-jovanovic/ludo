@@ -1,6 +1,7 @@
 <template>
   <BaseUserTemplate>
     <!-- <hr /> -->
+    <TheTest></TheTest>
 
     <TheActions></TheActions>
 
@@ -44,6 +45,8 @@
 import TheInfo from "./TheInfo.vue";
 import TheGame from "./TheGame.vue";
 import TheDice from "./TheDice.vue";
+import TheTest from "./../gameReplay/TheTest.vue";
+
 import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
 import { apiLobby } from "@/scripts/api/lobby";
 import { router } from "@/router/router";
@@ -247,6 +250,6 @@ export default {
       }
     },
   },
-  components: { TheInfo, TheDice, BaseUserTemplate, TheMessages, TheGame, TheActions },
+  components: { TheInfo, TheDice, BaseUserTemplate, TheMessages, TheGame, TheActions, TheTest },
 };
 </script> 
