@@ -61,55 +61,55 @@ export default {
 
       pp = Object.assign({}, ...swapped);
 
-      window.addEventListener('load', () => {
-        console.log('load');
-        (async () => {
-          for (const value of Object.values(p["log"])) {
+      // window.addEventListener('load', () => {
+      // console.log('load');
+      // (async () => {
+      for (const value of Object.values(p["log"])) {
 
-            switch (value.action) {
-              case "roll":
-                this.$refs.dice.rollDice(value.diceResult);
-                break;
+        switch (value.action) {
+          case "roll":
+            this.$refs.dice.rollDice(value.diceResult);
+            break;
 
-              case "goes":
-                console.log("order ", value.username);
-                break;
+          case "goes":
+            console.log("[instruction] order ", value.username);
+            break;
 
-              case "move":
-                this.$refs.game.movePosition({
-                  player: pp[value.username],
-                  token: value.token,
-                  jumpCount: value.diceResult,
-                });
+          case "move":
+            this.$refs.game.movePosition({
+              player: pp[value.username],
+              token: value.token,
+              jumpCount: value.diceResult,
+            });
 
-                // await this.sleep();
-                await new Promise((r) => setTimeout(r, this.slider));
+            await this.sleep();
+            // await new Promise((r) => setTimeout(r, this.slider));
 
-                break;
+            break;
 
-              case "won":
-                console.log("won", value.username);
-                break;
+          case "won":
+            console.log("won", value.username);
+            break;
 
-              case "eaten":
-                this.$refs.game.restartToken({
-                  player: pp[value.username],
-                  token: value.token,
-                });
+          case "eaten":
+            this.$refs.game.restartToken({
+              player: pp[value.username],
+              token: value.token,
+            });
 
-                // await this.sleep();
-                await new Promise((r) => setTimeout(r, this.slider));
+            await this.sleep();
+            // await new Promise((r) => setTimeout(r, this.slider));
 
-                break;
+            break;
 
-              default:
-                break;
-            }
-          }
+          default:
+            break;
+        }
+      }
 
-        })();
+      // })();
 
-      })
+      // })
 
 
     } else {
