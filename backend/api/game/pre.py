@@ -1,4 +1,4 @@
-from backend.api.game.resources import get_start_pool,get_player_one_moves,get_player_two_moves, get_player_three_moves,get_player_four_moves
+from backend.api.game.resources import get_start_pool,_get_player_one_moves,_get_player_two_moves, _get_player_three_moves,_get_player_four_moves
 from backend.api.game.tile import Tile
 
 
@@ -26,10 +26,10 @@ def player_moves_preprocessor():
         return r
 
     m_player_to_moves = {
-        0: get_player_one_moves(),
-        1: get_player_two_moves(),
-        2: get_player_three_moves(),
-        3: get_player_four_moves(),
+        0: _get_player_one_moves(),
+        1: _get_player_two_moves(),
+        2: _get_player_three_moves(),
+        3: _get_player_four_moves(),
     }
 
     r = {}
