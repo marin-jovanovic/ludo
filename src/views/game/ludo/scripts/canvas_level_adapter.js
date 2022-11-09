@@ -2,10 +2,10 @@ import { Boundary } from "./boundary.js"
 
 class CanvasLevelAdapter {
 
-    constructor(canvasInstance, game) {
+    constructor(canvasInstance, currentLevel) {
         this.canvas = canvasInstance;
-        this.game = game;
-        this.level = this.game.currentLevel;
+        // this.game = game;
+        this.level = currentLevel;
 
         this.configOneByOne = true;
 
