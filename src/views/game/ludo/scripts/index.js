@@ -1,13 +1,44 @@
 import { CanvasGame } from "./canvas.js";
 import { CanvasLevelAdapter } from "./canvas_level_adapter.js";
 import { Level } from "./level.js";
-import { Game } from "./game.js";
+
+class Game {
+    constructor() {
+
+        this.levelInstance;
+        this.canvasInstance;
+        this.gameInstance;
+        this.canvasLevelAdapter;
+
+        this.canvasInstance = new CanvasGame();
+    }
+
+    setConfig(config) {
+
+        this.levelInstance = new Level(config['map'], config['moves']);
+        this.currentLevel = this.levelInstance;
+
+        this.canvasLevelAdapter = new CanvasLevelAdapter(
+            this.canvasInstance,
+            this.currentLevel
+        );
+
+        this.canvasLevelAdapter.startLevel();
+    }
+
+    movePosition({ player, token, jumpCount }) {
+
+        this.canvasLevelAdapter.movePosition({ player: player, token: token, jumpCount: jumpCount });
+
+    }
+
+    restartToken({ player, token }) {
+        this.canvasLevelAdapter.moveTokenToStart({ player: player, token: token });
+    }
 
 
-let levelInstance;
-let canvasInstance;
-let gameInstance;
-let canvasLevelAdapter;
+}
+
 // function addEventListenerToDocument(type, listener) {
 //     addEventListener(type, listener)
 // }
@@ -16,34 +47,16 @@ let canvasLevelAdapter;
 //     removeEventListener(type, listener)
 // }
 
-
-function startup() {
-    canvasInstance = new CanvasGame();
-    levelInstance = new Level();
-    gameInstance = new Game(levelInstance);
-
-    canvasLevelAdapter = new CanvasLevelAdapter(
-        canvasInstance,
-        gameInstance
-    );
-
-    canvasLevelAdapter.startLevel();
-
-}
-
-function movePosition({player, token, jumpCount}) {
-
-    canvasLevelAdapter.movePosition({ player: player, token: token, jumpCount: jumpCount });
-
-    // notify();
-
-}
-
-function restartToken({player, token}) {
-    canvasLevelAdapter.moveTokenToStart({player: player, token: token});
+let game;
+// 
+// let game = new Game();
 
 
-}
+window.addEventListener('load', () => {
+    console.log('load')
+    game = new Game();
+});
+
 
 let subscribers = new Set();
 
@@ -52,7 +65,7 @@ function subscribe(s) {
 }
 
 function unsubscribe(s) {
-subscribers.delete(s);
+    subscribers.delete(s);
 }
 
 function notify() {
@@ -63,9 +76,7 @@ function notify() {
 }
 
 export const ludo = {
-    startup,
-    movePosition,
-    restartToken,
+    game,
 
     subscribe,
     unsubscribe,
@@ -73,4 +84,3 @@ export const ludo = {
 
 
 }
-    
