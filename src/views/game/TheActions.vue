@@ -1,12 +1,24 @@
 <template>
     <div>
         <table>
-            <tr v-for="(row, rowKey) in grid" :key="rowKey">
+
+            <div>
+                <div v-for="r in 4" :key="r">
+
+                    <button @click="move(r, t)" v-for="t in 4" :key="t">
+                        token {{ t }}
+                    </button>
+                </div>
+
+                <!-- <button>1</button> -->
+            </div>
+
+            <!-- <tr v-for="(row, rowKey) in grid" :key="rowKey">
                 <td v-for="(col, colKey) in row" :key="colKey" @click="selectCell(rowKey, colKey)"
                     :class="{ 'selected': cellSelected(rowKey, colKey) }">
                     <button>{{ col }}</button>
                 </td>
-            </tr>
+            </tr> -->
         </table>
     </div>
 </template>
@@ -17,51 +29,32 @@ import { apiGame } from "@/scripts/api/game";
 
 export default {
     created() {
-        this.initColHead()
-        this.createSpreadSheet()
     },
     data() {
         return {
-            selected: '',
-            grid: [],
-            colHead: [' '],
-            isSelected: false
         }
     },
     methods: {
-        initColHead() {
-            this.colHead.push(...'ABC'.split(''))
-        },
-        createSpreadSheet() {
-            for (let i = 0; i <= 3; i++) {
-                this.grid[i] = []
-                for (let j = 0; j <= 3; j++) {
-                    this.grid[i][j] = false
-                }
-            }
-        },
-        async selectCell(row, col) {
+        async move(player, token) {
+            console.log(player, token)
 
-            console.log('selected', row, col)
+
             this.username = sessionStorage.getItem("username");
             this.gameId = this.$route.params.id;
 
-            console.log(this.username, this.gameId)
+            // todo pair username with col
 
             let res = await apiGame.actionPerformed(
                 this.gameId,
                 this.username,
-                "f"
+                String(token)
             );
 
             if (!(res["auth"]["status"] && res["payload"]["status"])) {
-                console.log("game leave err");
+                console.log("action perfromred err");
             }
 
         },
-        cellSelected(row, col) {
-            return (this.grid[row][col] === true)
-        }
     }
 }
 
