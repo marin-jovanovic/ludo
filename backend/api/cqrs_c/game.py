@@ -153,14 +153,17 @@ def receive_instruction(game_id, instruction_id):
             return r
 
     else:
+        print(f'other instruction {instruction_id=}')
+        # for logging that they user performed this action
+        pass
 
-        GameLog. \
-            objects. \
-            filter(
-            game=game_o,
-            instruction_id=instruction_id
-        ). \
-            update(performed=True)
+        # GameLog. \
+        #     objects. \
+        #     filter(
+        #     game=game_o,
+        #     instruction_id=instruction_id
+        # ). \
+        #     update(performed=True)
 
     # todo check all in log if not
 
