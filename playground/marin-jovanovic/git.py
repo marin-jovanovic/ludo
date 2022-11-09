@@ -20,7 +20,7 @@ def main():
     comment = "impl: create / update portfolio"
     comment = 'ref: rewrite db scheme'
 
-    comment = "wip: choosing op"
+    comment = "wip: ref game ui separation from logic"
 
     if same_comment:
         if not comment:
