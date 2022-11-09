@@ -1,19 +1,15 @@
-import { getMap, getPlayer1Moves } from "./api.js"
+// import { getMap, getPlayer1Moves } from "./api.js"
 import { getBoundaries, getTokens, mapTokens } from "./layers.js"
 import { Boundary } from "./boundary.js"
 
 
 class Level {
-    constructor() {
+    constructor(map, moves) {
 
         // nek svak ima svoju boju, nek to pise u backendu,
         // sta kad se preklope / pojedu
 
         // sta kad se preklope useri
-
-        // base layer
-        let map = getMap();
-
 
         // ovo nek bude DTO
         let levelState = {
@@ -67,19 +63,14 @@ class Level {
                         Boundary: Boundary,
                         colour: 'yellow'
                     })
-
-
                 }
             }
-
-
         }
 
         this.status = levelState.status;
         this.players = levelState.players;
 
-        this.player1State = getPlayer1Moves();
-
+        this.player1State = moves[0];
 
         // tokens
         this.tokens = getTokens({ map: map, Boundary: Boundary, })
@@ -87,10 +78,10 @@ class Level {
         // board
         this.boundaries = getBoundaries({ map: map, Boundary: Boundary });
 
-   
+
     }
 
-  
+
 
 }
 
