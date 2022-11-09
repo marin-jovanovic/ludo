@@ -333,32 +333,32 @@ class Token:
 
 class Level:
 
-    def __init__(self):
-
-        already_won = []
-
-        self.log = []
-
+    def __init__(self, log=None):
         game_conf = get_config()
 
-        # todo num of play
-        order = determine_order(
-            game_conf['number of players'],
-            game_conf['choice: highest; order'],
-            game_conf['choice: clockwise; anticlockwise'],
-            game_conf['flag: tie in order'],
-        )
+        if log:
+            self.log = log
+        else:
+            self.log = determine_order(
+                game_conf['number of players'],
+                game_conf['choice: highest; order'],
+                game_conf['choice: clockwise; anticlockwise'],
+                game_conf['flag: tie in order'],
+           )
+        #
+        # self.log = []
+        #
+        #
+        # order = determine_order(
+        #     game_conf['number of players'],
+        #     game_conf['choice: highest; order'],
+        #     game_conf['choice: clockwise; anticlockwise'],
+        #     game_conf['flag: tie in order'],
+        # )
+        #
+        # self.log += order
 
-        self.log += order
-
-        goes_list = []
-
-        for i in self.log:
-            if i["action"] == "goes":
-                goes_list.append(i["player"])
-
-                if len(goes_list) == game_conf['number of players']:
-                    break
+        player_order = self.goes_list_driver(game_conf)
 
         m_player_to_moves = player_moves_preprocessor()
 
@@ -385,16 +385,31 @@ class Level:
                 )
 
             players[player_id] = tokens
+        # in log is determined order
 
-        b = Board(players=players, start_pool=start_pool)
-
+        already_won = []
+        board = Board(players=players, start_pool=start_pool)
         max_result = 6
 
-        self.driver(already_won, b, game_conf, goes_list, max_result,
-                    start_pool)
+        self.manual_driver(already_won, board, game_conf, player_order, max_result,
+                         start_pool)
 
-    def driver(
-            self, already_won, b, game_conf, goes_list, max_result, start_pool):
+        # self.auto_driver(already_won, board, game_conf, player_order, max_result,
+        #                  start_pool)
+
+    def goes_list_driver(self, game_conf):
+        goes_list = []
+        for i in self.log:
+            if i["action"] == "goes":
+                goes_list.append(i["player"])
+
+                if len(goes_list) == game_conf['number of players']:
+                    break
+        return goes_list
+
+    def manual_driver(
+            self, already_won, board, game_conf, goes_list, max_result, start_pool):
+
         while True:
 
             for player_id in goes_list:
@@ -411,21 +426,109 @@ class Level:
                         construct_roll(player=player_id, roll=roll_result))
 
                     can_move_from_start_pool = roll_result == max_result and \
-                                               b.any_in_start_pool(
+                                               board.any_in_start_pool(
                                                    player=player_id)
 
                     # todo add here restriction for destination
-                    can_move_on_board = b.has_any_on_board(player=player_id)
+                    can_move_on_board = board.has_any_on_board(player=player_id)
 
                     if can_move_from_start_pool and can_move_on_board:
 
                         to_choose = {}
 
-                        in_start_pool = b.get_from_start_pool(player_id)
+                        in_start_pool = board.get_from_start_pool(player_id)
 
                         for token_id, token in in_start_pool.items():
                             to_choose[token_id] = token
-                        for token_id, token in b.get_from_board(
+                        for token_id, token in board.get_from_board(
+                                player=player_id,
+                                dice_result=roll_result).items():
+                            to_choose[token_id] = token
+
+                        print(f'{to_choose=}')
+                        input('c')
+
+                        for token_id, token in to_choose.items():
+                            # todo   # print("player choosing first option")
+
+                            step = 1 if token_id in start_pool else roll_result
+
+                            t = choose(board, self.log, player_id, step, token_id,
+                                       already_won)
+
+                            for j in t["won"]:
+                                already_won.append(j)
+
+                            break
+
+                    elif can_move_from_start_pool:
+                        sp = board.get_from_start_pool(player_id)
+
+                        is_auto = True
+                        if is_auto:
+                            for token_id, token in sp.items():
+                                t = choose(board, self.log, player_id, 1, token_id,
+                                           already_won)
+                                for j in t["won"]:
+                                    already_won.append(j)
+                                break
+
+                    elif can_move_on_board:
+                        to_choose = {}
+
+                        for token_id, token in board.get_from_board(
+                                player=player_id,
+                                dice_result=roll_result).items():
+                            to_choose[token_id] = token
+
+                        for token_id, token in to_choose.items():
+                            # todo player choose
+                            t = choose(board, self.log, player_id, roll_result,
+                                       token_id,
+                                       already_won)
+                            for j in t["won"]:
+                                already_won.append(j)
+                            break
+
+                    if game_conf['number of players'] == len(already_won) + 1:
+                        print("last player is loser")
+                        print("no need to play game with only him")
+
+                        return
+
+    def auto_driver(
+            self, already_won, board, game_conf, goes_list, max_result, start_pool):
+        while True:
+
+            for player_id in goes_list:
+
+                can_roll_again = True
+
+                while can_roll_again:
+
+                    roll_result = get_dice_result()
+
+                    can_roll_again = roll_result == max_result
+
+                    self.log.append(
+                        construct_roll(player=player_id, roll=roll_result))
+
+                    can_move_from_start_pool = roll_result == max_result and \
+                                               board.any_in_start_pool(
+                                                   player=player_id)
+
+                    # todo add here restriction for destination
+                    can_move_on_board = board.has_any_on_board(player=player_id)
+
+                    if can_move_from_start_pool and can_move_on_board:
+
+                        to_choose = {}
+
+                        in_start_pool = board.get_from_start_pool(player_id)
+
+                        for token_id, token in in_start_pool.items():
+                            to_choose[token_id] = token
+                        for token_id, token in board.get_from_board(
                                 player=player_id,
                                 dice_result=roll_result).items():
                             to_choose[token_id] = token
@@ -435,7 +538,7 @@ class Level:
 
                             step = 1 if token_id in start_pool else roll_result
 
-                            t = choose(b, self.log, player_id, step, token_id,
+                            t = choose(board, self.log, player_id, step, token_id,
                                        already_won)
 
                             for j in t["won"]:
@@ -444,12 +547,12 @@ class Level:
                             break
 
                     elif can_move_from_start_pool:
-                        sp = b.get_from_start_pool(player_id)
+                        sp = board.get_from_start_pool(player_id)
 
                         is_auto = True
                         if is_auto:
                             for token_id, token in sp.items():
-                                t = choose(b, self.log, player_id, 1, token_id,
+                                t = choose(board, self.log, player_id, 1, token_id,
                                            already_won)
                                 for j in t["won"]:
                                     already_won.append(j)
@@ -458,14 +561,14 @@ class Level:
                     elif can_move_on_board:
                         to_choose = {}
 
-                        for token_id, token in b.get_from_board(
+                        for token_id, token in board.get_from_board(
                                 player=player_id,
                                 dice_result=roll_result).items():
                             to_choose[token_id] = token
 
                         for token_id, token in to_choose.items():
                             # todo player choose
-                            t = choose(b, self.log, player_id, roll_result,
+                            t = choose(board, self.log, player_id, roll_result,
                                        token_id,
                                        already_won)
                             for j in t["won"]:
@@ -485,157 +588,6 @@ class Level:
 def generate_whole_game():
     level = Level()
     return level.get_log()
-
-    #
-    # # todo number_of_players = game_conf['number of players']
-    #
-    # already_won = []
-    #
-    # log = []
-    #
-    # game_conf = get_config()
-    #
-    # # todo num of play
-    # order = determine_order(
-    #     game_conf['number of players'],
-    #     game_conf['choice: highest; order'],
-    #     game_conf['choice: clockwise; anticlockwise'],
-    #     game_conf['flag: tie in order'],
-    # )
-    #
-    # log += order
-    #
-    # goes_list = []
-    #
-    # for i in log:
-    #     if i["action"] == "goes":
-    #         goes_list.append(i["player"])
-    #
-    #         if len(goes_list) == game_conf['number of players']:
-    #             break
-    #
-    # m_player_to_moves = player_moves_preprocessor()
-    #
-    # start_pool = get_start_pool_preprocessor()
-    #
-    # players = {}
-    # for player_id in range(get_config()["number of players"]):
-    #     tokens = {}
-    #
-    #     # todo assumption all tokens need to reach same destination position
-    #     destination_position = max(m_player_to_moves[player_id])
-    #
-    #     for token_id in range(get_config()['tokens per player']):
-    #         start_tile = start_pool[player_id][token_id]
-    #
-    #         tokens[token_id] = Token(
-    #             owner=player_id,
-    #             id_=token_id,
-    #
-    #             start_tile=start_tile,
-    #
-    #             destination_position=destination_position,
-    #             moves=m_player_to_moves[player_id]
-    #         )
-    #
-    #     players[player_id] = tokens
-    #
-    # b = Board(players=players, start_pool=start_pool)
-    #
-    # max_result = 6
-    #
-    # game_done = False
-    # while True:
-    #
-    #     for player_id in goes_list:
-    #
-    #         can_roll_again = True
-    #
-    #         while can_roll_again:
-    #
-    #             roll_result = get_dice_result()
-    #
-    #             can_roll_again = roll_result == max_result
-    #
-    #             log.append(construct_roll(player=player_id, roll=roll_result))
-    #
-    #             can_move_from_start_pool = roll_result == max_result and \
-    #                                    b.any_in_start_pool(
-    #                 player=player_id)
-    #
-    #             # todo add here restriction for destination
-    #             can_move_on_board = b.has_any_on_board(player=player_id)
-    #
-    #             if can_move_from_start_pool and can_move_on_board:
-    #
-    #                 to_choose = {}
-    #
-    #                 in_start_pool = b.get_from_start_pool(player_id)
-    #
-    #                 for token_id, token in in_start_pool.items():
-    #                     to_choose[token_id] = token
-    #                 for token_id, token in b.get_from_board(
-    #                         player=player_id, dice_result=roll_result).items():
-    #                     to_choose[token_id] = token
-    #
-    #                 for token_id, token in to_choose.items():
-    #                     # todo   # print("player choosing first option")
-    #
-    #                     step = 1 if token_id in start_pool else roll_result
-    #
-    #                     t = choose(b, log, player_id, step, token_id,
-    #                                already_won)
-    #
-    #                     for j in t["won"]:
-    #                         already_won.append(j)
-    #
-    #                     break
-    #
-    #             elif can_move_from_start_pool:
-    #                 sp = b.get_from_start_pool(player_id)
-    #
-    #                 is_auto = True
-    #                 if is_auto:
-    #                     for token_id, token in sp.items():
-    #                         t = choose(b, log, player_id, 1, token_id,
-    #                                    already_won)
-    #                         for j in t["won"]:
-    #                             already_won.append(j)
-    #                         break
-    #
-    #             elif can_move_on_board:
-    #                 # print("todo move board")
-    #                 to_choose = {}
-    #
-    #                 for token_id, token in b.get_from_board(
-    #                         player=player_id, dice_result=roll_result).items():
-    #                     to_choose[token_id] = token
-    #
-    #                 for token_id, token in to_choose.items():
-    #                     # todo
-    #                     # print("player choosing first option")
-    #                     # print(token_id, token)
-    #                     t = choose(b, log, player_id, roll_result, token_id,
-    #                                already_won)
-    #                     for j in t["won"]:
-    #                         already_won.append(j)
-    #                     break
-    #
-    #             if game_conf['number of players'] == len(already_won) + 1:
-    #                 print("last player is loser, no need to play game with only him")
-    #                 game_done = True
-    #                 break
-    #
-    #         if game_done:
-    #             break
-    #
-    #     if game_done:
-    #         break
-    #
-    # # b.print_board_state()
-    # # print()
-    #
-    # return log
 
 
 def main():
