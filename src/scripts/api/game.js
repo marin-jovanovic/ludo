@@ -28,6 +28,9 @@ async function updateGame(game, player, token, action) {
 }
 
 async function actionPerformed(game, player, instruction_id) {
+    // todo type check before fetching
+
+    console.log(game, player, instruction_id)
 
     return await apiCalls.handleNewResponse(
         await apiCalls.api.put(
