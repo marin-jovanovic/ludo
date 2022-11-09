@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from rest_framework.views import APIView
 
-from backend.api.game.resources import get_start_pool
+from backend.api.game.resources import get_start_pool,  get_moves, get_config, getMap
 from backend.api.view.comm import get_auth_ok_response_template
 
 
@@ -13,15 +13,17 @@ class BoardView(APIView):
         print("get board,", name, resource)
         response = get_auth_ok_response_template(request)
 
-        if name != "1":
-            print("not impl")
+        configuration = {
+            'startPool': get_start_pool,
+            'moves': get_moves,
+            'config': get_config,
+            'map': getMap
+        }
 
-        if resource == "startPool":
-            response['payload'] = {
-                "status": True,
-                "payload": get_start_pool()
-            }
-            # get_start_pool()
+        response['payload'] = {
+            "status": True,
+            "payload": configuration[resource]()
+        }
 
         return JsonResponse(response)
 
