@@ -4,7 +4,7 @@ def construct_goes(player):
     """
 
     return {
-        "game": None,
+        # "game": None,
         "player": player,
         "token": None,
         "dice_result": None,
@@ -18,7 +18,7 @@ def construct_roll(player, roll):
 
     """
     return {
-        "game": None,
+        # "game": None,
         "player": player,
         "token": None,
         "dice_result": roll,
@@ -31,7 +31,7 @@ def construct_tie():
     for determine_order
     """
     return {
-        "game": None,
+        # "game": None,
         "player": None,
         "token": None,
         "dice_result": None,
@@ -41,7 +41,7 @@ def construct_tie():
 
 def choose(player):
     return {
-        "game": None,
+        # "game": None,
         "player": player,
         "token": None,
         "dice_result": None,
@@ -56,7 +56,7 @@ def skip(player):
     """
 
     return {
-        "game": None,
+        # "game": None,
         "player": player,
         "token": None,
         "dice_result": None,
@@ -66,7 +66,7 @@ def skip(player):
 
 def move_token(player, token, step):
     return {
-        'game': None,
+        # 'game': None,
         'player': player,
         'token': token,
         'dice_result': step,
@@ -76,7 +76,7 @@ def move_token(player, token, step):
 
 def log_eat_token(player, token):
     return {
-        'game': None,
+        # 'game': None,
         'player': player,
         'token': token,
         'dice_result': None,
@@ -86,7 +86,7 @@ def log_eat_token(player, token):
 
 def log_won(player):
     return {
-        'game': None,
+        # 'game': None,
         'player': player,
         'token': None,
         'dice_result': None,
