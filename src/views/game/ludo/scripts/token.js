@@ -141,7 +141,7 @@ class Token {
         if (!wasAtDestination && isAtDestination) {
             // check if after redraw the token will be at the destination
             // if the token is at the destination then notify
-            ludo.notify();
+            ludo.getGame().notify();
         }
 
         c.fillStyle = this.colour
