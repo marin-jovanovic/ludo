@@ -19,38 +19,39 @@ export default {
   },
   async mounted() {
 
-    let config = ['startPool', 'moves', 'map'];
-    let gameId = this.$route.params.id;
-
-    let configPayload = {};
-
-    for (const i of config) {
-
-      let res = await apiGameConfig.getResource(
-        gameId,
-        i
-      );
-
-      if (!(res["auth"]["status"] && res["payload"]["status"])) {
-        console.log("fetch resource err");
-        console.log('can not continue, abort')
-      }
-
-      configPayload[i] = res['payload']['payload'];
-
-    }
-
-    window.addEventListener('load', () => {
-      console.log('load')
-      console.log('ludo.game', ludo.game)
-      ludo.game.setConfig(configPayload);
-    })
+    this.initGame();
 
     if (this.useBacklog) {
       ludo.subscribe(this.notify);
     }
   },
   methods: {
+    async initGame() {
+      let config = ['startPool', 'moves', 'map', 'players'];
+      let gameId = this.$route.params.id;
+
+      let configPayload = {};
+
+      for (const i of config) {
+
+        let res = await apiGameConfig.getResource(
+          gameId,
+          i
+        );
+
+        if (!(res["auth"]["status"] && res["payload"]["status"])) {
+          console.log("fetch resource err");
+          console.log('can not continue, abort')
+        }
+
+        configPayload[i] = res['payload']['payload'];
+
+      }
+
+      ludo.getGame().setConfig(configPayload);
+
+    },
+
     movePosition({ player, token, jumpCount }) {
       if (this.useBacklog) {
         if (this.backlog.length === 0) {
@@ -63,7 +64,7 @@ export default {
 
         this.backlog.push([player, token, jumpCount]);
       } else {
-        ludo.game.movePosition({
+        ludo.getGame().movePosition({
           player: player,
           token: token,
           jumpCount: jumpCount,
@@ -73,12 +74,12 @@ export default {
     restartToken({ player, token }) {
       if (this.useBacklog) {
         if (this.backlog.length === 0) {
-          ludo.restartToken({ player: player, token: token });
+          ludo.getGame().restartToken({ player: player, token: token });
         }
 
         this.backlog.push([player, token]);
       } else {
-        ludo.restartToken({ player: player, token: token });
+        ludo.getGame().restartToken({ player: player, token: token });
       }
     },
 
