@@ -2,6 +2,8 @@
   <BaseUserTemplate>
     <!-- <hr /> -->
 
+    <TheActions></TheActions>
+
     <TheInfo ref="info"></TheInfo>
 
     <hr />
@@ -26,7 +28,9 @@
           </div>
         </div>
         <div class="row">
-          <div class="col"><TheMessages></TheMessages></div>
+          <div class="col">
+            <TheMessages></TheMessages>
+          </div>
         </div>
       </div>
     </div>
@@ -47,6 +51,7 @@ import TheMessages from "./TheMessages.vue";
 import { apiGame } from "@/scripts/api/game";
 // import { wsListeners } from "@/scripts/ws_listener";
 import { apiBoard } from "@/scripts/api/board";
+import TheActions from "./TheActions.vue";
 
 export default {
   data() {
@@ -213,8 +218,6 @@ export default {
       }
     },
 
-    // async
-
     async rollDice() {
       // runner when user clicks to roll
 
@@ -244,6 +247,6 @@ export default {
       }
     },
   },
-  components: { TheInfo, TheDice, BaseUserTemplate, TheMessages, TheGame },
+  components: { TheInfo, TheDice, BaseUserTemplate, TheMessages, TheGame, TheActions },
 };
 </script> 
