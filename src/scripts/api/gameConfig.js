@@ -1,7 +1,7 @@
 import { apiCalls } from './comm';
 
 async function getResource(gameId, resource) {
-    if (!(['startPool', 'moves', 'config', 'map'].includes(resource))) {
+    if (!(['startPool', 'moves', 'config', 'map', 'players'].includes(resource))) {
         console.log('resource not present');
     }
 
