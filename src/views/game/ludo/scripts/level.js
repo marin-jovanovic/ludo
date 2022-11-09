@@ -4,12 +4,32 @@ import { Boundary } from "./boundary.js"
 
 
 class Level {
-    constructor(map, moves) {
+    constructor(map, moves, players) {
 
-        // nek svak ima svoju boju, nek to pise u backendu,
+        // todo extract colour to config
+        // 
+
         // sta kad se preklope / pojedu
 
-        // sta kad se preklope useri
+        // sta kad se preklope useri, (two users at same tile)
+
+        let p = {};
+
+        for (const [key, value] of Object.entries(players)) {
+            console.log(key, value);
+
+            p[key] = {
+                // todo check if needed
+                // position: 'up left',
+                colour: value.colour,
+                username: value.username,
+                tokens: mapTokens({
+                    map: map,
+                    Boundary: Boundary,
+                    colour: value.colour
+                })
+            }
+        }
 
         // ovo nek bude DTO
         let levelState = {
@@ -18,71 +38,20 @@ class Level {
                 quit: ['player1'],
                 won: undefined
             },
-            players: {
-                0: {
-                    position: 'up left',
-                    colour: 'green',
-                    username: '1 username / nickname',
-                    tokens: mapTokens({
-                        map: map,
-                        Boundary: Boundary,
-                        colour: 'green'
-                    })
-                },
-                1: {
-                    position: 'up right',
-                    colour: 'blue',
-                    username: '2 username / nickname',
-                    tokens: mapTokens({
-                        map: map,
-                        Boundary: Boundary,
-                        colour: 'blue',
-                        // position: 
-                    })
-
-
-                },
-                3: {
-                    position: 'down left',
-                    colour: 'red',
-                    username: '3 username / nickname',
-                    tokens: mapTokens({
-                        map: map,
-                        Boundary: Boundary,
-                        colour: 'red'
-                    })
-
-
-                },
-                4: {
-                    position: 'down right',
-                    colour: 'yellow',
-                    username: '4 username / nickname',
-                    tokens: mapTokens({
-                        map: map,
-                        Boundary: Boundary,
-                        colour: 'yellow'
-                    })
-                }
-            }
+            players: p
         }
 
         this.status = levelState.status;
         this.players = levelState.players;
 
+        // todo remove, parametrize
         this.player1State = moves[0];
 
-        // tokens
         this.tokens = getTokens({ map: map, Boundary: Boundary, })
 
         // board
         this.boundaries = getBoundaries({ map: map, Boundary: Boundary });
-
-
     }
-
-
-
 }
 
 export { Level }
