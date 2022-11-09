@@ -7,6 +7,7 @@
     
 <script>
 import { ludo } from "@/views/game/ludo/scripts/index.js";
+import { apiGameConfig } from "@/scripts/api/gameConfig";
 
 export default {
   data() {
@@ -16,8 +17,34 @@ export default {
       useBacklog: false,
     };
   },
-  mounted() {
-    ludo.startup();
+  async mounted() {
+
+    let config = ['startPool', 'moves', 'map'];
+    let gameId = this.$route.params.id;
+
+    let configPayload = {};
+
+    for (const i of config) {
+
+      let res = await apiGameConfig.getResource(
+        gameId,
+        i
+      );
+
+      if (!(res["auth"]["status"] && res["payload"]["status"])) {
+        console.log("fetch resource err");
+        console.log('can not continue, abort')
+      }
+
+      configPayload[i] = res['payload']['payload'];
+
+    }
+
+    window.addEventListener('load', () => {
+      console.log('load')
+      console.log('ludo.game', ludo.game)
+      ludo.game.setConfig(configPayload);
+    })
 
     if (this.useBacklog) {
       ludo.subscribe(this.notify);
@@ -27,7 +54,7 @@ export default {
     movePosition({ player, token, jumpCount }) {
       if (this.useBacklog) {
         if (this.backlog.length === 0) {
-          ludo.movePosition({
+          ludo.game.movePosition({
             player: player,
             token: token,
             jumpCount: jumpCount,
@@ -36,7 +63,7 @@ export default {
 
         this.backlog.push([player, token, jumpCount]);
       } else {
-        ludo.movePosition({
+        ludo.game.movePosition({
           player: player,
           token: token,
           jumpCount: jumpCount,
