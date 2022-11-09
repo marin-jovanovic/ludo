@@ -586,6 +586,28 @@ def get_moves():
         3: _get_player_four_moves()
     }
 
+def get_players():
+    return {
+        '0': {
+            'colour': 'green',
+            'username': '0 username / nickname',
+
+        },
+        '1': {
+            'colour': 'blue',
+            'username': '1 username / nickname',
+
+        },
+        '2': {
+           'colour': 'red',
+           'username': '2 username / nickname',
+
+        },
+        '3': {
+            'colour': 'yellow',
+            'username': '3 username / nickname',
+        }
+    }
 
 def get_config():
     return {
