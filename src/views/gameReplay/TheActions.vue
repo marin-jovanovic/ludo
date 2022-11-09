@@ -2,10 +2,9 @@
     <div>
         <table>
             <tr v-for="(row, rowKey) in grid" :key="rowKey">
-                <th class="row-col-label">{{ rowKey + 1 }}</th>
                 <td v-for="(col, colKey) in row" :key="colKey" @click="selectCell(rowKey, colKey)"
                     :class="{ 'selected': cellSelected(rowKey, colKey) }">
-                    {{ col }}
+                    <button>{{ col }}</button>
                 </td>
             </tr>
         </table>
@@ -14,6 +13,7 @@
     
     
 <script>
+import { apiGame } from "@/scripts/api/game";
 
 export default {
     created() {
@@ -33,17 +33,33 @@ export default {
             this.colHead.push(...'ABC'.split(''))
         },
         createSpreadSheet() {
-            for (let i = 0; i <= 2; i++) {
+            for (let i = 0; i <= 3; i++) {
                 this.grid[i] = []
-                for (let j = 0; j <= 2; j++) {
+                for (let j = 0; j <= 3; j++) {
                     this.grid[i][j] = false
                 }
             }
         },
-        selectCell(row, col) {
-            const newRow = this.grid[row].slice(0)
-            newRow[col] = true
+        async selectCell(row, col) {
+            // const newRow = this.grid[row].slice(0)
+            // newRow[col] = true
             console.log('selected', row, col)
+            this.username = sessionStorage.getItem("username");
+            this.gameId = this.$route.params.id;
+
+            console.log(this.username, this.gameId)
+
+            let res = await apiGame.actionPerformed(
+                this.gameId,
+                this.username,
+                "f"
+                // this.instructionCurrentlyPerforming
+            );
+
+            if (!(res["auth"]["status"] && res["payload"]["status"])) {
+                console.log("game leave err");
+            }
+
         },
         cellSelected(row, col) {
             return (this.grid[row][col] === true)
