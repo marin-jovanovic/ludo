@@ -11,11 +11,35 @@ class Game {
         this.canvasLevelAdapter;
 
         this.canvasInstance = new CanvasGame();
+
+        this.isConfigSet = false;
+
+        this.subscribers = new Set();
+
     }
 
-    setConfig(config) {
 
-        this.levelInstance = new Level(config['map'], config['moves']);
+    subscribe(s) {
+        this.subscribers.add(s);
+    }
+
+    unsubscribe(s) {
+        this.subscribers.delete(s);
+    }
+
+    notify() {
+
+        this.subscribers.forEach((i) => {
+            // console.log('notify')
+            i();
+        });
+    }
+
+
+    setConfig(config) {
+        this.isConfigSet = true;
+
+        this.levelInstance = new Level(config['map'], config['moves'], config['players']);
         this.currentLevel = this.levelInstance;
 
         this.canvasLevelAdapter = new CanvasLevelAdapter(
@@ -27,60 +51,39 @@ class Game {
     }
 
     movePosition({ player, token, jumpCount }) {
-
-        this.canvasLevelAdapter.movePosition({ player: player, token: token, jumpCount: jumpCount });
-
+        if (!this.isConfigSet) {
+            console.log('integrity error')
+        } else {
+            this.canvasLevelAdapter.movePosition({ player: player, token: token, jumpCount: jumpCount });
+        }
     }
 
     restartToken({ player, token }) {
-        this.canvasLevelAdapter.moveTokenToStart({ player: player, token: token });
+        if (!this.isConfigSet) {
+            console.log('integrity error')
+        } else {
+            this.canvasLevelAdapter.moveTokenToStart({ player: player, token: token });
+        }
     }
 
 
 }
 
-// function addEventListenerToDocument(type, listener) {
-//     addEventListener(type, listener)
-// }
-
-// function removeEventListenerToDocument(type, listener) {
-//     removeEventListener(type, listener)
-// }
-
 let game;
-// 
-// let game = new Game();
-
 
 window.addEventListener('load', () => {
-    console.log('load')
     game = new Game();
 });
 
-
-let subscribers = new Set();
-
-function subscribe(s) {
-    subscribers.add(s);
+function getGame() {
+    if (game) {
+        return game
+    } else {
+        console.log('integrity error')
+    }
 }
 
-function unsubscribe(s) {
-    subscribers.delete(s);
-}
-
-function notify() {
-
-    subscribers.forEach((i) => {
-        i();
-    });
-}
 
 export const ludo = {
-    game,
-
-    subscribe,
-    unsubscribe,
-    notify,
-
-
+    getGame,
 }
