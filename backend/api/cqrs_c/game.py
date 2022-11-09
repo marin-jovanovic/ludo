@@ -142,6 +142,16 @@ def receive_instruction(game_id, instruction_id):
             return r
         # print("test")
 
+    elif instruction_id == 'generatestart':
+        from backend.api.game.game import generate_start
+
+        # todo hardcoded
+        g = generate_start()
+
+        r = __add_to_log(game_id, g)
+        if not r["status"]:
+            return r
+
     else:
 
         GameLog. \
@@ -231,7 +241,8 @@ def get_specific_game(game_id):
 
     r = get_users_in_game(g_o.name)
     if r["status"]:
-        currently_active_players = r["payload"]
+        pass
+        # currently_active_players = r["payload"]
     else:
         return r
 
@@ -241,32 +252,33 @@ def get_specific_game(game_id):
     else:
         return r
 
-    if not r:
-
-        game_conf = get_config()
-
-        order = determine_order(
-            g_o.capacity,
-            # game_conf['number of players'],
-            game_conf['choice: highest; order'],
-            game_conf['choice: clockwise; anticlockwise'],
-            game_conf['flag: tie in order'],
-        )
-
-        turn = 0
-        for i in order:
-
-            if i["action"] == "goes":
-                _get_player_order_model().objects.filter(
-                    game_id=g_o,
-                    join_index=i["player"]
-                ).update(turn_index=turn)
-
-                turn += 1
-
-        r = __add_to_log(game_id, order)
-        if not r["status"]:
-            return r
+    # generate start rolls, determine order
+    # if not r:
+    #
+    #     game_conf = get_config()
+    #
+    #     order = determine_order(
+    #         g_o.capacity,
+    #         # game_conf['number of players'],
+    #         game_conf['choice: highest; order'],
+    #         game_conf['choice: clockwise; anticlockwise'],
+    #         game_conf['flag: tie in order'],
+    #     )
+    #
+    #     turn = 0
+    #     for i in order:
+    #
+    #         if i["action"] == "goes":
+    #             _get_player_order_model().objects.filter(
+    #                 game_id=g_o,
+    #                 join_index=i["player"]
+    #             ).update(turn_index=turn)
+    #
+    #             turn += 1
+    #
+    #     r = __add_to_log(game_id, order)
+    #     if not r["status"]:
+    #         return r
 
     r = get_entries(game_id)
     if not r["status"]:
