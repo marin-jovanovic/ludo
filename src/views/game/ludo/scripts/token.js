@@ -1,13 +1,38 @@
-import { ludo } from "./index.js";
+class SubscribableObject {
 
+    constructor() {
+        this.subscribers = new Set();
 
-class Token {
+    }
+
+    subscribe(s) {
+        this.subscribers.add(s);
+    }
+
+    unsubscribe(s) {
+        this.subscribers.delete(s);
+    }
+
+    notify() {
+
+        this.subscribers.forEach((i) => {
+            // console.log('notify')
+            i();
+        });
+    }
+
+}
+
+class Token extends SubscribableObject {
     constructor({ position, colour, state }) {
+        super();
         this.startingPosition = { x: position.x, y: position.y };
         this.position = position;
 
         // separate business logic from view
         this.radius = 8
+
+        // this.notifier = notifier;
 
         // where is token on the board
         this.startingState = state
@@ -141,7 +166,9 @@ class Token {
         if (!wasAtDestination && isAtDestination) {
             // check if after redraw the token will be at the destination
             // if the token is at the destination then notify
-            ludo.getGame().notify();
+            
+            console.log("notify")
+            this.notify();
         }
 
         c.fillStyle = this.colour
