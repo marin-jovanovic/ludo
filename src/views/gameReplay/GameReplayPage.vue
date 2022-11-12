@@ -1,14 +1,20 @@
 <template>
   <BaseUserTemplate>
-
     <TheTest></TheTest>
 
-    <input @change="sliderUpdate" type="range" min="0" max="5000" v-model="this.slider" />
+    <input
+      @change="sliderUpdate"
+      type="range"
+      min="0"
+      max="5000"
+      v-model="this.slider"
+    />
 
     <hr />
 
-    <div class="row">
+    <button @click="startReplay">start replay</button>
 
+    <div class="row">
       <div class="col" style="border: 2px solid black">
         <TheGame ref="game" style="border: 2px solid black"></TheGame>
       </div>
@@ -17,11 +23,9 @@
         <div>turn:</div>
         <TheDice ref="dice"></TheDice>
       </div>
-
     </div>
 
     <hr />
-
   </BaseUserTemplate>
 </template>
   
@@ -48,76 +52,71 @@ export default {
   async mounted() {
     this.username = sessionStorage.getItem("username");
     this.gameId = this.$route.params.id;
-
-    let res = await apiGame.getGame(this.gameId);
-
-    if (res["auth"]["status"] && res["payload"]["status"]) {
-      let p = res["payload"]["payload"];
-
-      let pp = p["players"]["payload"];
-      const swapped = Object.entries(pp).map(([key, value]) => ({
-        [value]: key,
-      }));
-
-      pp = Object.assign({}, ...swapped);
-
-      // window.addEventListener('load', () => {
-      // console.log('load');
-      // (async () => {
-      for (const value of Object.values(p["log"])) {
-
-        switch (value.action) {
-          case "roll":
-            this.$refs.dice.rollDice(value.diceResult);
-            break;
-
-          case "goes":
-            console.log("[instruction] order ", value.username);
-            break;
-
-          case "move":
-            this.$refs.game.movePosition({
-              player: pp[value.username],
-              token: value.token,
-              jumpCount: value.diceResult,
-            });
-
-            await this.sleep();
-            // await new Promise((r) => setTimeout(r, this.slider));
-
-            break;
-
-          case "won":
-            console.log("won", value.username);
-            break;
-
-          case "eaten":
-            this.$refs.game.restartToken({
-              player: pp[value.username],
-              token: value.token,
-            });
-
-            await this.sleep();
-            // await new Promise((r) => setTimeout(r, this.slider));
-
-            break;
-
-          default:
-            break;
-        }
-      }
-
-      // })();
-
-      // })
-
-
-    } else {
-      console.log("err fetching data");
-    }
   },
   methods: {
+    async startReplay() {
+      let res = await apiGame.getGame(this.gameId);
 
+      if (res["auth"]["status"] && res["payload"]["status"]) {
+        let p = res["payload"]["payload"];
+
+        let pp = p["players"]["payload"];
+        const swapped = Object.entries(pp).map(([key, value]) => ({
+          [value]: key,
+        }));
+
+        pp = Object.assign({}, ...swapped);
+
+        // window.addEventListener('load', () => {
+        // console.log('load');
+        // (async () => {
+        for (const value of Object.values(p["log"])) {
+          switch (value.action) {
+            case "roll":
+              this.$refs.dice.rollDice(value.diceResult);
+              break;
+
+            case "goes":
+              console.log("[instruction] order ", value.username);
+              break;
+
+            case "move":
+              this.$refs.game.movePosition({
+                player: pp[value.username],
+                token: value.token,
+                jumpCount: value.diceResult,
+              });
+
+              await this.sleep();
+
+              break;
+
+            case "won":
+              console.log("won", value.username);
+              break;
+
+            case "eaten":
+              this.$refs.game.restartToken({
+                player: pp[value.username],
+                token: value.token,
+              });
+
+              await this.sleep();
+
+              break;
+
+            default:
+              break;
+          }
+        }
+
+        // })();
+
+        // })
+      } else {
+        console.log("err fetching data");
+      }
+    },
     async sleep() {
       await new Promise((r) => setTimeout(r, this.slider));
     },
@@ -125,7 +124,6 @@ export default {
     sliderUpdate() {
       console.log("slider", this.slider);
     },
-
   },
   components: { TheDice, BaseUserTemplate, TheGame, TheTest },
 };
