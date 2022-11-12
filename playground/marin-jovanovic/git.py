@@ -20,7 +20,7 @@ def main():
     comment = "impl: create / update portfolio"
     comment = 'ref: rewrite db scheme'
 
-    comment = "wip: user controls"
+    comment = "wip: separate ui & bl"
 
     if same_comment:
         if not comment:
