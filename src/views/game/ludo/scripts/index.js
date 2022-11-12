@@ -1,23 +1,12 @@
-import { CanvasGame } from "./canvas.js";
+import { Canvas } from "./canvas.js";
 import { CanvasLevelAdapter } from "./canvas_level_adapter.js";
 import { Level } from "./level.js";
 
-class Game {
+class ContentCreator {
+
     constructor() {
-
-        this.levelInstance;
-        this.canvasInstance;
-        this.gameInstance;
-        this.canvasLevelAdapter;
-
-        this.canvasInstance = new CanvasGame();
-
-        this.isConfigSet = false;
-
         this.subscribers = new Set();
-
     }
-
 
     subscribe(s) {
         this.subscribers.add(s);
@@ -28,62 +17,59 @@ class Game {
     }
 
     notify() {
-
         this.subscribers.forEach((i) => {
-            // console.log('notify')
             i();
         });
     }
 
+}
 
-    setConfig(config) {
-        this.isConfigSet = true;
+class UserInterface {
+    constructor(canvasElement) {
+        this.canvas = new Canvas(canvasElement);
+    }
 
-        this.levelInstance = new Level(config['map'], config['moves'], config['players']);
-        this.currentLevel = this.levelInstance;
+    onNotification() {
+        console.log("on notif")
+    }
+}
+
+class BusinessLogic extends ContentCreator {
+    constructor(config) {
+        super();
+        this.level = new Level(config['map'], config['moves'], config['players']);
+    }
+}
+
+class Game  {
+    constructor(canvasElement, config) {
+
+        let ui = new UserInterface(canvasElement);
+
+        let bl = new BusinessLogic(config);
+
+        bl.subscribe(ui.onNotification);
 
         this.canvasLevelAdapter = new CanvasLevelAdapter(
-            this.canvasInstance,
-            this.currentLevel
+            ui.canvas,
+            bl.level,
+            config
         );
 
         this.canvasLevelAdapter.startLevel();
+
     }
 
     movePosition({ player, token, jumpCount }) {
-        if (!this.isConfigSet) {
-            console.log('integrity error')
-        } else {
-            this.canvasLevelAdapter.movePosition({ player: player, token: token, jumpCount: jumpCount });
-        }
+        this.canvasLevelAdapter.movePosition({ player: player, token: token, jumpCount: jumpCount });
     }
 
     restartToken({ player, token }) {
-        if (!this.isConfigSet) {
-            console.log('integrity error')
-        } else {
-            this.canvasLevelAdapter.moveTokenToStart({ player: player, token: token });
-        }
+        this.canvasLevelAdapter.moveTokenToStart({ player: player, token: token });
     }
 
-
 }
-
-let game;
-
-window.addEventListener('load', () => {
-    game = new Game();
-});
-
-function getGame() {
-    if (game) {
-        return game
-    } else {
-        console.log('integrity error')
-    }
-}
-
 
 export const ludo = {
-    getGame,
+    Game,
 }
