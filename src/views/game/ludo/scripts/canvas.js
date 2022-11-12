@@ -1,7 +1,7 @@
 
 class Canvas {
-    constructor() {
-        this.canvas = document.querySelector("canvas");
+    constructor(element) {
+        this.canvas = element;
         this.canvas.width = 600;
         this.canvas.height = 600;
         // this.canvas.width = innerWidth;
@@ -25,11 +25,12 @@ class Canvas {
 }
 
 
-class CanvasGame extends Canvas {
+// class CanvasGame extends Canvas {
  
-}
+// }
 
 
 export { 
-    CanvasGame 
+    Canvas
+    // CanvasGame 
 }
