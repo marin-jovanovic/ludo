@@ -1,19 +1,56 @@
-import { Boundary } from "./boundary.js"
+import { Boundary } from "./boundary.js";
+import { Level } from "./level.js";
+
+
 
 class CanvasLevelAdapter {
 
-    constructor(canvasInstance, currentLevel) {
+    constructor(canvasInstance, currentLevel, config) {
+        // super();
         this.canvas = canvasInstance;
-        // this.game = game;
         this.level = currentLevel;
+
+        
+        this.notify = this.notify.bind(this);
+
+        this. level = new Level(config['map'], config['moves'], config['players'], this.notify);
 
         this.configOneByOne = true;
 
+
+          // wait for one token to reach destination (stops moving) before other token can be moved on board
+          this.backlog = [];
+        this.      useBacklog = false;
+
+
     }
+
+    notify() {
+        console.log("n");
+
+        this.backlog.shift();
+  
+        if (this.backlog.length === 0) {
+          return;
+        }
+  
+        let first = this.backlog[0];
+  
+        // todo fix, add param for action, or multiple queues
+        if (first.length === 2) {
+          this.moveTokenToStart({ player: first[0], token: first[1] });
+        } else {
+          this.movePosition({
+            player: first[0],
+            token: first[1],
+            jumpCount: first[2],
+          });
+        }
+      }
 
     startLevel = () => {
 
-        this.animate(this.level, this.canvas);
+        this.animate(this.canvas, this.level);
 
     }
 
@@ -29,8 +66,8 @@ class CanvasLevelAdapter {
 
     }
 
-    movePosition({ player, token, jumpCount }) {
 
+    __movePositionDriver({ player, token, jumpCount }) {
         let t = this.level.players[player].tokens[token];
 
         if (this.configOneByOne) {
@@ -62,13 +99,49 @@ class CanvasLevelAdapter {
 
     }
 
-    moveTokenToStart({ player, token }) {
-        this.level.players[player].tokens[token].restart();
+    movePosition({ player, token, jumpCount }) {
+        if (this.useBacklog) {
+            if (this.backlog.length === 0) {
+              this.__movePositionDriver({
+                player: player,
+                token: token,
+                jumpCount: jumpCount,
+              });
+            }
+    
+            this.backlog.push([player, token, jumpCount]);
+          } else {
+            this.__movePositionDriver({
+              player: player,
+              token: token,
+              jumpCount: jumpCount,
+            });
+          }
+
+
+
     }
 
-    animate(level, canvas) {
+    __restartToken({ player, token }) {
+        this.level.players[player].tokens[token].restart();
 
+    }
 
+    moveTokenToStart({ player, token }) {
+
+        if (this.useBacklog) {
+            if (this.backlog.length === 0) {
+              this.__restartToken({ player: player, token: token });
+            }
+    
+            this.backlog.push([player, token]);
+          } else {
+            this.__restartToken({ player: player, token: token });
+          }
+
+    }
+
+    animate(canvas, level) {
 
         function animateDriver() {
 
@@ -76,7 +149,6 @@ class CanvasLevelAdapter {
             canvas.animationId = requestAnimationFrame(animateDriver)
 
             canvas.clear();
-
 
             // board
             level.boundaries.forEach((b) => {
