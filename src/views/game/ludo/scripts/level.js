@@ -1,10 +1,9 @@
-// import { getMap, getPlayer1Moves } from "./api.js"
-import { getBoundaries, getTokens, mapTokens } from "./layers.js"
+import { getBoundaries,  mapTokens } from "./layers.js"
 import { Boundary } from "./boundary.js"
 
 
 class Level {
-    constructor(map, moves, players) {
+    constructor(map, moves, players, subsFunction=function() {console.log('todo')}) {
 
         // todo extract colour to config
         // 
@@ -26,8 +25,9 @@ class Level {
                 tokens: mapTokens({
                     map: map,
                     Boundary: Boundary,
-                    colour: value.colour
-                })
+                    colour: value.colour,
+                    subscriber: subsFunction
+                                })
             }
         }
 
@@ -47,7 +47,6 @@ class Level {
         // todo remove, parametrize
         this.player1State = moves[0];
 
-        this.tokens = getTokens({ map: map, Boundary: Boundary, })
 
         // board
         this.boundaries = getBoundaries({ map: map, Boundary: Boundary });
