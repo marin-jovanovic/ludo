@@ -18,8 +18,7 @@ class Level {
             console.log(key, value);
 
             p[key] = {
-                // todo check if needed
-                // position: 'up left',
+        
                 colour: value.colour,
                 username: value.username,
                 tokens: mapTokens({
@@ -46,7 +45,6 @@ class Level {
 
         // todo remove, parametrize
         this.player1State = moves[0];
-
 
         // board
         this.boundaries = getBoundaries({ map: map, Boundary: Boundary });
