@@ -1,10 +1,6 @@
-# from backend.api.model.game import _get_game_model
 from django.apps import apps
 from django.db import models
 
-
-# def _get_game_model():
-#     return apps.get_model("api.Game")
 
 def get_game_model():
     return "api.game"
@@ -32,8 +28,6 @@ class Users(models.Model):
                                           on_delete=models.SET_NULL)
 
     game_role = models.TextField(null=True)
-
-# def get_game_model():
 
 
 def get_user_model():
