@@ -1,8 +1,9 @@
 import asyncio
 import json
+
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
-from backend.api.cqrs_c.users import active_users_notifier
-from backend.api.model.game import games_notifier, game_created_notifier,game_left_notifier,game_join_notifier
+
+from backend.api.model.game import games_notifier
 from backend.api.model.message import message_notifier
 
 
@@ -18,21 +19,20 @@ class Consumer(AsyncJsonWebsocketConsumer):
         await self.accept()
 
     def update(self, msg):
-
         async def driver(pl):
             await self.send(pl)
 
         asyncio.run(driver(msg))
 
     async def receive(self, text_data=None, bytes_data=None, **kwargs):
-
         t = {"rec ans": "todo practice consumer"}
 
         t = json.dumps(t)
         await self.send(t)
 
     # async def disconnect(self, code):
-        # self.notifier.detach(self)
+    # self.notifier.detach(self)
+
 
 #
 
@@ -47,6 +47,7 @@ class MessageConsumer(Consumer):
     async def disconnect(self, code):
         message_notifier.detach(self)
 
+
 class GameConsumer(Consumer):
 
     async def connect(self):
@@ -55,7 +56,6 @@ class GameConsumer(Consumer):
 
     async def disconnect(self, code):
         games_notifier.detach(self)
-
 
 # class GameCreatedConsumer(Consumer):
 #
