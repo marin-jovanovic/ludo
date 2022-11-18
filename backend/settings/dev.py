@@ -28,8 +28,8 @@ http://whitenoise.evans.io/en/stable/django.html?highlight=django
 """
 
 import os
-from decouple import config
 
+from decouple import config
 
 SETTINGS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(SETTINGS_DIR)
@@ -86,7 +86,6 @@ TEMPLATES = [
     },
 ]
 
-
 # _validation_path = 'django.contrib.auth.password_validation.'
 # AUTH_PASSWORD_VALIDATORS = [
 #     {'NAME': _validation_path + '.UserAttributeSimilarityValidator'},
@@ -111,7 +110,6 @@ STATICFILES_DIRS = []
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-
 # DEFAULT_AUTHENTICATION_CLASSES = (
 #     'rest_framework.authentication.TokenAuthentication',
 # )
@@ -123,11 +121,11 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # AUTH_USER_MODEL = 'backend.api.authentication_backends.user.User'
 AUTHENTICATION_BACKENDS = [
     "backend.api.authentication_backends.auth_backend.AuthBackend",
-#
-#     # 'django.contrib.auth.backends.ModelBackend',
-#     # 'allauth.account.auth_backends.AuthenticationBackend',
-#     # 'social_core.backends.keycloak.KeycloakOAuth2',
-#     # 'django.contrib.auth.backends.ModelBackend'
+    #
+    #     # 'django.contrib.auth.backends.ModelBackend',
+    #     # 'allauth.account.auth_backends.AuthenticationBackend',
+    #     # 'social_core.backends.keycloak.KeycloakOAuth2',
+    #     # 'django.contrib.auth.backends.ModelBackend'
 ]
 
 DATABASES = {
