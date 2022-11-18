@@ -3,13 +3,12 @@ import urllib
 from django.http import JsonResponse
 from rest_framework.views import APIView
 
-from backend.api.cqrs_c.game import create_game, leave_game, join_game, \
-    get_games, get_specific_game, receive_instruction
-from backend.api.model.player_order import get_player_order
-from backend.api.view.comm import get_auth_ok_response_template
+from backend.api.cqrs_c.game import get_specific_game, receive_instruction
 from backend.api.cqrs_c.game_log import add_entry
 from backend.api.game.order import determine_order
 from backend.api.game.resources import get_config
+from backend.api.model.player_order import get_player_order
+from backend.api.view.comm import get_auth_ok_response_template
 
 
 class GameView(APIView):
@@ -125,10 +124,8 @@ class GameView(APIView):
             response["payload"] = r
             return JsonResponse(response)
 
-
         dice_result = None
 
         response["payload"] = add_entry(name, creator_username, token, dice_result, action)
 
         return JsonResponse(response)
-
