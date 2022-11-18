@@ -1,6 +1,7 @@
 from django.db import models
-from backend.api.model.users import get_user_model
+
 from backend.api.model.game import _get_game_model
+from backend.api.model.users import get_user_model
 
 
 class GameLog(models.Model):
@@ -33,7 +34,9 @@ class GameLog(models.Model):
 
     performed = models.BooleanField()
 
+
 from backend.api.cqrs_q.game import __get_game
+
 
 def is_any_entry_present(game):
     r = __get_game(game)
@@ -69,20 +72,20 @@ def get_entries(game):
         return r
     try:
         any_entries = GameLog.objects.filter(game=game_o)
-            # .exists()
-        return  {"status": True, "payload": {i.instruction_id:
-                                                 {
-                                                     "username": i.player.username,
-                                                     "token": i.token,
-                                                     "diceResult": i.dice_result,
-                                                     "action": i.action,
-                                                     "performed": i.performed
-                                                 }
+        # .exists()
+        return {"status": True, "payload": {i.instruction_id:
+            {
+                "username": i.player.username,
+                "token": i.token,
+                "diceResult": i.dice_result,
+                "action": i.action,
+                "performed": i.performed
+            }
 
-        for i in any_entries
+            for i in any_entries
         }}
     except GameLog.DoesNotExist:
         any_entries = None
-        return  {"status": False,}
+        return {"status": False, }
 
     # print(f"{any_entries=}")
