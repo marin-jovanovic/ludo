@@ -1,4 +1,3 @@
-
 from django.contrib.auth.backends import BaseBackend
 
 from django.contrib.auth.models import User
@@ -6,7 +5,7 @@ from django.contrib.auth.models import User
 
 class AuthBackend(BaseBackend):
     """
-    Authenticate against the settings ADMIN_LOGIN and ADMIN_PASSWORD.
+    dummy backend, used for bypassing default auth by django
 
     Use the login name and a hash of the password.
     """
@@ -16,8 +15,8 @@ class AuthBackend(BaseBackend):
         print(80 * "-")
         print(f"{username=} {password=}")
 
-        username="-1"
-        password="-1"
+        username = "-1"
+        password = "-1"
 
         try:
             user = User.objects.get(username=username)
