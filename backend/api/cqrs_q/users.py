@@ -33,7 +33,6 @@ def is_authenticated(username, password):
 
 
 def get_logged_users():
-
     return list(
         get_user_model().objects.filter(access_token__isnull=False).values("username"))
 
@@ -43,6 +42,7 @@ def get_users_in_game(game_id):
         "status": True,
         "payload": list(get_user_model().objects.filter(currently_playing__name=game_id))
     }
+
 
 def get_user(username):
     try:
@@ -55,4 +55,3 @@ def get_user(username):
             "status": False,
             "debug": "user with this username does not exist"
         }
-
