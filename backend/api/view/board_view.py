@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from rest_framework.views import APIView
 
-from backend.api.game.resources import get_start_pool,  get_moves, \
+from backend.api.game.resources import get_start_pool, get_moves, \
     get_config, getMap, get_players
 from backend.api.view.comm import get_auth_ok_response_template
 
@@ -29,5 +29,3 @@ class BoardView(APIView):
         }
 
         return JsonResponse(response)
-
-
