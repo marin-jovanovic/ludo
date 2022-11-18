@@ -586,6 +586,7 @@ def get_moves():
         3: _get_player_four_moves()
     }
 
+
 def get_players():
     return {
         '0': {
@@ -599,8 +600,8 @@ def get_players():
 
         },
         '2': {
-           'colour': 'red',
-           'username': '2 username / nickname',
+            'colour': 'red',
+            'username': '2 username / nickname',
 
         },
         '3': {
@@ -608,6 +609,7 @@ def get_players():
             'username': '3 username / nickname',
         }
     }
+
 
 def get_config():
     return {
