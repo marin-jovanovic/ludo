@@ -23,8 +23,8 @@ class Game(models.Model):
 def _get_game_model():
     return apps.get_model("api.game")
 
-class Tile(models.Model):
 
+class Tile(models.Model):
     x = models.IntegerField()
     y = models.IntegerField()
 
@@ -34,8 +34,8 @@ class Tile(models.Model):
         null=True
     )
 
-class Token(models.Model):
 
+class Token(models.Model):
     where = models.ForeignKey(
         Tile,
         on_delete=models.SET_NULL,
