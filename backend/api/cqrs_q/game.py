@@ -1,7 +1,4 @@
-# from backend.api.cqrs_c.game import _get_game_model
 from backend.api.cqrs_q.users import get_users_in_game
-# # from backend.api.model.game import _get_game_model
-# from backend.api.model.users import get_user_model
 
 
 def __is_game_full(game_name):
@@ -48,6 +45,7 @@ from django.apps import apps
 
 def _get_game_model():
     return apps.get_model("api.game")
+
 
 def get_user_model():
     return apps.get_model("api.Users")
