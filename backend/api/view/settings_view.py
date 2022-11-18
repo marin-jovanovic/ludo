@@ -1,16 +1,16 @@
-
 from django.http import JsonResponse
 from rest_framework.views import APIView
 
-# from backend.api.model.user import User
 from backend.api.view.comm import get_auth_ok_response_template
 
+# todo add all settings that are hardcoded (game settings, number of players, ...)
 
 class SettingsView(APIView):
+    """
+
+    """
 
     def get(self, request):
-
-        print("get settings")
 
         response = get_auth_ok_response_template(request)
 
@@ -22,14 +22,11 @@ class SettingsView(APIView):
         }
         return JsonResponse(response)
 
-    def post(self, request):
-        print("post settings")
-        print(request.data)
-
-        # zoomUserLocation
-        # update_settings(request.username, request.data)
-
-        response = get_auth_ok_response_template(request)
-        response["payload"]["status"] = True
-        return JsonResponse(response)
-
+    # def post(self, request):
+    #     print(request.data)
+    #
+    #     # update_settings(request.username, request.data)
+    #
+    #     response = get_auth_ok_response_template(request)
+    #     response["payload"]["status"] = True
+    #     return JsonResponse(response)
