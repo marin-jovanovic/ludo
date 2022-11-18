@@ -1,10 +1,12 @@
 import json
+
 from django.apps import apps
 from django.db import models
-from backend.api.cqrs_q.users import get_user, get_users_in_game
-from backend.api.model.users import get_user_model
-from backend.api.model.game import _get_game_model
+
 from backend.api.comm.comm import Notifier
+from backend.api.cqrs_q.users import get_user, get_users_in_game
+from backend.api.model.game import _get_game_model
+from backend.api.model.users import get_user_model
 
 game_created_notifier = Notifier()
 game_left_notifier = Notifier()
@@ -12,21 +14,21 @@ game_join_notifier = Notifier()
 games_notifier = Notifier()
 message_notifier = Notifier()
 
+
 class Message(models.Model):
     # primary key
     # id
 
     game = models.ForeignKey(_get_game_model(),
-                                          on_delete=models.SET_NULL, null=True)
+                             on_delete=models.SET_NULL, null=True)
 
     timestamp = models.DateTimeField(auto_now_add=True)
 
     sender = models.ForeignKey(get_user_model(),
-                                          on_delete=models.SET_NULL, null=True)
+                               on_delete=models.SET_NULL, null=True)
     # on delette cascade?
 
     content = models.TextField()
-
 
 
 def create_message(sender, game, content):
@@ -40,7 +42,6 @@ def create_message(sender, game, content):
     else:
         print(r)
         user_o = r["payload"]
-
 
     r = __check_game_name_exists(game)
     if not r["payload"]:
@@ -101,7 +102,7 @@ def get_messages(game):
 
     # r = {}
     r = []
-    for i in _get_message_model().objects.filter(game=game_o).order_by('timestamp') :
+    for i in _get_message_model().objects.filter(game=game_o).order_by('timestamp'):
         # print(i.timestamp)
         # print(i.sender)
         # print(i.content)
@@ -195,8 +196,10 @@ def __driver_assign_user_currently_playing(username, status):
 
     return {"status": True}
 
+
 def _get_message_model():
     return apps.get_model("api.message")
+
 
 def _get_game_model():
     return apps.get_model("api.game")
