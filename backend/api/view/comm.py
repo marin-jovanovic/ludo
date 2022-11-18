@@ -2,7 +2,6 @@ from backend.api.comm.constants import INTERNAL_SERVER_ERROR_MESSAGE
 
 
 def get_auth_ok_response_template(request):
-
     for i in ["access_token"]:
         if not hasattr(request, i):
             raise Exception(INTERNAL_SERVER_ERROR_MESSAGE)
