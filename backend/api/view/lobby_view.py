@@ -1,10 +1,10 @@
-import json
 import urllib
 
 from django.http import JsonResponse
 from rest_framework.views import APIView
+
 from backend.api.cqrs_c.game import create_game, leave_game, join_game, \
-     get_games, in_which_game_is_user
+    get_games, in_which_game_is_user
 from backend.api.view.comm import get_auth_ok_response_template
 
 
@@ -25,7 +25,6 @@ class LobbyView(APIView):
             # response['payload'] = get_specific_game(name)
 
         return JsonResponse(response)
-
 
     # todo observers
 
@@ -69,4 +68,3 @@ class LobbyView(APIView):
             response["payload"] = join_game(name, username)
 
         return JsonResponse(response)
-
