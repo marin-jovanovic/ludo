@@ -1,13 +1,11 @@
 """
 implementation without refresh tokens
-only access token with unlimited lifetime
+
+access token has unlimited lifetime
 
 password is stored as hash
-
-
-todo which one?
-
 """
+
 import base64
 import hashlib
 from secrets import token_hex
