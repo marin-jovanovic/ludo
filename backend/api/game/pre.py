@@ -1,4 +1,5 @@
-from backend.api.game.resources import get_start_pool,_get_player_one_moves,_get_player_two_moves, _get_player_three_moves,_get_player_four_moves
+from backend.api.game.resources import get_start_pool, _get_player_one_moves, _get_player_two_moves, \
+    _get_player_three_moves, _get_player_four_moves
 from backend.api.game.tile import Tile
 
 
