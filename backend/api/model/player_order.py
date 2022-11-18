@@ -7,7 +7,6 @@ from backend.api.model.users import get_user_model
 
 
 class PlayerOrder(models.Model):
-
     game_id = models.ForeignKey(
         _get_game_model(),
         on_delete=models.SET_NULL,
@@ -29,6 +28,7 @@ class PlayerOrder(models.Model):
     index_won = models.IntegerField(null=True)
 
     index_left = models.IntegerField(null=True)
+
 
 # def create(game_id, index, player, index_won, index_left):
 
