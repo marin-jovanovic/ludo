@@ -13,7 +13,6 @@ function circleCollidesWithCircle({first, second}) {
     return Math.hypot(
         first.position.x - second.position.x, 
         first.position.y - second.position.y
-    
     ) < first.radius + second.radius
         
 }
