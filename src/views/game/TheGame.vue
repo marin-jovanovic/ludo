@@ -1,6 +1,14 @@
 <template>
   <div>
-    <canvas id="canvas"> </canvas>
+    <!-- <canvas id="canvas"> </canvas>
+
+    <hr />
+    pp -->
+
+    <div id="container" class="container">
+      <canvas id="staticcanvas" width="600" height="600"></canvas>
+      <canvas id="reactivecanvas" width="600" height="600"></canvas>
+    </div>
   </div>
 </template>
     
@@ -12,20 +20,12 @@ import { apiGameConfig } from "@/scripts/api/gameConfig";
 export default {
   data() {
     return {
-      // wait for one token to reach destination (stops moving) before other token can be moved on board
-      // backlog: [],
-      // useBacklog: false,
-
       game: undefined,
     };
   },
   async mounted() {
     console.log("mounted");
     this.initGame();
-
-    // if (this.useBacklog) {
-    //   ludo.subscribe(this.notify);
-    // }
   },
   methods: {
     async initGame() {
@@ -45,67 +45,37 @@ export default {
         configPayload[i] = res["payload"]["payload"];
       }
 
-      console.log(document.querySelector("#canvas"));
-
       this.game = new ludo.Game(
-        document.querySelector("#canvas"),
+        // document.querySelector("#canvas"),
+        document.querySelector("#staticcanvas"),
+        document.querySelector("#reactivecanvas"),
+
         configPayload
       );
-
-      // this.game.setConfig(configPayload);
     },
 
     movePosition({ player, token, jumpCount }) {
-      // if (this.useBacklog) {
-      //   if (this.backlog.length === 0) {
-          this.game.movePosition({
-            player: player,
-            token: token,
-            jumpCount: jumpCount,
-          });
-        // }
-
-      //   this.backlog.push([player, token, jumpCount]);
-      // } else {
-      //   console.log(this.game);
-      //   this.game.movePosition({
-      //     player: player,
-      //     token: token,
-      //     jumpCount: jumpCount,
-      //   });
-      // }
+      this.game.movePosition({
+        player: player,
+        token: token,
+        jumpCount: jumpCount,
+      });
     },
     restartToken({ player, token }) {
-      // if (this.useBacklog) {
-      //   if (this.backlog.length === 0) {
-          this.game.restartToken({ player: player, token: token });
-        // }
-
-      //   this.backlog.push([player, token]);
-      // } else {
-      //   this.game.restartToken({ player: player, token: token });
-      // }
+      this.game.restartToken({ player: player, token: token });
     },
-
-    // notify() {
-    //   this.backlog.shift();
-
-    //   if (this.backlog.length === 0) {
-    //     return;
-    //   }
-
-    //   let first = this.backlog[0];
-
-    //   if (first.length === 2) {
-    //     this.game.restartToken({ player: first[0], token: first[1] });
-    //   } else {
-    //     this.game.movePosition({
-    //       player: first[0],
-    //       token: first[1],
-    //       jumpCount: first[2],
-    //     });
-    //   }
-    // },
   },
 };
 </script> 
+
+<style>
+.container {
+  position: relative;
+}
+
+.container > canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+</style>
