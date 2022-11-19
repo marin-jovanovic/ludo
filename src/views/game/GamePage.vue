@@ -15,8 +15,8 @@
     <button @click="board">board scheme api</button>
 
     <div class="row">
-      <div class="col" style="border: 2px solid black">
-        <TheGame style="border: 2px solid black"></TheGame>
+      <div class="col">
+        <TheGame></TheGame>
       </div>
 
       <div class="col">
@@ -250,6 +250,14 @@ export default {
       }
     },
   },
-  components: { TheInfo, TheDice, BaseUserTemplate, TheMessages, TheGame, TheActions, TheTest },
+  components: {
+    TheInfo,
+    TheDice,
+    BaseUserTemplate,
+    TheMessages,
+    TheGame,
+    TheActions,
+    TheTest,
+  },
 };
 </script> 
