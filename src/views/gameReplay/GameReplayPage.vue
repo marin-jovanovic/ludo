@@ -15,8 +15,8 @@
     <button @click="startReplay">start replay</button>
 
     <div class="row">
-      <div class="col" style="border: 2px solid black">
-        <TheGame ref="game" style="border: 2px solid black"></TheGame>
+      <div class="col">
+        <TheGame ref="game"></TheGame>
       </div>
 
       <div class="col">
@@ -24,8 +24,6 @@
         <TheDice ref="dice"></TheDice>
       </div>
     </div>
-
-    <hr />
   </BaseUserTemplate>
 </template>
   
