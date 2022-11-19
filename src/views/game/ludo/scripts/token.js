@@ -1,26 +1,25 @@
-// import { ContentCreator } from "./content_creator.js";
+import { ContentCreator } from "./content_creator.js";
 
-// class Token extends ContentCreator {
+class Token extends ContentCreator {
 
-class Token {
     constructor({ position, colour, state }) {
-        // super();
+        super();
 
-        this.startingPosition = { x: position.x, y: position.y };
+        // business logic
         this.position = position;
-
-        // separate business logic from view
-        this.radius = 8
-
-        // this.notifier = notifier;
 
         // where is token on the board
         this.startingState = state
         this.state = state
 
-        this.colour = colour;
-
         this.destinationPosition = position;
+
+
+        // user interface 
+        this.radius = 8
+
+        this.colour = colour;
+        this.startingPosition = { x: position.x, y: position.y };
 
         // for jumping between tiles
         this.backlog = [];
@@ -53,10 +52,6 @@ class Token {
 
     moveByOne({ destinationPosition }) {
         this.backlog.push(destinationPosition);
-    }
-
-    _isAtDestination() {
-        return this._isBacklogEmpty();
     }
 
     _isBacklogEmpty() {
@@ -125,9 +120,10 @@ class Token {
                 if (this.configSleep && this.startSleeping) {
                     this._sleep();
                 } else {
-                    let nextDestination = this._getDestinationByOne();
-
-                    let atNextDestination = this._moveByOneToDestination(nextDestination);
+                    
+                    let atNextDestination = this._moveByOneToDestination(
+                        this._getDestinationByOne()
+                    );
 
                     if (atNextDestination) {
                         this.backlog.shift();
@@ -141,14 +137,14 @@ class Token {
             }
         }
 
-        let isAtDestination = this._isAtDestination();
+        let isAtDestination = this._isBacklogEmpty();
 
         if (!wasAtDestination && isAtDestination) {
             // check if after redraw the token will be at the destination
             // if the token is at the destination then notify
             
             console.log("notify")
-            this.notify();
+            this.notify({command: "token stopped"});
         }
 
         c.fillStyle = this.colour
