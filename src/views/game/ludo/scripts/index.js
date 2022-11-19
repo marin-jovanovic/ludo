@@ -1,56 +1,51 @@
-import {  CanvasStatic,CanvasReactive,  
-    // Canvas
- } from "./canvas.js";
+import {  CanvasStatic,CanvasReactive } from "./canvas.js";
 import { Level } from "./level.js";
-import { ContentCreator } from "./content_creator.js";
 
 
 class UserInterface {
     
-    constructor(
-        // canvasElement,
-         s, r) {
-        // this.canvas = new Canvas(canvasElement);
+    constructor({
+        staticCanvasElement, 
+        reactiveCanvasElement,
+        map
+    }) {
 
-        this.staticCanvas = new CanvasStatic(s);
+        this.staticCanvas = new CanvasStatic({
+            element: staticCanvasElement,
+            map: map 
+        });
 
-        this.reactiveCanvas = new CanvasReactive(r);
+        this.reactiveCanvas = new CanvasReactive(reactiveCanvasElement);
 
     }
 
 }
 
-class BusinessLogic extends ContentCreator {
+class BusinessLogic {
     
     constructor(config) {
-        super();
-        this.currentLevel = new Level(config['map'], config['moves'], config['players']);
+        this.currentLevel = new Level(
+            config['map'], 
+            config['moves'], 
+            config['players']
+        );
     }
-
-    // startLevel = () => {
-    //     this.notify({command: "animate", level: this.currentLevel});
-    // }
 
 }
 
-class Game  {
-    constructor(
-        // canvasElement,
-        
-        s, r,
-          config) {
-        this.ui = new UserInterface(
-            // canvasElement,
-             s, r);
+class Game {
+    constructor(staticCanvasElement, reactiveCanvasElement, config) {
+
+        this.ui = new UserInterface({
+            staticCanvasElement: staticCanvasElement, 
+            reactiveCanvasElement: reactiveCanvasElement,
+            map: config['map']
+        });
 
         this.bl = new BusinessLogic(config);
 
-        // this.bl.currentLevel.subscribe({command: "animateOnce", s: this.ui.canvas.animateOnce});
-        // this.bl.currentLevel.subscribe({command: "animateLoop", s: this.ui.canvas.animate});
-
-        this.bl.currentLevel.subscribe({command: "animateOnce", s: this.ui.staticCanvas.animateOnce});
-        this.bl.currentLevel.subscribe({command: "animateLoop", s: this.ui.reactiveCanvas.animate});
-
+        this.bl.currentLevel.subscribe({command: "drawBoard", s: this.ui.staticCanvas.animateOnce});
+        this.bl.currentLevel.subscribe({command: "animateTokens", s: this.ui.reactiveCanvas.animate});
 
         this.bl.currentLevel.start();
 
