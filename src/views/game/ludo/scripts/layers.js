@@ -1,4 +1,5 @@
-import { Token } from "./token.js"
+import { Token } from "./token.js";
+
 const mapping = {
     "-": "pipeHorizontal.png",
     "|": "pipeVertical.png",
@@ -17,6 +18,12 @@ const mapping = {
     "7": "pipeConnectorBottom.png",
     "8": "pipeConnectorLeft.png"
 }
+let mappings = {
+    q: 'green',
+    w: 'blue',
+    e: 'red',
+    r: 'yellow',
+};
 
 
 function importAll(r) {
@@ -68,12 +75,6 @@ function getBoundaries({ map, Boundary }) {
 }
 
 
-let mappings = {
-    q: 'green',
-    w: 'blue',
-    e: 'red',
-    r: 'yellow',
-}
 
 function remapPosition(i, j, Boundary) {
     return  {
@@ -83,10 +84,7 @@ function remapPosition(i, j, Boundary) {
 
 }
 
-
-
-function mapTokens({ map, Boundary, colour , subscriber}) {
-
+function mapTokens({ map, Boundary, colour}) {
 
     let tokens = {};
     let c = 0;
@@ -101,10 +99,9 @@ function mapTokens({ map, Boundary, colour , subscriber}) {
                     position: remapPosition(i,j, Boundary),
                     colour: mappings[symbol],
                     state: -1,
-                    // notifier: notifier
                 });
 
-                newToken.subscribe(subscriber);
+                // newToken.subscribe(subscriber);
 
                 tokens[c] = newToken;
                 c++;
