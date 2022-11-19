@@ -1,31 +1,11 @@
-class SubscribableObject {
+// import { ContentCreator } from "./content_creator.js";
 
-    constructor() {
-        this.subscribers = new Set();
+// class Token extends ContentCreator {
 
-    }
-
-    subscribe(s) {
-        this.subscribers.add(s);
-    }
-
-    unsubscribe(s) {
-        this.subscribers.delete(s);
-    }
-
-    notify() {
-
-        this.subscribers.forEach((i) => {
-            // console.log('notify')
-            i();
-        });
-    }
-
-}
-
-class Token extends SubscribableObject {
+class Token {
     constructor({ position, colour, state }) {
-        super();
+        // super();
+
         this.startingPosition = { x: position.x, y: position.y };
         this.position = position;
 
