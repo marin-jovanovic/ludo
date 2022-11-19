@@ -1,5 +1,6 @@
 <template>
   <div class="dice"></div>
+  rolled : {{ this.value }}
 </template>
   
   
@@ -8,13 +9,16 @@ import { dice } from "@/views/game/dice/index.js";
 
 export default {
   data() {
-    return {};
+    return {
+      value: -1,
+    };
   },
   mounted() {
     dice.startup();
   },
   methods: {
     rollDice(value) {
+      this.value = value;
       dice.rollDice(value);
     },
   },
