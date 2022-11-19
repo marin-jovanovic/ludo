@@ -1,6 +1,7 @@
-function createImage(src) {
+function createImage({source}) {
     const image = new Image();
-    image.src = src
+    image.src = source
+
     return image
 }
 
