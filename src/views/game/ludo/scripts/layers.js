@@ -1,77 +1,78 @@
 import { Token } from "./token.js";
 
-const mapping = {
-    "-": "pipeHorizontal.png",
-    "|": "pipeVertical.png",
-    "1": "pipeCorner1.png",
-    "2": "pipeCorner2.png",
-    "3": "pipeCorner3.png",
-    "4": "pipeCorner4.png",
-    "b": "block.png",
-    "[": "capLeft.png",
-    "]": "capRight.png",
-    "_": "capBottom.png",
-    "^": "capTop.png",
-    "+": "pipeCross.png",
-    "5": "pipeConnectorTop.png",
-    "6": "pipeConnectorRight.png",
-    "7": "pipeConnectorBottom.png",
-    "8": "pipeConnectorLeft.png"
-}
-let mappings = {
-    q: 'green',
-    w: 'blue',
-    e: 'red',
-    r: 'yellow',
-};
+import { createImage } from "./image.js";
+
 
 
 function importAll(r) {
     return r.keys().map(r);
 }
 
-function getBoundaries({ map, Boundary }) {
+function getBoardTiles({ map, Boundary }) {
 
-    let images = importAll(require.context('/public/img/', false, /\.(png|jpe?g|svg)$/));
-
-    let cloudImages = {};
-
-    for (let i = 0; i < images.length; i++) {
-        const cloudImage = new Image();
-        cloudImage.src = images[i];
-
-        let name = cloudImage.src.split("/img/")[1].split(".")[0]
-        cloudImages[name] = cloudImage
+    const mapping = {
+        "-": "pipeHorizontal.png",
+        "|": "pipeVertical.png",
+        "1": "pipeCorner1.png",
+        "2": "pipeCorner2.png",
+        "3": "pipeCorner3.png",
+        "4": "pipeCorner4.png",
+        "b": "block.png",
+        "[": "capLeft.png",
+        "]": "capRight.png",
+        "_": "capBottom.png",
+        "^": "capTop.png",
+        "+": "pipeCross.png",
+        "5": "pipeConnectorTop.png",
+        "6": "pipeConnectorRight.png",
+        "7": "pipeConnectorBottom.png",
+        "8": "pipeConnectorLeft.png"
     }
 
 
+    // todo render off screen images
 
-    let boundaries = [];
+    let importedImages = importAll(
+        require.context('/public/img/', false, /\.(png|jpe?g|svg)$/)
+    );
+
+    let images = {};
+
+    for (let i = 0; i < importedImages.length; i++) {
+
+        let image = createImage({
+            source: importedImages[i]
+        });
+
+        let name = image.src.split("/img/")[1].split(".")[0];
+
+        images[name] = image
+    }
+
+    let boardTiles = [];
 
     map.forEach((row, i) => {
         row.forEach((symbol, j) => {
 
             if (symbol in mapping) {
 
-
-                boundaries.push(
+                boardTiles.push(
                     new Boundary({
                         position: {
                             x: Boundary.width * j,
                             y: Boundary.height * i
                         },
-                        image: cloudImages[mapping[symbol].split(".")[0]]
+                        image: images[mapping[symbol].split(".")[0]]
                     
                     })
                 )
-
 
             }
 
         })
     })
 
-    return boundaries;
+    return boardTiles;
 }
 
 
@@ -86,6 +87,13 @@ function remapPosition(i, j, Boundary) {
 
 function mapTokens({ map, Boundary, colour}) {
 
+    let mappings = {
+        q: 'green',
+        w: 'blue',
+        e: 'red',
+        r: 'yellow',
+    };
+    
     let tokens = {};
     let c = 0;
 
@@ -119,7 +127,8 @@ function mapTokens({ map, Boundary, colour}) {
 
 
 export { 
-    getBoundaries, 
+    getBoardTiles, 
 
-    mapTokens
+    mapTokens,
+    remapPosition
  }
