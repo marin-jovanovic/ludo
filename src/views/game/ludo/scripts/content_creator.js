@@ -2,12 +2,13 @@
 class ContentCreator {
 
     constructor() {
+        console.log("created")
         this.subscribers = {};
     }
 
     subscribe({command, s}) {
 
-        console.log("subscribe", command, s)
+        // console.log("subscribe", command, s)
 
         if (command in this.subscribers) {
 
@@ -27,12 +28,10 @@ class ContentCreator {
     notify({command, ...args}) {
 
         console.log("notif", command, args)
-        // console.log(typeof(args))
-        // console.log(...args)
 
         if (!(command in this.subscribers)) {
-            console.log("unknown command")
-            return
+            console.log("no subscribers for this command");
+            return;
         }
 
         this.subscribers[command].forEach((i) => {
