@@ -1,10 +1,15 @@
-import { getBoundaries as getBoardTiles,  mapTokens } from "./layers.js"
+import { 
+    // getBoardTiles,  
+    mapTokens,
+    remapPosition,
+
+} from "./layers.js"
 import { BoardTile } from "./board_tile.js"
 import { ContentCreator } from "./content_creator.js";
 
 
 class Level extends ContentCreator {
-    constructor(map, moves, players, subsFunction) {
+    constructor(map, moves, players) {
         super();
 
         // todo what is this used for?
@@ -14,32 +19,27 @@ class Level extends ContentCreator {
         this.backlog = [];
         this.useBacklog = false;
 
-
-        // todo extract colour to config
-        // 
-
-        // sta kad se preklope / pojedu
-
-        // sta kad se preklope useri, (two users at same tile)
+        //1 todo extract colour to config
+        //2 sta kad se preklope / pojedu
+        //3 sta kad se preklope useri, (two users at same tile)
 
         let p = {};
 
+        for (const [playerId, playerMetadata] of Object.entries(players)) {
 
-        for (const [key, value] of Object.entries(players)) {
-            // console.log(key, value);
-
-            p[key] = {
+            p[playerId] = {
         
-                colour: value.colour,
-                username: value.username,
+                colour: playerMetadata.colour,
+                username: playerMetadata.username,
                 tokens: mapTokens({
                     map: map,
                     Boundary: BoardTile,
-                    colour: value.colour,
-                    subscriber: subsFunction
+                    colour: playerMetadata.colour,
+                    subscriber: this.onChange
                                 
                 })
             }
+
         }
 
         // ovo nek bude DTO
@@ -57,19 +57,19 @@ class Level extends ContentCreator {
 
         // todo remove, parametrize
         this.player1State = moves[0];
-
-        // board
-        this.boardTiles = getBoardTiles({ map: map, Boundary: BoardTile });
     
-        // this.start();
+
     }
 
     start() {
-        console.log("st")
-        this.notify({command: "animateOnce", level: this, tmp: "test tmp"});
+        this.notify({
+            command: "drawBoard"
+        });
 
-        this.notify({command: "animateLoop", level: this, tmp: "test tmp"});
-
+        this.notify({
+            command: "animateTokens", 
+            level: this, 
+        });
 
     }
 
@@ -85,55 +85,43 @@ class Level extends ContentCreator {
             }
     
             this.backlog.push([player, token, jumpCount]);
-          } else {
+        
+        } else {
             this.__movePositionDriver({
               player: player,
               token: token,
               jumpCount: jumpCount,
             });
-          }
+        }
     
-}
+    }
 
-restartToken({ player, token }) {
-    this.moveTokenToStart({ player: player, token: token });
-}
+    restartToken({ player, token }) {
+        this.moveTokenToStart({ player: player, token: token });
+    }
 
+    onChange() {
 
+        console.log("on change")
 
-    // notify() {
-    //     this.backlog.shift();
+        this.backlog.shift();
   
-    //     if (this.backlog.length === 0) {
-    //       return;
-    //     }
+        if (this.backlog.length === 0) {
+          return;
+        }
   
-    //     let first = this.backlog[0];
+        let first = this.backlog[0];
   
-    //     // todo fix, add param for action, or multiple queues
-    //     if (first.length === 2) {
-    //       this.moveTokenToStart({ player: first[0], token: first[1] });
-    //     } else {
-    //       this.movePosition({
-    //         player: first[0],
-    //         token: first[1],
-    //         jumpCount: first[2],
-    //       });
-    //     }
-    //   }
-
-
-
-    _tileToCoordinates(stateBoundaries) {
-        // tile (x,y) to coordinate (pixels x,y ?) 
-        // find center of that pixels posiiton return it
-
-        // todo extract
-        return {
-            x: stateBoundaries.column * BoardTile.width + BoardTile.width / 2,
-            y: stateBoundaries.row * BoardTile.height + BoardTile.height / 2
-        };
-
+        // todo fix, add param for action, or multiple queues
+        if (first.length === 2) {
+          this.moveTokenToStart({ player: first[0], token: first[1] });
+        } else {
+          this.movePosition({
+            player: first[0],
+            token: first[1],
+            jumpCount: first[2],
+          });
+        }
     }
 
     __movePositionDriver({ player, token, jumpCount }) {
@@ -146,7 +134,11 @@ restartToken({ player, token }) {
                 if (i in this.player1State) {
                     let stateBoundaries = this.player1State[i]
 
-                    let destinationPosition = this._tileToCoordinates(stateBoundaries);
+                    let destinationPosition = remapPosition(
+                        stateBoundaries.column, 
+                        stateBoundaries.row, 
+                        BoardTile
+                    );
 
                     this.players[player].tokens[token].moveByOne({ destinationPosition: destinationPosition })
 
@@ -162,7 +154,11 @@ restartToken({ player, token }) {
 
         let stateBoundaries = this.player1State[t.state]
 
-        let destinationPosition = this._tileToCoordinates(stateBoundaries);
+        let destinationPosition = remapPosition(
+            stateBoundaries.column, 
+            stateBoundaries.row, 
+            BoardTile
+        );
 
         this.players[player].tokens[token].setDestionationPosition(destinationPosition)
 
