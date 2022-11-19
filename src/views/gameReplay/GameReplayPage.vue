@@ -52,69 +52,65 @@ export default {
   async mounted() {
     this.username = sessionStorage.getItem("username");
     this.gameId = this.$route.params.id;
+
+    // this.startReplay();
   },
   methods: {
     async startReplay() {
       let res = await apiGame.getGame(this.gameId);
 
-      if (res["auth"]["status"] && res["payload"]["status"]) {
-        let p = res["payload"]["payload"];
-
-        let pp = p["players"]["payload"];
-        const swapped = Object.entries(pp).map(([key, value]) => ({
-          [value]: key,
-        }));
-
-        pp = Object.assign({}, ...swapped);
-
-        // window.addEventListener('load', () => {
-        // console.log('load');
-        // (async () => {
-        for (const value of Object.values(p["log"])) {
-          switch (value.action) {
-            case "roll":
-              this.$refs.dice.rollDice(value.diceResult);
-              break;
-
-            case "goes":
-              console.log("[instruction] order ", value.username);
-              break;
-
-            case "move":
-              this.$refs.game.movePosition({
-                player: pp[value.username],
-                token: value.token,
-                jumpCount: value.diceResult,
-              });
-
-              await this.sleep();
-
-              break;
-
-            case "won":
-              console.log("won", value.username);
-              break;
-
-            case "eaten":
-              this.$refs.game.restartToken({
-                player: pp[value.username],
-                token: value.token,
-              });
-
-              await this.sleep();
-
-              break;
-
-            default:
-              break;
-          }
-        }
-
-        // })();
-
-        // })
-      } else {
+      if (!(res["auth"]["status"] && res["payload"]["status"])) {
         console.log("err fetching data");
+        return;
+      }
+
+      let p = res["payload"]["payload"];
+
+      let pp = p["players"]["payload"];
+      const swapped = Object.entries(pp).map(([key, value]) => ({
+        [value]: key,
+      }));
+
+      pp = Object.assign({}, ...swapped);
+
+      for (const value of Object.values(p["log"])) {
+        switch (value.action) {
+          case "roll":
+            this.$refs.dice.rollDice(value.diceResult);
+            break;
+
+          case "goes":
+            console.log("[instruction] order ", value.username);
+            break;
+
+          case "move":
+            this.$refs.game.movePosition({
+              player: pp[value.username],
+              token: value.token,
+              jumpCount: value.diceResult,
+            });
+
+            await this.sleep();
+
+            break;
+
+          case "won":
+            console.log("won", value.username);
+            break;
+
+          case "eaten":
+            this.$refs.game.restartToken({
+              player: pp[value.username],
+              token: value.token,
+            });
+
+            await this.sleep();
+
+            break;
+
+          default:
+            break;
+        }
       }
     },
     async sleep() {
