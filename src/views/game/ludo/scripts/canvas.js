@@ -1,26 +1,18 @@
+import { BoardTile } from "./board_tile.js"
+import {getBoardTiles} from './layers.js'
+
 class Canvas {
     
     constructor(element) {
         this.canvas = element;
-        this.canvas.width = 600;
-        this.canvas.height = 600;
-        // this.canvas.width = innerWidth;
-        // this.canvas.height = innerHeight;
+        // this.canvas.width = 600;
+        // this.canvas.height = 600;
+        this.canvas.width = innerWidth;
+        this.canvas.height = innerHeight;
 
         this.context = this.canvas.getContext("2d");
         this.animationId;
-
-
-        // this.canvas2 = element;
-        // this.canvas2.width = 600;
-        // this.canvas2.height = 600;
-        // // this.canvas.width = innerWidth;
-        // // this.canvas.height = innerHeight;
-
-        // this.context2 = this.canvas2.getContext("2d");
-
-
-        // this.animate = this.animate.bind(this);
+  
     }
 
     clear = () => {
@@ -30,71 +22,72 @@ class Canvas {
 
     }
 
-    animateOnce = (args) => {
-        // console.log(args)
-        // console.log(args.level)
-        this.clear();
+}
+
+class CanvasStatic extends Canvas {
+    constructor({element, map}) {
+        super(element);
+
+        this.boardTiles = getBoardTiles({ 
+            map: map, 
+            Boundary: BoardTile 
+        })
+    }
+
+    animateOnce = () => {
 
         // board
-        args.level.boardTiles.forEach((b) => {
+        this.boardTiles.forEach((b) => {
             b.draw(this.context)
         })
+   
+    }
+}
 
-        // // tokens
-        // for (const p of Object.values(level.players)) {
+class CanvasReactive extends Canvas {
 
-        //     for (const t of Object.values(p.tokens)) {
-        //         t.draw(canvas.context)
-        //     }
+    constructor(element) {
+        super(element);
 
-        // }
+        // init token state
+
+        // tokens scheduled for change
+
+        // wait for one token to reach destination (stops moving) before other token can be moved on board
+        this.backlog = [];
+        this.useBacklog = false;
 
     }
 
+    moveToken() {
 
-
-
-    animate = (notifArgs) => {
-
-        let level = notifArgs.level;
-console.log(level)
-
-        // requestAnimationFrame((level) => {
-        
-        // });
-// return
-   
-        // this.notify = this.notify.bind(this);
-
-        let animateDriver = () => {
-
-            // setup
-            this.canvas.animationId = requestAnimationFrame(animateDriver)
-
-            this.clear();
-
-            level.boardTiles.forEach((b) => {
-                b.draw(this.context)
-            })
-
-            // tokens
-            Object.values(level.players).forEach(p => {
-
-                Object.values(p.tokens).forEach(t => {
+        if (this.useBacklog) {
+            if (this.backlog.length === 0) {
+              this.__movePositionDriver({
+                player: player,
+                token: token,
+                jumpCount: jumpCount,
+              });
+            }
     
-                    t.draw(this.context)
-    
-                });
+            this.backlog.push([player, token, jumpCount]);
         
+        } else {
+            this.__movePositionDriver({
+              player: player,
+              token: token,
+              jumpCount: jumpCount,
             });
-    
-    
         }
 
-        animateDriver();
     }
 
-    animationLoop = (level) => {
+
+    redrawTokens = (notifArgs) => {
+
+        this.clear();
+
+        let level = notifArgs.level;
 
         Object.values(level.players).forEach(p => {
 
@@ -108,99 +101,46 @@ console.log(level)
 
     }
 
-
-}
-
-class CanvasStatic extends Canvas {
-    constructor(element) {
-        super(element);
-    }
-
-    animateOnce = (args) => {
-        // console.log(args)
-        // console.log(args.level)
-        this.clear();
-
-        // board
-        args.level.boardTiles.forEach((b) => {
-            b.draw(this.context)
-        })
-
-        // // tokens
-        // for (const p of Object.values(level.players)) {
-
-        //     for (const t of Object.values(p.tokens)) {
-        //         t.draw(canvas.context)
-        //     }
-
-        // }
-
-    }
-}
-
-class CanvasReactive extends Canvas {
-
-    constructor(element) {
-        super(element);
-
-    }
-
-    animate(notifArgs) {
-        // console.log("anim")
-
-        console.log(notifArgs)
-        // let canvas  = this.canvas;
-        let level = notifArgs.level;
+    animate = (notifArgs) => {
 
 
-                // tokens
-        for (const p of Object.values(level.players)) {
+        this.redrawTokens(notifArgs);
 
-            for (const t of Object.values(p.tokens)) {
-                t.draw(this.context)
-            }
+        // let level = notifArgs.level;
+        
+        // console.log(level)
 
-        }
 
-        // // this.notify = this.notify.bind(this);
-
-        // function animateDriver() {
+        // let animateDriver = () => {
 
         //     // setup
-        //     canvas.animationId = requestAnimationFrame(animateDriver);
+        //     this.canvas.animationId = requestAnimationFrame(animateDriver);
 
-        //     // canvas.clear();
-        //     // clear = () => {
+        //     this.clear();
 
-        //         // leave no trace
-        //         // canvas.context.clearRect(0, 0, canvas.width, canvas.height)
+        //           // tokens
+        //     Object.values(level.players).forEach(p => {
+
+        //         Object.values(p.tokens).forEach(t => {
+    
+        //             t.draw(this.context)
+    
+        //         });
         
-        //     // }
-        //     // board
-        //     // level.boundaries.forEach((b) => {
-        //     //     b.draw(canvas.context)
-        //     // })
-
-        //     // // tokens
-        //     for (const p of Object.values(level.players)) {
-
-        //         for (const t of Object.values(p.tokens)) {
-        //             t.draw(canvas.context)
-        //         }
-
-        //     }
-
-
+        //     });
+    
+    
         // }
 
         // animateDriver();
     }
 
+  
+
 }
 
 
 export { 
-    Canvas,
     CanvasStatic,
     CanvasReactive
 }
