@@ -28,14 +28,15 @@ class Level extends ContentCreator {
         //3 sta kad se preklope useri, (two users at same tile)
         
         // DTO - data transfer object
-        this.levelState = this.fetchLevelState(players, map);
-
-        // todo remove, parametrize
-        this.player1State = moves[0];
+        this.levelState = this.fetchLevelState(players, map, moves);
     
     }
 
     start() {
+        /**
+         * start level, notify all listeners
+         */
+
         this.notify({
             command: "drawBoard"
         });
@@ -48,10 +49,18 @@ class Level extends ContentCreator {
     }
 
     // rewrite
-    fetchLevelState(players, map) {
+    fetchLevelState(players, map, moves) {
+        /**
+         * return board state
+         * 
+         */
+
+
         let p = {};
+        let c = 0; 
 
         for (const [playerId, playerMetadata] of Object.entries(players)) {
+
 
             p[playerId] = {
         
@@ -59,18 +68,26 @@ class Level extends ContentCreator {
                 tokens: mapTokens({
                     map: map,
                     Boundary: BoardTile,
-                    subscriber: this.onChange
-                })
+                    colour: playerMetadata.colour,
+                    // subscriber: this.onChange
+                }),
+                state: moves[c]
+
             }
+
+            c += 1;
 
         }
 
         let levelState = {
+
+            // basic game metadata
             status: {
                 isGameDone: false,
-                quit: ['player1'],
-                won: undefined
+                quit: ['1'],
+                won: []
             },
+            // for each player info
             players: p
         }
 
@@ -78,26 +95,61 @@ class Level extends ContentCreator {
 
     }
 
+
+
+
     movePosition({ player, token, jumpCount }) {
-    
-        if (this.useBacklog) {
-            if (this.backlog.length === 0) {
-              this.__movePositionDriver({
+        /**
+         * can be called by user or automatic (game replay)
+         * 
+         * perform check if can be done
+         * 
+         * move @player @token for @jumpCount positions
+         * 
+         * notify that level is updated
+         * 
+         * 
+         */
+
+
+        let isLegalMove =  this.__movePositionDriver({
+            player: player,
+            token: token,
+            jumpCount: jumpCount,
+          });
+
+        if (isLegalMove) {
+
+            // notify
+
+            this.notify({
+                command: "tokenMoved", 
                 player: player,
                 token: token,
                 jumpCount: jumpCount,
-              });
-            }
-    
-            this.backlog.push([player, token, jumpCount]);
-        
-        } else {
-            this.__movePositionDriver({
-              player: player,
-              token: token,
-              jumpCount: jumpCount,
+                    
+                // level: this, 
             });
         }
+
+        // if (this.useBacklog) {
+        //     if (this.backlog.length === 0) {
+        //       this.__movePositionDriver({
+        //         player: player,
+        //         token: token,
+        //         jumpCount: jumpCount,
+        //       });
+        //     }
+    
+        //     this.backlog.push([player, token, jumpCount]);
+        
+        // } else {
+        //     this.__movePositionDriver({
+        //       player: player,
+        //       token: token,
+        //       jumpCount: jumpCount,
+        //     });
+        // }
     
     }
 
@@ -132,32 +184,32 @@ class Level extends ContentCreator {
     __movePositionDriver({ player, token, jumpCount }) {
         let t = this.levelState.players[player].tokens[token];
 
-        if (this.config.configOneByOne) {
+        // if (this.config.configOneByOne) {
 
-            for (let i = t.state; i < t.state + jumpCount; i++) {
+        for (let i = t.state; i < t.state + jumpCount; i++) {
+        
+            if (i in this.levelState.players[player].state) {
+                let stateBoundaries = this.levelState.players[player].state[i]
 
-                if (i in this.player1State) {
-                    let stateBoundaries = this.player1State[i]
+                let destinationPosition = remapPosition(
+                    stateBoundaries.column, 
+                    stateBoundaries.row, 
+                    BoardTile
+                );
 
-                    let destinationPosition = remapPosition(
-                        stateBoundaries.column, 
-                        stateBoundaries.row, 
-                        BoardTile
-                    );
+                this.levelState.players[player].tokens[token].moveByOne({ destinationPosition: destinationPosition })
 
-                    this.levelState.players[player].tokens[token].moveByOne({ destinationPosition: destinationPosition })
-
-                } else {
-                    console.log('integrity error: not in state object')
-                }
-
+            } else {
+                console.log('integrity error: not in state object')
             }
 
         }
 
+        // }
+
         t.state += jumpCount
 
-        let stateBoundaries = this.player1State[t.state]
+        let stateBoundaries = this.levelState.players[player].state[t.state]
 
         let destinationPosition = remapPosition(
             stateBoundaries.column, 
@@ -167,24 +219,22 @@ class Level extends ContentCreator {
 
         this.levelState.players[player].tokens[token].setDestionationPosition(destinationPosition)
 
-    }
 
-    __restartToken({ player, token }) {
-        this.levelState.players[player].tokens[token].restart();
-
+        return  true;
     }
 
     moveTokenToStart({ player, token }) {
+        this.levelState.players[player].tokens[token].restart();
 
-        if (this.useBacklog) {
-            if (this.backlog.length === 0) {
-              this.__restartToken({ player: player, token: token });
-            }
+        // if (this.useBacklog) {
+        //     if (this.backlog.length === 0) {
+        //       this.__restartToken({ player: player, token: token });
+        //     }
     
-            this.backlog.push([player, token]);
-        } else {
-            this.__restartToken({ player: player, token: token });
-        }
+        //     this.backlog.push([player, token]);
+        // } else {
+        //     this.__restartToken({ player: player, token: token });
+        // }
 
     }
 
