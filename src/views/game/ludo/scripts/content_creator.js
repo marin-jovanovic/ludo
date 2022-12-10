@@ -2,7 +2,7 @@
 class ContentCreator {
 
     constructor() {
-        console.log("created")
+        // console.log("created")
         this.subscribers = {};
     }
 
@@ -27,7 +27,7 @@ class ContentCreator {
 
     notify({command, ...args}) {
 
-        console.log("notif", command, args)
+        // console.log("notif", command, args)
 
         if (!(command in this.subscribers)) {
             console.log("no subscribers for this command");
