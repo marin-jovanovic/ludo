@@ -10,6 +10,7 @@ import LogoutPage from '../views/logout/LogoutPage';
 import SetttingsView from '../views/settings/SettingsView.vue';
 import { store } from "@/store/store"
 
+import TheGame from '../views/game/TheGame.vue';
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -48,6 +49,11 @@ export const router = createRouter({
       name: "index",
       component: IndexPage
     },
+    {
+      path: "/test",
+      name: "test",
+      component: TheGame
+    }
   ]
 });
 
