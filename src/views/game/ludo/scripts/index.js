@@ -1,5 +1,5 @@
-import {  CanvasStatic,CanvasReactive } from "./canvas.js";
-import { Level } from "./level.js";
+import {  CanvasStatic,CanvasReactive } from "./ui_canvas.js";
+import { Level } from "./bl_level.js";
 
 
 class UserInterface {
@@ -46,6 +46,8 @@ class Game {
 
         this.bl.currentLevel.subscribe({command: "drawBoard", s: this.ui.staticCanvas.animateOnce});
         this.bl.currentLevel.subscribe({command: "animateTokens", s: this.ui.reactiveCanvas.animate});
+
+        // this.ui.staticCanvas.animateOnce();
 
         this.bl.currentLevel.start();
 
