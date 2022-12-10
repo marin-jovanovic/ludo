@@ -1,6 +1,6 @@
 import { Token } from "./token.js";
 
-import { createImage } from "./image.js";
+// import { createImage } from "./ui_image.js";
 
 
 
@@ -36,18 +36,30 @@ function getBoardTiles({ map, Boundary }) {
         require.context('/public/img/', false, /\.(png|jpe?g|svg)$/)
     );
 
-    let images = {};
+    // let images = {};
 
+    // for (let i = 0; i < importedImages.length; i++) {
+
+    //     let image = createImage({
+    //         source: importedImages[i]
+    //     });
+
+    //     let name = image.src.split("/img/")[1].split(".")[0];
+
+    //     images[name] = image
+    // }
+
+    let enumToImagePath = {};
     for (let i = 0; i < importedImages.length; i++) {
+        // let image = createImage({
+        //     source: importedImages[i]
+        // });
+        let name = importedImages[i].split("/img/")[1].split(".")[0];
 
-        let image = createImage({
-            source: importedImages[i]
-        });
-
-        let name = image.src.split("/img/")[1].split(".")[0];
-
-        images[name] = image
+        enumToImagePath[name] = importedImages[i]
     }
+
+
 
     let boardTiles = [];
 
@@ -56,14 +68,19 @@ function getBoardTiles({ map, Boundary }) {
 
             if (symbol in mapping) {
 
+                let image = new Image();
+                image.src = enumToImagePath[mapping[symbol].split(".")[0]];
+     
+
                 boardTiles.push(
                     new Boundary({
                         position: {
                             x: Boundary.width * j,
                             y: Boundary.height * i
                         },
-                        image: images[mapping[symbol].split(".")[0]]
-                    
+                        image: image
+                        // image: images[mapping[symbol].split(".")[0]],
+                        // colour: "red"
                     })
                 )
 
