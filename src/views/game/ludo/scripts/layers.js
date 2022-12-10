@@ -29,37 +29,19 @@ function getBoardTiles({ map, Boundary }) {
         "8": "pipeConnectorLeft.png"
     }
 
-
     // todo render off screen images
 
     let importedImages = importAll(
         require.context('/public/img/', false, /\.(png|jpe?g|svg)$/)
     );
 
-    // let images = {};
-
-    // for (let i = 0; i < importedImages.length; i++) {
-
-    //     let image = createImage({
-    //         source: importedImages[i]
-    //     });
-
-    //     let name = image.src.split("/img/")[1].split(".")[0];
-
-    //     images[name] = image
-    // }
-
     let enumToImagePath = {};
     for (let i = 0; i < importedImages.length; i++) {
-        // let image = createImage({
-        //     source: importedImages[i]
-        // });
+  
         let name = importedImages[i].split("/img/")[1].split(".")[0];
 
         enumToImagePath[name] = importedImages[i]
     }
-
-
 
     let boardTiles = [];
 
@@ -79,8 +61,7 @@ function getBoardTiles({ map, Boundary }) {
                             y: Boundary.height * i
                         },
                         image: image
-                        // image: images[mapping[symbol].split(".")[0]],
-                        // colour: "red"
+                
                     })
                 )
 
@@ -102,7 +83,20 @@ function remapPosition(i, j, Boundary) {
 
 }
 
+// function getDictionary({}) {
+//     return {
+//         "a": {"type": "token", "id": "1"},
+//         "b": {"type": "token"},
+//         "c": {"type": "token"},
+//         "d": {"type": "token"}
+//     }
+// }
+
+
 function mapTokens({ map, Boundary, colour}) {
+
+    // console.log(map)
+    // console.log(Boundary)
 
     let mappings = {
         q: 'green',
@@ -120,13 +114,10 @@ function mapTokens({ map, Boundary, colour}) {
             if (symbol in mappings && mappings[symbol] === colour) {
 
                 let newToken = new Token({
-
                     position: remapPosition(i,j, Boundary),
                     colour: mappings[symbol],
                     state: -1,
                 });
-
-                // newToken.subscribe(subscriber);
 
                 tokens[c] = newToken;
                 c++;
@@ -135,6 +126,8 @@ function mapTokens({ map, Boundary, colour}) {
 
         })
     })
+
+    // console.log(tokens)
 
     return tokens;
 
@@ -145,7 +138,6 @@ function mapTokens({ map, Boundary, colour}) {
 
 export { 
     getBoardTiles, 
-
     mapTokens,
     remapPosition
- }
+}
