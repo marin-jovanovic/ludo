@@ -5,6 +5,7 @@ class Canvas {
     
     constructor(element) {
         this.canvas = element;
+
         // this.canvas.width = 600;
         // this.canvas.height = 600;
         this.canvas.width = innerWidth;
@@ -27,9 +28,7 @@ class Canvas {
 class CanvasStatic extends Canvas {
     constructor({element, map}) {
         super(element);
-
-      
-
+    
         this.boardTiles = getBoardTiles({ 
             map: map, 
             Boundary: BoardTile 
@@ -61,9 +60,30 @@ class CanvasReactive extends Canvas {
 
     }
 
-    moveToken() {
 
-        console.log("not impl")
+    moveToken = (notifArgs) => {
+        /**
+         * check if can move this token 
+         * 
+         * => 
+         * if config.move one by one
+         * then 
+         * wait for other tokens to stop moving
+         * 
+         * else
+         * move token
+         * 
+         * 
+         */
+
+
+        console.log(notifArgs)
+
+        // this.__movePositionDriver({
+        // player: notifArgs.player,
+        // token: notifArgs.token,
+        // jumpCount: notifArgs.jumpCount,
+        // });
 
         // if (this.useBacklog) {
         //     if (this.backlog.length === 0) {
@@ -86,60 +106,58 @@ class CanvasReactive extends Canvas {
 
     }
 
-
-    redrawTokens = (notifArgs) => {
-
-        this.clear();
+    animate = (notifArgs) => {
 
         let level = notifArgs.level.levelState;
 
-        Object.values(level.players).forEach(p => {
-
-            Object.values(p.tokens).forEach(t => {
-
-                console.log(t)
-
-                t.draw(this.context)
-
-            });
-    
-        });
-
-    }
-
-    animate = (notifArgs) => {
-
-        // console.log("redraw tokens")
-
-        this.redrawTokens(notifArgs);
-
-        // let level = notifArgs.level;
-        
-        // console.log(level)
-
-
         // let animateDriver = () => {
-
-        //     // setup
-        //     this.canvas.animationId = requestAnimationFrame(animateDriver);
 
         //     this.clear();
 
-        //           // tokens
         //     Object.values(level.players).forEach(p => {
 
         //         Object.values(p.tokens).forEach(t => {
-    
+
         //             t.draw(this.context)
-    
+
         //         });
         
         //     });
-    
-    
+
         // }
 
         // animateDriver();
+
+        let canvas = this.canvas;
+        let context = this.context;
+
+        // function animateDriver() {
+        let animateDriver = () => {
+
+            // setup
+            canvas.animationId = requestAnimationFrame(animateDriver)
+            // canvas.clear();
+
+                    // leave no trace
+            context.clearRect(0, 0, this.canvas.width, this.canvas.height)
+            
+                // canvas.clear();
+
+                Object.values(level.players).forEach(p => {
+
+                    Object.values(p.tokens).forEach(t => {
+
+                        t.draw(context)
+
+                    });
+            
+                });
+
+        
+        }
+        
+        animateDriver();
+
     }
 
   
