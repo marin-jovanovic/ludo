@@ -1,13 +1,9 @@
 <template>
   <div>
     <div id="container" class="container">
-      <canvas
-        ref="staticCanvas"
-        id="staticcanvas"
-        width="600"
-        height="600"
-      ></canvas>
-      <canvas ref="reactiveCanvas" id="reactivecanvas" width="600" height="600">
+      <canvas id="staticcanvas" width="600" height="600"></canvas>
+      <canvas id="reactivecanvas" width="600" height="600">
+        <!-- todo test -->
         Your browser does not support the canvas element.
       </canvas>
     </div>
@@ -71,6 +67,10 @@ export default {
 .container {
   position: relative;
 }
+
+/* .staticCanvas {
+  border-style: dotted;
+} */
 
 .container > canvas {
   position: absolute;
