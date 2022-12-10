@@ -82,6 +82,8 @@ export default {
             break;
 
           case "move":
+            console.log("move");
+
             this.$refs.game.movePosition({
               player: pp[value.username],
               token: value.token,
@@ -97,6 +99,8 @@ export default {
             break;
 
           case "eaten":
+            console.log("eat token");
+
             this.$refs.game.restartToken({
               player: pp[value.username],
               token: value.token,
