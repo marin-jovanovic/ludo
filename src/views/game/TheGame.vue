@@ -1,17 +1,18 @@
 <template>
   <div>
-    <!-- <canvas id="canvas"> </canvas>
-
-    <hr />
-    pp -->
-
     <div id="container" class="container">
-      <canvas id="staticcanvas" width="600" height="600"></canvas>
-      <canvas id="reactivecanvas" width="600" height="600"></canvas>
+      <canvas
+        ref="staticCanvas"
+        id="staticcanvas"
+        width="600"
+        height="600"
+      ></canvas>
+      <canvas ref="reactiveCanvas" id="reactivecanvas" width="600" height="600">
+        Your browser does not support the canvas element.
+      </canvas>
     </div>
   </div>
 </template>
-    
     
 <script>
 import { ludo } from "@/views/game/ludo/scripts/index.js";
@@ -24,7 +25,6 @@ export default {
     };
   },
   async mounted() {
-    console.log("mounted");
     this.initGame();
   },
   methods: {
@@ -46,7 +46,6 @@ export default {
       }
 
       this.game = new ludo.Game(
-        // document.querySelector("#canvas"),
         document.querySelector("#staticcanvas"),
         document.querySelector("#reactivecanvas"),
 
