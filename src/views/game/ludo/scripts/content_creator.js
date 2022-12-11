@@ -50,10 +50,10 @@ class ContentCreator {
 
         // }
 
-        console.log(command)
-        console.log(
-            this.subscribers[command]    
-        )
+        // console.log(command)
+        // console.log(
+        //     this.subscribers[command]    
+        // )
 
         this.subscribers[command].forEach((i) => {
             i(args);
