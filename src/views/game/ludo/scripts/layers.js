@@ -1,8 +1,4 @@
-import { Token } from "./token.js";
-
-// import { createImage } from "./ui_image.js";
-
-
+import {  BlToken, UiToken } from "./token.js";
 
 function importAll(r) {
     return r.keys().map(r);
@@ -92,11 +88,7 @@ function remapPosition(i, j, Boundary) {
 //     }
 // }
 
-
 function mapTokens({ map, Boundary, colour}) {
-
-    // console.log(map)
-    // console.log(Boundary)
 
     let mappings = {
         q: 'green',
@@ -105,21 +97,35 @@ function mapTokens({ map, Boundary, colour}) {
         r: 'yellow',
     };
     
-    let tokens = {};
     let c = 0;
+
+    let uiTokens = {};
+    let blTokens = {};
 
     map.forEach((row, i) => {
         row.forEach((symbol, j) => {
 
             if (symbol in mappings && mappings[symbol] === colour) {
 
-                let newToken = new Token({
-                    position: remapPosition(i,j, Boundary),
+                let blToken = new BlToken({state: -1});
+                let uiToken = new UiToken({
                     colour: mappings[symbol],
-                    state: -1,
+                    position: remapPosition(i,j, Boundary),
+                })
+
+                uiTokens[c] = uiToken;
+                blTokens[c] = blToken;
+
+                blToken.subscribe({
+                    command: "restart", 
+                    s: uiToken.restart
                 });
 
-                tokens[c] = newToken;
+                blToken.subscribe({
+                    command: "newDestination", 
+                    s: uiToken.setDestionationPosition
+                });
+
                 c++;
 
             }
@@ -127,9 +133,7 @@ function mapTokens({ map, Boundary, colour}) {
         })
     })
 
-    // console.log(tokens)
-
-    return tokens;
+    return [blTokens, uiTokens];
 
 }
 
