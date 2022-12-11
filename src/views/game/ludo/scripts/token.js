@@ -2,21 +2,16 @@ import { ContentCreator } from "./content_creator.js";
 
 class UiToken extends ContentCreator {
 
-    constructor({ position, colour, state }) {
+    constructor({ position, colour}) {
         super();
 
-        // business logic
+        // x, y
         this.position = position;
-
-        // where is token on the board
-        this.startingState = state
-        this.state = state
-
+        // todo determine (if game mode all_at_same_place then you know) else one by one
+        // what if second is faster then this first one, still undetermined, this must update depending which ends first 
         this.destinationPosition = position;
 
-        // user interface 
         this.radius = 8
-
         this.colour = colour;
         this.startingPosition = { x: position.x, y: position.y };
 
@@ -34,6 +29,94 @@ class UiToken extends ContentCreator {
         // move one by one tile (no diagonal => rather use first x then y ie)
         // prevent diagonals
         this.configOneByOne = true;
+
+    }
+
+    restart = () => {
+        /**
+         * one enemy token eats this token; move it to start position
+         */
+
+        this.setDestionationPosition(
+            { x: this.startingPosition.x, y: this.startingPosition.y }
+        )
+    }
+
+    setDestionationPosition = ({destinationPosition}) => {
+        // console.log(destinationPosition)
+        console.log(this.destinationPosition);
+        this.destinationPosition = destinationPosition;
+        console.log(this.destinationPosition);
+
+        console.log(this.position)
+        // this.position = this.destinationPosition;
+
+    }
+
+    moveByOne = ({ destinationPosition }) => {
+
+        console.log("move by one", destinationPosition)
+
+        this.setDestionationPosition(destinationPosition)
+    }
+
+
+    _moveByOneToDestination = (des) => {
+        let atNextDestination = true;
+
+
+
+        ['x', 'y'].forEach(i => {
+
+            if (this.position !== this.destinationPosition) {
+                console.log(this.position, this.destinationPosition)
+            }
+
+            // console.log(this.position[i] ,des[i],this.position[i] !== des[i])
+            
+            if (this.position[i] !== des[i]) {
+                atNextDestination = false;
+
+                
+                if (this.position[i] > des[i]) {
+                    this.position[i]--;
+                } else if (this.position[i] < des[i]) {
+                    this.position[i]++;
+                }
+            }
+        })
+
+
+        return atNextDestination;
+    }
+
+    draw = (c) => {
+        
+        c.beginPath()
+        c.arc(
+            this.position.x,
+            this.position.y,
+            this.radius,
+            0,
+            Math.PI * 2,
+        );
+
+        this._moveByOneToDestination(this.destinationPosition);
+
+        c.fillStyle = this.colour
+        c.fill()
+        c.closePath()
+    }
+
+}
+
+class BlToken extends ContentCreator {
+
+    constructor({  state }) {
+        super();
+
+        this.startingState = state
+        this.state = state
 
     }
 
@@ -44,131 +127,38 @@ class UiToken extends ContentCreator {
 
         this.state = this.startingState;
 
-        this.setDestionationPosition(
-            { x: this.startingPosition.x, y: this.startingPosition.y }
-        )
+        console.log("notify ui")
+
+        this.notify({
+            command: "restart"
+        });
+
     }
 
-    setDestionationPosition(destinationPosition) {
-        this.destinationPosition = destinationPosition;
-    }
+    move({count}) {
+        this.state += count;
 
-    moveByOne({ destinationPosition }) {
-
-        console.log("move by one", destinationPosition)
-
-        this.setDestionationPosition(destinationPosition)
-
-        // this.backlog.push(destinationPosition);
-    }
-
-    _isBacklogEmpty() {
-        return this.backlog.length === 0;
-    }
-
-    _getDestinationByOne() {
-        if (this._isBacklogEmpty()) {
-            console.log('integrity error');
-            return
-        }
-
-        return this.backlog[0];
-    }
-
-
-
-    _moveByOneToDestination(des) {
-        let atNextDestination = true;
-
-        ['x', 'y'].forEach(i => {
-
-            if (this.position[i] !== des[i]) {
-                atNextDestination = false;
-
-                if (this.position[i] > des[i]) {
-                    this.position[i]--;
-                } else if (this.position[i] < des[i]) {
-                    this.position[i]++;
-                }
-            }
-        })
-
-        return atNextDestination;
-    }
-
-    draw(c) {
-        c.beginPath()
-        c.arc(
-            this.position.x,
-            this.position.y,
-            this.radius,
-            0,
-            Math.PI * 2,
-        );
-
-        this.notify({command: "token stopped"});
-
-
-        let wasAtDestination = this._isBacklogEmpty();
-
-        if (!wasAtDestination) {
-
-            if (this.configOneByOne) {
-                if (this.configSleep && this.startSleeping) {
-                    this._sleep();
-                } else {
-                    
-                    let atNextDestination = this._moveByOneToDestination(
-                        this._getDestinationByOne()
-                    );
-
-                    if (atNextDestination) {
-                        this.backlog.shift();
-
-                        this.startSleeping = true;
-                    }
-
-                }
-            } else {
-                this._moveByOneToDestination(this.destinationPosition);
-            }
-        }
-
-        let isAtDestination = this._isBacklogEmpty();
-
-        if (!wasAtDestination && isAtDestination) {
-            // check if after redraw the token will be at the destination
-            // if the token is at the destination then notify
-            
-            console.log("notify")
-            this.notify({command: "token stopped"});
-        }
-
-        c.fillStyle = this.colour
-        c.fill()
-        c.closePath()
+        
     }
 
 }
+
 
 class Token extends ContentCreator {
 
     constructor({ position, colour, state }) {
         super();
 
-        // business logic
+        // ///////////////////////////////////////////////////////////////
+        // ui part
+
+        // x, y
         this.position = position;
-
-        // where is token on the board
-        this.startingState = state
-        this.state = state
-
+        // todo determine (if game mode all_at_same_place then you know) else one by one
+        // what if second is faster then this first one, still undetermined, this must update depending which ends first 
         this.destinationPosition = position;
 
-
-        // user interface 
         this.radius = 8
-
         this.colour = colour;
         this.startingPosition = { x: position.x, y: position.y };
 
@@ -186,6 +176,16 @@ class Token extends ContentCreator {
         // move one by one tile (no diagonal => rather use first x then y ie)
         // prevent diagonals
         this.configOneByOne = true;
+
+
+
+        // ///////////////////////////////////////////////////////////////////////////////
+// bl part
+
+        // enum
+        this.startingState = state
+        this.state = state
+
 
     }
 
@@ -320,4 +320,4 @@ class Token extends ContentCreator {
 
 }
 
-export { Token, UiToken }
+export { Token, UiToken, BlToken }
