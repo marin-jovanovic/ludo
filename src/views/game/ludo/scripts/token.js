@@ -44,18 +44,14 @@ class UiToken extends ContentCreator {
 
     setDestionationPosition = ({destinationPosition}) => {
         // console.log(destinationPosition)
-        console.log(this.destinationPosition);
         this.destinationPosition = destinationPosition;
-        console.log(this.destinationPosition);
 
-        console.log(this.position)
         // this.position = this.destinationPosition;
 
     }
 
     moveByOne = ({ destinationPosition }) => {
 
-        console.log("move by one", destinationPosition)
 
         this.setDestionationPosition(destinationPosition)
     }
@@ -68,12 +64,8 @@ class UiToken extends ContentCreator {
 
         ['x', 'y'].forEach(i => {
 
-            if (this.position !== this.destinationPosition) {
-                console.log(this.position, this.destinationPosition)
-            }
+         
 
-            // console.log(this.position[i] ,des[i],this.position[i] !== des[i])
-            
             if (this.position[i] !== des[i]) {
                 atNextDestination = false;
 
@@ -110,6 +102,25 @@ class UiToken extends ContentCreator {
 
 }
 
+function getConfig() {
+    let poolTypes = {
+
+        // in starting pool
+        "start": "start",
+
+        // in game
+        "live": "live",
+
+        // reached destination position 
+        "done": "done",
+    }
+
+    return {
+        "pool": poolTypes,
+    }
+}
+
+
 class BlToken extends ContentCreator {
 
     constructor({  state }) {
@@ -118,6 +129,7 @@ class BlToken extends ContentCreator {
         this.startingState = state
         this.state = state
 
+        this.pool = getConfig()["pool"]["start"];
     }
 
     restart() {
@@ -127,7 +139,6 @@ class BlToken extends ContentCreator {
 
         this.state = this.startingState;
 
-        console.log("notify ui")
 
         this.notify({
             command: "restart"
@@ -135,7 +146,7 @@ class BlToken extends ContentCreator {
 
     }
 
-    move({count}) {
+    move = ({count}) => {
         this.state += count;
 
         
@@ -320,4 +331,4 @@ class Token extends ContentCreator {
 
 }
 
-export { Token, UiToken, BlToken }
+export { Token, UiToken, BlToken, getConfig }
