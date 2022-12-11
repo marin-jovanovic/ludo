@@ -1,11 +1,7 @@
-import { 
-    remapPosition,
-
-} from "./layers.js";
+import { remapPosition } from "./ui_comm.js";
 import { BoardTile } from "./ui_board_tile.js";
 import { ContentCreator } from "./content_creator.js";
-
-
+import {getConfig} from "./token.js";
 
 class Level extends ContentCreator {
     constructor({ moves, players, tokens}) {
@@ -58,38 +54,19 @@ class Level extends ContentCreator {
 
         let p = {};
         let c = 0; 
-
-        for (const [playerId, playerMetadata] of Object.entries(players)) {
-
+      
+        for (const playerId of Object.keys(players)) {
 
             p[playerId] = {
-                        username: playerMetadata.username,
-
-                tokens: tokens,
+                ...tokens[playerId],
                 state: moves[c]
-
             }
 
-
-
-
-
-            // p[playerId] = {
-        
-            //     username: playerMetadata.username,
-            //     tokens: mapTokens({
-            //         map: map,
-            //         Boundary: BoardTile,
-            //         colour: playerMetadata.colour,
-            //         // subscriber: this.onChange
-            //     })[0],
-            //     state: moves[c]
-
-            // }
-
-            c += 1;
+              c += 1;
 
         }
+
+
 
         let levelState = {
 
@@ -102,11 +79,7 @@ class Level extends ContentCreator {
             // for each player info
             players: p
         }
-
-
         
-        // console.log(levelState);
-        // console.table(levelState)
 
         return levelState;
 
@@ -114,7 +87,9 @@ class Level extends ContentCreator {
 
     movePosition({ player, token, jumpCount }) {
         /**
-         * can be called by user or automatic (game replay)
+            check are performed in backend? 
+
+        * can be called by user or automatic (game replay)
          * 
          * perform check if can be done
          * 
@@ -124,6 +99,9 @@ class Level extends ContentCreator {
          * 
          * 
          */
+
+
+
 
         let isLegalMove =  this.__movePositionDriver({
             player: player,
@@ -155,69 +133,95 @@ class Level extends ContentCreator {
         this.levelState.players[player].tokens[token].restart();
     }
 
+    getObjectMaxKey(obj) {
+        return Object.keys(obj).reduce((a, b) => obj[a] > obj[b] ? a : b);
+    }
+
     __movePositionDriver({ player, token, jumpCount }) {
+
+        if (!(player in this.levelState.players)) {
+            console.log("err: unknown player", player);
+            return;
+        }
+
+        if (!(token in this.levelState.players[player].tokens)) {
+            console.log("err: unknown token", token);
+            return;
+        }
+
+        // if (jumpCount === 0) {
+        //     console.log("no movement");
+        //     return;
+        // }
 
         // current token 
         let t = this.levelState.players[player].tokens[token];
 
-        // console.log("curr token", t);
+        switch (t.pool) {
+            case getConfig()["pool"]["start"]:
+                t.pool = getConfig()["pool"]["live"];
+                t.state = 0;
+                break;
+            
+            case getConfig()["pool"]["live"]:
 
-        //////////////////////////////////////////////////////
-        // this is pure ui logic for moving one by one position 
+                // check if can move so much 
 
-        // if (this.config.configOneByOne) {
+                console.log(
+                    t.state,
+                    jumpCount,
+                    this.levelState.players[player].state
+                )
 
-        // for (let i = t.state; i < t.state + jumpCount; i++) {
-        
-        //     if (i in this.levelState.players[player].state) {
-        //         let stateBoundaries = this.levelState.players[player].state[i]
+                if (
+                    t.state + jumpCount
+                    in this.levelState.players[player].state
+                ) {
 
-        //         let destinationPosition = remapPosition(
-        //             stateBoundaries.column, 
-        //             stateBoundaries.row, 
-        //             BoardTile
-        //         );
+                    console.log("can jump");
 
-        //         // move token for jumpCount positions
-        //         this.levelState.players[player].tokens[token].moveByOne({ destinationPosition: destinationPosition })
+                                    // bl
+                    t.move({
+                        count: jumpCount, 
+                    });
 
-        //     } else {
-        //         console.log('integrity error: not in state object')
-        //     }
+                } else {
+                    console.log("cant  jump")
+                }
 
-        // }
 
-        // }
+                break;
 
-        //////////////////////////////////////////////////////
+            case getConfig()["pool"]["done"]:
 
-        // bl
-        t.move({
-            count: jumpCount, 
-        });
+                console.log("at destination position")
+
+                break;
+    
+            default:
+                break
+                
+        }
+          
+        if (!(t.state in this.levelState.players[player].state)) {
+            console.log("not there", t.state)
+            return
+        }
 
         let stateBoundaries = this.levelState.players[player].state[t.state]
 
         // x,y where needs to land
         let destinationPosition = remapPosition(
-            stateBoundaries.column, 
             stateBoundaries.row, 
+            stateBoundaries.column, 
             BoardTile
         );
-
-        // console.log("dest", destinationPosition)
-
-        // this.levelState.players[player].tokens[token].setDestionationPosition(destinationPosition)
 
         this.levelState.players[player].tokens[token].notify({
             command: "newDestination",
             destinationPosition: destinationPosition
         })
-        
-        
-        // setDestionationPosition(destinationPosition)
-
-
+                
         return true;
     }
 
