@@ -1,21 +1,29 @@
 import {  CanvasStatic,CanvasReactive } from "./ui_canvas.js";
 import { Level } from "./bl_level.js";
 
+import { mapTokens } from "./layers.js";
+import { BoardTile } from "./ui_board_tile.js";
 
 class UserInterface {
     
     constructor({
         staticCanvasElement, 
         reactiveCanvasElement,
-        map
+        map,
+        playersToTokens
     }) {
+
 
         this.staticCanvas = new CanvasStatic({
             element: staticCanvasElement,
             map: map 
         });
 
-        this.reactiveCanvas = new CanvasReactive(reactiveCanvasElement);
+
+        this.reactiveCanvas = new CanvasReactive({
+            element:reactiveCanvasElement,
+            playersToTokens: playersToTokens,
+        });
 
     }
 
@@ -23,11 +31,12 @@ class UserInterface {
 
 class BusinessLogic {
     
-    constructor(config) {
-        this.currentLevel = new Level(
-            config['map'], 
-            config['moves'], 
-            config['players']
+    constructor({config, tokens}) {
+        this.currentLevel = new Level({
+           moves: config['moves'], 
+            players:            config['players'],
+            tokens: tokens,
+        }
         );
     }
 
@@ -36,13 +45,41 @@ class BusinessLogic {
 class Game {
     constructor(staticCanvasElement, reactiveCanvasElement, config) {
 
+        let uiPart = {};
+        let blPart = {};
+
+        for (const [playerId, playerMetadata] of Object.entries(config['players'])) {
+
+            let r = mapTokens({
+                map: config['map'],
+                Boundary: BoardTile,
+                colour: playerMetadata.colour,
+                // subscriber: this.onChange
+            });
+
+            blPart[playerId] = {
+                username: playerMetadata.username,
+                tokens: r[0]
+            }
+
+            uiPart[playerId] = {
+                username: playerMetadata.username,
+                tokens: r[1]
+            }
+
+        }
+
+        // console.table(uiPart)
+        // console.table(blPart)
+
         this.ui = new UserInterface({
             staticCanvasElement: staticCanvasElement, 
             reactiveCanvasElement: reactiveCanvasElement,
-            map: config['map']
+            map: config['map'],
+            playersToTokens: uiPart,
         });
 
-        this.bl = new BusinessLogic(config);
+        this.bl = new BusinessLogic({config:config, tokens: blPart});
 
         this.bl.currentLevel.subscribe({
             command: "drawBoard", 
@@ -54,10 +91,10 @@ class Game {
             s: this.ui.reactiveCanvas.animate
         });
 
-        this.bl.currentLevel.subscribe({
-            command: "tokenMoved", 
-            s: this.ui.reactiveCanvas.moveToken
-        });
+        // this.bl.currentLevel.subscribe({
+        //     command: "tokenMoved", 
+        //     s: this.ui.reactiveCanvas.moveToken
+        // });
 
         this.bl.currentLevel.start();
 
