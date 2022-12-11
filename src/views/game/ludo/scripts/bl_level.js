@@ -1,5 +1,4 @@
 import { 
-    mapTokens,
     remapPosition,
 
 } from "./layers.js";
@@ -7,8 +6,9 @@ import { BoardTile } from "./ui_board_tile.js";
 import { ContentCreator } from "./content_creator.js";
 
 
+
 class Level extends ContentCreator {
-    constructor(map, moves, players) {
+    constructor({ moves, players, tokens}) {
         super();
 
         this.config = {
@@ -28,7 +28,7 @@ class Level extends ContentCreator {
         //3 sta kad se preklope useri, (two users at same tile)
         
         // DTO - data transfer object
-        this.levelState = this.fetchLevelState(players, map, moves);
+        this.levelState = this.fetchLevelState({players: players, moves: moves, tokens: tokens});
     
     }
 
@@ -48,8 +48,8 @@ class Level extends ContentCreator {
 
     }
 
-    // rewrite
-    fetchLevelState(players, map, moves) {
+    // todo rewrite
+    fetchLevelState({players,  moves, tokens}) {
         /**
          * return board state
          * 
@@ -63,17 +63,29 @@ class Level extends ContentCreator {
 
 
             p[playerId] = {
-        
-                username: playerMetadata.username,
-                tokens: mapTokens({
-                    map: map,
-                    Boundary: BoardTile,
-                    colour: playerMetadata.colour,
-                    // subscriber: this.onChange
-                }),
+                        username: playerMetadata.username,
+
+                tokens: tokens,
                 state: moves[c]
 
             }
+
+
+
+
+
+            // p[playerId] = {
+        
+            //     username: playerMetadata.username,
+            //     tokens: mapTokens({
+            //         map: map,
+            //         Boundary: BoardTile,
+            //         colour: playerMetadata.colour,
+            //         // subscriber: this.onChange
+            //     })[0],
+            //     state: moves[c]
+
+            // }
 
             c += 1;
 
@@ -91,12 +103,14 @@ class Level extends ContentCreator {
             players: p
         }
 
+
+        
+        // console.log(levelState);
+        // console.table(levelState)
+
         return levelState;
 
     }
-
-
-
 
     movePosition({ player, token, jumpCount }) {
         /**
@@ -111,7 +125,6 @@ class Level extends ContentCreator {
          * 
          */
 
-
         let isLegalMove =  this.__movePositionDriver({
             player: player,
             token: token,
@@ -120,125 +133,93 @@ class Level extends ContentCreator {
 
         if (isLegalMove) {
 
-            // notify
 
-            this.notify({
-                command: "tokenMoved", 
-                player: player,
-                token: token,
-                jumpCount: jumpCount,
+            // move token on bl
+            
+            // notify to move token on ui
+
+            console.log("todo notify")
+            // this.notify({
+            //     command: "tokenMoved", 
+            //     player: player,
+            //     token: token,
+            //     jumpCount: jumpCount,
                     
-                // level: this, 
-            });
+            //     // level: this, 
+            // });
         }
-
-        // if (this.useBacklog) {
-        //     if (this.backlog.length === 0) {
-        //       this.__movePositionDriver({
-        //         player: player,
-        //         token: token,
-        //         jumpCount: jumpCount,
-        //       });
-        //     }
-    
-        //     this.backlog.push([player, token, jumpCount]);
-        
-        // } else {
-        //     this.__movePositionDriver({
-        //       player: player,
-        //       token: token,
-        //       jumpCount: jumpCount,
-        //     });
-        // }
-    
+   
     }
 
     restartToken({ player, token }) {
-        this.moveTokenToStart({ player: player, token: token });
-    }
-
-    onChange() {
-
-        console.log("on change")
-
-        this.backlog.shift();
-  
-        if (this.backlog.length === 0) {
-          return;
-        }
-  
-        let first = this.backlog[0];
-  
-        // todo fix, add param for action, or multiple queues
-        if (first.length === 2) {
-          this.moveTokenToStart({ player: first[0], token: first[1] });
-        } else {
-          this.movePosition({
-            player: first[0],
-            token: first[1],
-            jumpCount: first[2],
-          });
-        }
+        this.levelState.players[player].tokens[token].restart();
     }
 
     __movePositionDriver({ player, token, jumpCount }) {
+
+        // current token 
         let t = this.levelState.players[player].tokens[token];
+
+        // console.log("curr token", t);
+
+        //////////////////////////////////////////////////////
+        // this is pure ui logic for moving one by one position 
 
         // if (this.config.configOneByOne) {
 
-        for (let i = t.state; i < t.state + jumpCount; i++) {
+        // for (let i = t.state; i < t.state + jumpCount; i++) {
         
-            if (i in this.levelState.players[player].state) {
-                let stateBoundaries = this.levelState.players[player].state[i]
+        //     if (i in this.levelState.players[player].state) {
+        //         let stateBoundaries = this.levelState.players[player].state[i]
 
-                let destinationPosition = remapPosition(
-                    stateBoundaries.column, 
-                    stateBoundaries.row, 
-                    BoardTile
-                );
+        //         let destinationPosition = remapPosition(
+        //             stateBoundaries.column, 
+        //             stateBoundaries.row, 
+        //             BoardTile
+        //         );
 
-                this.levelState.players[player].tokens[token].moveByOne({ destinationPosition: destinationPosition })
+        //         // move token for jumpCount positions
+        //         this.levelState.players[player].tokens[token].moveByOne({ destinationPosition: destinationPosition })
 
-            } else {
-                console.log('integrity error: not in state object')
-            }
-
-        }
+        //     } else {
+        //         console.log('integrity error: not in state object')
+        //     }
 
         // }
 
-        t.state += jumpCount
+        // }
+
+        //////////////////////////////////////////////////////
+
+        // bl
+        t.move({
+            count: jumpCount, 
+        });
 
         let stateBoundaries = this.levelState.players[player].state[t.state]
 
+        // x,y where needs to land
         let destinationPosition = remapPosition(
             stateBoundaries.column, 
             stateBoundaries.row, 
             BoardTile
         );
 
-        this.levelState.players[player].tokens[token].setDestionationPosition(destinationPosition)
+        // console.log("dest", destinationPosition)
+
+        // this.levelState.players[player].tokens[token].setDestionationPosition(destinationPosition)
+
+        this.levelState.players[player].tokens[token].notify({
+            command: "newDestination",
+            destinationPosition: destinationPosition
+        })
+        
+        
+        // setDestionationPosition(destinationPosition)
 
 
-        return  true;
+        return true;
     }
-
-    moveTokenToStart({ player, token }) {
-        this.levelState.players[player].tokens[token].restart();
-
-        // if (this.useBacklog) {
-        //     if (this.backlog.length === 0) {
-        //       this.__restartToken({ player: player, token: token });
-        //     }
-    
-        //     this.backlog.push([player, token]);
-        // } else {
-        //     this.__restartToken({ player: player, token: token });
-        // }
-
-    }
-
-
 
 }
 
