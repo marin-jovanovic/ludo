@@ -83,3 +83,35 @@ moveTokenToStart({ player, token }) {
     // }
 
 }
+
+
+        // console.log("curr token", t);
+
+        //////////////////////////////////////////////////////
+        // this is pure ui logic for moving one by one position 
+
+        // if (this.config.configOneByOne) {
+
+        // for (let i = t.state; i < t.state + jumpCount; i++) {
+        
+        //     if (i in this.levelState.players[player].state) {
+        //         let stateBoundaries = this.levelState.players[player].state[i]
+
+        //         let destinationPosition = remapPosition(
+        //             stateBoundaries.column, 
+        //             stateBoundaries.row, 
+        //             BoardTile
+        //         );
+
+        //         // move token for jumpCount positions
+        //         this.levelState.players[player].tokens[token].moveByOne({ destinationPosition: destinationPosition })
+
+        //     } else {
+        //         console.log('integrity error: not in state object')
+        //     }
+
+        // }
+
+        // }
+
+        //////////////////////////////////////////////////////
