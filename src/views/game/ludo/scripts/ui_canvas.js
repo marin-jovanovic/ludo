@@ -3,7 +3,7 @@ import {getBoardTiles} from './layers.js'
 
 class Canvas {
     
-    constructor(element) {
+    constructor({element}) {
         this.canvas = element;
 
         // this.canvas.width = 600;
@@ -27,8 +27,9 @@ class Canvas {
 
 class CanvasStatic extends Canvas {
     constructor({element, map}) {
-        super(element);
-    
+        super({element: element});
+
+        
         this.boardTiles = getBoardTiles({ 
             map: map, 
             Boundary: BoardTile 
@@ -47,111 +48,63 @@ class CanvasStatic extends Canvas {
 
 class CanvasReactive extends Canvas {
 
-    constructor(element) {
-        super(element);
+    constructor({element, playersToTokens}) {
+        super({element: element});
+
+
+        this.playersToTokens = playersToTokens;
 
         // init token state
 
         // tokens scheduled for change
 
         // wait for one token to reach destination (stops moving) before other token can be moved on board
-        this.backlog = [];
-        this.useBacklog = false;
+        // this.backlog = [];
+        // this.useBacklog = false;
 
     }
 
 
-    moveToken = (notifArgs) => {
-        /**
-         * check if can move this token 
-         * 
-         * => 
-         * if config.move one by one
-         * then 
-         * wait for other tokens to stop moving
-         * 
-         * else
-         * move token
-         * 
-         * 
-         */
+    // moveToken = (notifArgs) => {
+    //     /**
+    //      * check if can move this token 
+    //      * 
+    //      * => 
+    //      * if config.move one by one
+    //      * then 
+    //      * wait for other tokens to stop moving
+    //      * 
+    //      * else
+    //      * move token
+    //      * 
+    //      * 
+    //      */
 
+    //     console.log(notifArgs)
 
-        console.log(notifArgs)
-
-        // this.__movePositionDriver({
-        // player: notifArgs.player,
-        // token: notifArgs.token,
-        // jumpCount: notifArgs.jumpCount,
-        // });
-
-        // if (this.useBacklog) {
-        //     if (this.backlog.length === 0) {
-        //       this.__movePositionDriver({
-        //         player: player,
-        //         token: token,
-        //         jumpCount: jumpCount,
-        //       });
-        //     }
-    
-        //     this.backlog.push([player, token, jumpCount]);
-        
-        // } else {
-        //     this.__movePositionDriver({
-        //       player: player,
-        //       token: token,
-        //       jumpCount: jumpCount,
-        //     });
-        // }
-
-    }
+    // }
 
     animate = (notifArgs) => {
 
         let level = notifArgs.level.levelState;
+        console.log(level);
+        // console.log(this.playersToTokens);
 
-        // let animateDriver = () => {
-
-        //     this.clear();
-
-        //     Object.values(level.players).forEach(p => {
-
-        //         Object.values(p.tokens).forEach(t => {
-
-        //             t.draw(this.context)
-
-        //         });
-        
-        //     });
-
-        // }
-
-        // animateDriver();
-
-        let canvas = this.canvas;
-        let context = this.context;
-
-        // function animateDriver() {
         let animateDriver = () => {
 
-            // setup
-            canvas.animationId = requestAnimationFrame(animateDriver)
-            // canvas.clear();
+            this.canvas.animationId = requestAnimationFrame(animateDriver)
 
-                    // leave no trace
-            context.clearRect(0, 0, this.canvas.width, this.canvas.height)
+            this.clear()
             
-                // canvas.clear();
+            Object.values(this.playersToTokens).forEach(p => {
 
-                Object.values(level.players).forEach(p => {
+                Object.values(p.tokens).forEach(t => {
 
-                    Object.values(p.tokens).forEach(t => {
+                    t.draw(this.context)
 
-                        t.draw(context)
-
-                    });
-            
                 });
+        
+            });
 
         
         }
