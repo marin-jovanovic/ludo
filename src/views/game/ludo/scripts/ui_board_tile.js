@@ -10,11 +10,11 @@ class BoardTile {
 
     draw(canvas) {
 
-        let image = this.image;
-        let position = this.position;
+        // let image = this.image;
+        // let position = this.position;
 
         this.image.onload = () => {
-            canvas.drawImage(image, position.x, position.y);
+            canvas.drawImage(this.image, this.position.x, this.position.y);
         }
 
     }
