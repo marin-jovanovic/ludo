@@ -1,10 +1,14 @@
 import {  BlToken, UiToken } from "./token.js";
+import { remapPosition, remapTile } from "./ui_comm.js";
 
 function importAll(r) {
     return r.keys().map(r);
 }
 
 function getBoardTiles({ map, Boundary }) {
+    /**
+     * construct static content from api payload
+     */
 
     const mapping = {
         "-": "pipeHorizontal.png",
@@ -49,13 +53,14 @@ function getBoardTiles({ map, Boundary }) {
                 let image = new Image();
                 image.src = enumToImagePath[mapping[symbol].split(".")[0]];
      
-
                 boardTiles.push(
                     new Boundary({
-                        position: {
-                            x: Boundary.width * j,
-                            y: Boundary.height * i
-                        },
+                        position: remapTile({
+                            x: j,
+                            y: i,
+                            Boundary: Boundary
+                        }),
+                     
                         image: image
                 
                     })
@@ -71,14 +76,6 @@ function getBoardTiles({ map, Boundary }) {
 
 
 
-function remapPosition(i, j, Boundary) {
-    return  {
-        x: j * Boundary.width + Boundary.width / 2,
-        y: i * Boundary.height + Boundary.height / 2
-    }
-
-}
-
 // function getDictionary({}) {
 //     return {
 //         "a": {"type": "token", "id": "1"},
@@ -88,7 +85,12 @@ function remapPosition(i, j, Boundary) {
 //     }
 // }
 
+
 function mapTokens({ map, Boundary, colour}) {
+    /**
+     * create dyn content from api payload
+     */
+
 
     let mappings = {
         q: 'green',
@@ -142,6 +144,5 @@ function mapTokens({ map, Boundary, colour}) {
 
 export { 
     getBoardTiles, 
-    mapTokens,
-    remapPosition
+    mapTokens
 }
