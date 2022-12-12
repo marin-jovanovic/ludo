@@ -54,7 +54,6 @@ class Game {
                 map: config['map'],
                 Boundary: BoardTile,
                 colour: playerMetadata.colour,
-                // subscriber: this.onChange
             });
 
             blPart[playerId] = {
@@ -68,9 +67,6 @@ class Game {
             }
 
         }
-
-        // console.table(uiPart)
-        // console.table(blPart)
 
         this.ui = new UserInterface({
             staticCanvasElement: staticCanvasElement, 
@@ -91,16 +87,11 @@ class Game {
             s: this.ui.reactiveCanvas.animate
         });
 
-        // this.bl.currentLevel.subscribe({
-        //     command: "tokenMoved", 
-        //     s: this.ui.reactiveCanvas.moveToken
-        // });
-
         this.bl.currentLevel.start();
 
     }
 
-    movePosition({ player, token, jumpCount }) {
+    movePosition({ playerId, tokenId, jumpCount }) {
         /**
          * @player wants to move @token for @jumpCount positions
          * 
@@ -111,11 +102,15 @@ class Game {
          */
 
 
-        this.bl.currentLevel.movePosition({player: player, token: token, jumpCount: jumpCount})
+        this.bl.currentLevel.movePosition({
+            playerId: playerId, 
+            tokenId: tokenId, 
+            jumpCount: jumpCount
+        });
         
     }
 
-    restartToken({ player, token }) {
+    restartToken({ playerId, tokenId }) {
         /**
          * @player wants to move @token to starting position
          * this is not something that user can do
@@ -125,7 +120,10 @@ class Game {
          */
 
 
-        this.bl.currentLevel.restartToken({ player:player, token:token }) 
+        this.bl.currentLevel.restartToken({ 
+            playerId:playerId, 
+            tokenId:tokenId
+        }); 
 
     }
 
