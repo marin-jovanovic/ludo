@@ -14,19 +14,9 @@ class SettingsView(APIView):
 
         response = get_auth_ok_response_template(request)
 
-        # s = get_settings(username=request.username)
-
         response["payload"] = {
             "status": True,
             "username": request.username
         }
-        return JsonResponse(response)
 
-    # def post(self, request):
-    #     print(request.data)
-    #
-    #     # update_settings(request.username, request.data)
-    #
-    #     response = get_auth_ok_response_template(request)
-    #     response["payload"]["status"] = True
-    #     return JsonResponse(response)
+        return JsonResponse(response)
