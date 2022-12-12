@@ -40,8 +40,6 @@ export default {
   },
   methods: {
     async move() {
-      console.log(this.userid, this.tokenid, this.jump);
-
       this.movePosition({
         player: this.userid,
         token: this.tokenid,
@@ -77,13 +75,13 @@ export default {
 
     movePosition({ player, token, jumpCount }) {
       this.game.movePosition({
-        player: player,
-        token: token,
+        playerId: player,
+        tokenId: token,
         jumpCount: jumpCount,
       });
     },
     restartToken({ player, token }) {
-      this.game.restartToken({ player: player, token: token });
+      this.game.restartToken({ playerId: player, tokenId: token });
     },
   },
 };
