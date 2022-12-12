@@ -53,9 +53,6 @@ class LobbyView(APIView):
         # join / leave game
         username = request.username
 
-        # unquoted_body = urllib.parse.unquote(request.body)
-        # body = urllib.parse.parse_qs(unquoted_body)
-
         response = get_auth_ok_response_template(request)
 
         if "leave" in request.data:
