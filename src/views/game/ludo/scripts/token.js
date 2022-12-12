@@ -37,22 +37,19 @@ class UiToken extends ContentCreator {
          * one enemy token eats this token; move it to start position
          */
 
-        this.setDestionationPosition(
-            { x: this.startingPosition.x, y: this.startingPosition.y }
-        )
+        console.log("restart ui")
+
+        this.setDestionationPosition({ 
+            destinationPosition: this.startingPosition 
+        })
+ 
     }
 
     setDestionationPosition = ({destinationPosition}) => {
-        // console.log(destinationPosition)
         this.destinationPosition = destinationPosition;
-
-        // this.position = this.destinationPosition;
-
     }
 
     moveByOne = ({ destinationPosition }) => {
-
-
         this.setDestionationPosition(destinationPosition)
     }
 
@@ -126,18 +123,36 @@ class BlToken extends ContentCreator {
     constructor({  state }) {
         super();
 
-        this.startingState = state
-        this.state = state
+        // relative numbers
+        this.startingState = state;
+        this.state = state;
+
+        // absolute
+        this.absoluteState = state;
+
 
         this.pool = getConfig()["pool"]["start"];
+    }
+
+    getObjectMaxKey(obj) {
+        return Number(Object.keys(obj).reduce((a, b) => obj[a] > obj[b] ? a : b));
+    }
+
+    isAtDestination(states) {
+        return this.state === this.getObjectMaxKey(states);
     }
 
     restart() {
         /**
          * one enemy token eats this token; move it to start position
          */
+        
+        console.log("restart")
+
+        console.log(this.startingState);
 
         this.state = this.startingState;
+        this.absoluteState = this.state;
 
 
         this.notify({
@@ -148,9 +163,16 @@ class BlToken extends ContentCreator {
 
     move = ({count}) => {
         this.state += count;
-
+        this.absoluteState += count;
         
+        // console.log(this.state, this.absoluteState)
     }
+
+    // moveDriver = ({player, token, jumpCount}) => {
+
+
+
+    // }
 
 }
 
