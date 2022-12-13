@@ -5,6 +5,7 @@ import LoginPage from '../views/login/LoginPage';
 import SignupView from '@/views/signup/SingupView.vue';
 import GamePage from '@/views/game/GamePage.vue';
 import GameReplayPage from "@/views/gameReplay/GameReplayPage.vue";
+import GameCreatePage from "@/views/gameCreate/GameCreatePage.vue";
 
 import LogoutPage from '../views/logout/LogoutPage';
 import SetttingsView from '../views/settings/SettingsView.vue';
@@ -15,6 +16,11 @@ import TheGame from '../views/game/TheGame.vue';
 export const router = createRouter({
   history: createWebHistory(),
   routes: [
+    {
+      path: '/',
+      name: "index",
+      component: IndexPage
+    },
     {
       path: '/settings',
       name: 'settings',
@@ -45,14 +51,14 @@ export const router = createRouter({
       component: LogoutPage
     },
     {
-      path: '/',
-      name: "index",
-      component: IndexPage
-    },
-    {
       path: "/test",
       name: "test",
       component: TheGame
+    },
+    {
+      path: "/gameCreate",
+      name: "gameCreate",
+      component: GameCreatePage
     }
   ]
 });
