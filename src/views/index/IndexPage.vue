@@ -70,7 +70,7 @@ import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
 import BaseMessage from "@/components/BaseMessage.vue";
 import { apiLobby } from "@/scripts/api/lobby";
 import { wsListeners } from "@/scripts/ws_listener";
-import { router } from "@/router/router";
+// import { router } from "@/router/router";
 
 export default {
   setup() {
@@ -159,7 +159,7 @@ export default {
         if (inGame in this.full) {
           sessionStorage.setItem("gameId", inGame);
 
-          router.push(`game/${inGame}`);
+          // router.push(`game/${inGame}`);
         }
       } else {
         console.log("err fetching data");
