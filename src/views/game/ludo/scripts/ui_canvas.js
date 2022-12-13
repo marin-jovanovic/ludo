@@ -54,7 +54,6 @@ class CanvasReactive extends Canvas {
 
         this.playersToTokens = playersToTokens;
 
-// todo api call
         this.config = {
             // move token one by one
             // when one token stops moving another can start
@@ -65,17 +64,12 @@ class CanvasReactive extends Canvas {
 
 
         // wait for one token to reach destination (stops moving) before other token can be moved on board
+        // tokens scheduled for change
+
         this.backlog = [];
 
         
-        // init token state
-
-        // tokens scheduled for change
-
-        // wait for one token to reach destination (stops moving) before other token can be moved on board
-        // this.backlog = [];
-        // this.useBacklog = false;
-
+    
     }
 
 
@@ -94,7 +88,6 @@ class CanvasReactive extends Canvas {
     //      * 
     //      */
 
-    //     console.log(notifArgs)
 
     // }
 
