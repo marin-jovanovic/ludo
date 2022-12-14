@@ -1,4 +1,5 @@
-import {  BlToken, UiToken } from "./token.js";
+import {  BlToken } from "./bl_token.js";
+import {  UiToken } from "./ui_token.js";
 import { remapPosition, remapTile } from "./ui_comm.js";
 
 function importAll(r) {
