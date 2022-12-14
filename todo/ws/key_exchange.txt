@@ -1,0 +1,7 @@
+p,q - large natural prime numbers
+N = pq
+f(n) = (p-1)(q-1)
+e - small number, odd, does not share factor with f(n)
+d => ed mod f(n) = 1
+enc e(x) = x to the e mod N
+dec d(x) = x to the d mod N
