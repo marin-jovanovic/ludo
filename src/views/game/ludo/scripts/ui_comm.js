@@ -1,4 +1,4 @@
-function remapPosition(i, j, Boundary) {
+function remapPosition({i, j, Boundary}) {
     /**
      * for elements that are placed on tiles (ie. tokens)
      */
