@@ -101,4 +101,19 @@ export default {
   top: 0;
   left: 0;
 }
+
+/* body {
+    margin: 0;
+    background-color: black;
+    padding: 10px 20px;
+
+}
+
+p {
+    color: white;
+    font-family: sans-serif;
+    font-size: 14px;
+    margin-bottom: 6px;
+}
+ */
 </style>
