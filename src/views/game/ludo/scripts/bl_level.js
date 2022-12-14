@@ -295,7 +295,7 @@ class Level extends ContentCreator {
 
         token.pool = getConfig()["pool"]["live"];
         token.state = 0;
-        token.absoluteState = 12 * playerId;
+        token.absoluteState = 13 * playerId;
 
     }
 
