@@ -1,7 +1,7 @@
 import { remapPosition } from "./ui_comm.js";
 import { BoardTile } from "./ui_board_tile.js";
 import { ContentCreator } from "./content_creator.js";
-import {getConfig} from "./token.js";
+import {getConfig} from "./bl_token.js";
 
 class Level extends ContentCreator {
     constructor({ moves, players, tokens}) {
@@ -28,7 +28,6 @@ class Level extends ContentCreator {
 
         this.notify({
             command: "animateTokens", 
-            level: this, 
         });
 
     }
@@ -69,6 +68,7 @@ class Level extends ContentCreator {
             players: p
         }
         
+        console.log(p);
 
         return levelState;
 
@@ -191,11 +191,9 @@ class Level extends ContentCreator {
 
     checkEating = ({playerId, tokenId}) => {
 
-        console.log();
         // absolute view
         
         let occupiedSpaces = {};
-        console.log(playerId, tokenId, occupiedSpaces)
 
         let token = this.levelState.players[playerId].tokens[tokenId];
         
@@ -229,10 +227,7 @@ class Level extends ContentCreator {
     
         // });
 
-        console.log("tokens at this place", occupiedSpaces)
-
-
-        console.log("player id", playerId)
+  
 
         /*
             case 1:
@@ -261,17 +256,15 @@ class Level extends ContentCreator {
                         remove this token
         */
 
-        if (occupiedSpaces.length === 1) {
-            console.log("only my tokens are here")
-        } else {
+        if (occupiedSpaces.length !== 1) {
+        //     console.log("only my tokens are here")
+        // } else {
             for (const [owner, tokens] of Object.entries(occupiedSpaces)) {
-                console.log(owner, playerId, typeof(owner), typeof(playerId));
 
-                console.log(Number(owner), Number(owner) !== playerId)
 
                 if (Number(owner) !== playerId) {
                     if (tokens.length === 1) {
-                        console.log("1 enemy token, perform eating");
+                        // console.log("1 enemy token, perform eating");
 
                         tokens.forEach(t => {
                             t.restart();
@@ -279,7 +272,7 @@ class Level extends ContentCreator {
 
 
                     } else if (tokens.length >= 1) {
-                        console.log("enemy tokens forming a block, this token goes to start position")
+                        // console.log("enemy tokens forming a block, this token goes to start position")
 
                         token.restart();
                     }
@@ -320,6 +313,11 @@ class Level extends ContentCreator {
         // }
 
         let token = this.levelState.players[playerId].tokens[tokenId];
+        let pastState = token.state;
+        // todo reformat to xy absolute
+        // find all xy pair where it needs to go before reaching destination xy
+
+        // fire event with all xy pairs to ui
 
         switch (token.pool) {
             case getConfig()["pool"]["start"]:
@@ -389,6 +387,19 @@ class Level extends ContentCreator {
             playerId: playerId,
             tokenId: tokenId
         });
+
+// note: this code is not targeting restart token function, and that is ok
+
+        let destinationState = token.state;
+        // console.log("started", pastState, "now", destinationState);
+
+        let changeLog = [];
+        for (let i = pastState + 1; i < destinationState + 1; i++) {
+            changeLog.push(i);
+        }
+
+        console.log(changeLog);
+
 
 
         return true;
