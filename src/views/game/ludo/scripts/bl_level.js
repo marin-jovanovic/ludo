@@ -14,6 +14,8 @@ class Level extends ContentCreator {
             moves: moves, 
             tokens: tokens
         });
+
+        this.changleLog = [];
     
     }
 
@@ -112,15 +114,37 @@ class Level extends ContentCreator {
             let stateBoundaries = this.levelState.players[playerId].state[token.state];
 
             // x,y where needs to land
-            let destinationPosition = remapPosition(
-                stateBoundaries.row, 
-                stateBoundaries.column, 
-                BoardTile
-            );
+            let destinationPosition = remapPosition({
+                i:stateBoundaries.row, 
+                j:stateBoundaries.column, 
+                Boundary:BoardTile
+        });
+
+            //                 state: moves[c]
+
+            let moves = this.levelState.players[playerId].state;
+
+            console.table(moves);
     
+            let last = this.changleLog.shift();
+
+            let movesLog = []
+
+            last.forEach(i => {
+                console.log(i, moves[i])
+
+                movesLog.push(moves[i])
+
+                
+
+            });
+
+            console.log(movesLog)
+
             token.notify({
                 command: "newDestination",
-                destinationPosition: destinationPosition
+                destinationPosition: destinationPosition,
+                diff: movesLog
             })
 
             // move token on bl
@@ -398,9 +422,15 @@ class Level extends ContentCreator {
             changeLog.push(i);
         }
 
-        console.log(changeLog);
+        // console.log(changeLog);
 
+        this.changleLog.push(changeLog);
 
+        // this.changleLog.push({
+        //     "playerId": playerId, 
+        //     "tokenId": tokenId, 
+        //     "changeLog": changeLog
+        // });
 
         return true;
     }
