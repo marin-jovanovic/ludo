@@ -91,11 +91,7 @@ class CanvasReactive extends Canvas {
 
     // }
 
-    animate = (notifArgs) => {
-
-        let level = notifArgs.level.levelState;
-        console.log(level);
-        // console.log(this.playersToTokens);
+    animate = () => {
 
         let animateDriver = () => {
 
