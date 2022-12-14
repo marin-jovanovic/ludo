@@ -52,6 +52,4 @@ export const apiGame = {
     getGame,
     updateGame,
     actionPerformed,
-
-
 }
