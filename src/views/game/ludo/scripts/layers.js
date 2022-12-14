@@ -113,7 +113,7 @@ function mapTokens({ map, Boundary, colour}) {
                 let blToken = new BlToken({state: -1});
                 let uiToken = new UiToken({
                     colour: mappings[symbol],
-                    position: remapPosition(i,j, Boundary),
+                    position: remapPosition({i:i,j:j, Boundary:Boundary}),
                 })
 
                 uiTokens[c] = uiToken;
