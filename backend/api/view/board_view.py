@@ -9,7 +9,6 @@ from backend.api.view.comm import get_auth_ok_response_template
 class BoardView(APIView):
 
     def get(self, request, name, resource):
-        # get basic game info
 
         print("get board,", name, resource)
         response = get_auth_ok_response_template(request)
