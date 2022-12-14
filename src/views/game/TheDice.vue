@@ -1,8 +1,6 @@
 <template>
   <div @click="rollDice(5)" id="dice"></div>
-   rolled : {{ this.value }}
-
-
+  rolled : {{ this.value }}
 </template>
   
   
@@ -18,17 +16,16 @@ export default {
   },
   mounted() {
     this.diceElement = new dice.Dice({
-      diceElement: document.querySelector('#dice')
-    }); 
+      diceElement: document.querySelector("#dice"),
+    });
   },
   methods: {
     rollDice(value) {
-
-      console.log("roll", value)
+      // console.log("roll", value)
 
       this.value = value;
-      
-      this.diceElement.rollDice({result: value});
+
+      this.diceElement.rollDice({ result: value });
     },
   },
 };
