@@ -269,7 +269,6 @@ class Dice {
         this.diceElement = diceElement;
 
         // this.diceElement.addEventListener("click", ()=>{
-        //     console.log("clicked")
 
         //     this.rollDice({result: 5})
         // })
@@ -493,11 +492,9 @@ class Dice {
 
     rollDice = ({result}) => {
 
-        console.log("roll", result)
 
         let getTransformation = (number) => {
 
-            console.log("number", number)
 
             let style = '';
     
@@ -533,20 +530,13 @@ class Dice {
             this.currX += x
             this.currY += y
     
-            console.log(style)
-
             return style
         }
 
-        console.log(this.diceElement);
-        console.log(this.diceElement.style)
-
-    
+       
         this.diceElement.style.transform = getTransformation(result);
     
-        console.log(this.diceElement);
-        console.log(this.diceElement.style)
-        
+       
     }
     
 }
