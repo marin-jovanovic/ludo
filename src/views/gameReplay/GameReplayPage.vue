@@ -1,6 +1,12 @@
 <template>
   <BaseUserTemplate>
-    <TheTest></TheTest>
+    <div>
+      <button @click="test">test: generate random game</button>
+
+      <button @click="gostpnti">
+        generate only start till player needs to interact
+      </button>
+    </div>
 
     <input
       @change="sliderUpdate"
@@ -31,7 +37,6 @@
 <script>
 import TheGame from "./../game/TheGame.vue";
 import TheDice from "./../game/TheDice.vue";
-import TheTest from "./TheTest.vue";
 
 import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
 
@@ -82,7 +87,7 @@ export default {
             break;
 
           case "move":
-            console.log("move");
+            // console.log("move");
 
             this.$refs.game.movePosition({
               player: pp[value.username],
@@ -99,7 +104,7 @@ export default {
             break;
 
           case "eaten":
-            console.log("eat token");
+            // console.log("eat token");
 
             this.$refs.game.restartToken({
               player: pp[value.username],
@@ -122,8 +127,28 @@ export default {
     sliderUpdate() {
       console.log("slider", this.slider);
     },
+
+    async performAction(action) {
+      let res = await apiGame.actionPerformed(
+        this.gameId,
+        this.username,
+        action
+      );
+
+      if (!(res["auth"]["status"] && res["payload"]["status"])) {
+        console.log("game leave err");
+      }
+    },
+
+    async gostpnti() {
+      this.performAction("generatestart");
+    },
+
+    async test() {
+      this.performAction("test");
+    },
   },
-  components: { TheDice, BaseUserTemplate, TheGame, TheTest },
+  components: { TheDice, BaseUserTemplate, TheGame },
 };
 </script> 
   
