@@ -33,11 +33,10 @@ class BusinessLogic {
     
     constructor({config, tokens}) {
         this.currentLevel = new Level({
-           moves: config['moves'], 
-            players:            config['players'],
+            moves: config['moves'], 
+            players: config['players'],
             tokens: tokens,
-        }
-        );
+        });
     }
 
 }
@@ -86,6 +85,18 @@ class Game {
             command: "animateTokens", 
             s: this.ui.reactiveCanvas.animate
         });
+
+        for (const playerComposite of Object.values(this.ui.reactiveCanvas.playersToTokens)) {
+
+            for (const t of Object.values(playerComposite.tokens)) {
+                t.subscribe({
+                    command: "UiUpdated",
+                    s: this.bl.currentLevel.updated
+                });
+            }
+
+        }
+  
 
         this.bl.currentLevel.start();
 
