@@ -34,7 +34,7 @@ class UiToken extends ContentCreator {
         // todo determine (if game mode all_at_same_place then you know) else one by one
         // what if second is faster then this first one, still undetermined, this must update depending which ends first 
         
-        this.destinationPosition = position;
+        // this.destinationPosition = position;
 
         this.radius = 8
         this.colour = colour;
@@ -97,29 +97,22 @@ class UiToken extends ContentCreator {
          * one enemy token eats this token; move it to start position
          */
 
-        console.log("restart ui")
+        console.log("todo: restart")
 
-        this.setDestionationPosition({ 
-            destinationPosition: this.startingPosition 
-        })
+        // this.setDestionationPosition({ 
+        //     destinationPosition: this.startingPosition 
+        // })
  
     }
 
     getNextDestination = () => {
-        // console.lo
 
-        // let top = stack[stack.length-1];
-
-        let first = this.backlog[0];
-        // console.log(first);
-        return first;
+        return this.backlog[0];
 
     }
 
-    setDestionationPosition = ({destinationPosition, diff}) => {
-    // setDestionationPosition = ({diff}) => {
+    setDestionationPosition = ({ diff}) => {
 
-        // console.log("diff", diff)/
 
         if (this.backlog.length === 0) {
             this.backlog = diff;
@@ -127,56 +120,12 @@ class UiToken extends ContentCreator {
             console.log("err backlog load");
         }
 
-        // console.log(this.backlog)
-
-        // this.backlog.forEach(i => {
-        //     console.log(i.row, i.column)
-        // });
-
         this.getNextDestination();
-
-
-
-        if (! this.isBacklogEmpty()) {
-            // this._moveByOneToDestination();
-                
-                    let destination = this.getNextDestination();
-    
-            console.log(BoardTile)
-
-            console.log(
-                {
-                    i: destination.row,
-                    j: destination.column,
-                    Boundary: BoardTile
-                }
-            )
-
-        let des = remapPosition({
-            i: destination.row,
-            j: destination.column,
-            Boundary: BoardTile
-        })
-
-        console.log(des)
-        }
-
-
-        // nex
-
-        this.destinationPosition = destinationPosition;
 
     }
 
-    // moveByOne = ({ destinationPosition }) => {
-    //     console.log("move by one")
-
-    //     this.setDestionationPosition(destinationPosition)
-    // }
-
     _moveByOneToDestination = () => {
 
-    // _moveByOneToDestination = (des) => {
         let destination = this.getNextDestination();
     
         let des = remapPosition({
@@ -241,7 +190,7 @@ class UiToken extends ContentCreator {
      
                      }
                  } else {
-                     this._moveByOneToDestination(this.destinationPosition);
+                     this._moveByOneToDestination();
                  }
              }
      
@@ -252,33 +201,14 @@ class UiToken extends ContentCreator {
                  // if the token is at the destination then notify
                  
                  console.log("notify")
-                //  this.notify({command: "token stopped"});
+                 this.notify({command: "UiUpdated"});
              }
      
              c.fillStyle = this.colour
              c.fill()
              c.closePath()
         
-        // c.beginPath()
-        // c.arc(
-        //     this.position.x,
-        //     this.position.y,
-        //     this.radius,
-        //     0,
-        //     Math.PI * 2,
-        // );
 
-        // if (! this.isBacklogEmpty()) {
-        //     this._moveByOneToDestination();
-                
-        // }
-
-
-        // this._moveByOneToDestination(this.destinationPosition);
-
-        // c.fillStyle = this.colour
-        // c.fill()
-        // c.closePath()
     }
 
 }
