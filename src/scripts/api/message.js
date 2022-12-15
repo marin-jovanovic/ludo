@@ -1,15 +1,20 @@
-import { apiCalls } from './comm';
+import {
+    apiCalls
+} from './comm';
 
 
 
 async function sendMessage(sender, game, content) {
-console.log("seend maesggae")
-console.log("game", game);
+    console.log("seend maesggae")
+    console.log("game", game);
     return await apiCalls.handleNewResponse(
         await apiCalls.api.post(
             `message/${game}`,
-            JSON.stringify({sender: sender,
-            game: game, content: content}),
+            JSON.stringify({
+                sender: sender,
+                game: game,
+                content: content
+            }),
             apiCalls.getAuthenticationHeader()
         )
     );
@@ -18,19 +23,21 @@ console.log("game", game);
 
 async function getMessages(game) {
 
-    let params = {"game": game};
+    let params = {
+        "game": game
+    };
 
     return await apiCalls.handleNewResponse(
         await apiCalls.api.get(
             `message/${game}`,
- 
+
             {
                 ...apiCalls.getAuthenticationHeader(),
                 ...params
 
             }
- 
-                
+
+
             // apiCalls.getAuthenticationHeader()
         )
     );

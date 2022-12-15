@@ -1,6 +1,8 @@
 import axios from 'axios'
 import Cookies from 'js-cookie'
-import { apiAuth } from './auth';
+import {
+    apiAuth
+} from './auth';
 
 const api = axios.create({
     baseURL: 'http://localhost:8000',
@@ -16,14 +18,19 @@ function getAuthenticationHeader() {
     let accessToken = sessionStorage.getItem("accessToken")
 
     if (username && accessToken) {
-  
 
-        return { headers: { 'Authorization': 'Custom ' + ((encodeURIComponent(username + ':' + accessToken))) } }
 
-    }
-    else {
+        return {
+            headers: {
+                'Authorization': 'Custom ' + ((encodeURIComponent(username + ':' + accessToken)))
+            }
+        }
 
-        return { headers: {}}
+    } else {
+
+        return {
+            headers: {}
+        }
 
     }
 
@@ -34,7 +41,7 @@ function getAuthenticationHeader() {
 function handleNewResponse(response) {
 
     if (response.data.auth.status) {
-     
+
         let accessToken = response.data.auth.accessToken;
         let username = response.data.auth.username;
 
@@ -47,7 +54,7 @@ function handleNewResponse(response) {
         if (response.data.status === 401) {
             apiAuth.logout();
             location.reload(true);
-        } 
+        }
 
         const error = response.data.payload.debug;
         return Promise.reject(error);
@@ -58,6 +65,6 @@ function handleNewResponse(response) {
 
 export const apiCalls = {
     api,
-getAuthenticationHeader,
+    getAuthenticationHeader,
     handleNewResponse,
 }

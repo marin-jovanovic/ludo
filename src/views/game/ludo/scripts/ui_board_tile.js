@@ -3,7 +3,10 @@ class BoardTile {
     static width = 40;
     static height = 40;
 
-    constructor({ position, image }) {
+    constructor({
+        position,
+        image
+    }) {
         this.position = position;
         this.image = image;
     }
@@ -12,8 +15,8 @@ class BoardTile {
 
         this.image.onload = () => {
             canvas.drawImage(
-                this.image, 
-                this.position.x, 
+                this.image,
+                this.position.x,
                 this.position.y
             );
         }
@@ -22,4 +25,6 @@ class BoardTile {
 
 }
 
-export { BoardTile }
+export {
+    BoardTile
+}

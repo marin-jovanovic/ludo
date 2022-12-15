@@ -40,7 +40,7 @@ function activateExportButton() {
         let exportTable = [];
 
         let logSelected = {};
-  
+
 
         for (let i = 0, row; row = table.rows[i]; i++) {
 
@@ -49,9 +49,12 @@ function activateExportButton() {
             let col;
             for (let j = 0; col = row.cells[j]; j++) {
                 if (col.innerText) {
-      
-                    logSelected[col.innerText] = { row: i, column: j };
-                } 
+
+                    logSelected[col.innerText] = {
+                        row: i,
+                        column: j
+                    };
+                }
             }
         }
 
@@ -75,7 +78,7 @@ function buildLayer() {
             col.addEventListener('click', i => {
                 console.log(i.target)
                 i.target.backgroundColor = 'black'
-           
+
             })
 
         }
@@ -83,7 +86,7 @@ function buildLayer() {
 
 }
 
-window.onload = function () {
+window.onload = function() {
     tableCreate(15, 15);
 
     activateExportButton();

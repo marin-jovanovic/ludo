@@ -1,9 +1,15 @@
-import { BoardTile } from "./ui_board_tile.js"
-import {getBoardTiles} from './layers.js'
+import {
+    BoardTile
+} from "./ui_board_tile.js"
+import {
+    getBoardTiles
+} from './layers.js'
 
 class Canvas {
-    
-    constructor({element}) {
+
+    constructor({
+        element
+    }) {
         this.canvas = element;
 
         // this.canvas.width = 600;
@@ -13,7 +19,7 @@ class Canvas {
 
         this.context = this.canvas.getContext("2d");
         this.animationId;
-  
+
     }
 
     clear = () => {
@@ -26,13 +32,18 @@ class Canvas {
 }
 
 class CanvasStatic extends Canvas {
-    constructor({element, map}) {
-        super({element: element});
+    constructor({
+        element,
+        map
+    }) {
+        super({
+            element: element
+        });
 
-        
-        this.boardTiles = getBoardTiles({ 
-            map: map, 
-            Boundary: BoardTile 
+
+        this.boardTiles = getBoardTiles({
+            map: map,
+            Boundary: BoardTile
         })
     }
 
@@ -40,16 +51,21 @@ class CanvasStatic extends Canvas {
 
         // board
         this.boardTiles.forEach((b) => {
-             b.draw(this.context)
+            b.draw(this.context)
         })
-   
+
     }
 }
 
 class CanvasReactive extends Canvas {
 
-    constructor({element, playersToTokens}) {
-        super({element: element});
+    constructor({
+        element,
+        playersToTokens
+    }) {
+        super({
+            element: element
+        });
 
 
         this.playersToTokens = playersToTokens;
@@ -57,7 +73,7 @@ class CanvasReactive extends Canvas {
         this.config = {
             // move token one by one
             // when one token stops moving another can start
-            configOneByOne:  true,
+            configOneByOne: true,
             // wait for one token to reach destination (stops moving) before other token can be moved on board
             useBacklog: false,
         };
@@ -68,8 +84,8 @@ class CanvasReactive extends Canvas {
 
         this.backlog = [];
 
-        
-    
+
+
     }
 
 
@@ -98,7 +114,7 @@ class CanvasReactive extends Canvas {
             this.canvas.animationId = requestAnimationFrame(animateDriver)
 
             this.clear()
-            
+
             Object.values(this.playersToTokens).forEach(p => {
 
                 Object.values(p.tokens).forEach(t => {
@@ -106,22 +122,22 @@ class CanvasReactive extends Canvas {
                     t.draw(this.context)
 
                 });
-        
+
             });
 
-        
+
         }
-        
+
         animateDriver();
 
     }
 
-  
+
 
 }
 
 
-export { 
+export {
     CanvasStatic,
     CanvasReactive
 }

@@ -1,4 +1,6 @@
-import { apiCalls } from './comm';
+import {
+    apiCalls
+} from './comm';
 
 async function getResource(gameId, resource) {
     if (!(['startPool', 'moves', 'config', 'map', 'players'].includes(resource))) {

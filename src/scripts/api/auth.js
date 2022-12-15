@@ -1,11 +1,11 @@
-import { apiCalls } from './comm';
+import {
+    apiCalls
+} from './comm';
 
 async function login(username, password) {
 
     const response = await apiCalls.api.post(
-        `login/${username}`,
-        {},
-        {
+        `login/${username}`, {}, {
             headers: {
                 'Authorization': 'Basic ' + ((encodeURIComponent(username + ':' + password)))
             }
@@ -13,7 +13,7 @@ async function login(username, password) {
     );
 
     const user = await apiCalls.handleNewResponse(response);
-    
+
     return user
 
 }
@@ -21,9 +21,7 @@ async function login(username, password) {
 async function signup(username, password) {
 
     const response = await apiCalls.api.post(
-        `signup/${username}`,
-        {},
-        {
+        `signup/${username}`, {}, {
             headers: {
                 'Authorization': 'Create ' + ((encodeURIComponent(username + ':' + password)))
             }
@@ -39,8 +37,7 @@ async function signup(username, password) {
 function logout(username) {
     if (sessionStorage.getItem("user") !== null) {
         apiCalls.api.post(
-            `logout/${username}`,
-            {},
+            `logout/${username}`, {},
             apiCalls.getAuthenticationHeader()
         );
         sessionStorage.removeItem('user');

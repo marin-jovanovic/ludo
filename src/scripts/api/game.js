@@ -1,4 +1,6 @@
-import { apiCalls } from './comm';
+import {
+    apiCalls
+} from './comm';
 
 
 async function getGame(game) {

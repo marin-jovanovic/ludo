@@ -1,4 +1,6 @@
-import { ContentCreator } from "./content_creator.js";
+import {
+    ContentCreator
+} from "./content_creator.js";
 
 
 
@@ -23,7 +25,9 @@ function getConfig() {
 
 class BlToken extends ContentCreator {
 
-    constructor({  state }) {
+    constructor({
+        state
+    }) {
         super();
 
         // relative numbers
@@ -49,7 +53,7 @@ class BlToken extends ContentCreator {
         /**
          * one enemy token eats this token; move it to start position
          */
-        
+
         // console.log("restart")
 
         // console.log(this.startingState);
@@ -64,12 +68,17 @@ class BlToken extends ContentCreator {
 
     }
 
-    move = ({count}) => {
+    move = ({
+        count
+    }) => {
         this.state += count;
-        this.absoluteState += count;       
+        this.absoluteState += count;
     }
 
 }
 
 
-export { BlToken, getConfig }
+export {
+    BlToken,
+    getConfig
+}

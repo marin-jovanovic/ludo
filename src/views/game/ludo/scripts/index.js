@@ -1,13 +1,22 @@
-import {  CanvasStatic,CanvasReactive } from "./ui_canvas.js";
-import { Level } from "./bl_level.js";
+import {
+    CanvasStatic,
+    CanvasReactive
+} from "./ui_canvas.js";
+import {
+    Level
+} from "./bl_level.js";
 
-import { mapTokens } from "./layers.js";
-import { BoardTile } from "./ui_board_tile.js";
+import {
+    mapTokens
+} from "./layers.js";
+import {
+    BoardTile
+} from "./ui_board_tile.js";
 
 class UserInterface {
-    
+
     constructor({
-        staticCanvasElement, 
+        staticCanvasElement,
         reactiveCanvasElement,
         map,
         playersToTokens
@@ -16,12 +25,12 @@ class UserInterface {
 
         this.staticCanvas = new CanvasStatic({
             element: staticCanvasElement,
-            map: map 
+            map: map
         });
 
 
         this.reactiveCanvas = new CanvasReactive({
-            element:reactiveCanvasElement,
+            element: reactiveCanvasElement,
             playersToTokens: playersToTokens,
         });
 
@@ -30,10 +39,13 @@ class UserInterface {
 }
 
 class BusinessLogic {
-    
-    constructor({config, tokens}) {
+
+    constructor({
+        config,
+        tokens
+    }) {
         this.currentLevel = new Level({
-            moves: config['moves'], 
+            moves: config['moves'],
             players: config['players'],
             tokens: tokens,
         });
@@ -68,21 +80,24 @@ class Game {
         }
 
         this.ui = new UserInterface({
-            staticCanvasElement: staticCanvasElement, 
+            staticCanvasElement: staticCanvasElement,
             reactiveCanvasElement: reactiveCanvasElement,
             map: config['map'],
             playersToTokens: uiPart,
         });
 
-        this.bl = new BusinessLogic({config:config, tokens: blPart});
+        this.bl = new BusinessLogic({
+            config: config,
+            tokens: blPart
+        });
 
         this.bl.currentLevel.subscribe({
-            command: "drawBoard", 
+            command: "drawBoard",
             s: this.ui.staticCanvas.animateOnce
         });
-        
+
         this.bl.currentLevel.subscribe({
-            command: "animateTokens", 
+            command: "animateTokens",
             s: this.ui.reactiveCanvas.animate
         });
 
@@ -96,13 +111,17 @@ class Game {
             }
 
         }
-  
+
 
         this.bl.currentLevel.start();
 
     }
 
-    movePosition({ playerId, tokenId, jumpCount }) {
+    movePosition({
+        playerId,
+        tokenId,
+        jumpCount
+    }) {
         /**
          * @player wants to move @token for @jumpCount positions
          * 
@@ -114,14 +133,17 @@ class Game {
 
 
         this.bl.currentLevel.movePosition({
-            playerId: playerId, 
-            tokenId: tokenId, 
+            playerId: playerId,
+            tokenId: tokenId,
             jumpCount: jumpCount
         });
-        
+
     }
 
-    restartToken({ playerId, tokenId }) {
+    restartToken({
+        playerId,
+        tokenId
+    }) {
         /**
          * @player wants to move @token to starting position
          * this is not something that user can do
@@ -131,10 +153,10 @@ class Game {
          */
 
 
-        this.bl.currentLevel.restartToken({ 
-            playerId:playerId, 
-            tokenId:tokenId
-        }); 
+        this.bl.currentLevel.restartToken({
+            playerId: playerId,
+            tokenId: tokenId
+        });
 
     }
 

@@ -3,15 +3,25 @@
  * 
  */
 
-import {  BlToken } from "./bl_token.js";
-import {  UiToken } from "./ui_token.js";
-import { remapPosition, remapTile } from "./ui_comm.js";
+import {
+    BlToken
+} from "./bl_token.js";
+import {
+    UiToken
+} from "./ui_token.js";
+import {
+    remapPosition,
+    remapTile
+} from "./ui_comm.js";
 
 function importAll(r) {
     return r.keys().map(r);
 }
 
-function getBoardTiles({ map, Boundary }) {
+function getBoardTiles({
+    map,
+    Boundary
+}) {
     /**
      * construct static content from api payload
      */
@@ -43,7 +53,7 @@ function getBoardTiles({ map, Boundary }) {
 
     let enumToImagePath = {};
     for (let i = 0; i < importedImages.length; i++) {
-  
+
         let name = importedImages[i].split("/img/")[1].split(".")[0];
 
         enumToImagePath[name] = importedImages[i]
@@ -58,7 +68,7 @@ function getBoardTiles({ map, Boundary }) {
 
                 let image = new Image();
                 image.src = enumToImagePath[mapping[symbol].split(".")[0]];
-     
+
                 boardTiles.push(
                     new Boundary({
                         position: remapTile({
@@ -66,9 +76,9 @@ function getBoardTiles({ map, Boundary }) {
                             y: i,
                             Boundary: Boundary
                         }),
-                     
+
                         image: image
-                
+
                     })
                 )
 
@@ -92,7 +102,11 @@ function getBoardTiles({ map, Boundary }) {
 // }
 
 
-function mapTokens({ map, Boundary, colour}) {
+function mapTokens({
+    map,
+    Boundary,
+    colour
+}) {
     /**
      * create dyn content from api payload
      */
@@ -104,7 +118,7 @@ function mapTokens({ map, Boundary, colour}) {
         e: 'red',
         r: 'yellow',
     };
-    
+
     let c = 0;
 
     let uiTokens = {};
@@ -115,22 +129,28 @@ function mapTokens({ map, Boundary, colour}) {
 
             if (symbol in mappings && mappings[symbol] === colour) {
 
-                let blToken = new BlToken({state: -1});
+                let blToken = new BlToken({
+                    state: -1
+                });
                 let uiToken = new UiToken({
                     colour: mappings[symbol],
-                    position: remapPosition({i:i,j:j, Boundary:Boundary}),
+                    position: remapPosition({
+                        i: i,
+                        j: j,
+                        Boundary: Boundary
+                    }),
                 })
 
                 uiTokens[c] = uiToken;
                 blTokens[c] = blToken;
 
                 blToken.subscribe({
-                    command: "restart", 
+                    command: "restart",
                     s: uiToken.restart
                 });
 
                 blToken.subscribe({
-                    command: "newDestination", 
+                    command: "newDestination",
                     s: uiToken.setDestionationPosition
                 });
 
@@ -148,7 +168,7 @@ function mapTokens({ map, Boundary, colour}) {
 
 
 
-export { 
-    getBoardTiles, 
+export {
+    getBoardTiles,
     mapTokens
 }

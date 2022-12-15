@@ -1,4 +1,6 @@
-import { apiCalls } from './comm';
+import {
+    apiCalls
+} from './comm';
 
 
 async function getBoard(type, resource) {
@@ -15,7 +17,7 @@ async function getBoard(type, resource) {
 
 
 export const apiBoard = {
-getBoard,
+    getBoard,
 
 
 }

@@ -1,15 +1,23 @@
-import { ContentCreator } from "./content_creator.js";
-import {getConfig} from "./bl_token.js";
+import {
+    ContentCreator
+} from "./content_creator.js";
+import {
+    getConfig
+} from "./bl_token.js";
 
 class Level extends ContentCreator {
-    constructor({ moves, players, tokens}) {
+    constructor({
+        moves,
+        players,
+        tokens
+    }) {
         super();
-        
+
         // todo check if this is DTO
         // DTO - data transfer object
         this.levelState = this.fetchLevelState({
-            players: players, 
-            moves: moves, 
+            players: players,
+            moves: moves,
             tokens: tokens
         });
 
@@ -28,13 +36,17 @@ class Level extends ContentCreator {
         });
 
         this.notify({
-            command: "animateTokens", 
+            command: "animateTokens",
         });
 
     }
 
     // todo rewrite
-    fetchLevelState({players,  moves, tokens}) {
+    fetchLevelState({
+        players,
+        moves,
+        tokens
+    }) {
         /**
          * return board state
          * 
@@ -42,8 +54,8 @@ class Level extends ContentCreator {
 
 
         let p = {};
-        let c = 0; 
-      
+        let c = 0;
+
         for (const playerId of Object.keys(players)) {
 
             p[playerId] = {
@@ -51,7 +63,7 @@ class Level extends ContentCreator {
                 state: moves[c]
             }
 
-              c += 1;
+            c += 1;
 
         }
 
@@ -66,7 +78,7 @@ class Level extends ContentCreator {
             // for each player info
             players: p
         }
-        
+
         return levelState;
 
     }
@@ -90,7 +102,7 @@ class Level extends ContentCreator {
 
             let oldestMove = oldest.move;
             let oldestToken = oldest.token;
-    
+
             oldestToken.notify({
                 command: "newDestination",
                 diff: oldestMove
@@ -100,7 +112,7 @@ class Level extends ContentCreator {
 
 
         }
-            
+
 
     }
 
@@ -108,7 +120,11 @@ class Level extends ContentCreator {
 
     }
 
-    movePosition({ playerId, tokenId, jumpCount }) {
+    movePosition({
+        playerId,
+        tokenId,
+        jumpCount
+    }) {
         /**
             todo check are performed in backend? 
 
@@ -123,7 +139,7 @@ class Level extends ContentCreator {
          * 
          */
 
-// todo refactor
+        // todo refactor
 
 
         // let isLegalMove =  
@@ -142,12 +158,15 @@ class Level extends ContentCreator {
 
         //     // move token on bl
         //     // note: this is performed in islegalmove
-                 
+
         // }
-   
+
     }
 
-    restartToken({ playerId, tokenId }) {
+    restartToken({
+        playerId,
+        tokenId
+    }) {
         /**
          * just a wrapper
          */
@@ -162,22 +181,26 @@ class Level extends ContentCreator {
      * @param {*} param0 
      * @returns 
      */
-    isNotJumpingOverRestricted = ({jumpCount, player, tokenId}) => {
+    isNotJumpingOverRestricted = ({
+        jumpCount,
+        player,
+        tokenId
+    }) => {
         /**
          * return true if can perform this jump
          * return false else
          */
-        
+
 
         // we are viewing this in relative perspective
 
         let t = this.levelState.players[player].tokens[tokenId];
-        let restrictedJumpingOver = [53, 52, 51, 50, 49, 48]; 
+        let restrictedJumpingOver = [53, 52, 51, 50, 49, 48];
 
 
-        if (!( restrictedJumpingOver.includes(
-            (t.state + jumpCount)
-        ))) {
+        if (!(restrictedJumpingOver.includes(
+                (t.state + jumpCount)
+            ))) {
             return true
         }
 
@@ -187,15 +210,15 @@ class Level extends ContentCreator {
 
             if (Number(t) !== Number(tokenId)) {
 
-                if ( restrictedJumpingOver.includes(tMeta.state)) {
+                if (restrictedJumpingOver.includes(tMeta.state)) {
                     occupiedSpaces.push(tMeta.state);
                 }
             }
         }
 
-       let lowest = Math.min(...occupiedSpaces);
+        let lowest = Math.min(...occupiedSpaces);
 
-       return t.state + jumpCount < lowest
+        return t.state + jumpCount < lowest
 
     }
 
@@ -206,33 +229,38 @@ class Level extends ContentCreator {
      * @param {*} param0 
      * @returns 
      */
-    isGameWon = ({playerId}) => {
+    isGameWon = ({
+        playerId
+    }) => {
 
 
-        let restrictedJumpingOver = [53, 52, 51, 50]; 
+        let restrictedJumpingOver = [53, 52, 51, 50];
         let occupiedSpaces = [];
 
         for (
             const tMeta of Object.values(this.levelState.players[playerId].tokens)
         ) {
 
-                if ( restrictedJumpingOver.includes(tMeta.state)) {
-                    occupiedSpaces.push(tMeta.state);
-                }
+            if (restrictedJumpingOver.includes(tMeta.state)) {
+                occupiedSpaces.push(tMeta.state);
+            }
         }
-   
+
         return occupiedSpaces.length === restrictedJumpingOver.length;
 
     }
 
-    checkEating = ({playerId, tokenId}) => {
+    checkEating = ({
+        playerId,
+        tokenId
+    }) => {
 
         // absolute view
-        
+
         let occupiedSpaces = {};
 
         let token = this.levelState.players[playerId].tokens[tokenId];
-        
+
         let stateOfInteres = token.absoluteState;
 
         for (const [playerId, p] of Object.entries(this.levelState.players)) {
@@ -244,20 +272,20 @@ class Level extends ContentCreator {
                     let k = playerId;
 
                     if (t.absoluteState === stateOfInteres) {
-                 
+
                         if (k in occupiedSpaces) {
                             occupiedSpaces[k].push(t);
                         } else {
                             occupiedSpaces[k] = [t];
                         }
-   
+
                     }
 
                 }
             });
 
         }
- 
+
         /*
             case 1:
                 this user has any tokens here
@@ -308,7 +336,10 @@ class Level extends ContentCreator {
 
     }
 
-    moveTokenFromStartingPoolToLivePool({token, playerId}) {
+    moveTokenFromStartingPoolToLivePool({
+        token,
+        playerId
+    }) {
         // todo dehardcode absolute state
 
         token.pool = getConfig()["pool"]["live"];
@@ -317,7 +348,11 @@ class Level extends ContentCreator {
 
     }
 
-    __movePositionDriver({ playerId, tokenId, jumpCount }) {
+    __movePositionDriver({
+        playerId,
+        tokenId,
+        jumpCount
+    }) {
         /**
          * move token on business layer
          */
@@ -351,29 +386,28 @@ class Level extends ContentCreator {
                     playerId: playerId
                 });
                 break;
-            
+
             case getConfig()["pool"]["live"]:
 
                 // check if can move so much 
-             
+
                 if (
-                    token.state + jumpCount
-                    in this.levelState.players[playerId].state
+                    token.state + jumpCount in this.levelState.players[playerId].state
                 ) {
                     // state exists
 
                     if (this.isNotJumpingOverRestricted({
-                        jumpCount: jumpCount, 
-                        player: playerId, 
-                        tokenId: tokenId
-                    })) {
+                            jumpCount: jumpCount,
+                            player: playerId,
+                            tokenId: tokenId
+                        })) {
 
                         // bl
                         token.move({
-                            count: jumpCount, 
+                            count: jumpCount,
                         });
 
-                    }else {
+                    } else {
                         console.log("can not jump over other token in restricted jumping area")
                     }
 
@@ -390,30 +424,32 @@ class Level extends ContentCreator {
                 console.log("at destination position")
 
                 break;
-    
+
             default:
 
                 console.log("err: unknown pool")
                 break
-                
+
         }
-          
+
         if (!(token.state in this.levelState.players[playerId].state)) {
             console.log("err not there", token.state)
             return
         }
 
 
-        if (this.isGameWon({playerId: playerId})) {
+        if (this.isGameWon({
+                playerId: playerId
+            })) {
             console.log("todo game won");
-        } 
+        }
 
         this.checkEating({
             playerId: playerId,
             tokenId: tokenId
         });
 
-// note: this code is not targeting restart token function, and that is ok
+        // note: this code is not targeting restart token function, and that is ok
 
         let destinationState = token.state;
 
@@ -422,7 +458,7 @@ class Level extends ContentCreator {
             changeLog.push(i);
         }
 
-  
+
 
         // /////////////////// notify UI ////////////////////////
 
@@ -430,13 +466,13 @@ class Level extends ContentCreator {
          * if can notify
          * set flag that it can not notify
          * 
-            * if log is empty
-            * notify this change
-            * 
-            * else 
-            * notify oldest change
-            * remove oldest change from log
-            * add this change to log
+         * if log is empty
+         * notify this change
+         * 
+         * else 
+         * notify oldest change
+         * remove oldest change from log
+         * add this change to log
          *  
          * else 
          * add this change to log
@@ -457,8 +493,8 @@ class Level extends ContentCreator {
         let thisMovePath = changeLog.map(i => states[i]);
 
 
-        if (! this.isWaitingForAcceptance) {
-            this.isWaitingForAcceptance =  true;
+        if (!this.isWaitingForAcceptance) {
+            this.isWaitingForAcceptance = true;
 
             if (this.changleLog.length === 0) {
 
@@ -466,7 +502,7 @@ class Level extends ContentCreator {
                     command: "newDestination",
                     diff: thisMovePath
                 })
-    
+
             } else {
 
                 let oldest = this.changleLog.shift();
@@ -478,14 +514,14 @@ class Level extends ContentCreator {
                     command: "newDestination",
                     diff: oldestMove
                 })
-    
+
                 this.changleLog.push({
                     token: token,
                     move: thisMovePath
                 });
 
             }
-            
+
 
 
         } else {
@@ -506,4 +542,6 @@ class Level extends ContentCreator {
 
 }
 
-export { Level }
+export {
+    Level
+}

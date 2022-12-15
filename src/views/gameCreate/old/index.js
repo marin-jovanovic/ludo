@@ -1,8 +1,11 @@
 class BoardBuilder {
-    constructor({table,exportButton }) {
+    constructor({
+        table,
+        exportButton
+    }) {
 
         this.table = table;
-        this.exportButton = exportButton ;
+        this.exportButton = exportButton;
 
         this.c = 0;
 
@@ -45,7 +48,7 @@ class BoardBuilder {
 
             let exportTable = [];
             let logSelected = {};
-                 
+
             for (let i = 0; i < this.table.rows.length; i++) {
                 let row = this.table.rows[i];
 
@@ -54,9 +57,12 @@ class BoardBuilder {
                 for (let j = 0; j < row.cells.length; j++) {
                     let col = row.cells[j];
                     if (col.innerText) {
-        
-                        logSelected[col.innerText] = { row: i, column: j };
-                    } 
+
+                        logSelected[col.innerText] = {
+                            row: i,
+                            column: j
+                        };
+                    }
                 }
             }
 

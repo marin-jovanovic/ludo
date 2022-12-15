@@ -1,4 +1,6 @@
-import { apiCalls } from './comm';
+import {
+    apiCalls
+} from './comm';
 
 
 
@@ -6,7 +8,9 @@ async function createGame(gameName, capacity) {
     return await apiCalls.handleNewResponse(
         await apiCalls.api.post(
             `lobby/${gameName}`,
-            JSON.stringify({capacity: capacity}),
+            JSON.stringify({
+                capacity: capacity
+            }),
             apiCalls.getAuthenticationHeader()
         )
     );
@@ -17,12 +21,12 @@ async function getGames() {
     return await apiCalls.handleNewResponse(
         await apiCalls.api.get(
             "lobby/",
-//             {
-//                 ...            JSON.stringify({"username": username}),
-// ...                
-//             }
+            //             {
+            //                 ...            JSON.stringify({"username": username}),
+            // ...                
+            //             }
             apiCalls.getAuthenticationHeader()
-    
+
         )
     );
 }
@@ -42,7 +46,9 @@ async function leaveGame(gameName) {
     return await apiCalls.handleNewResponse(
         await apiCalls.api.put(
             `lobby/${gameName}`,
-            JSON.stringify({"leave": true}),
+            JSON.stringify({
+                "leave": true
+            }),
             apiCalls.getAuthenticationHeader()
         )
     );
@@ -52,7 +58,9 @@ async function joinGame(gameName) {
     return await apiCalls.handleNewResponse(
         await apiCalls.api.put(
             `lobby/${gameName}`,
-            JSON.stringify({"join": true}),
+            JSON.stringify({
+                "join": true
+            }),
             apiCalls.getAuthenticationHeader()
         )
     );
@@ -64,5 +72,5 @@ export const apiLobby = {
     leaveGame,
     joinGame,
     // getSpecificGame,
-    
+
 }

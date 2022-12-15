@@ -5,7 +5,11 @@
 
 
 
-function remapPosition({i, j, Boundary}) {
+function remapPosition({
+    i,
+    j,
+    Boundary
+}) {
     /**
      * for elements that are placed on tiles (ie. tokens)
      */
@@ -17,7 +21,11 @@ function remapPosition({i, j, Boundary}) {
 
 }
 
-function remapTile({x,y, Boundary}) {
+function remapTile({
+    x,
+    y,
+    Boundary
+}) {
     /**
      * for tiles
      */
@@ -29,7 +37,7 @@ function remapTile({x,y, Boundary}) {
 }
 
 
-export { 
+export {
     remapPosition,
     remapTile
 }

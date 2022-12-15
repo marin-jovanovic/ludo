@@ -8,10 +8,10 @@
 
 // function run () => {
 //     window.onload = function () {
-        
+
 //     }
-    
-    
+
+
 // }
 
 class BoardBuilder {
@@ -22,16 +22,16 @@ class BoardBuilder {
 
 
     addRow = () => {
-        
+
 
         let columnLength = Object.keys(this.board).length;
 
         let rowLength = Object.keys(this.board[0]).length;
-       
+
         this.board[columnLength] = {}
 
         for (let i = 0; i < rowLength; i++) {
-            
+
             this.board[columnLength][i] = this.defaultValue;
 
         }
@@ -46,7 +46,7 @@ class BoardBuilder {
         let rowLength = Object.keys(this.board[0]).length;
 
         for (let i = 0; i < columnLength; i++) {
-         
+
             this.board[i][rowLength] = this.defaultValue;
 
         }
@@ -54,12 +54,17 @@ class BoardBuilder {
         this.redraw();
     }
 
-    selectLayer = ({layerId}) => {
+    selectLayer = ({
+        layerId
+    }) => {
         this.selectedLayer = layerId;
 
     }
 
-    updateTile = ({row, column}) => {
+    updateTile = ({
+        row,
+        column
+    }) => {
         this.board[row][column] = String(this.selectLayer);
 
     }
@@ -118,7 +123,7 @@ class BoardBuilder {
 
 
     // handle mouseup events
-    myUp = (e) => {  
+    myUp = (e) => {
         // tell the browser we're handling this mouse event
         e.preventDefault();
         e.stopPropagation();
@@ -167,7 +172,7 @@ class BoardBuilder {
     }
 
     redraw = () => {
-      
+
         let height = Object.keys(this.board).length;
 
         let width = Object.keys(this.board[0]).length;
@@ -181,13 +186,15 @@ class BoardBuilder {
 
                 // fillRect(x, y, width, height)
                 this.ctx.fillRect(w * this.wSize, h * this.hSize, this.wSize, this.hSize);
-            
+
             }
         }
 
     }
 
-    constructor({canvasElement}) {
+    constructor({
+        canvasElement
+    }) {
 
         // todo
         this.selectedLayer = 1;
@@ -200,13 +207,19 @@ class BoardBuilder {
         this.ctx = this.canvas.getContext('2d');
 
         this.board = {
-            0: {0: 0, 1: 1},
-            1: {0: 2, 1: 3},
-            
+            0: {
+                0: 0,
+                1: 1
+            },
+            1: {
+                0: 2,
+                1: 3
+            },
+
         };
 
         this.defaultValue = 0;
-        
+
         this.addRow();
 
         this.addColumn();
@@ -216,7 +229,7 @@ class BoardBuilder {
 
         this.wSize = 100;
         this.hSize = 100;
-      
+
         this.redraw();
 
         /**
@@ -284,8 +297,8 @@ class BoardBuilder {
          */
 
 
-       
-        
+
+
         /**
          * this will colour curr block to black
          */
@@ -306,11 +319,11 @@ class BoardBuilder {
             this.board[yBlock][xBlock] = -1;
             this.ctx.fillStyle = "black";
             this.ctx.fillRect(xBlock * this.wSize, yBlock * this.hSize, this.wSize, this.hSize);
-            
+
 
         }, false);
 
-    
+
     }
 
 }

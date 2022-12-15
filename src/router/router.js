@@ -1,4 +1,7 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import {
+    createRouter,
+    createWebHistory
+} from 'vue-router';
 
 import IndexPage from '../views/index/IndexPage';
 import LoginPage from '../views/login/LoginPage';
@@ -9,85 +12,91 @@ import GameCreatePage from "@/views/gameCreate/GameCreatePage.vue";
 
 import LogoutPage from '../views/logout/LogoutPage';
 import SetttingsView from '../views/settings/SettingsView.vue';
-import { store } from "@/store/store"
+import {
+    store
+} from "@/store/store"
 
 import TheGame from '../views/game/TheGame.vue';
 
 export const router = createRouter({
-  history: createWebHistory(),
-  routes: [
-    {
-      path: '/',
-      name: "index",
-      component: IndexPage
-    },
-    {
-      path: '/settings',
-      name: 'settings',
-      component: SetttingsView
-    },
-    {
-      path: '/game/:id',
-      name: 'game',
-      component: GamePage
-    },
-    {
-      path: '/gameReplay/:id',
-      name: 'gameReplay',
-      component: GameReplayPage
-    },
-    {
-      path: '/login',
-      name: 'login',
-      component: LoginPage
-    },
-    {
-      path: '/signup',
-      name: 'signup',
-      component: SignupView
-    },
-    {
-      path: '/logout',
-      component: LogoutPage
-    },
-    {
-      path: "/test",
-      name: "test",
-      component: TheGame
-    },
-    {
-      path: "/gameCreate",
-      name: "gameCreate",
-      component: GameCreatePage
-    }
-  ]
+    history: createWebHistory(),
+    routes: [{
+            path: '/',
+            name: "index",
+            component: IndexPage
+        },
+        {
+            path: '/settings',
+            name: 'settings',
+            component: SetttingsView
+        },
+        {
+            path: '/game/:id',
+            name: 'game',
+            component: GamePage
+        },
+        {
+            path: '/gameReplay/:id',
+            name: 'gameReplay',
+            component: GameReplayPage
+        },
+        {
+            path: '/login',
+            name: 'login',
+            component: LoginPage
+        },
+        {
+            path: '/signup',
+            name: 'signup',
+            component: SignupView
+        },
+        {
+            path: '/logout',
+            component: LogoutPage
+        },
+        {
+            path: "/test",
+            name: "test",
+            component: TheGame
+        },
+        {
+            path: "/gameCreate",
+            name: "gameCreate",
+            component: GameCreatePage
+        }
+    ]
 });
 
 
 function isPublicPath(toPath) {
-  const publicPages = ['/login', '/logout', '/signup'];
-  const authNotRequired = publicPages.includes(toPath);
-  return authNotRequired;
+    const publicPages = ['/login', '/logout', '/signup'];
+    const authNotRequired = publicPages.includes(toPath);
+    return authNotRequired;
 }
 
 
 router.beforeEach((to, from, next) => {
 
-  let isPublic = isPublicPath(to.path);
+    let isPublic = isPublicPath(to.path);
 
-  const loggedIn = sessionStorage.getItem('username');
+    const loggedIn = sessionStorage.getItem('username');
 
-  store.dispatch("setPath", { path: to.path, isPublic: isPublic });
-
-  if (!isPublic && !loggedIn) {
-    // router.push("/login")
-
-    // todo fix when nested url (game/x)  goes to (game/login)
-    return next({
-      path: '/login',
-      query: { returnUrl: to.path }
+    store.dispatch("setPath", {
+        path: to.path,
+        isPublic: isPublic
     });
-  }
 
-  next();
+    if (!isPublic && !loggedIn) {
+        // router.push("/login")
+
+        // todo fix when nested url (game/x)  goes to (game/login)
+        return next({
+            path: '/login',
+            query: {
+                returnUrl: to.path
+            }
+        });
+    }
+
+    next();
 })

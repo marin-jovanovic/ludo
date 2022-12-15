@@ -50,7 +50,10 @@ function activateExportButton() {
             for (var j = 0, col; col = row.cells[j]; j++) {
                 if (col.style.backgroundColor === 'black') {
                     exportTable[i][j] = selected
-                    logSelected[logSelectedIndex] = { row: i, column: j };
+                    logSelected[logSelectedIndex] = {
+                        row: i,
+                        column: j
+                    };
                     logSelectedIndex++;
                 } else {
                     exportTable[i][j] = unselected
@@ -83,7 +86,7 @@ function buildLayer() {
             col.addEventListener('click', i => {
                 console.log(i.target)
                 i.target.backgroundColor = 'black'
-      
+
             })
 
 
@@ -92,7 +95,7 @@ function buildLayer() {
 
 }
 
-window.onload = function () {
+window.onload = function() {
     tableCreate(15, 15);
 
     activateExportButton();

@@ -1,4 +1,3 @@
-
 class ContentCreator {
     /**
      * can create content
@@ -10,7 +9,10 @@ class ContentCreator {
         this.subscribers = {};
     }
 
-    subscribe({command, s}) {
+    subscribe({
+        command,
+        s
+    }) {
 
         if (command in this.subscribers) {
             this.subscribers[command].add(s);
@@ -21,11 +23,17 @@ class ContentCreator {
 
     }
 
-    unsubscribe({command, s}) {
+    unsubscribe({
+        command,
+        s
+    }) {
         this.subscribers[command].delete(s);
     }
 
-    notify({command, ...args}) {
+    notify({
+        command,
+        ...args
+    }) {
 
         if (!(command in this.subscribers)) {
             console.log("no subscribers for this command");

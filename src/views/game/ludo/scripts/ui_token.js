@@ -1,6 +1,12 @@
-import { ContentCreator } from "./content_creator.js";
-import { remapPosition } from "./ui_comm.js";
-import { BoardTile } from "./ui_board_tile.js";
+import {
+    ContentCreator
+} from "./content_creator.js";
+import {
+    remapPosition
+} from "./ui_comm.js";
+import {
+    BoardTile
+} from "./ui_board_tile.js";
 
 /**
  * ===>>>
@@ -26,19 +32,25 @@ import { BoardTile } from "./ui_board_tile.js";
 
 class UiToken extends ContentCreator {
 
-    constructor({ position, colour}) {
+    constructor({
+        position,
+        colour
+    }) {
         super();
 
         // x, y
         this.position = position;
         // todo determine (if game mode all_at_same_place then you know) else one by one
         // what if second is faster then this first one, still undetermined, this must update depending which ends first 
-        
+
         // this.destinationPosition = position;
 
         this.radius = 8
         this.colour = colour;
-        this.startingPosition = { x: position.x, y: position.y };
+        this.startingPosition = {
+            x: position.x,
+            y: position.y
+        };
 
         // for jumping between tiles
         this.backlog = [];
@@ -102,7 +114,7 @@ class UiToken extends ContentCreator {
         // this.setDestionationPosition({ 
         //     destinationPosition: this.startingPosition 
         // })
- 
+
     }
 
     getNextDestination = () => {
@@ -111,7 +123,9 @@ class UiToken extends ContentCreator {
 
     }
 
-    setDestionationPosition = ({ diff}) => {
+    setDestionationPosition = ({
+        diff
+    }) => {
 
 
         if (this.backlog.length === 0) {
@@ -127,7 +141,7 @@ class UiToken extends ContentCreator {
     _moveByOneToDestination = () => {
 
         let destination = this.getNextDestination();
-    
+
         let des = remapPosition({
             i: destination.row,
             j: destination.column,
@@ -138,10 +152,10 @@ class UiToken extends ContentCreator {
         let atNextDestination = true;
 
         ['x', 'y'].forEach(i => {
-        
+
             if (this.position[i] !== des[i]) {
                 atNextDestination = false;
-        
+
                 if (this.position[i] > des[i]) {
                     this.position[i]--;
                 } else if (this.position[i] < des[i]) {
@@ -155,62 +169,66 @@ class UiToken extends ContentCreator {
     }
 
     draw = (c) => {
-             c.beginPath()
-             c.arc(
-                 this.position.x,
-                 this.position.y,
-                 this.radius,
-                 0,
-                 Math.PI * 2,
-             );
-     
-             let wasAtDestination = this.isBacklogEmpty();
-     
-             if (!wasAtDestination) {
-                 this._moveByOneToDestination();
-     
-             }
-     
-             if (!wasAtDestination) {
-     
-                 if (this.configOneByOne) {
-                     if (this.configSleep && this.startSleeping) {
-                         this._sleep();
-                     } else {
-                         
-                         let atNextDestination = this._moveByOneToDestination(
-                             this._getDestinationByOne()
-                         );
-     
-                         if (atNextDestination) {
-                             this.backlog.shift();
-     
-                             this.startSleeping = true;
-                         }
-     
-                     }
-                 } else {
-                     this._moveByOneToDestination();
-                 }
-             }
-     
-             let isAtDestination = this.isBacklogEmpty();
-     
-             if (!wasAtDestination && isAtDestination) {
-                 // check if after redraw the token will be at the destination
-                 // if the token is at the destination then notify
-                 
-                 console.log("notify")
-                 this.notify({command: "UiUpdated"});
-             }
-     
-             c.fillStyle = this.colour
-             c.fill()
-             c.closePath()
-        
+        c.beginPath()
+        c.arc(
+            this.position.x,
+            this.position.y,
+            this.radius,
+            0,
+            Math.PI * 2,
+        );
+
+        let wasAtDestination = this.isBacklogEmpty();
+
+        if (!wasAtDestination) {
+            this._moveByOneToDestination();
+
+        }
+
+        if (!wasAtDestination) {
+
+            if (this.configOneByOne) {
+                if (this.configSleep && this.startSleeping) {
+                    this._sleep();
+                } else {
+
+                    let atNextDestination = this._moveByOneToDestination(
+                        this._getDestinationByOne()
+                    );
+
+                    if (atNextDestination) {
+                        this.backlog.shift();
+
+                        this.startSleeping = true;
+                    }
+
+                }
+            } else {
+                this._moveByOneToDestination();
+            }
+        }
+
+        let isAtDestination = this.isBacklogEmpty();
+
+        if (!wasAtDestination && isAtDestination) {
+            // check if after redraw the token will be at the destination
+            // if the token is at the destination then notify
+
+            console.log("notify")
+            this.notify({
+                command: "UiUpdated"
+            });
+        }
+
+        c.fillStyle = this.colour
+        c.fill()
+        c.closePath()
+
 
     }
 
 }
 
-export { UiToken }
+export {
+    UiToken
+}
