@@ -1,5 +1,3 @@
-import { remapPosition } from "./ui_comm.js";
-import { BoardTile } from "./ui_board_tile.js";
 import { ContentCreator } from "./content_creator.js";
 import {getConfig} from "./bl_token.js";
 
@@ -15,8 +13,9 @@ class Level extends ContentCreator {
             tokens: tokens
         });
 
+        // this is for notifying bl
         this.changleLog = [];
-    
+        this.isWaitingForAcceptance = false;
     }
 
     start() {
@@ -56,8 +55,6 @@ class Level extends ContentCreator {
 
         }
 
-
-
         let levelState = {
 
             // basic game metadata
@@ -70,9 +67,44 @@ class Level extends ContentCreator {
             players: p
         }
         
-        console.log(p);
-
         return levelState;
+
+    }
+
+    // canNotify = () => {
+    //     return ! this.isWaitingForAcceptance;
+    // }
+
+    updated = () => {
+
+
+        // todo check for race condition
+
+        if (this.changleLog.length === 0) {
+
+            this.isWaitingForAcceptance = false;
+
+        } else {
+
+            let oldest = this.changleLog[0];
+
+            let oldestMove = oldest.move;
+            let oldestToken = oldest.token;
+    
+            oldestToken.notify({
+                command: "newDestination",
+                diff: oldestMove
+            })
+
+            this.changleLog.shift();
+
+
+        }
+            
+
+    }
+
+    tryToSend = () => {
 
     }
 
@@ -91,72 +123,45 @@ class Level extends ContentCreator {
          * 
          */
 
+// todo refactor
 
-        let isLegalMove =  this.__movePositionDriver({
+
+        // let isLegalMove =  
+        this.__movePositionDriver({
             playerId: playerId,
             tokenId: tokenId,
             jumpCount: jumpCount,
         });
 
-        if (isLegalMove) {
+        // if (isLegalMove) {
 
-            // move token on ui layer
+        //     // move token on ui layer
 
-            let token = this.levelState.players[playerId].tokens[tokenId];
+        //     console.log("move is legal")
 
-            if (!(token.state in this.levelState.players[playerId].state)) {
-                console.log("err: state not in state dict");
-                // assumption: token was moved to start position
-                // notif: reset was called, no need to launch newDestination notif
-                return;
-            }
 
-            let stateBoundaries = this.levelState.players[playerId].state[token.state];
-
-            // x,y where needs to land
-            let destinationPosition = remapPosition({
-                i:stateBoundaries.row, 
-                j:stateBoundaries.column, 
-                Boundary:BoardTile
-        });
-
-            //                 state: moves[c]
-
-            let moves = this.levelState.players[playerId].state;
-
-            console.table(moves);
-    
-            let last = this.changleLog.shift();
-
-            let movesLog = []
-
-            last.forEach(i => {
-                console.log(i, moves[i])
-
-                movesLog.push(moves[i])
-
-                
-
-            });
-
-            console.log(movesLog)
-
-            token.notify({
-                command: "newDestination",
-                destinationPosition: destinationPosition,
-                diff: movesLog
-            })
-
-            // move token on bl
+        //     // move token on bl
+        //     // note: this is performed in islegalmove
                  
-        }
+        // }
    
     }
 
     restartToken({ playerId, tokenId }) {
+        /**
+         * just a wrapper
+         */
+
         this.levelState.players[playerId].tokens[tokenId].restart();
     }
 
+    /**
+     * 
+     * todo dehardcode 
+     * 
+     * @param {*} param0 
+     * @returns 
+     */
     isNotJumpingOverRestricted = ({jumpCount, player, tokenId}) => {
         /**
          * return true if can perform this jump
@@ -194,6 +199,13 @@ class Level extends ContentCreator {
 
     }
 
+    /**
+     * 
+     * todo dehardcode 
+     * 
+     * @param {*} param0 
+     * @returns 
+     */
     isGameWon = ({playerId}) => {
 
 
@@ -245,14 +257,7 @@ class Level extends ContentCreator {
             });
 
         }
-
-        // Object.values(this.levelState.players).forEach(p => {
-            
-    
-        // });
-
-  
-
+ 
         /*
             case 1:
                 this user has any tokens here
@@ -281,14 +286,11 @@ class Level extends ContentCreator {
         */
 
         if (occupiedSpaces.length !== 1) {
-        //     console.log("only my tokens are here")
-        // } else {
             for (const [owner, tokens] of Object.entries(occupiedSpaces)) {
 
 
                 if (Number(owner) !== playerId) {
                     if (tokens.length === 1) {
-                        // console.log("1 enemy token, perform eating");
 
                         tokens.forEach(t => {
                             t.restart();
@@ -296,7 +298,6 @@ class Level extends ContentCreator {
 
 
                     } else if (tokens.length >= 1) {
-                        // console.log("enemy tokens forming a block, this token goes to start position")
 
                         token.restart();
                     }
@@ -332,7 +333,7 @@ class Level extends ContentCreator {
         }
 
         // if (jumpCount === 0) {
-        //     console.log("no movement");
+        //     console.log("err: no movement");
         //     return;
         // }
 
@@ -392,7 +393,7 @@ class Level extends ContentCreator {
     
             default:
 
-                console.log("err: unknown")
+                console.log("err: unknown pool")
                 break
                 
         }
@@ -415,22 +416,90 @@ class Level extends ContentCreator {
 // note: this code is not targeting restart token function, and that is ok
 
         let destinationState = token.state;
-        // console.log("started", pastState, "now", destinationState);
 
         let changeLog = [];
         for (let i = pastState + 1; i < destinationState + 1; i++) {
             changeLog.push(i);
         }
 
-        // console.log(changeLog);
+  
 
-        this.changleLog.push(changeLog);
+        // /////////////////// notify UI ////////////////////////
 
-        // this.changleLog.push({
-        //     "playerId": playerId, 
-        //     "tokenId": tokenId, 
-        //     "changeLog": changeLog
-        // });
+        /**
+         * if can notify
+         * set flag that it can not notify
+         * 
+            * if log is empty
+            * notify this change
+            * 
+            * else 
+            * notify oldest change
+            * remove oldest change from log
+            * add this change to log
+         *  
+         * else 
+         * add this change to log
+         * 
+         */
+
+
+        if (!(token.state in this.levelState.players[playerId].state)) {
+            console.log("err: state not in state dict");
+            // assumption: token was moved to start position
+            // notif: reset was called, no need to launch newDestination notif
+            return;
+        }
+
+        let states = this.levelState.players[playerId].state;
+
+
+        let thisMovePath = changeLog.map(i => states[i]);
+
+
+        if (! this.isWaitingForAcceptance) {
+            this.isWaitingForAcceptance =  true;
+
+            if (this.changleLog.length === 0) {
+
+                token.notify({
+                    command: "newDestination",
+                    diff: thisMovePath
+                })
+    
+            } else {
+
+                let oldest = this.changleLog.shift();
+
+                let oldestMove = oldest.move;
+                let oldestToken = oldest.token;
+
+                oldestToken.notify({
+                    command: "newDestination",
+                    diff: oldestMove
+                })
+    
+                this.changleLog.push({
+                    token: token,
+                    move: thisMovePath
+                });
+
+            }
+            
+
+
+        } else {
+
+            this.changleLog.push({
+                token: token,
+                move: thisMovePath
+            });
+
+
+        }
+
+        // todo reorder ui update,check eating,  check win, 
+
 
         return true;
     }
