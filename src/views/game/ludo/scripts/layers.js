@@ -1,3 +1,8 @@
+/**
+ * todo this needs to be rewriten with some backend api protocol which will send board and states
+ * 
+ */
+
 import {  BlToken } from "./bl_token.js";
 import {  UiToken } from "./ui_token.js";
 import { remapPosition, remapTile } from "./ui_comm.js";
