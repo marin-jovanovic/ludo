@@ -1,3 +1,10 @@
+/**
+ * boundary is  
+ * // import { BoardTile } from "./ui_board_tile.js";
+ */
+
+
+
 function remapPosition({i, j, Boundary}) {
     /**
      * for elements that are placed on tiles (ie. tokens)
