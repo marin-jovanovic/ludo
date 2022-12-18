@@ -130,7 +130,8 @@ function mapTokens({
             if (symbol in mappings && mappings[symbol] === colour) {
 
                 let blToken = new BlToken({
-                    state: -1
+                    state: -1,
+                    xy: { row: i, column: j }
                 });
                 let uiToken = new UiToken({
                     colour: mappings[symbol],
