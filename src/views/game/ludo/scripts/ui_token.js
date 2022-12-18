@@ -67,24 +67,70 @@ class UiToken extends ContentCreator {
         // prevent diagonals
         this.configOneByOne = true;
 
-
         this.choice_oneByOne_pythagoras = true;
 
         // this.previousPosition = undefined;
 
     }
 
-    isBacklogEmpty = () => {
-        return this.backlog.length === 0;
+    // todo this is rewired to setdestination
+    restart = ({ position }) => {
+        /**
+         * one enemy token eats this token; move it to start position
+         */
+
+        console.log('restart catch')
+
+        this.setDestionationPosition({
+            diff: [position]
+        })
+
     }
 
-    _getDestinationByOne = () => {
+    setDestionationPosition = ({
+        diff
+    }) => {
+
         if (this.isBacklogEmpty()) {
-            console.log('integrity error');
-            return
+            // todo improve by making this list and appending this list(diff)
+
+            const clone = structuredClone(diff);
+            this.backlog = clone;
+
+        } else {
+            console.log("err backlog load");
         }
 
-        return this.backlog[0];
+        // this.getNextDestination();
+
+    }
+
+
+    isBacklogEmpty = () => {
+
+        if (this.backlog === []) {
+            console.log('init')
+            return true;
+        }
+
+        if (!this.backlog) {
+            console.log('indefind')
+            return true;
+        }
+
+        if (!this.backlog.length === 0) {
+            console.log('len 0')
+            return true;
+        }
+
+
+
+        if (!this.backlog?.length != (this.backlog.length === 0)) {
+            console.log('not same')
+        }
+
+        return !this.backlog?.length;
+
     }
 
     _sleep = () => {
@@ -103,51 +149,40 @@ class UiToken extends ContentCreator {
 
     }
 
-
-    restart = () => {
-        /**
-         * one enemy token eats this token; move it to start position
-         */
-
-        console.log("todo: restart")
-
-        // this.setDestionationPosition({ 
-        //     destinationPosition: this.startingPosition 
-        // })
-
-    }
-
     getNextDestination = () => {
+
+        if (this.isBacklogEmpty()) {
+            console.log('err backlog empty, check before fetching');
+            return;
+        }
 
         return this.backlog[0];
 
     }
 
-    setDestionationPosition = ({
-        diff
-    }) => {
-
-
-        if (this.backlog.length === 0) {
-            this.backlog = diff;
-        } else {
-            console.log("err backlog load");
-        }
-
-        this.getNextDestination();
-
-    }
 
     _moveByOneToDestination = () => {
 
+        if (this.isBacklogEmpty()) {
+            console.log('at destination');
+            return;
+        }
+
         let destination = this.getNextDestination();
+
+        if (!destination) {
+            console.log(this.backlog)
+            // console.log('destination undefined');
+            return;
+        }
+
+        // console.log(destination)
 
         let des = remapPosition({
             i: destination.row,
             j: destination.column,
             Boundary: BoardTile
-        })
-
+        });
 
         let atNextDestination = true;
 
@@ -169,7 +204,7 @@ class UiToken extends ContentCreator {
     }
 
     draw = (c) => {
-        c.beginPath()
+        c.beginPath();
         c.arc(
             this.position.x,
             this.position.y,
@@ -178,12 +213,19 @@ class UiToken extends ContentCreator {
             Math.PI * 2,
         );
 
+        /**
+         * check if at destination
+         * 
+         * if at destination
+         * 
+         * else
+         * move in one increment towards destination
+         * 
+         * 
+         * 
+         */
+
         let wasAtDestination = this.isBacklogEmpty();
-
-        if (!wasAtDestination) {
-            this._moveByOneToDestination();
-
-        }
 
         if (!wasAtDestination) {
 
@@ -192,9 +234,7 @@ class UiToken extends ContentCreator {
                     this._sleep();
                 } else {
 
-                    let atNextDestination = this._moveByOneToDestination(
-                        this._getDestinationByOne()
-                    );
+                    let atNextDestination = this._moveByOneToDestination();
 
                     if (atNextDestination) {
                         this.backlog.shift();
@@ -214,15 +254,15 @@ class UiToken extends ContentCreator {
             // check if after redraw the token will be at the destination
             // if the token is at the destination then notify
 
-            console.log("notify")
+            console.log("notify");
             this.notify({
                 command: "UiUpdated"
             });
         }
 
-        c.fillStyle = this.colour
-        c.fill()
-        c.closePath()
+        c.fillStyle = this.colour;
+        c.fill();
+        c.closePath();
 
 
     }
