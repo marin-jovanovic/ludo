@@ -8,13 +8,7 @@
       </button>
     </div>
 
-    <input
-      @change="sliderUpdate"
-      type="range"
-      min="0"
-      max="5000"
-      v-model="this.slider"
-    />
+    <input @change="sliderUpdate" type="range" min="0" max="5000" v-model="this.slider" />
 
     <hr />
 
@@ -45,7 +39,7 @@ import { apiGame } from "@/scripts/api/game";
 export default {
   data() {
     return {
-      slider: 5000,
+      slider: 0,
 
       username: "",
       gameId: "",
