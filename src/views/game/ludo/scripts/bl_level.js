@@ -5,6 +5,18 @@ import {
     getConfig
 } from "./bl_token.js";
 
+/**
+ * public
+ * 
+ * @movePosition
+ * @restartToken
+ * 
+ * when ui updated call @updated
+ * 
+ * when trying to update ui call @tryToSend
+ * 
+ */
+
 class Level extends ContentCreator {
     constructor({
         moves,
@@ -116,7 +128,61 @@ class Level extends ContentCreator {
 
     }
 
-    tryToSend = () => {
+    tryToSend = ({ playerId, tokenId, history }) => {
+
+        console.log(playerId, tokenId, history)
+
+        // current token
+        let token = this.levelState.players[playerId].tokens[tokenId];
+
+        // state machine pattern
+        let states = this.levelState.players[playerId].state;
+
+        // subset of states where this token traversed
+        let thisMovePath = history.map(i => states[i]);
+
+        if (!this.isWaitingForAcceptance) {
+            this.isWaitingForAcceptance = true;
+
+            if (this.changleLog.length === 0) {
+                // send current
+
+                token.notify({
+                    command: "newDestination",
+                    diff: thisMovePath
+                })
+
+            } else {
+
+                // send oldest, log current
+
+                let oldest = this.changleLog.shift();
+
+                let oldestMove = oldest.move;
+                let oldestToken = oldest.token;
+
+                oldestToken.notify({
+                    command: "newDestination",
+                    diff: oldestMove
+                })
+
+                this.changleLog.push({
+                    token: token,
+                    move: thisMovePath
+                });
+
+            }
+
+        } else {
+
+            // log current
+
+            this.changleLog.push({
+                token: token,
+                move: thisMovePath
+            });
+
+        }
 
     }
 
@@ -163,15 +229,30 @@ class Level extends ContentCreator {
 
     }
 
-    restartToken({
+    restartToken = ({
         playerId,
         tokenId
-    }) {
+    }) => {
         /**
          * just a wrapper
          */
 
+        console.log('restart', playerId, tokenId)
+
         this.levelState.players[playerId].tokens[tokenId].restart();
+
+        this.tryToSend({
+            playerId: playerId,
+            tokenId: tokenId,
+            history: [-1]
+        });
+
+
+        // 
+        // this.notify({
+        //     command: "restart",
+        //     position: this.boardXYPosition
+        // });
     }
 
     /**
@@ -199,8 +280,8 @@ class Level extends ContentCreator {
 
 
         if (!(restrictedJumpingOver.includes(
-                (t.state + jumpCount)
-            ))) {
+            (t.state + jumpCount)
+        ))) {
             return true
         }
 
@@ -257,15 +338,20 @@ class Level extends ContentCreator {
 
         // absolute view
 
+        // playerId => [{token, tokenId}]
+        // filtered only on stateOfInteres
         let occupiedSpaces = {};
 
         let token = this.levelState.players[playerId].tokens[tokenId];
 
+        // where @token is now
         let stateOfInteres = token.absoluteState;
 
         for (const [playerId, p] of Object.entries(this.levelState.players)) {
 
-            Object.values(p.tokens).forEach(t => {
+            for (const [tokenId, t] of Object.entries(p.tokens)) {
+
+                // console.log(tokenId);
 
                 if (t !== token) {
 
@@ -274,15 +360,41 @@ class Level extends ContentCreator {
                     if (t.absoluteState === stateOfInteres) {
 
                         if (k in occupiedSpaces) {
-                            occupiedSpaces[k].push(t);
+                            occupiedSpaces[k].push({
+                                token: t,
+                                tokenId: tokenId
+                            });
                         } else {
-                            occupiedSpaces[k] = [t];
+                            occupiedSpaces[k] = [{
+                                token: t,
+                                tokenId: tokenId
+                            }];
                         }
 
                     }
 
                 }
-            });
+
+            }
+
+            // Object.values(p.tokens).forEach(t => {
+
+            //     if (t !== token) {
+
+            //         let k = playerId;
+
+            //         if (t.absoluteState === stateOfInteres) {
+
+            //             if (k in occupiedSpaces) {
+            //                 occupiedSpaces[k].push(t);
+            //             } else {
+            //                 occupiedSpaces[k] = [t];
+            //             }
+
+            //         }
+
+            //     }
+            // });
 
         }
 
@@ -316,18 +428,31 @@ class Level extends ContentCreator {
         if (occupiedSpaces.length !== 1) {
             for (const [owner, tokens] of Object.entries(occupiedSpaces)) {
 
+                console.log(tokens)
 
                 if (Number(owner) !== playerId) {
                     if (tokens.length === 1) {
 
+                        // eat
+
                         tokens.forEach(t => {
-                            t.restart();
+
+                            this.restartToken({
+                                playerId: Number(owner),
+                                tokenId: t.tokenId
+                            })
+
+
                         });
 
+                    } else if (tokens.length > 1) {
 
-                    } else if (tokens.length >= 1) {
+                        this.restartToken({
+                            playerId: Number(owner),
+                            tokenId: tokenId
+                        })
 
-                        token.restart();
+
                     }
                 }
 
@@ -397,24 +522,27 @@ class Level extends ContentCreator {
                     // state exists
 
                     if (this.isNotJumpingOverRestricted({
-                            jumpCount: jumpCount,
-                            player: playerId,
-                            tokenId: tokenId
-                        })) {
+                        jumpCount: jumpCount,
+                        player: playerId,
+                        tokenId: tokenId
+                    })) {
 
                         // bl
                         token.move({
                             count: jumpCount,
                         });
 
-                    } else {
-                        console.log("can not jump over other token in restricted jumping area")
                     }
+                    // else {
+                    //     console.log("can not jump over other token in restricted jumping area")
+                    // }
 
-                } else {
-                    console.log("ret false")
-                    // return false;
                 }
+                // else {
+
+                //     console.log("ret false, moving out of states (over reaching)")
+                //     // return false;
+                // }
 
                 break;
 
@@ -439,8 +567,8 @@ class Level extends ContentCreator {
 
 
         if (this.isGameWon({
-                playerId: playerId
-            })) {
+            playerId: playerId
+        })) {
             console.log("todo game won");
         }
 
@@ -487,52 +615,11 @@ class Level extends ContentCreator {
             return;
         }
 
-        let states = this.levelState.players[playerId].state;
-
-
-        let thisMovePath = changeLog.map(i => states[i]);
-
-
-        if (!this.isWaitingForAcceptance) {
-            this.isWaitingForAcceptance = true;
-
-            if (this.changleLog.length === 0) {
-
-                token.notify({
-                    command: "newDestination",
-                    diff: thisMovePath
-                })
-
-            } else {
-
-                let oldest = this.changleLog.shift();
-
-                let oldestMove = oldest.move;
-                let oldestToken = oldest.token;
-
-                oldestToken.notify({
-                    command: "newDestination",
-                    diff: oldestMove
-                })
-
-                this.changleLog.push({
-                    token: token,
-                    move: thisMovePath
-                });
-
-            }
-
-
-
-        } else {
-
-            this.changleLog.push({
-                token: token,
-                move: thisMovePath
-            });
-
-
-        }
+        this.tryToSend({
+            playerId: playerId,
+            tokenId: tokenId,
+            history: changeLog
+        });
 
         // todo reorder ui update,check eating,  check win, 
 
