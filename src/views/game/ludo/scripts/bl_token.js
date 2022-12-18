@@ -26,7 +26,8 @@ function getConfig() {
 class BlToken extends ContentCreator {
 
     constructor({
-        state
+        state,
+        xy
     }) {
         super();
 
@@ -36,6 +37,8 @@ class BlToken extends ContentCreator {
 
         // absolute
         this.absoluteState = state;
+
+        this.boardXYPosition = xy;
 
 
         this.pool = getConfig()["pool"]["start"];
@@ -51,20 +54,16 @@ class BlToken extends ContentCreator {
 
     restart() {
         /**
-         * one enemy token eats this token; move it to start position
-         */
-
-        // console.log("restart")
-
-        // console.log(this.startingState);
+     * one enemy token eats this token; move it to start position
+     */
 
         this.state = this.startingState;
         this.absoluteState = this.state;
 
-
-        this.notify({
-            command: "restart"
-        });
+        // this.notify({
+        //     command: "restart",
+        //     position: this.boardXYPosition
+        // });
 
     }
 
