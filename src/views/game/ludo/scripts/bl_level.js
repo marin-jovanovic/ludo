@@ -101,7 +101,6 @@ class Level extends ContentCreator {
 
     updated = () => {
 
-
         // todo check for race condition
 
         if (this.changleLog.length === 0) {
@@ -115,6 +114,8 @@ class Level extends ContentCreator {
             let oldestMove = oldest.move;
             let oldestToken = oldest.token;
 
+            console.log("notify", oldestMove)
+
             oldestToken.notify({
                 command: "newDestination",
                 diff: oldestMove
@@ -122,30 +123,31 @@ class Level extends ContentCreator {
 
             this.changleLog.shift();
 
-
         }
-
 
     }
 
-    tryToSend = ({ playerId, tokenId, history }) => {
+    // tryToSend = ({ playerId, tokenId, history }) => {
+    tryToSend = ({ playerId, tokenId, thisMovePath }) => {
 
-        console.log(playerId, tokenId, history)
+        // console.log(playerId, tokenId, history)
 
         // current token
         let token = this.levelState.players[playerId].tokens[tokenId];
 
         // state machine pattern
-        let states = this.levelState.players[playerId].state;
+        // let states = this.levelState.players[playerId].state;
 
-        // subset of states where this token traversed
-        let thisMovePath = history.map(i => states[i]);
+        // // subset of states where this token traversed
+        // let thisMovePath = history.map(i => states[i]);
 
         if (!this.isWaitingForAcceptance) {
             this.isWaitingForAcceptance = true;
 
             if (this.changleLog.length === 0) {
                 // send current
+
+                console.log("notify", thisMovePath)
 
                 token.notify({
                     command: "newDestination",
@@ -160,6 +162,8 @@ class Level extends ContentCreator {
 
                 let oldestMove = oldest.move;
                 let oldestToken = oldest.token;
+
+                console.log("notify", oldestMove)
 
                 oldestToken.notify({
                     command: "newDestination",
@@ -185,6 +189,14 @@ class Level extends ContentCreator {
         }
 
     }
+
+    // safeSend({ playerId, tokenId, history}) {
+    //     // if (history === [-1]) {
+    //     //     console.log("-1")
+    //     // } else {
+    //     //     this.tryToSend({playerId: playerId, tokenId:tokenId, history: history});
+    //     // }
+    // }
 
     movePosition({
         playerId,
@@ -237,16 +249,75 @@ class Level extends ContentCreator {
          * just a wrapper
          */
 
+
+        // move this token
+        // then check for moving
+
         console.log('restart', playerId, tokenId)
 
         this.levelState.players[playerId].tokens[tokenId].restart();
 
-        this.tryToSend({
-            playerId: playerId,
-            tokenId: tokenId,
-            history: [-1]
-        });
+        // this.tryToSend({
+        //     playerId: playerId,
+        //     tokenId: tokenId,
+        //     history: [-1]
+        // });
 
+
+          // current token
+          let token = this.levelState.players[playerId].tokens[tokenId];
+
+            // subset of states where this token traversed
+            // let thisMovePath = history.map(i => states[i]);
+
+            let thisMovePath = [token.boardXYPosition];
+
+            if (!this.isWaitingForAcceptance) {
+                this.isWaitingForAcceptance = true;
+    
+                if (this.changleLog.length === 0) {
+                    // send current
+    
+                    console.log("notify", thisMovePath)
+    
+                    token.notify({
+                        command: "newDestination",
+                        diff: thisMovePath
+                    })
+    
+                } else {
+    
+                    // send oldest, log current
+    
+                    let oldest = this.changleLog.shift();
+    
+                    let oldestMove = oldest.move;
+                    let oldestToken = oldest.token;
+    
+                    console.log("notify", oldestMove)
+    
+                    oldestToken.notify({
+                        command: "newDestination",
+                        diff: oldestMove
+                    })
+    
+                    this.changleLog.push({
+                        token: token,
+                        move: thisMovePath
+                    });
+    
+                }
+    
+            } else {
+    
+                // log current
+    
+                this.changleLog.push({
+                    token: token,
+                    move: thisMovePath
+                });
+    
+            }
 
         // 
         // this.notify({
@@ -351,8 +422,6 @@ class Level extends ContentCreator {
 
             for (const [tokenId, t] of Object.entries(p.tokens)) {
 
-                // console.log(tokenId);
-
                 if (t !== token) {
 
                     let k = playerId;
@@ -376,25 +445,6 @@ class Level extends ContentCreator {
                 }
 
             }
-
-            // Object.values(p.tokens).forEach(t => {
-
-            //     if (t !== token) {
-
-            //         let k = playerId;
-
-            //         if (t.absoluteState === stateOfInteres) {
-
-            //             if (k in occupiedSpaces) {
-            //                 occupiedSpaces[k].push(t);
-            //             } else {
-            //                 occupiedSpaces[k] = [t];
-            //             }
-
-            //         }
-
-            //     }
-            // });
 
         }
 
@@ -427,8 +477,6 @@ class Level extends ContentCreator {
 
         if (occupiedSpaces.length !== 1) {
             for (const [owner, tokens] of Object.entries(occupiedSpaces)) {
-
-                console.log(tokens)
 
                 if (Number(owner) !== playerId) {
                     if (tokens.length === 1) {
@@ -566,24 +614,14 @@ class Level extends ContentCreator {
         }
 
 
-        if (this.isGameWon({
-            playerId: playerId
-        })) {
-            console.log("todo game won");
-        }
-
-        this.checkEating({
-            playerId: playerId,
-            tokenId: tokenId
-        });
 
         // note: this code is not targeting restart token function, and that is ok
 
         let destinationState = token.state;
 
-        let changeLog = [];
+        let history = [];
         for (let i = pastState + 1; i < destinationState + 1; i++) {
-            changeLog.push(i);
+            history.push(i);
         }
 
 
@@ -615,13 +653,33 @@ class Level extends ContentCreator {
             return;
         }
 
+        // state machine pattern
+        let states = this.levelState.players[playerId].state;
+
+        // // subset of states where this token traversed
+        let thisMovePath = history.map(i => states[i]);
+
         this.tryToSend({
             playerId: playerId,
             tokenId: tokenId,
-            history: changeLog
+            thisMovePath: thisMovePath,
+            // history: changeLog
         });
 
         // todo reorder ui update,check eating,  check win, 
+
+
+        this.checkEating({
+            playerId: playerId,
+            tokenId: tokenId
+        });
+
+        if (this.isGameWon({
+            playerId: playerId
+        })) {
+            console.log("todo game won");
+        }
+
 
 
         return true;
