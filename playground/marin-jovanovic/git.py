@@ -20,7 +20,7 @@ def main():
     comment = "impl: create / update portfolio"
     comment = 'ref: rewrite db scheme'
 
-    comment = "wip: debug token restart"
+    comment = "fix: token restart"
 
     if same_comment:
         if not comment:
