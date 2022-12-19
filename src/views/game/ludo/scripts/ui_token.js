@@ -94,6 +94,17 @@ class UiToken extends ContentCreator {
         if (this.isBacklogEmpty()) {
             // todo improve by making this list and appending this list(diff)
 
+            diff.forEach(i => {
+                if (!("row" in i)) {
+                    console.log("misssing row")
+                }
+
+                if (!("column" in i)) {
+                    console.log("missing column")
+                }
+
+            })
+
             const clone = structuredClone(diff);
             this.backlog = clone;
 
@@ -156,6 +167,7 @@ class UiToken extends ContentCreator {
             return;
         }
 
+        console.log("ret value")
         return this.backlog[0];
 
     }
@@ -169,6 +181,14 @@ class UiToken extends ContentCreator {
         }
 
         let destination = this.getNextDestination();
+
+        // if ("row" in destination) {
+        //     console.log("has row")
+        // }
+
+        // if (destination === false) {
+        //     console.log("destination is false");
+        // }
 
         if (!destination) {
             console.log(this.backlog)
