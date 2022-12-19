@@ -54,7 +54,6 @@ class UiToken extends ContentCreator {
 
         // for jumping between tiles
         this.backlog = [];
-        this.backlogSleepFrameCount = 10;
         this.backlogSleepFrameDec = 0;
         this.startSleeping = false;
 
@@ -69,21 +68,11 @@ class UiToken extends ContentCreator {
 
         this.choice_oneByOne_pythagoras = true;
 
-        // this.previousPosition = undefined;
+        // todo expose
+        // control how much time is spent on updating
+        this.backlogSleepFrameCount = 2;
+        this.increment = 12;
 
-    }
-
-    // todo this is rewired to setdestination
-    restart = ({ position }) => {
-        /**
-         * one enemy token eats this token; move it to start position
-         */
-
-        console.log('restart catch')
-
-        this.setDestionationPosition({
-            diff: [position]
-        })
 
     }
 
@@ -96,11 +85,11 @@ class UiToken extends ContentCreator {
 
             diff.forEach(i => {
                 if (!("row" in i)) {
-                    console.log("misssing row")
+                    console.log("err: misssing row")
                 }
 
                 if (!("column" in i)) {
-                    console.log("missing column")
+                    console.log("err: missing column")
                 }
 
             })
@@ -112,7 +101,6 @@ class UiToken extends ContentCreator {
             console.log("err backlog load");
         }
 
-        // this.getNextDestination();
 
     }
 
@@ -120,24 +108,24 @@ class UiToken extends ContentCreator {
     isBacklogEmpty = () => {
 
         if (this.backlog === []) {
-            console.log('init')
+            console.log('err init')
             return true;
         }
 
         if (!this.backlog) {
-            console.log('indefind')
+            console.log('err indefind')
             return true;
         }
 
         if (!this.backlog.length === 0) {
-            console.log('len 0')
+            console.log('err len 0')
             return true;
         }
 
 
 
         if (!this.backlog?.length != (this.backlog.length === 0)) {
-            console.log('not same')
+            console.log('err not same')
         }
 
         return !this.backlog?.length;
@@ -167,7 +155,6 @@ class UiToken extends ContentCreator {
             return;
         }
 
-        console.log("ret value")
         return this.backlog[0];
 
     }
@@ -182,21 +169,11 @@ class UiToken extends ContentCreator {
 
         let destination = this.getNextDestination();
 
-        // if ("row" in destination) {
-        //     console.log("has row")
-        // }
-
-        // if (destination === false) {
-        //     console.log("destination is false");
-        // }
-
         if (!destination) {
             console.log(this.backlog)
-            // console.log('destination undefined');
             return;
         }
 
-        // console.log(destination)
 
         let des = remapPosition({
             i: destination.row,
@@ -206,15 +183,55 @@ class UiToken extends ContentCreator {
 
         let atNextDestination = true;
 
+        /**
+         * default speed is to move in increments by 1
+         * that is referent speed of 100 %
+         * 
+         * 150% speed is increments of 1.50
+         * 
+         * 235% = 2.35
+         * 
+         * 85% = 0.85
+         * 
+         * add in increments 
+         * ie 
+         * start 2
+         * target 7
+         * 2    + 2.35 = 4.35
+         * 4.35 + 2.35 = 6.70
+         * 6.70 + 2.35 = over 7 (target), add only .30
+         * 
+         * start 7
+         * target 2
+         * 7    - 2.35 = 4.65
+         * 4.65 - 2.35 = 2.30
+         * 2.30 - 2.35 = less then 2, subtract only .30
+         * 
+         */
+
+
         ['x', 'y'].forEach(i => {
 
             if (this.position[i] !== des[i]) {
+
                 atNextDestination = false;
 
                 if (this.position[i] > des[i]) {
-                    this.position[i]--;
+
+                    if (this.position[i] - this.increment < des[i]) {
+                        this.position[i] = des[i];
+                    } else {
+                        this.position[i] -= this.increment;
+                    }
+
                 } else if (this.position[i] < des[i]) {
-                    this.position[i]++;
+
+                    if (this.position[i] + this.increment > des[i]) {
+                        this.position[i] = des[i];
+                    } else {
+                        this.position[i] += this.increment;
+                    }
+
                 }
 
             }
@@ -274,7 +291,6 @@ class UiToken extends ContentCreator {
             // check if after redraw the token will be at the destination
             // if the token is at the destination then notify
 
-            console.log("notify");
             this.notify({
                 command: "UiUpdated"
             });
