@@ -131,7 +131,10 @@ function mapTokens({
 
                 let blToken = new BlToken({
                     state: -1,
-                    xy: { row: i, column: j }
+                    xy: {
+                        row: i,
+                        column: j
+                    }
                 });
                 let uiToken = new UiToken({
                     colour: mappings[symbol],
