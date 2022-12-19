@@ -33,15 +33,29 @@ class BlToken extends ContentCreator {
 
         // relative numbers
         this.startingState = state;
+        // natural number
         this.state = state;
 
         // absolute
         this.absoluteState = state;
 
+        // this is row/column position
         this.boardXYPosition = xy;
 
 
         this.pool = getConfig()["pool"]["start"];
+    }
+
+    setPool({pool}) {
+
+        if (! (pool in getConfig()["pool"])) {
+            console.log("pool not exists");
+            return;
+        }
+
+        console.log("set pool", pool);
+
+        this.pool = pool;
     }
 
     getObjectMaxKey(obj) {
@@ -54,16 +68,11 @@ class BlToken extends ContentCreator {
 
     restart() {
         /**
-     * one enemy token eats this token; move it to start position
-     */
+         * one enemy token eats this token; move it to start position
+         */
 
         this.state = this.startingState;
         this.absoluteState = this.state;
-
-        // this.notify({
-        //     command: "restart",
-        //     position: this.boardXYPosition
-        // });
 
     }
 
