@@ -140,26 +140,26 @@ class Game {
 
     }
 
-    // todo remove, why would this be exposed to user?
-    restartToken({
-        playerId,
-        tokenId
-    }) {
-        /**
-         * @player wants to move @token to starting position
-         * this is not something that user can do
-         * 
-         * this can only be done programaticaly => user does not have the option to chose this
-         * 
-         */
+    // // todo remove, why would this be exposed to user?
+    // restartToken({
+    //     playerId,
+    //     tokenId
+    // }) {
+    //     /**
+    //      * @player wants to move @token to starting position
+    //      * this is not something that user can do
+    //      * 
+    //      * this can only be done programaticaly => user does not have the option to chose this
+    //      * 
+    //      */
 
 
-        this.bl.currentLevel.restartToken({
-            playerId: playerId,
-            tokenId: tokenId
-        });
+    //     this.bl.currentLevel.restartToken({
+    //         playerId: playerId,
+    //         tokenId: tokenId
+    //     });
 
-    }
+    // }
 
 }
 
