@@ -95,11 +95,10 @@ class Level extends ContentCreator {
 
     }
 
-    // canNotify = () => {
-    //     return ! this.isWaitingForAcceptance;
-    // }
-
     updated = () => {
+        /**
+         * callback for updating ui
+         */
 
         // todo check for race condition
 
@@ -114,8 +113,6 @@ class Level extends ContentCreator {
             let oldestMove = oldest.move;
             let oldestToken = oldest.token;
 
-            console.log("notify", oldestMove)
-
             oldestToken.notify({
                 command: "newDestination",
                 diff: oldestMove
@@ -127,27 +124,44 @@ class Level extends ContentCreator {
 
     }
 
-    // tryToSend = ({ playerId, tokenId, history }) => {
-    tryToSend = ({ playerId, tokenId, thisMovePath }) => {
+    // safe send
+    tryToSend = ({
+        playerId,
+        tokenId,
+        thisMovePath
+    }) => {
 
-        // console.log(playerId, tokenId, history)
+        if (!thisMovePath?.length) {
+            console.log("[err] empty")
+            return;
+        }
+
+
+        /**
+         * if can notify
+         * set flag that it can not notify
+         * 
+         * if log is empty
+         * notify this change
+         * 
+         * else 
+         * notify oldest change
+         * remove oldest change from log
+         * add this change to log
+         *  
+         * else 
+         * add this change to log
+         * 
+         */
 
         // current token
         let token = this.levelState.players[playerId].tokens[tokenId];
-
-        // state machine pattern
-        // let states = this.levelState.players[playerId].state;
-
-        // // subset of states where this token traversed
-        // let thisMovePath = history.map(i => states[i]);
 
         if (!this.isWaitingForAcceptance) {
             this.isWaitingForAcceptance = true;
 
             if (this.changleLog.length === 0) {
                 // send current
-
-                console.log("notify", thisMovePath)
 
                 token.notify({
                     command: "newDestination",
@@ -162,8 +176,6 @@ class Level extends ContentCreator {
 
                 let oldestMove = oldest.move;
                 let oldestToken = oldest.token;
-
-                console.log("notify", oldestMove)
 
                 oldestToken.notify({
                     command: "newDestination",
@@ -190,14 +202,6 @@ class Level extends ContentCreator {
 
     }
 
-    // safeSend({ playerId, tokenId, history}) {
-    //     // if (history === [-1]) {
-    //     //     console.log("-1")
-    //     // } else {
-    //     //     this.tryToSend({playerId: playerId, tokenId:tokenId, history: history});
-    //     // }
-    // }
-
     movePosition({
         playerId,
         tokenId,
@@ -217,27 +221,123 @@ class Level extends ContentCreator {
          * 
          */
 
-        // todo refactor
 
 
-        // let isLegalMove =  
-        this.__movePositionDriver({
+        if (!(playerId in this.levelState.players)) {
+            console.log("err: unknown player", playerId);
+            return;
+        }
+
+        if (!(tokenId in this.levelState.players[playerId].tokens)) {
+            console.log("err: unknown token", tokenId);
+            return;
+        }
+
+        if (jumpCount === 0) {
+            console.log("err: no movement");
+            return;
+        }
+
+        let token = this.levelState.players[playerId].tokens[tokenId];
+        let pastState = token.state;
+
+        switch (token.pool) {
+            case getConfig()["pool"]["start"]:
+
+                this.moveTokenFromStartingPoolToLivePool({
+                    token: token,
+                    playerId: playerId
+                });
+                
+                break;
+
+            case getConfig()["pool"]["live"]:
+
+                // check if can move so much 
+
+                if (
+                    token.state + jumpCount in this.levelState.players[playerId].state
+                ) {
+                    // state exists
+
+                    if (this.isNotJumpingOverRestricted({
+                            jumpCount: jumpCount,
+                            player: playerId,
+                            tokenId: tokenId
+                        })) {
+
+                        // not jumping over restricted 
+
+                        token.move({
+                            count: jumpCount,
+                        });
+
+                    } else {
+                        console.log("err: trying to jump in restricted jumping area")
+                    }
+
+                } else {
+                    console.log("err: trying to move to undefined state")
+                    console.log(token)
+                    console.log(this.levelState.players)
+
+                    return;
+                }
+
+                break;
+
+            case getConfig()["pool"]["done"]:
+
+                // todo add logic that add this token to done pool
+                console.log("at destination position")
+
+                break;
+
+            default:
+
+                console.log("err: unknown pool")
+                break
+
+        }
+
+        if (!(token.state in this.levelState.players[playerId].state)) {
+            console.log("err not there", token.state)
+            return
+        }
+
+        // /////////////////// notify UI ////////////////////////
+
+        let destinationState = token.state;
+
+        let history = [];
+        for (let i = pastState + 1; i < destinationState + 1; i++) {
+            history.push(i);
+        }
+
+        // state machine pattern
+        let states = this.levelState.players[playerId].state;
+
+        // // subset of states where this token traversed
+        let thisMovePath = history.map(i => states[i]);
+
+        this.tryToSend({
             playerId: playerId,
             tokenId: tokenId,
-            jumpCount: jumpCount,
+            thisMovePath: thisMovePath,
         });
 
-        // if (isLegalMove) {
+        // /////////////////// checks ////////////////////////
 
-        //     // move token on ui layer
+        this.checkEating({
+            playerId: playerId,
+            tokenId: tokenId
+        });
 
-        //     console.log("move is legal")
-
-
-        //     // move token on bl
-        //     // note: this is performed in islegalmove
-
-        // }
+        if (this.isGameWon({
+                playerId: playerId
+            })) {
+            console.log("todo game won");
+        }
 
     }
 
@@ -253,77 +353,19 @@ class Level extends ContentCreator {
         // move this token
         // then check for moving
 
-        console.log('restart', playerId, tokenId)
-
         this.levelState.players[playerId].tokens[tokenId].restart();
 
-        // this.tryToSend({
-        //     playerId: playerId,
-        //     tokenId: tokenId,
-        //     history: [-1]
-        // });
+        // current token
+        let token = this.levelState.players[playerId].tokens[tokenId];
 
+        let thisMovePath = [token.boardXYPosition];
+      
+        this.tryToSend({
+            playerId: playerId,
+            tokenId: tokenId,
+            thisMovePath: thisMovePath
+        });
 
-          // current token
-          let token = this.levelState.players[playerId].tokens[tokenId];
-
-            // subset of states where this token traversed
-            // let thisMovePath = history.map(i => states[i]);
-
-            let thisMovePath = [token.boardXYPosition];
-
-            if (!this.isWaitingForAcceptance) {
-                this.isWaitingForAcceptance = true;
-    
-                if (this.changleLog.length === 0) {
-                    // send current
-    
-                    console.log("notify", thisMovePath)
-    
-                    token.notify({
-                        command: "newDestination",
-                        diff: thisMovePath
-                    })
-    
-                } else {
-    
-                    // send oldest, log current
-    
-                    let oldest = this.changleLog.shift();
-    
-                    let oldestMove = oldest.move;
-                    let oldestToken = oldest.token;
-    
-                    console.log("notify", oldestMove)
-    
-                    oldestToken.notify({
-                        command: "newDestination",
-                        diff: oldestMove
-                    })
-    
-                    this.changleLog.push({
-                        token: token,
-                        move: thisMovePath
-                    });
-    
-                }
-    
-            } else {
-    
-                // log current
-    
-                this.changleLog.push({
-                    token: token,
-                    move: thisMovePath
-                });
-    
-            }
-
-        // 
-        // this.notify({
-        //     command: "restart",
-        //     position: this.boardXYPosition
-        // });
     }
 
     /**
@@ -351,8 +393,8 @@ class Level extends ContentCreator {
 
 
         if (!(restrictedJumpingOver.includes(
-            (t.state + jumpCount)
-        ))) {
+                (t.state + jumpCount)
+            ))) {
             return true
         }
 
@@ -515,175 +557,12 @@ class Level extends ContentCreator {
     }) {
         // todo dehardcode absolute state
 
-        token.pool = getConfig()["pool"]["live"];
+        token.setPool({pool: getConfig()["pool"]["live"]});
         token.state = 0;
         token.absoluteState = 13 * playerId;
 
     }
 
-    __movePositionDriver({
-        playerId,
-        tokenId,
-        jumpCount
-    }) {
-        /**
-         * move token on business layer
-         */
-
-        if (!(playerId in this.levelState.players)) {
-            console.log("err: unknown player", playerId);
-            return;
-        }
-
-        if (!(tokenId in this.levelState.players[playerId].tokens)) {
-            console.log("err: unknown token", tokenId);
-            return;
-        }
-
-        // if (jumpCount === 0) {
-        //     console.log("err: no movement");
-        //     return;
-        // }
-
-        let token = this.levelState.players[playerId].tokens[tokenId];
-        let pastState = token.state;
-        // todo reformat to xy absolute
-        // find all xy pair where it needs to go before reaching destination xy
-
-        // fire event with all xy pairs to ui
-
-        switch (token.pool) {
-            case getConfig()["pool"]["start"]:
-                this.moveTokenFromStartingPoolToLivePool({
-                    token: token,
-                    playerId: playerId
-                });
-                break;
-
-            case getConfig()["pool"]["live"]:
-
-                // check if can move so much 
-
-                if (
-                    token.state + jumpCount in this.levelState.players[playerId].state
-                ) {
-                    // state exists
-
-                    if (this.isNotJumpingOverRestricted({
-                        jumpCount: jumpCount,
-                        player: playerId,
-                        tokenId: tokenId
-                    })) {
-
-                        // bl
-                        token.move({
-                            count: jumpCount,
-                        });
-
-                    }
-                    // else {
-                    //     console.log("can not jump over other token in restricted jumping area")
-                    // }
-
-                }
-                // else {
-
-                //     console.log("ret false, moving out of states (over reaching)")
-                //     // return false;
-                // }
-
-                break;
-
-            case getConfig()["pool"]["done"]:
-
-                // todo add logic that add this token to done pool
-                console.log("at destination position")
-
-                break;
-
-            default:
-
-                console.log("err: unknown pool")
-                break
-
-        }
-
-        if (!(token.state in this.levelState.players[playerId].state)) {
-            console.log("err not there", token.state)
-            return
-        }
-
-
-
-        // note: this code is not targeting restart token function, and that is ok
-
-        let destinationState = token.state;
-
-        let history = [];
-        for (let i = pastState + 1; i < destinationState + 1; i++) {
-            history.push(i);
-        }
-
-
-
-        // /////////////////// notify UI ////////////////////////
-
-        /**
-         * if can notify
-         * set flag that it can not notify
-         * 
-         * if log is empty
-         * notify this change
-         * 
-         * else 
-         * notify oldest change
-         * remove oldest change from log
-         * add this change to log
-         *  
-         * else 
-         * add this change to log
-         * 
-         */
-
-
-        if (!(token.state in this.levelState.players[playerId].state)) {
-            console.log("err: state not in state dict");
-            // assumption: token was moved to start position
-            // notif: reset was called, no need to launch newDestination notif
-            return;
-        }
-
-        // state machine pattern
-        let states = this.levelState.players[playerId].state;
-
-        // // subset of states where this token traversed
-        let thisMovePath = history.map(i => states[i]);
-
-        this.tryToSend({
-            playerId: playerId,
-            tokenId: tokenId,
-            thisMovePath: thisMovePath,
-            // history: changeLog
-        });
-
-        // todo reorder ui update,check eating,  check win, 
-
-
-        this.checkEating({
-            playerId: playerId,
-            tokenId: tokenId
-        });
-
-        if (this.isGameWon({
-            playerId: playerId
-        })) {
-            console.log("todo game won");
-        }
-
-
-
-        return true;
-    }
 
 }
 
