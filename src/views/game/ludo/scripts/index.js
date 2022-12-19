@@ -140,6 +140,7 @@ class Game {
 
     }
 
+    // todo remove, why would this be exposed to user?
     restartToken({
         playerId,
         tokenId
