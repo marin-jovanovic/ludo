@@ -12,7 +12,7 @@
 
   <select v-model="selected">
     <option v-for="item in this.types" v-bind:value="item" :key="item">
-      {{ item.id }}
+      {{ item.type }}
     </option>
   </select>
 
@@ -46,11 +46,11 @@ export default {
     return {
       boardBuilder: undefined,
       types: [
-        { id: "1", colour: "#99c1f1" },
-        { id: "2", colour: "" },
-        { id: "3", colour: "" },
+        { type: "1", colour: "#99c1f1" },
+        { type: "2", colour: "#f9f06b" },
+        { type: "3", colour: "#77767b" },
       ],
-      selected: { id: "1", colour: "#99c1f1" },
+      selected: { type: "1", colour: "#99c1f1" },
 
       rowCount: 5,
       columnCount: 15,
@@ -60,7 +60,7 @@ export default {
 
       counterToCell: {},
 
-      defaultColour: "white",
+      defaultColour: "#77767b",
     };
   },
   mounted() {
@@ -74,8 +74,6 @@ export default {
       this.table[r] = row;
     }
 
-    this.table[2][2].type = "b";
-
     this.cellClicked(2, 1);
     this.cellClicked(3, 2);
     this.cellClicked(4, 3);
@@ -83,6 +81,7 @@ export default {
     this.cellClicked(2, 5);
   },
   methods: {
+    // comm
     getMaxKey(obj) {
       return Number(
         Object.keys(obj).reduce((a, b) => (obj[a] > obj[b] ? a : b))
@@ -98,17 +97,16 @@ export default {
     isCellSelected(row, column) {
       let meta = this.table[row][column];
 
+      if (!("value" in meta)) {
+        console.log("err no value");
+        console.log(meta.value);
+      }
+
       if (meta.value === 0) {
         return true;
       }
 
       return !isNaN(meta.value);
-
-      // if (meta.value === undefined) {
-      //   return false;
-      // }
-
-      // return meta.value || meta.value === 0;
     },
 
     updateColumnChange() {
@@ -134,6 +132,7 @@ export default {
               removedTiles.push(tile);
             }
 
+            // // this will cause err in consistency
             delete this.table[row][currentNumberOfColumns + i - 1];
           }
         }
@@ -146,6 +145,7 @@ export default {
 
         while (removedTilesIndexes?.length) {
           let index = removedTilesIndexes.pop(0);
+
           this.removeIndex(index);
         }
       } else if (currentNumberOfColumns < this.columnCount) {
@@ -215,6 +215,7 @@ export default {
             }
           }
 
+          // this will cause err in check consistency
           delete this.table[rowScheduledForRemoving];
         }
 
@@ -262,28 +263,28 @@ export default {
     checkBoardConsistent() {
       let tileVals = [];
 
-      console.log("check");
+      // console.log("check");
 
-      let ctcCheck = Object.keys(this.counterToCell);
-      console.log("ctc keys", ctcCheck);
+      // let ctcCheck = Object.keys(this.counterToCell);
+      // console.log("ctc keys", ctcCheck);
 
-      console.log("counter to cell");
-      for (const [counter, cell] of Object.entries(this.counterToCell)) {
-        if (Number(counter) !== cell.value) {
-          console.log("err", counter, cell.value);
-        }
+      // // console.log("counter to cell");
+      // for (const [counter, cell] of Object.entries(this.counterToCell)) {
+      //   if (Number(counter) !== cell.value) {
+      //     console.log("err", counter, cell.value);
+      //   }
 
-        console.log(counter, cell);
-      }
+      //   // console.log(counter, cell);
+      // }
 
-      console.log("board");
-      for (let r = 0; r < this.rowCount; r++) {
-        for (let c = 0; c < this.columnCount; c++) {
-          if (this.isCellSelected(r, c)) {
-            console.log(this.table[r][c].value);
-          }
-        }
-      }
+      // console.log("board");
+      // for (let r = 0; r < this.rowCount; r++) {
+      //   for (let c = 0; c < this.columnCount; c++) {
+      //     if (this.isCellSelected(r, c)) {
+      //       console.log(this.table[r][c].value);
+      //     }
+      //   }
+      // }
 
       for (let r = 0; r < this.rowCount; r++) {
         for (let c = 0; c < this.columnCount; c++) {
@@ -332,14 +333,11 @@ export default {
           height: "40px",
         },
         value: undefined,
+        type: undefined,
       };
     },
 
     renameObjectKey(o, oldKey, newKey) {
-      console.log("rename", oldKey, newKey, oldKey !== newKey);
-
-      console.log("ren b", Object.keys(o));
-
       if (oldKey !== newKey && o[oldKey] && !o[newKey]) {
         Object.defineProperty(
           o,
@@ -348,12 +346,7 @@ export default {
         );
 
         delete o[oldKey];
-
-        console.log("ren deleted");
       }
-      console.log("ren a", Object.keys(o));
-
-      console.log("ren", o);
     },
 
     removeIndex(index) {
@@ -379,11 +372,6 @@ export default {
         }
       }
 
-      console.log(
-        "to decrement",
-        scheduledForDecrementing.map((i) => i.value)
-      );
-
       scheduledForDecrementing.forEach((i) => {
         let oldKey = i.value;
         let newKey = i.value - 1;
@@ -397,11 +385,6 @@ export default {
         );
       });
 
-      console.log(
-        "after decrementing",
-        scheduledForDecrementing.map((i) => i.value)
-      );
-
       if (Object.keys(this.counterToCell)?.length) {
         this.counter = this.getMaxKey(this.counterToCell) + 1;
       } else {
@@ -410,7 +393,6 @@ export default {
 
       console.log("next tile will have value:", this.counter);
 
-      console.log("remove index");
       this.checkBoardConsistent();
     },
 
@@ -427,6 +409,7 @@ export default {
 
         let tileValue = cell.value;
         cell.value = undefined;
+        cell.type = undefined;
 
         this.removeIndex(tileValue);
       } else {
@@ -435,10 +418,10 @@ export default {
         this.counterToCell[this.counter] = cell;
 
         cell.value = this.counter;
+        cell.type = this.selected.type;
         this.counter++;
       }
 
-      console.log("cell clicked");
       this.checkBoardConsistent();
     },
 
@@ -451,6 +434,7 @@ export default {
             logSelected[meta.value] = {
               row: rowId,
               column: columnId,
+              type: meta.type,
             };
           }
         }
