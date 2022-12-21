@@ -20,7 +20,7 @@ def main():
     comment = "impl: create / update portfolio"
     comment = 'ref: rewrite db scheme'
 
-    comment = "wip: board builder"
+    comment = "impl: #4 create /createPage where user can define pool when placing tiles"
 
     if same_comment:
         if not comment:
