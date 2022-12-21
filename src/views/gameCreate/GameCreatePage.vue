@@ -46,17 +46,19 @@ export default {
     return {
       boardBuilder: undefined,
       types: [
-        { id: "1", colour: "" },
+        { id: "1", colour: "#99c1f1" },
         { id: "2", colour: "" },
         { id: "3", colour: "" },
       ],
-      selected: {},
+      selected: { id: "1", colour: "#99c1f1" },
 
       rowCount: 5,
       columnCount: 15,
       table: {},
 
       counter: 0,
+
+      counterToCell: {},
 
       defaultColour: "white",
     };
@@ -66,21 +68,19 @@ export default {
       let row = {};
 
       for (let c = 0; c < this.columnCount; c++) {
-        row[c] = {
-          style: {
-            backgroundColor: "#16a085",
-            border: "1px solid black",
-            width: "40px",
-            height: "40px",
-          },
-          value: undefined,
-        };
+        row[c] = this.getNewTile();
       }
 
       this.table[r] = row;
     }
 
     this.table[2][2].type = "b";
+
+    this.cellClicked(2, 1);
+    this.cellClicked(3, 2);
+    this.cellClicked(4, 3);
+    this.cellClicked(3, 4);
+    this.cellClicked(2, 5);
   },
   methods: {
     getMaxKey(obj) {
@@ -89,52 +89,329 @@ export default {
       );
     },
 
-    updateRowCount() {
-      console.log("update row");
+    arraySortNumbers(arr) {
+      arr.sort(function (a, b) {
+        return a - b;
+      });
+    },
 
-      let maxCount = this.getMaxKey(this.table);
+    isCellSelected(row, column) {
+      let meta = this.table[row][column];
 
-      console.log(maxCount, this.rowCount);
+      if (meta.value === 0) {
+        return true;
+      }
 
-      if (maxCount > this.rowCount) {
-        let diff = this.rowCount - maxCount;
-        console.log("rmeove", diff);
+      return !isNaN(meta.value);
 
-        for (let i = 0; i < diff; i++) {
-          // const element = ];
-          console.log("remove", maxCount + i);
-          delete this.table[maxCount + i];
+      // if (meta.value === undefined) {
+      //   return false;
+      // }
+
+      // return meta.value || meta.value === 0;
+    },
+
+    updateColumnChange() {
+      /**
+       * read update row change for docs
+       */
+
+      let firstRowId = 0;
+      let currentNumberOfColumns = this.getMaxKey(this.table[firstRowId]) + 1;
+
+      if (currentNumberOfColumns > this.columnCount) {
+        let numberOfColumnsToRemove = currentNumberOfColumns - this.columnCount;
+
+        console.log("remove", numberOfColumnsToRemove);
+
+        let removedTiles = [];
+
+        for (let i = 0; i < numberOfColumnsToRemove; i++) {
+          for (const row of Object.keys(this.table)) {
+            let tile = this.table[row][currentNumberOfColumns + i - 1];
+
+            if (this.isCellSelected(row, currentNumberOfColumns + i - 1)) {
+              removedTiles.push(tile);
+            }
+
+            delete this.table[row][currentNumberOfColumns + i - 1];
+          }
         }
-      } else if (maxCount < this.rowCount) {
-        let diff = this.rowCount - maxCount;
+
+        let removedTilesIndexes = removedTiles.map((i) => i.value);
+
+        console.log("removed tile indexes", removedTilesIndexes);
+
+        this.arraySortNumbers(removedTilesIndexes);
+
+        while (removedTilesIndexes?.length) {
+          let index = removedTilesIndexes.pop(0);
+          this.removeIndex(index);
+        }
+      } else if (currentNumberOfColumns < this.columnCount) {
+        let numberOfColumnsToAdd = this.columnCount - currentNumberOfColumns;
+
+        for (let i = 0; i < numberOfColumnsToAdd; i++) {
+          for (const row of Object.keys(this.table)) {
+            this.table[row][currentNumberOfColumns + i] = this.getNewTile();
+          }
+        }
+      }
+
+      console.log("update column count");
+      this.checkBoardConsistent();
+    },
+
+    updateRowCount() {
+      /**
+       * this presents new err
+       *
+       * if we have
+       * / 1 /
+       * / 3 4
+       * / 5 2
+       *
+       * and remove last row
+       * then we aim to get this
+       * / 1 /
+       * / 2 3
+       * - - -
+       *
+       * or
+       *
+       * / 1 /
+       * / 3 4
+       * - - -
+       *
+       * and c is 2, and after 2 we go to 5
+       *
+       * i like first option
+       *
+       * deleted is {5, 2}
+       * max count is 5
+       * {1, 2, 3, 4, 5} -> {1, 3, 4} -> {1, 2, 3}
+       * update those 3 numbers
+       *
+       * case delete {1, 2}
+       * {1, 2, 3, 4, 5} -> {3, 4, 5} -> {1, 2, 3}
+       *
+       */
+
+      let currentNumberOfRows = this.getMaxKey(this.table) + 1;
+
+      if (currentNumberOfRows > this.rowCount) {
+        let numberOfRowsToRemove = currentNumberOfRows - this.rowCount;
+
+        let removedTiles = [];
+
+        for (let i = 0; i < numberOfRowsToRemove; i++) {
+          let rowScheduledForRemoving = currentNumberOfRows - 1 - i;
+
+          for (const [columnId, tile] of Object.entries(
+            this.table[rowScheduledForRemoving]
+          )) {
+            if (this.isCellSelected(rowScheduledForRemoving, columnId)) {
+              removedTiles.push(tile);
+            }
+          }
+
+          delete this.table[rowScheduledForRemoving];
+        }
+
+        let removedTilesIndexes = removedTiles.map((i) => i.value);
+
+        console.log("removed tile indexes", removedTilesIndexes);
+
+        /**
+         *
+         *   x     x
+         * 1 2 3 4 5 6 7
+         *
+         * shift (6, 7) x 2
+         * shift (3, 4) x 1
+         *
+         *     x
+         * 0 1 2
+         *
+         *
+         */
+
+        this.arraySortNumbers(removedTilesIndexes);
+
+        while (removedTilesIndexes?.length) {
+          let index = removedTilesIndexes.pop(0);
+          this.removeIndex(index);
+        }
+      } else if (currentNumberOfRows < this.rowCount) {
+        let diff = this.rowCount - currentNumberOfRows;
         console.log("add", diff);
 
         for (let i = 0; i < diff; i++) {
           let row = {};
 
           for (let c = 0; c < this.columnCount; c++) {
-            row[c] = {
-              style: {
-                backgroundColor: "#16a085",
-                border: "1px solid black",
-                width: "40px",
-                height: "40px",
-              },
-              value: undefined,
-            };
+            row[c] = this.getNewTile();
           }
 
-          this.table[maxCount + i] = row;
+          this.table[currentNumberOfRows + i] = row;
+        }
+      }
+      console.log("update row count");
+      this.checkBoardConsistent();
+    },
+    checkBoardConsistent() {
+      let tileVals = [];
+
+      console.log("check");
+
+      let ctcCheck = Object.keys(this.counterToCell);
+      console.log("ctc keys", ctcCheck);
+
+      console.log("counter to cell");
+      for (const [counter, cell] of Object.entries(this.counterToCell)) {
+        if (Number(counter) !== cell.value) {
+          console.log("err", counter, cell.value);
+        }
+
+        console.log(counter, cell);
+      }
+
+      console.log("board");
+      for (let r = 0; r < this.rowCount; r++) {
+        for (let c = 0; c < this.columnCount; c++) {
+          if (this.isCellSelected(r, c)) {
+            console.log(this.table[r][c].value);
+          }
         }
       }
 
-      // let maxCount =
+      for (let r = 0; r < this.rowCount; r++) {
+        for (let c = 0; c < this.columnCount; c++) {
+          let v = this.table[r][c].value;
 
-      // for (const rowId of Object.keys(this.table)) {
-      //   console.log(rowId);
+          if (this.isCellSelected(r, c) !== (v === 0 || Boolean(v))) {
+            console.log(
+              "err mismatch",
+              r,
+              c,
+              this.isCellSelected(r, c),
+              Boolean(v),
+              v
+            );
+          }
 
-      //   if (this.rowCount )
-      // }
+          if (this.isCellSelected(r, c)) {
+            let tileValue = this.table[r][c].value;
+
+            tileVals.push(tileValue);
+          }
+        }
+      }
+
+      let allGood = true;
+
+      this.arraySortNumbers(tileVals);
+
+      for (let i = 0; i < tileVals.length; i++) {
+        if (!tileVals.includes(i)) {
+          console.log("err missing", i);
+          console.log("what i have", tileVals);
+          allGood = false;
+        }
+      }
+
+      console.log("consistency check", allGood);
+    },
+
+    getNewTile() {
+      return {
+        style: {
+          backgroundColor: "#16a085",
+          border: "1px solid black",
+          width: "40px",
+          height: "40px",
+        },
+        value: undefined,
+      };
+    },
+
+    renameObjectKey(o, oldKey, newKey) {
+      console.log("rename", oldKey, newKey, oldKey !== newKey);
+
+      console.log("ren b", Object.keys(o));
+
+      if (oldKey !== newKey && o[oldKey] && !o[newKey]) {
+        Object.defineProperty(
+          o,
+          newKey,
+          Object.getOwnPropertyDescriptor(o, oldKey)
+        );
+
+        delete o[oldKey];
+
+        console.log("ren deleted");
+      }
+      console.log("ren a", Object.keys(o));
+
+      console.log("ren", o);
+    },
+
+    removeIndex(index) {
+      /**
+       * remove cell at index
+       * shift all higher indexes
+       * set counter to max count
+       *
+       */
+
+      console.log("remove", index);
+      delete this.counterToCell[index];
+
+      let scheduledForDecrementing = [];
+
+      for (const [counter, cell] of Object.entries(this.counterToCell)) {
+        if (Number(counter) !== cell.value) {
+          console.log("err", counter, cell.value);
+        }
+
+        if (Number(counter) > index) {
+          scheduledForDecrementing.push(cell);
+        }
+      }
+
+      console.log(
+        "to decrement",
+        scheduledForDecrementing.map((i) => i.value)
+      );
+
+      scheduledForDecrementing.forEach((i) => {
+        let oldKey = i.value;
+        let newKey = i.value - 1;
+
+        i.value -= 1;
+
+        this.renameObjectKey(
+          this.counterToCell,
+          Number(oldKey),
+          Number(newKey)
+        );
+      });
+
+      console.log(
+        "after decrementing",
+        scheduledForDecrementing.map((i) => i.value)
+      );
+
+      if (Object.keys(this.counterToCell)?.length) {
+        this.counter = this.getMaxKey(this.counterToCell) + 1;
+      } else {
+        this.counter = 0;
+      }
+
+      console.log("next tile will have value:", this.counter);
+
+      console.log("remove index");
+      this.checkBoardConsistent();
     },
 
     cellClicked(row, column) {
@@ -145,18 +422,24 @@ export default {
 
       let cell = this.table[row][column];
 
-      if (cell.style.backgroundColor === this.selected.colour) {
+      if (this.isCellSelected(row, column)) {
         cell.style.backgroundColor = this.defaultColour;
 
+        let tileValue = cell.value;
         cell.value = undefined;
 
-        this.counter--;
+        this.removeIndex(tileValue);
       } else {
         cell.style.backgroundColor = this.selected.colour;
+
+        this.counterToCell[this.counter] = cell;
 
         cell.value = this.counter;
         this.counter++;
       }
+
+      console.log("cell clicked");
+      this.checkBoardConsistent();
     },
 
     exportTable() {
