@@ -6,7 +6,7 @@
       <input
         type="text"
         id="form2Example17"
-        v-model="username"
+        v-model="this.username"
         class="form-control form-control-lg"
         :class="{ 'is-invalid': submitted && !username }"
       />
@@ -22,7 +22,7 @@
       <input
         type="password"
         id="form2Example27"
-        v-model="password"
+        v-model="this.password"
         :class="{ 'is-invalid': submitted && !password }"
         class="form-control form-control-lg"
       />
