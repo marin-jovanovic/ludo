@@ -1,8 +1,7 @@
 import axios from 'axios'
 import Cookies from 'js-cookie'
-import {
-    apiAuth
-} from './auth';
+import { userMetaSS } from '../session_storage';
+import { apiAuth } from './auth';
 
 const api = axios.create({
     baseURL: 'http://localhost:8000',
@@ -14,23 +13,20 @@ const api = axios.create({
 })
 
 function getAuthenticationHeader() {
-    let username = sessionStorage.getItem("username");
-    let accessToken = sessionStorage.getItem("accessToken")
 
-    if (username && accessToken) {
+    if (userMetaSS.isAuth()) {
 
+        let credentials = userMetaSS.getCredentials();
 
-        return {
-            headers: {
-                'Authorization': 'Custom ' + ((encodeURIComponent(username + ':' + accessToken)))
-            }
-        }
+        let username = credentials.username;
+        let accessToken = credentials.accessToken;
 
-    } else {
+        return { headers: { 'Authorization': 'Custom ' + ((encodeURIComponent(username + ':' + accessToken))) } }
 
-        return {
-            headers: {}
-        }
+    }
+    else {
+
+        return { headers: {} }
 
     }
 
@@ -45,9 +41,8 @@ function handleNewResponse(response) {
         let accessToken = response.data.auth.accessToken;
         let username = response.data.auth.username;
 
-        sessionStorage.setItem('username', username);
+        userMetaSS.login({username: username, accessToken: accessToken})
 
-        sessionStorage.setItem('accessToken', accessToken);
 
     } else {
         // todo this will never be true, not implemented
