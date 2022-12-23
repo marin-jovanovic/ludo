@@ -1,11 +1,14 @@
-import {
-    apiCalls
-} from './comm';
+import { userMetaSS } from '../session_storage';
+import { apiCalls } from './comm';
 
 async function login(username, password) {
 
+    console.log(username, password)
+
     const response = await apiCalls.api.post(
-        `login/${username}`, {}, {
+        `login/${username}`,
+        {},
+        {
             headers: {
                 'Authorization': 'Basic ' + ((encodeURIComponent(username + ':' + password)))
             }
@@ -20,8 +23,11 @@ async function login(username, password) {
 
 async function signup(username, password) {
 
+    console.log(username, password)
     const response = await apiCalls.api.post(
-        `signup/${username}`, {}, {
+        `signup/${username}`,
+        {},
+        {
             headers: {
                 'Authorization': 'Create ' + ((encodeURIComponent(username + ':' + password)))
             }
@@ -34,14 +40,24 @@ async function signup(username, password) {
 
 }
 
-function logout(username) {
-    if (sessionStorage.getItem("user") !== null) {
+function logout() {
+    console.log('logout')
+
+    // if (ssw.get("username") !== null) {
+    if (userMetaSS.isAuth()) {
+
+        let credentials = userMetaSS.getCredentials();
+        let username = credentials.username;
+
+        console.log(username)
+
         apiCalls.api.post(
-            `logout/${username}`, {},
+            `logout/${username}`,
+            {},
             apiCalls.getAuthenticationHeader()
         );
-        sessionStorage.removeItem('user');
 
+        userMetaSS.logout();
     }
 
 }
