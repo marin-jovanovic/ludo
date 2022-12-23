@@ -10,7 +10,13 @@ class LogoutView(APIView):
     def post(self, request, username):
         # delete access token
 
-        access_token = request.headers['accessToken']
+
+        print(f"{username=}")
+        print(f"{request.headers=}")
+
+        # access_token = request.headers['accessToken']
+
+        access_token = request.access_token
 
         response = get_auth_ok_response_template(request)
         response["payload"] = logout(username, access_token)
