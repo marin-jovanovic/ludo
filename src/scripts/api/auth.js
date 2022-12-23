@@ -47,7 +47,6 @@ async function signup(username, password) {
 function logout() {
     console.log('logout')
 
-    // if (ssw.get("username") !== null) {
     if (userMetaSS.isAuth()) {
 
         let credentials = userMetaSS.getCredentials();
