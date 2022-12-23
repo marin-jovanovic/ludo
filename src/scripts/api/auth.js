@@ -14,8 +14,10 @@ async function login(username, password) {
             }
         }
     );
+    console.log(response)
 
     const user = await apiCalls.handleNewResponse(response);
+    console.log(user)
 
     return user
 
@@ -34,8 +36,10 @@ async function signup(username, password) {
         }
     );
 
+
     const user = await apiCalls.handleNewResponse(response);
 
+        
     return user
 
 }

@@ -28,7 +28,7 @@ def logout(username, access_token):
 
 def auth_user(username, password):
     if not is_authenticated(username, password):
-        return {'status': False, 'debug': 'user + pass combination err'}
+        return {'status': False, 'debug': 'user + pass combination err', "message": 'username password combination mismatch. Please check your credentials and try again'}
 
     access_token = generate_access_token()
 

@@ -51,7 +51,7 @@ function handleNewResponse(response) {
             location.reload(true);
         }
 
-        const error = response.data.payload.debug;
+        const error = response.data.payload.message;
         return Promise.reject(error);
     }
 
