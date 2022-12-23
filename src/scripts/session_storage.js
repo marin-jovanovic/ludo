@@ -7,7 +7,7 @@ class SessionStorageWrapper {
         ])
     }
 
-    _test({variable}) {
+    isVariableLegal({variable}) {
         if (!this.vals.has(variable)) {
             console.log(`[err] ${variable} not accepted, if you need it add it to acceptable values`)
             return false;
@@ -16,28 +16,54 @@ class SessionStorageWrapper {
         return true;
     }
 
-    set({variable, value}) {
-        if (!this._test({variable: variable})) {
-            return
+    isVariablePresent({variable}) {
+        if (!this.vals.has(variable)) {
+            console.log(`[err] ${variable} not accepted, if you need it add it to acceptable values`)
+            return false;
         }
+
+        return sessionStorage.getItem(variable) !== null;
+
+    }
+
+    set({variable, value}) {
+        if (!this.isVariableLegal({variable: variable})) {
+            return false;
+        }
+
+
         sessionStorage.setItem(variable, value);
+        
+        return true;
     }
 
     get({variable}) {
-        if (!this._test({variable: variable})) {
-            return
+        if (!this.isVariableLegal({variable: variable})) {
+            return {status: false};
         }
 
-        return sessionStorage.getItem(variable);
+        if (! this.isVariablePresent({variable: variable})) {
+            console.log("err variable not present")
+            return {status: false};
+
+        }
+
+        
+
+        // console.log(sessionStorage.getItem(variable));
+
+        return {status: true, payload: sessionStorage.getItem(variable)};
     }
 
     remove({variable}) {
 
-        if (!this._test({variable: variable})) {
-            return
+        if (!this.isVariableLegal({variable: variable})) {
+            return false;
         }
 
-        return sessionStorage.removeItem(variable);
+        sessionStorage.removeItem(variable);
+        
+        return true;
     }
 }
 
@@ -51,25 +77,43 @@ class UserMetaSS {
         this.username = username;
         this.accessToken = accessToken;
 
-        ssw.set({variable: "username", value: this.username});
-        ssw.set({variable: "accessToken", value: this.accessToken});
+        if (!
+        ssw.set({variable: "username", value: this.username})
+        ) {
+            console.log("err setting")
+        }
+        if (!
+        ssw.set({variable: "accessToken", value: this.accessToken})
+        ) {
+            console.log("err setting");
+        }
     }
 
     logout() { 
 
-        ssw.remove({variable: "username"});
-        ssw.remove({variable: "accessToken"});
+        if (!
+
+        ssw.remove({variable: "username"})  &&
+        ssw.remove({variable: "accessToken"})
+        
+        ) {
+console.log("err removing")
+        }
     }
 
     isAuth() {
 
-        return ssw.get({variable: "username"}) && ssw.get({variable: "accessToken"})
+        console.log("is aut")
+
+        return ssw.get({variable: "username"}).status && ssw.get({variable: "accessToken"}).status ;
+
+        // return ssw.get({variable: "username"}) === null && ssw.get({variable: "accessToken"}) === null
     }
 
     getCredentials() {
         return {
-            username:  ssw.get({variable: "username"}),
-            accessToken:  ssw.get({variable: "accessToken"})
+            username:  ssw.get({variable: "username"}).payload,
+            accessToken:  ssw.get({variable: "accessToken"}).payload
         }
     }
 }
