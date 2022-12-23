@@ -81,6 +81,7 @@ class JumperMiddleware:
             access_token = r["payload"]["access_token"]
 
         elif auth_type == "Custom":
+            print("custom auth")
             username, access_token = payload.split(":")
             print(f"{username=}")
             print(f"{access_token[:5]=}")
