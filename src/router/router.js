@@ -68,35 +68,36 @@ export const router = createRouter({
 });
 
 
+import { userMetaSS } from '../scripts/session_storage';
+
+
+
 function isPublicPath(toPath) {
     const publicPages = ['/login', '/logout', '/signup'];
     const authNotRequired = publicPages.includes(toPath);
     return authNotRequired;
-}
-
-
-router.beforeEach((to, from, next) => {
-
+  }
+  
+  
+  router.beforeEach((to, from, next) => {
+  
     let isPublic = isPublicPath(to.path);
+  
+    // const loggedIn = ssw.get('username');
+  
+    const loggedIn = userMetaSS.isAuth();
 
-    const loggedIn = sessionStorage.getItem('username');
 
-    store.dispatch("setPath", {
-        path: to.path,
-        isPublic: isPublic
-    });
-
+    store.dispatch("setPath", { path: to.path, isPublic: isPublic });
+  
     if (!isPublic && !loggedIn) {
-        // router.push("/login")
-
-        // todo fix when nested url (game/x)  goes to (game/login)
-        return next({
-            path: '/login',
-            query: {
-                returnUrl: to.path
-            }
-        });
+  
+      // todo fix when nested url (game/x)  goes to (game/login)
+      return next({
+        path: '/login',
+        query: { returnUrl: to.path }
+      });
     }
-
+  
     next();
-})
+  })
