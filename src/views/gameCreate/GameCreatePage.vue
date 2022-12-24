@@ -21,8 +21,14 @@
   row count:
   <input type="number" v-model="rowCount" @change="updateRowCount" />
 
+  <br />
+
   column count:
   <input type="number" v-model="columnCount" @change="updateColumnChange" />
+
+  <br />
+
+  <button @click="clearTable">clear table</button>
 
   <table>
     <tr v-for="column in Object.entries(this.table)" :key="column[0]">
@@ -64,15 +70,7 @@ export default {
     };
   },
   mounted() {
-    for (let r = 0; r < this.rowCount; r++) {
-      let row = {};
-
-      for (let c = 0; c < this.columnCount; c++) {
-        row[c] = this.getNewTile();
-      }
-
-      this.table[r] = row;
-    }
+    this.clearTable();
 
     this.cellClicked(2, 1);
     this.cellClicked(3, 2);
@@ -81,6 +79,21 @@ export default {
     this.cellClicked(2, 5);
   },
   methods: {
+    clearTable() {
+      for (let r = 0; r < this.rowCount; r++) {
+        let row = {};
+
+        for (let c = 0; c < this.columnCount; c++) {
+          row[c] = this.getNewTile();
+        }
+
+        this.table[r] = row;
+      }
+
+      this.counter = 0;
+      this.counterToCell = {};
+    },
+
     // comm
     getMaxKey(obj) {
       return Number(

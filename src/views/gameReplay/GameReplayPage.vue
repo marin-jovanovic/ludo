@@ -8,7 +8,13 @@
       </button>
     </div>
 
-    <input @change="sliderUpdate" type="range" min="0" max="5000" v-model="this.slider" />
+    <input
+      @change="sliderUpdate"
+      type="range"
+      min="0"
+      max="5000"
+      v-model="this.slider"
+    />
 
     <hr />
 
@@ -81,8 +87,6 @@ export default {
             break;
 
           case "move":
-            // console.log("move");
-
             this.$refs.game.movePosition({
               player: pp[value.username],
               token: value.token,
@@ -97,19 +101,8 @@ export default {
             console.log("won", value.username);
             break;
 
-          case "eaten":
-            // console.log("eat token");
-
-            this.$refs.game.restartToken({
-              player: pp[value.username],
-              token: value.token,
-            });
-
-            await this.sleep();
-
-            break;
-
           default:
+            console.log("unknown command", value.action);
             break;
         }
       }

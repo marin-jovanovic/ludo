@@ -77,9 +77,8 @@ def change_password(username, old_password, new_password_1, new_password_2):
     if not is_authenticated(username, old_password):
         return {'status': False, 'debug': 'username + pass combo err'}
 
-    if not is_pass_ok(new_password_2):
-        # todo
-        return {'status': False, 'debug': 'pw not matching criteria complexiti'}
+    if not is_pass_ok(new_password_2)["status"]:
+        return  is_pass_ok(new_password_2)
 
     if not new_password_1 == new_password_2:
         return {'status': False, 'debug': 'pw1 != pw2'}

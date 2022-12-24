@@ -37,6 +37,9 @@ def get_empty_response_template():
 
 
 class Notifier:
+    """
+    mainly used to send something over ws when db is updated
+    """
 
     def __init__(self):
         self._observers = []

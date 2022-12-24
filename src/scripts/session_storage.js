@@ -103,11 +103,9 @@ console.log("err removing")
 
     isAuth() {
 
-        console.log("is aut")
 
         return ssw.get({variable: "username"}).status && ssw.get({variable: "accessToken"}).status ;
 
-        // return ssw.get({variable: "username"}) === null && ssw.get({variable: "accessToken"}) === null
     }
 
     getCredentials() {

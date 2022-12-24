@@ -50,11 +50,6 @@ def is_pass_ok(password: str):
     :return: is_password_strong_enough: bool
     """
 
-    # todo remove
-    print('auth main; not implemented')
-    # return {"status": True}
-    # return True
-
     flag = True
     reasons = []
 

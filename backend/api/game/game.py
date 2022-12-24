@@ -344,6 +344,9 @@ class Level:
                 game_conf['flag: tie in order'],
             )
 
+        for i in game_conf.items():
+            print(i)
+
         player_order = self.goes_list_driver(game_conf)
 
         m_player_to_moves = player_moves_preprocessor()
@@ -579,16 +582,6 @@ def generate_start():
     return level.get_log()
 
 
-def generate_whole_game():
-    level = Level()
-    return level.get_log()
-
-
-def main():
-    log = generate_whole_game()
-
-    for i in log:
-        print(i)
 
 
 def choose(b, log, player_id, roll_result, token_id, already_won):
@@ -621,6 +614,17 @@ def choose(b, log, player_id, roll_result, token_id, already_won):
 
     return {"won": gw}
 
+
+def generate_whole_game():
+    level = Level()
+    return level.get_log()
+
+
+def main():
+    log = generate_whole_game()
+
+    for i in log:
+        print(i)
 
 if __name__ == '__main__':
     main()

@@ -80,9 +80,6 @@ export default {
         jumpCount: jumpCount,
       });
     },
-    restartToken({ player, token }) {
-      this.game.restartToken({ playerId: player, tokenId: token });
-    },
   },
 };
 </script> 
