@@ -40,10 +40,15 @@ class BlToken extends ContentCreator {
         this.absoluteState = state;
 
         // this is row/column position
+        // start position
         this.boardXYPosition = xy;
 
 
+        this.xy = xy;
+
         this.pool = getConfig()["pool"]["start"];
+
+        this.stateTraversal = undefined;
     }
 
     setPool({pool}) {

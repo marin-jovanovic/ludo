@@ -19,11 +19,14 @@ import {
 
 class Level extends ContentCreator {
     constructor({
+        // config,
         moves,
         players,
         tokens
     }) {
         super();
+
+        // console.log(config);
 
         // todo check if this is DTO
         // DTO - data transfer object
@@ -33,9 +36,14 @@ class Level extends ContentCreator {
             tokens: tokens
         });
 
+   
         // this is for notifying bl
         this.changleLog = [];
         this.isWaitingForAcceptance = false;
+    }
+
+    getStates({player}) {
+        return this.levelState.players[player].state;
     }
 
     start() {
@@ -79,6 +87,9 @@ class Level extends ContentCreator {
 
         }
 
+
+        console.log(p);
+
         let levelState = {
 
             // basic game metadata
@@ -90,6 +101,8 @@ class Level extends ContentCreator {
             // for each player info
             players: p
         }
+
+        // console.log()
 
         return levelState;
 
@@ -360,6 +373,8 @@ class Level extends ContentCreator {
 
         let thisMovePath = [token.boardXYPosition];
       
+        this.xy = token.boardXYPosition;
+
         this.tryToSend({
             playerId: playerId,
             tokenId: tokenId,
@@ -449,6 +464,9 @@ class Level extends ContentCreator {
         tokenId
     }) => {
 
+
+// state ima type i po tom se provjerava jel se to smije jest, ako je type 1 ili 3 onda se ne smije jest 
+
         // absolute view
 
         // playerId => [{token, tokenId}]
@@ -457,8 +475,12 @@ class Level extends ContentCreator {
 
         let token = this.levelState.players[playerId].tokens[tokenId];
 
+        console.log(token);
+
         // where @token is now
         let stateOfInteres = token.absoluteState;
+
+        console.log(stateOfInteres)
 
         for (const [playerId, p] of Object.entries(this.levelState.players)) {
 
@@ -468,7 +490,11 @@ class Level extends ContentCreator {
 
                     let k = playerId;
 
-                    if (t.absoluteState === stateOfInteres) {
+                    console.log(t.xy, token.xy, t.xy === token.xy)
+
+
+                    if (t.xy === token.xy) {
+                        console.log("same x, y", )
 
                         if (k in occupiedSpaces) {
                             occupiedSpaces[k].push({
@@ -482,7 +508,24 @@ class Level extends ContentCreator {
                             }];
                         }
 
+
                     }
+
+                    // if (t.absoluteState === stateOfInteres) {
+
+                    //     if (k in occupiedSpaces) {
+                    //         occupiedSpaces[k].push({
+                    //             token: t,
+                    //             tokenId: tokenId
+                    //         });
+                    //     } else {
+                    //         occupiedSpaces[k] = [{
+                    //             token: t,
+                    //             tokenId: tokenId
+                    //         }];
+                    //     }
+
+                    // }
 
                 }
 
@@ -519,6 +562,8 @@ class Level extends ContentCreator {
 
         if (occupiedSpaces.length !== 1) {
             for (const [owner, tokens] of Object.entries(occupiedSpaces)) {
+
+                console.log(tokens)
 
                 if (Number(owner) !== playerId) {
                     if (tokens.length === 1) {

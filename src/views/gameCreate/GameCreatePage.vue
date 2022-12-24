@@ -30,6 +30,11 @@
 
   <button @click="clearTable">clear table</button>
 
+  <br />
+  <button @click="saveAsMap">save as map</button>
+
+  <!-- <button></button> -->
+
   <table>
     <tr v-for="column in Object.entries(this.table)" :key="column[0]">
       <td
@@ -79,6 +84,10 @@ export default {
     this.cellClicked(2, 5);
   },
   methods: {
+    saveAsMap() {
+      this.exportTable();
+    },
+
     clearTable() {
       for (let r = 0; r < this.rowCount; r++) {
         let row = {};

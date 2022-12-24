@@ -13,6 +13,8 @@ import {
     BoardTile
 } from "./ui_board_tile.js";
 
+// import {BlToken} from "./bl_token.js";
+
 class UserInterface {
 
     constructor({
@@ -45,6 +47,7 @@ class BusinessLogic {
         tokens
     }) {
         this.currentLevel = new Level({
+            // config: config,
             moves: config['moves'],
             players: config['players'],
             tokens: tokens,
@@ -114,6 +117,123 @@ class Game {
 
 
         this.bl.currentLevel.start();
+
+
+        // for bl
+
+        // how tokens should move
+        let tokenMoves =  this.loadConfig({config: config});
+
+    
+
+        // todo 
+        // where are  tokens now? (on start or somewhere in the middle)
+
+
+        console.log(tokenMoves);
+
+    }
+
+    loadConfig = ({config}) => {
+        // console.log(config);
+
+        let startPoolId = "1";
+
+        let stateNull = "-1";
+        // let 
+
+        let levelState = {}
+
+
+
+        for (const [playerId, states] of Object.entries(config.moves)) {
+            // for each player
+
+            levelState[playerId] = {};
+
+
+            // find start pool states
+            // this will be used to create tokens
+            let startPool = {};
+
+            for (const [stateId, stateMeta] of Object.entries(states)) {
+
+                if (stateMeta.type === startPoolId) {
+                    startPool[stateId] = stateMeta;
+                }
+
+            }
+
+            // remove start pool states, 
+            // rename keys to start from 0 one start pool states are removed
+            let newD = {};
+            let c = 0;
+
+            for (const  stateMeta of Object.values(states)) {
+
+                if (stateMeta.type !== startPoolId) {
+                    // not start state
+                    newD[c] = stateMeta
+
+                    c++;
+
+
+                }
+
+            }
+
+            // create tokens
+            // for each start pool state
+            // create one token
+            // add tokens to this player
+            let tokenId = 0
+
+            for (const [stateId, stateMeta] of Object.entries(startPool)) {
+                // for each token
+
+                // let token = new BlToken({
+                //     state: stateId,
+                //     xy: stateMeta,
+                // })
+
+                console.log(stateId);
+
+                let token = {
+                    currentState: stateNull,
+                    currentXY: stateMeta,
+
+                    startState: stateNull,
+                    startXY : stateMeta,
+
+                    states: newD
+                }
+
+                levelState[playerId][tokenId] = token;
+   
+
+                tokenId ++;
+            }
+
+        }
+
+        console.log(levelState)
+
+        // co
+
+        return {
+
+            // basic game metadata
+            status: {
+                isGameDone: false,
+                quit: ['1'],
+                won: []
+            },
+            // for each player info
+            players: levelState
+        }
+
+        // return levelState;
+
 
     }
 
