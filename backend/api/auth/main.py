@@ -40,7 +40,7 @@ def get_hashed_password(password: str) -> (str, str):
     return hashed
 
 
-def is_pass_ok(password: str) -> bool:
+def is_pass_ok(password: str):
     """
     checks if {password} is strong enough
     new parameters can be easily added by appending to the current list of
@@ -52,35 +52,47 @@ def is_pass_ok(password: str) -> bool:
 
     # todo remove
     print('auth main; not implemented')
-    return True
+    # return {"status": True}
+    # return True
 
     flag = True
+    reasons = []
 
     # length
-    if len(password) < 8:
-        print("len of pass not enough")
+    l = 8
+    if len(password) < l:
+        t = f"password must be at least {l} characters long"
+        reasons.append(t)
         flag = False
 
     # special chars
     test_list = ["?", "!", "%", "&", "@", "$",
                  "+", "-", ".", "_", ",", "\"", "\'"]
     if not any(item in list(password) for item in test_list):
-        print("not one special char from ", test_list)
+        t  = "password must contain special character"
+        print(t)
+        reasons.append(t)
         flag = False
 
     # digit
     if not any(char.isdigit() for char in password):
-        print("no numbers in password")
+        t  = "password must contain number"
+        print(t)
+        reasons.append(t)
         flag = False
 
     # upper case
     if not any(char.isupper() for char in password):
-        print("no upper chars in password")
+        t  = "password must contain uppercase letter"
+        print(t)
+        reasons.append(t)
         flag = False
 
     # lower case
     if not any(char.islower() for char in password):
-        print("no lower chars in password")
+        t = "password must contain lowercase letter"
+        print(t)
+        reasons.append(t)
         flag = False
 
-    return flag
+    return {"status": flag, "reasons": reasons, "message": ", ".join(reasons)}

@@ -64,8 +64,10 @@ export default {
   data() {
     return {
       username: "a",
-      password: "a",
-      passwordRepeat: "a",
+
+      // todo encode, server is crashing if space is here
+      password: "aa1A&ffffffff",
+      passwordRepeat: "aa1A&ffffffff",
       submitted: false,
       loading: false,
       returnUrl: "",
@@ -77,6 +79,26 @@ export default {
     this.returnUrl = this.$route.query.returnUrl || "/";
   },
   methods: {
+    checkComplexity() {
+      /**
+       * one lowercase
+       * one uppercase
+       * one digit
+       * one special
+       * at least 8 chars
+       */
+
+      let strongPassword = new RegExp(
+        "(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})"
+      );
+
+      if (strongPassword.test(this.password)) {
+        return true;
+      }
+
+      return false;
+    },
+
     handleSubmit() {
       this.submitted = true;
       const { username, password } = this;
@@ -90,6 +112,17 @@ export default {
         this.error = "passwords are not matching";
         return;
       }
+
+      if (!this.checkComplexity()) {
+        this.error =
+          "password must contain at least one uppercase letter, one lowercase letter, one digit, one special character and be at least 8 characters long";
+
+        console.log("a1A&ffffffff");
+
+        return;
+      }
+
+      console.log(this.checkComplexity());
 
       // this.loading = true;
       apiAuth.signup(username, password).then(

@@ -36,6 +36,7 @@ async function signup(username, password) {
         }
     );
 
+    console.log(response)
 
     const user = await apiCalls.handleNewResponse(response);
 

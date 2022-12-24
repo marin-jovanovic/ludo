@@ -51,7 +51,15 @@ def auth_user(username, password):
 
 def create_user(username, password):
     if is_username_in_db(username):
-        return {'status': False, 'debug': 'user already in db'}
+        return {'status': False, 'debug': 'user already in db', "message": 'username is taken'}
+
+    rej = is_pass_ok(password)
+
+    if not rej["status"]:
+
+        return  rej
+        # return {'status': False, 'debug': 'pw not matching criteria complexiti'}
+
 
     k, _ = get_user_model().objects.update_or_create(
         username=username,
