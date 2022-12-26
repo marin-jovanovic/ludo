@@ -17,8 +17,6 @@ function getConfig() {
         "done": "done",
     }
 
-    // console.log("get pool", poolTypes)
-
     return {
         "pool": poolTypes,
     }
@@ -83,7 +81,6 @@ class BlToken extends ContentCreator {
 
         this.poolType = {
             pool: getConfig().pool["live"]
-            // pool: getPoolType({type: "live"}) 
         }
 
 

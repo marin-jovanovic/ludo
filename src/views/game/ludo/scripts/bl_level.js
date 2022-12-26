@@ -418,16 +418,12 @@ class Level extends ContentCreator {
     }) => {
 
 
-// state ima type i po tom se provjerava jel se to smije jest, ako je type 1 ili 3 onda se ne smije jest 
-
-        // absolute view
 
         // playerId => [{token, tokenId}]
         // filtered only on stateOfInteres
         let occupiedSpaces = {};
 
         let token = this.levelState.players[playerId].tokens[tokenId];
-
 
 
         for (const [playerId, p] of Object.entries(this.levelState.players)) {
@@ -532,9 +528,7 @@ class Level extends ContentCreator {
                     // this token
                     this.restartToken({
                         playerId: playerId,
-
-                        // this token id
-                        tokenId: tokenId
+                       tokenId: tokenId
                     })
 
 

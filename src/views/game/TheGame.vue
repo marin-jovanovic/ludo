@@ -14,6 +14,9 @@
     <br />
     <button @click="testBlock">test block</button>
 
+    <br />
+    <button @click="fill">test fill</button>
+
     <div id="container" class="container">
       <canvas id="staticcanvas" width="600" height="600"></canvas>
       <canvas id="reactivecanvas" width="600" height="600">
@@ -120,6 +123,20 @@ export default {
         token: 0,
         jumpCount: 1,
       });
+    },
+
+    async fill() {
+      for (let tokenId = 0; tokenId < 4; tokenId++) {
+        for (let playerId = 0; playerId < 4; playerId++) {
+          for (let i = 0; i < 70; i++) {
+            this.movePosition({
+              player: playerId,
+              token: tokenId,
+              jumpCount: 1,
+            });
+          }
+        }
+      }
     },
 
     async move() {
