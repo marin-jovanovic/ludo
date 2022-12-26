@@ -74,6 +74,14 @@ class UiToken extends ContentCreator {
         this.increment = 12;
 
 
+        this.occurances = 7;
+    }
+
+    set number({
+        c
+    }) {
+        // console.log("setting", c)
+        this.occurances = c;
     }
 
     setDestionationPosition = ({
@@ -243,6 +251,12 @@ class UiToken extends ContentCreator {
     }
 
     draw = (c) => {
+
+
+        c.font = "30px Arial";
+        c.fillStyle = "white"
+        c.fillText(String(this.occurances), this.position.x, this.position.y);
+
         c.beginPath();
         c.arc(
             this.position.x,
@@ -251,6 +265,7 @@ class UiToken extends ContentCreator {
             0,
             Math.PI * 2,
         );
+
 
         /**
          * check if at destination

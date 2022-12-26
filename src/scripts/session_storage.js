@@ -7,7 +7,9 @@ class SessionStorageWrapper {
         ])
     }
 
-    isVariableLegal({variable}) {
+    isVariableLegal({
+        variable
+    }) {
         if (!this.vals.has(variable)) {
             console.log(`[err] ${variable} not accepted, if you need it add it to acceptable values`)
             return false;
@@ -16,7 +18,9 @@ class SessionStorageWrapper {
         return true;
     }
 
-    isVariablePresent({variable}) {
+    isVariablePresent({
+        variable
+    }) {
         if (!this.vals.has(variable)) {
             console.log(`[err] ${variable} not accepted, if you need it add it to acceptable values`)
             return false;
@@ -26,43 +30,65 @@ class SessionStorageWrapper {
 
     }
 
-    set({variable, value}) {
-        if (!this.isVariableLegal({variable: variable})) {
+    set({
+        variable,
+        value
+    }) {
+        if (!this.isVariableLegal({
+                variable: variable
+            })) {
             return false;
         }
 
 
         sessionStorage.setItem(variable, value);
-        
+
         return true;
     }
 
-    get({variable}) {
-        if (!this.isVariableLegal({variable: variable})) {
-            return {status: false};
+    get({
+        variable
+    }) {
+        if (!this.isVariableLegal({
+                variable: variable
+            })) {
+            return {
+                status: false
+            };
         }
 
-        if (! this.isVariablePresent({variable: variable})) {
+        if (!this.isVariablePresent({
+                variable: variable
+            })) {
             console.log("err variable not present")
-            return {status: false};
+            return {
+                status: false
+            };
 
         }
 
-        
+
 
         // console.log(sessionStorage.getItem(variable));
 
-        return {status: true, payload: sessionStorage.getItem(variable)};
+        return {
+            status: true,
+            payload: sessionStorage.getItem(variable)
+        };
     }
 
-    remove({variable}) {
+    remove({
+        variable
+    }) {
 
-        if (!this.isVariableLegal({variable: variable})) {
+        if (!this.isVariableLegal({
+                variable: variable
+            })) {
             return false;
         }
 
         sessionStorage.removeItem(variable);
-        
+
         return true;
     }
 }
@@ -73,45 +99,66 @@ class UserMetaSS {
 
     }
 
-    login({username, accessToken}) {
+    login({
+        username,
+        accessToken
+    }) {
         this.username = username;
         this.accessToken = accessToken;
 
         if (!
-        ssw.set({variable: "username", value: this.username})
+            ssw.set({
+                variable: "username",
+                value: this.username
+            })
         ) {
             console.log("err setting")
         }
         if (!
-        ssw.set({variable: "accessToken", value: this.accessToken})
+            ssw.set({
+                variable: "accessToken",
+                value: this.accessToken
+            })
         ) {
             console.log("err setting");
         }
     }
 
-    logout() { 
+    logout() {
 
         if (!
 
-        ssw.remove({variable: "username"})  &&
-        ssw.remove({variable: "accessToken"})
-        
+            ssw.remove({
+                variable: "username"
+            }) &&
+            ssw.remove({
+                variable: "accessToken"
+            })
+
         ) {
-console.log("err removing")
+            console.log("err removing")
         }
     }
 
     isAuth() {
 
 
-        return ssw.get({variable: "username"}).status && ssw.get({variable: "accessToken"}).status ;
+        return ssw.get({
+            variable: "username"
+        }).status && ssw.get({
+            variable: "accessToken"
+        }).status;
 
     }
 
     getCredentials() {
         return {
-            username:  ssw.get({variable: "username"}).payload,
-            accessToken:  ssw.get({variable: "accessToken"}).payload
+            username: ssw.get({
+                variable: "username"
+            }).payload,
+            accessToken: ssw.get({
+                variable: "accessToken"
+            }).payload
         }
     }
 }

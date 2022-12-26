@@ -27,7 +27,7 @@ function getConfig() {
 class BlToken extends ContentCreator {
 
     constructor({
-  
+
         startState,
         startXY,
 
@@ -43,7 +43,7 @@ class BlToken extends ContentCreator {
         this.currentXY = startXY;
 
         this.startState = startState;
-        this.startXY =  startXY;
+        this.startXY = startXY;
 
 
         this.poolType = {
@@ -65,18 +65,22 @@ class BlToken extends ContentCreator {
     }
 
     // set pool ({pool}) {
-    set poolType ({pool}) {
+    set poolType({
+        pool
+    }) {
 
-        if (! (pool in getConfig()["pool"])) {
-        console.log("pool not exists", pool);
-        return;
+        if (!(pool in getConfig()["pool"])) {
+            console.log("pool not exists", pool);
+            return;
         }
 
 
         this.pool = pool;
     }
 
-    moveTokenFromStartingPoolToLivePool = ({states}) => {
+    moveTokenFromStartingPoolToLivePool = ({
+        states
+    }) => {
         // todo dehardcode absolute state
 
         this.poolType = {
@@ -109,7 +113,8 @@ class BlToken extends ContentCreator {
     }
 
     move = ({
-        count,states
+        count,
+        states
     }) => {
         this.currentState += count;
         this.currentXY = states[this.currentState];

@@ -82,30 +82,11 @@ class CanvasReactive extends Canvas {
         // wait for one token to reach destination (stops moving) before other token can be moved on board
         // tokens scheduled for change
 
-        this.backlog = [];
+        // this.backlog = [];
 
 
 
     }
-
-
-    // moveToken = (notifArgs) => {
-    //     /**
-    //      * check if can move this token 
-    //      * 
-    //      * => 
-    //      * if config.move one by one
-    //      * then 
-    //      * wait for other tokens to stop moving
-    //      * 
-    //      * else
-    //      * move token
-    //      * 
-    //      * 
-    //      */
-
-
-    // }
 
     animate = () => {
 
@@ -126,9 +107,143 @@ class CanvasReactive extends Canvas {
             });
 
 
+            let x = {}
+
+            for (const [playerId, playerMeta] of Object.entries(this.playersToTokens)) {
+
+                for (const [tokenId, tokenMeta] of Object.entries(playerMeta.tokens)) {
+
+                    let t = {
+                        playerId: playerId,
+                        tokenId: tokenId,
+                        token: tokenMeta
+                    }
+
+
+                    if (tokenMeta.position.x in x) {
+
+                        if (tokenMeta.position.y in x[tokenMeta.position.x]) {
+                            x[tokenMeta.position.x][tokenMeta.position.y].push(t)
+
+                        } else {
+                            x[tokenMeta.position.x][tokenMeta.position.y] = [t]
+
+                        }
+
+
+                    } else {
+
+
+                        x[tokenMeta.position.x] = {}
+                        x[tokenMeta.position.x][tokenMeta.position.y] = [t]
+
+
+                    }
+
+
+                }
+
+            }
+
+
+            // todo: enhancment: when they stop coliding then rewrite numbers as 1 and 1, not 2
+
+
+            for (const yCoordinateToTokens of Object.values(x)) {
+
+                for (const tokens of Object.values(yCoordinateToTokens)) {
+
+                    let tokensOnSameSpot = tokens.length;
+
+                    tokens.forEach(i => {
+                        i.token.number = {
+                            c: tokensOnSameSpot
+                        };
+                    })
+
+                    // tokens.token.number = tokensOnSameSpot;
+
+
+                }
+
+
+            }
+
         }
 
         animateDriver();
+
+
+        // xy -> {playerId, tokenId}
+
+
+        let x = {}
+
+        for (const [playerId, playerMeta] of Object.entries(this.playersToTokens)) {
+
+            for (const [tokenId, tokenMeta] of Object.entries(playerMeta.tokens)) {
+
+                let t = {
+                    playerId: playerId,
+                    tokenId: tokenId,
+                    token: tokenMeta
+                }
+
+
+                if (tokenMeta.position.x in x) {
+
+                    if (tokenMeta.position.y in x[tokenMeta.position.x]) {
+                        x[tokenMeta.position.x][tokenMeta.position.y].push(t)
+
+                    } else {
+                        x[tokenMeta.position.x][tokenMeta.position.y] = [t]
+
+                    }
+
+
+                } else {
+
+
+                    x[tokenMeta.position.x] = {}
+                    x[tokenMeta.position.x][tokenMeta.position.y] = [t]
+
+
+                }
+
+
+            }
+
+        }
+
+
+        // todo: enhancment: when they stop coliding then rewrite numbers as 1 and 1, not 2
+
+        console.log(x)
+
+        for (const [xCoordinate, yCoordinateToTokens] of Object.entries(x)) {
+            // console.log(xCoordinate, yCoordinateToTokens)
+
+            for (const [yCoordinate, tokens] of Object.entries(yCoordinateToTokens)) {
+                console.log(xCoordinate, yCoordinate, tokens)
+
+                let tokensOnSameSpot = tokens.length;
+                console.log(tokensOnSameSpot)
+
+
+                tokens.forEach(i => {
+                    i.token.number = {
+                        c: tokensOnSameSpot
+                    };
+                })
+
+                // tokens.token.number = tokensOnSameSpot;
+
+
+            }
+
+
+        }
+
 
     }
 

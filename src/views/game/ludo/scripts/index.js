@@ -6,14 +6,10 @@ import {
     Level
 } from "./bl_level.js";
 
-// import {
-//     mapTokens
-// } from "./layers.js";
+
 import {
     BoardTile
 } from "./ui_board_tile.js";
-
-// import {BlToken} from "./bl_token.js";
 
 import {
     BlToken
@@ -25,6 +21,9 @@ import {
     remapPosition,
     // remapTile
 } from "./ui_comm.js";
+
+
+
 class UserInterface {
 
     constructor({
@@ -63,7 +62,9 @@ class BusinessLogic {
 class Game {
     constructor(staticCanvasElement, reactiveCanvasElement, config) {
 
-        let conf =  this.loadConfig({config: config});
+        let conf = this.loadConfig({
+            config: config
+        });
         let levelState = conf.levelState;
         let uiPart = conf.uiTokens;
 
@@ -114,16 +115,18 @@ class Game {
 
     }
 
-    loadConfig = ({config}) => {
+    loadConfig = ({
+        config
+    }) => {
 
         let startPoolId = "1";
 
         let stateNull = "-1";
 
         let levelState = {};
-        levelState["players"] = {}; 
+        levelState["players"] = {};
 
- 
+
 
         let uiTokens = {};
 
@@ -140,14 +143,14 @@ class Game {
 
             };
 
-             levelState.players[playerId] = {};
+            levelState.players[playerId] = {};
             let thisPlayer = levelState.players[playerId]
 
             // find start pool states
             // this will be used to create tokens
             let startPool = [];
 
-            for (const  stateMeta of Object.values(states)) {
+            for (const stateMeta of Object.values(states)) {
 
                 if (stateMeta.type === startPoolId) {
                     startPool.push(stateMeta);
@@ -161,7 +164,7 @@ class Game {
             let newD = {};
             let c = 0;
 
-            for (const  stateMeta of Object.values(states)) {
+            for (const stateMeta of Object.values(states)) {
 
                 if (stateMeta.type !== startPoolId) {
                     // not start state
@@ -180,7 +183,7 @@ class Game {
             // add tokens to this player
             let tokenId = 0
 
-            c = 0; 
+            c = 0;
 
             startPool.forEach(stateMeta => {
                 // for each token
@@ -200,24 +203,24 @@ class Game {
                 });
 
                 thisPlayer["tokens"][tokenId] = blToken;
-   
-                tokenId ++;
-                
+
+                tokenId++;
+
                 blToken.subscribe({
                     command: "restart",
                     s: uiToken.restart
                 });
-    
+
                 blToken.subscribe({
                     command: "newDestination",
                     s: uiToken.setDestionationPosition
                 });
 
                 uiTokensForThisPlayer.tokens[c] = uiToken;
-    
+
                 c++;
             });
-    
+
             uiTokens[playerId] = uiTokensForThisPlayer;
 
         }

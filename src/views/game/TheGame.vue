@@ -17,6 +17,15 @@
     <br />
     <button @click="fill">test fill</button>
 
+    <br />
+    <button @click="restr">test restricted</button>
+
+    <br />
+    <button @click="win">test win</button>
+
+    <br />
+    <button @click="bl">create block</button>
+
     <div id="container" class="container">
       <canvas id="staticcanvas" width="600" height="600"></canvas>
       <canvas id="reactivecanvas" width="600" height="600">
@@ -45,6 +54,82 @@ export default {
     this.initGame();
   },
   methods: {
+    async win() {
+      for (let playerId = 0; playerId < 4; playerId++) {
+        for (let i = 0; i < 60; i++) {
+          // move first
+          this.movePosition({
+            player: 0,
+            token: playerId,
+            jumpCount: 1,
+          });
+        }
+      }
+    },
+
+    async bl() {
+      this.movePosition({
+        player: 0,
+        token: 0,
+        jumpCount: 1,
+      });
+      this.movePosition({
+        player: 0,
+        token: 1,
+        jumpCount: 1,
+      });
+      this.movePosition({
+        player: 0,
+        token: 2,
+        jumpCount: 1,
+      });
+      this.movePosition({
+        player: 0,
+        token: 3,
+        jumpCount: 1,
+      });
+    },
+
+    async restr() {
+      // move first
+      this.movePosition({
+        player: 0,
+        token: 0,
+        jumpCount: 1,
+      });
+      this.movePosition({
+        player: 0,
+        token: 0,
+        jumpCount: 55,
+      });
+      // move first
+      this.movePosition({
+        player: 0,
+        token: 1,
+        jumpCount: 1,
+      });
+      this.movePosition({
+        player: 0,
+        token: 1,
+        jumpCount: 54,
+      });
+      this.movePosition({
+        player: 0,
+        token: 1,
+        jumpCount: 1,
+      });
+      this.movePosition({
+        player: 0,
+        token: 1,
+        jumpCount: 1,
+      });
+      this.movePosition({
+        player: 0,
+        token: 1,
+        jumpCount: 1,
+      });
+    },
+
     async testBlock() {
       // move first
       this.movePosition({

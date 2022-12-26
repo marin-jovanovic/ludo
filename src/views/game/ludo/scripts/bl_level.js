@@ -25,16 +25,18 @@ class Level extends ContentCreator {
         super();
 
         //  todo check if this is loading properly when passed updated dto (mid game)
-        
+
         // DTO - data transfer object
         this.levelState = levelState;
-   
+
         // this is for notifying bl
         this.changleLog = [];
         this.isWaitingForAcceptance = false;
     }
 
-    getStates({player}) {
+    getStates({
+        player
+    }) {
         return this.levelState.players[player].state;
     }
 
@@ -179,7 +181,7 @@ class Level extends ContentCreator {
          * 
          */
 
-            
+
         if (!(playerId in this.levelState.players)) {
             console.log("err: unknown player", playerId);
             console.log(this.levelState.players)
@@ -206,8 +208,10 @@ class Level extends ContentCreator {
         switch (token.poolType) {
             case getConfig()["pool"]["start"]:
 
-                token.moveTokenFromStartingPoolToLivePool({states: states});
-                
+                token.moveTokenFromStartingPoolToLivePool({
+                    states: states
+                });
+
                 break;
 
             case getConfig()["pool"]["live"]:
@@ -293,6 +297,11 @@ class Level extends ContentCreator {
             tokenId: tokenId
         });
 
+        // this.checkBlock({
+        //     playerId: playerId,
+        //     tokenId: tokenId
+        // });
+
         if (this.isGameWon({
                 playerId: playerId
             })) {
@@ -323,7 +332,7 @@ class Level extends ContentCreator {
         let token = this.levelState.players[playerId].tokens[tokenId];
 
         let thisMovePath = [token.startXY];
-      
+
         // console.log(token, token.startXY)
 
 
@@ -335,6 +344,44 @@ class Level extends ContentCreator {
         });
 
     }
+
+    checkBlock = ({
+        playerId
+    }) => {
+        let t = this.levelState.players[playerId].tokens;
+
+        let tilesOccupied = Object.values(t).map(i => i.currentState);
+
+        const counts = {};
+
+        for (const num of tilesOccupied) {
+            counts[num] = counts[num] ? counts[num] + 1 : 1;
+        }
+
+        console.log(counts);
+
+
+        // token -> number of occ on this tile
+        let m = {};
+
+        for (const [key, value] of Object.entries(t)) {
+            // console.log(key);
+
+            let c = counts[value.currentState];
+            console.log(key, c)
+
+            // if (value.currentState)
+
+        }
+
+        console.log(m);
+
+        // t = Object.values(t).map(i => i.currentState);
+        // console.log(tokenId)
+        // console.log(t)
+
+    }
+
 
     /**
      * 
@@ -357,11 +404,17 @@ class Level extends ContentCreator {
         // we are viewing this in relative perspective
 
         let t = this.levelState.players[player].tokens[tokenId];
-        let restrictedJumpingOver = [53, 52, 51, 50, 49, 48];
+
+        let states = this.levelState.players[player].state;
+
+        let restrictedJumpingOver = this.getRestricted({
+            states: states
+        });
+
 
 
         if (!(restrictedJumpingOver.includes(
-                (t.state + jumpCount)
+                (t.currentState + jumpCount)
             ))) {
             return true
         }
@@ -372,16 +425,32 @@ class Level extends ContentCreator {
 
             if (Number(t) !== Number(tokenId)) {
 
-                if (restrictedJumpingOver.includes(tMeta.state)) {
-                    occupiedSpaces.push(tMeta.state);
+                if (restrictedJumpingOver.includes(tMeta.currentState)) {
+                    occupiedSpaces.push(tMeta.currentState);
                 }
             }
         }
 
         let lowest = Math.min(...occupiedSpaces);
 
-        return t.state + jumpCount < lowest
+        return t.currentState + jumpCount < lowest
 
+    }
+
+    getRestricted = ({
+        states
+    }) => {
+        let restrictedJumpingOver = [];
+
+        let restrictedEnum = "3"
+
+        for (const [stateId, stateMeta] of Object.entries(states)) {
+            if (stateMeta.type === restrictedEnum) {
+                restrictedJumpingOver.push(Number(stateId))
+            }
+        }
+
+        return restrictedJumpingOver;
     }
 
     /**
@@ -395,20 +464,31 @@ class Level extends ContentCreator {
         playerId
     }) => {
 
+        let states = this.levelState.players[playerId].state;
 
-        let restrictedJumpingOver = [53, 52, 51, 50];
+        let restrictedJumpingOver = this.getRestricted({
+            states: states
+        });
         let occupiedSpaces = [];
 
         for (
             const tMeta of Object.values(this.levelState.players[playerId].tokens)
         ) {
 
-            if (restrictedJumpingOver.includes(tMeta.state)) {
-                occupiedSpaces.push(tMeta.state);
+            if (restrictedJumpingOver.includes(tMeta.currentState)) {
+                occupiedSpaces.push(tMeta.currentState);
             }
+
         }
 
-        return occupiedSpaces.length === restrictedJumpingOver.length;
+        if (occupiedSpaces.length === 0) {
+            return false
+        }
+
+        let tokenCount = Object.keys(this.levelState.players[playerId].tokens).length;
+        let lowest = Math.min(...occupiedSpaces);
+
+        return lowest + tokenCount === Math.max(...restrictedJumpingOver) + 1;
 
     }
 
@@ -437,12 +517,12 @@ class Level extends ContentCreator {
                     continue;
                 }
 
-                if (!(currToken.currentXY.row === token.currentXY.row && 
-                    currToken.currentXY.column === token.currentXY.column
-                )) {
+                if (!(currToken.currentXY.row === token.currentXY.row &&
+                        currToken.currentXY.column === token.currentXY.column
+                    )) {
                     continue;
                 }
-           
+
                 if (playerId in occupiedSpaces) {
                     occupiedSpaces[playerId].push(tokenId);
                 } else {
@@ -492,14 +572,13 @@ class Level extends ContentCreator {
 
         if (Object.keys(occupiedSpaces).length === 0) {
             // if (occupiedSpaces.length !== 1) {
-    
-                // think when nothing to rem
-                // console.log("err")
-                return;
+
+            // think when nothing to rem
+            // console.log("err")
+            return;
         }
-                    
-                    
-        console.log(occupiedSpaces)
+
+
 
         if (Object.keys(occupiedSpaces).length !== 1) {
 
@@ -528,9 +607,8 @@ class Level extends ContentCreator {
                     // this token
                     this.restartToken({
                         playerId: playerId,
-                       tokenId: tokenId
+                        tokenId: tokenId
                     })
-
 
                 }
             }

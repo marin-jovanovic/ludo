@@ -1,7 +1,11 @@
 import axios from 'axios'
 import Cookies from 'js-cookie'
-import { userMetaSS } from '../session_storage';
-import { apiAuth } from './auth';
+import {
+    userMetaSS
+} from '../session_storage';
+import {
+    apiAuth
+} from './auth';
 
 const api = axios.create({
     baseURL: 'http://localhost:8000',
@@ -21,12 +25,17 @@ function getAuthenticationHeader() {
         let username = credentials.username;
         let accessToken = credentials.accessToken;
 
-        return { headers: { 'Authorization': 'Custom ' + ((encodeURIComponent(username + ':' + accessToken))) } }
+        return {
+            headers: {
+                'Authorization': 'Custom ' + ((encodeURIComponent(username + ':' + accessToken)))
+            }
+        }
 
-    }
-    else {
+    } else {
 
-        return { headers: {} }
+        return {
+            headers: {}
+        }
 
     }
 
@@ -41,7 +50,10 @@ function handleNewResponse(response) {
         let accessToken = response.data.auth.accessToken;
         let username = response.data.auth.username;
 
-        userMetaSS.login({username: username, accessToken: accessToken})
+        userMetaSS.login({
+            username: username,
+            accessToken: accessToken
+        })
 
 
     } else {
