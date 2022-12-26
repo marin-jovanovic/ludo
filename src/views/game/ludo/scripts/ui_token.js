@@ -80,7 +80,6 @@ class UiToken extends ContentCreator {
     set number({
         c
     }) {
-        // console.log("setting", c)
         this.occurances = c;
     }
 

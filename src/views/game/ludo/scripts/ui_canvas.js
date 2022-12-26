@@ -107,6 +107,8 @@ class CanvasReactive extends Canvas {
             });
 
 
+// this is cardinality part
+
             let x = {}
 
             for (const [playerId, playerMeta] of Object.entries(this.playersToTokens)) {
@@ -174,75 +176,6 @@ class CanvasReactive extends Canvas {
         animateDriver();
 
 
-        // xy -> {playerId, tokenId}
-
-
-        let x = {}
-
-        for (const [playerId, playerMeta] of Object.entries(this.playersToTokens)) {
-
-            for (const [tokenId, tokenMeta] of Object.entries(playerMeta.tokens)) {
-
-                let t = {
-                    playerId: playerId,
-                    tokenId: tokenId,
-                    token: tokenMeta
-                }
-
-
-                if (tokenMeta.position.x in x) {
-
-                    if (tokenMeta.position.y in x[tokenMeta.position.x]) {
-                        x[tokenMeta.position.x][tokenMeta.position.y].push(t)
-
-                    } else {
-                        x[tokenMeta.position.x][tokenMeta.position.y] = [t]
-
-                    }
-
-
-                } else {
-
-
-                    x[tokenMeta.position.x] = {}
-                    x[tokenMeta.position.x][tokenMeta.position.y] = [t]
-
-
-                }
-
-
-            }
-
-        }
-
-
-        // todo: enhancment: when they stop coliding then rewrite numbers as 1 and 1, not 2
-
-        console.log(x)
-
-        for (const [xCoordinate, yCoordinateToTokens] of Object.entries(x)) {
-            // console.log(xCoordinate, yCoordinateToTokens)
-
-            for (const [yCoordinate, tokens] of Object.entries(yCoordinateToTokens)) {
-                console.log(xCoordinate, yCoordinate, tokens)
-
-                let tokensOnSameSpot = tokens.length;
-                console.log(tokensOnSameSpot)
-
-
-                tokens.forEach(i => {
-                    i.token.number = {
-                        c: tokensOnSameSpot
-                    };
-                })
-
-                // tokens.token.number = tokensOnSameSpot;
-
-
-            }
-
-
-        }
 
 
     }

@@ -52,14 +52,6 @@ class BlToken extends ContentCreator {
 
     }
 
-    // set coordinates({stateDict}) {
-    //     this.currentXY = stateDict
-    // }
-
-    // getCoordinates = ({stateDict}) => {
-    //     this.currentXY = 
-    // }
-
     get poolType() {
         return this.pool;
     }

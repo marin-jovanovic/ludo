@@ -132,9 +132,6 @@ def receive_instruction(game_id, instruction_id):
         # todo hardcoded
         g = generate_whole_game()
 
-        for i in g:
-            print(i)
-
         r = __add_to_log(game_id, g)
         if not r["status"]:
             return r
@@ -167,36 +164,14 @@ def receive_instruction(game_id, instruction_id):
 
     is_any_performed_false = GameLog.objects.filter(performed=False,
                                                     game_id=game_o)
-    print(f"{is_any_performed_false=}")
+    # print(f"{is_any_performed_false=}")
 
     if is_any_performed_false:
         print("not last instruciton, required user action")
     else:
         print("last instruction, generate new")
 
-    # last_performed_instruction = GameLog.objects.filter(performed=True).aggregate(Max('instruction_id'))[
-    #     "instruction_id__max"]
-    # last_instruction = GameLog.objects.aggregate(Max('instruction_id'))["instruction_id__max"]
-    #
-    # print(f"{last_performed_instruction=}")
-    # print(f"{last_instruction=}")
-    #
-    # if last_performed_instruction == last_instruction:
-    #     print("this is last instruciton, generate new")
-    #
-    #     last_command = GameLog.objects.get(instruction_id=last_performed_instruction).action
-    #     print(f"{last_command=}")
-    #     if last_command == "goes":
-    #         # todo here
-    #         print("generate board ")
-    #
-    #     else:
-    #         pass
-    #         # todo think this can only be choice if user rolled 6
-    #         print('last command is not goes')
-    #
-    # else:
-    #     print("not last instruction")
+
 
     return {"status": True}
 
@@ -226,10 +201,12 @@ def __add_to_log(game_id, order):
         )
 
         i["player"] = t.player.username
-        print(i)
+        # print(i)
 
-        r = add_entry(**i)
-        print("result add", r)
+        add_entry(**i)
+
+        # r = add_entry(**i)
+        # print("result add", r)
 
     return {"status": True}
 

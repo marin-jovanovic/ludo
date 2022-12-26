@@ -334,6 +334,8 @@ class Level:
     def __init__(self, log=None):
         game_conf = get_config()
 
+
+        # if mid game
         if log:
             self.log = log
         else:
@@ -366,9 +368,7 @@ class Level:
                 tokens[token_id] = Token(
                     owner=player_id,
                     id_=token_id,
-
                     start_tile=start_tile,
-
                     destination_position=destination_position,
                     moves=m_player_to_moves[player_id]
                 )
