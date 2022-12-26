@@ -3,7 +3,7 @@ import {
 } from "./content_creator.js";
 
 
-
+// todo this can be made in more elegant way
 function getConfig() {
     let poolTypes = {
 
@@ -17,48 +17,87 @@ function getConfig() {
         "done": "done",
     }
 
+    // console.log("get pool", poolTypes)
+
     return {
         "pool": poolTypes,
     }
 }
 
 
+
 class BlToken extends ContentCreator {
 
     constructor({
-        state,
-        xy
+  
+        startState,
+        startXY,
+
     }) {
         super();
 
+        // todo find root cause of this
+        startState = Number(startState);
+        startXY = Number(startXY);
+
+        // console.log(startState, startXY)
+
+        this.currentState = startState;
+        this.currentXY = startXY;
+
+        this.startState = startState;
+        this.startXY =  startXY;
+
         // relative numbers
-        this.startingState = state;
+        this.startingState = startState;
         // natural number
-        this.state = state;
+        this.state = startState;
 
         // absolute
-        this.absoluteState = state;
+        // this.absoluteState = startState;
 
         // this is row/column position
         // start position
-        this.boardXYPosition = xy;
+        this.boardXYPosition = startXY;
 
 
-        this.xy = xy;
+        this.xy = startXY;
 
-        this.pool = getConfig()["pool"]["start"];
 
+        this.poolType = {
+            pool: getConfig().pool["start"]
+        }
+
+    
         this.stateTraversal = undefined;
     }
 
-    setPool({pool}) {
+    get poolType() {
+        return this.pool;
+    }
 
-        if (! (pool in getConfig()["pool"])) {
-            console.log("pool not exists");
-            return;
+    moveTokenFromStartingPoolToLivePool = () => {
+        console.log("move ")
+        // todo dehardcode absolute state
+
+        this.poolType = {
+            pool: getConfig().pool["live"]
+            // pool: getPoolType({type: "live"}) 
         }
 
-        console.log("set pool", pool);
+
+        this.state = 0;
+
+    }
+
+    // set pool ({pool}) {
+    set poolType ({pool}) {
+
+        if (! (pool in getConfig()["pool"])) {
+        console.log("pool not exists", pool);
+        return;
+        }
+
 
         this.pool = pool;
     }
@@ -77,7 +116,7 @@ class BlToken extends ContentCreator {
          */
 
         this.state = this.startingState;
-        this.absoluteState = this.state;
+        // this.absoluteState = this.state;
 
     }
 
@@ -85,7 +124,7 @@ class BlToken extends ContentCreator {
         count
     }) => {
         this.state += count;
-        this.absoluteState += count;
+        // this.absoluteState += count;
     }
 
 }

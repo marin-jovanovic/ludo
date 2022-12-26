@@ -65,8 +65,6 @@ export default {
         configPayload[i] = res["payload"]["payload"];
       }
 
-      console.log(configPayload);
-
       this.game = new ludo.Game(
         document.querySelector("#staticcanvas"),
         document.querySelector("#reactivecanvas"),

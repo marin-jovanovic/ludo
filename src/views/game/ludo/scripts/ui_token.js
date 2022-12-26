@@ -79,6 +79,7 @@ class UiToken extends ContentCreator {
     setDestionationPosition = ({
         diff
     }) => {
+        console.log(diff)
 
         if (this.isBacklogEmpty()) {
             // todo improve by making this list and appending this list(diff)

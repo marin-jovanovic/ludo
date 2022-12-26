@@ -20,21 +20,27 @@ import {
 class Level extends ContentCreator {
     constructor({
         // config,
-        moves,
-        players,
-        tokens
+        // moves,
+        // players,
+        // tokens,
+        levelState
     }) {
         super();
 
         // console.log(config);
+        // console.log(levelState)
 
         // todo check if this is DTO
         // DTO - data transfer object
-        this.levelState = this.fetchLevelState({
-            players: players,
-            moves: moves,
-            tokens: tokens
-        });
+        // this.levelState = this.fetchLevelState({
+        //     players: players,
+        //     moves: moves,
+        //     tokens: tokens
+        // });
+
+
+        // console.log(moves, players, tokens);
+        this.levelState = levelState;
 
    
         // this is for notifying bl
@@ -72,7 +78,6 @@ class Level extends ContentCreator {
          * 
          */
 
-
         let p = {};
         let c = 0;
 
@@ -87,7 +92,6 @@ class Level extends ContentCreator {
 
         }
 
-
         console.log(p);
 
         let levelState = {
@@ -101,8 +105,6 @@ class Level extends ContentCreator {
             // for each player info
             players: p
         }
-
-        // console.log()
 
         return levelState;
 
@@ -149,7 +151,6 @@ class Level extends ContentCreator {
             return;
         }
 
-
         /**
          * if can notify
          * set flag that it can not notify
@@ -175,6 +176,7 @@ class Level extends ContentCreator {
 
             if (this.changleLog.length === 0) {
                 // send current
+
 
                 token.notify({
                     command: "newDestination",
@@ -234,12 +236,13 @@ class Level extends ContentCreator {
          * 
          */
 
-
-
+            
         if (!(playerId in this.levelState.players)) {
             console.log("err: unknown player", playerId);
+            console.log(this.levelState.players)
             return;
         }
+
 
         if (!(tokenId in this.levelState.players[playerId].tokens)) {
             console.log("err: unknown token", tokenId);
@@ -254,13 +257,14 @@ class Level extends ContentCreator {
         let token = this.levelState.players[playerId].tokens[tokenId];
         let pastState = token.state;
 
+        console.log("move", token)
+
+        console.log(token.pool)
+
         switch (token.pool) {
             case getConfig()["pool"]["start"]:
 
-                this.moveTokenFromStartingPoolToLivePool({
-                    token: token,
-                    playerId: playerId
-                });
+                token.moveTokenFromStartingPoolToLivePool();
                 
                 break;
 
@@ -324,11 +328,20 @@ class Level extends ContentCreator {
 
         let history = [];
         for (let i = pastState + 1; i < destinationState + 1; i++) {
+            console.log(i)
             history.push(i);
         }
 
         // state machine pattern
         let states = this.levelState.players[playerId].state;
+
+        console.log(pastState, destinationState)
+
+        console.log(states)
+
+        console.log(history)
+
+
 
         // // subset of states where this token traversed
         let thisMovePath = history.map(i => states[i]);
@@ -475,12 +488,12 @@ class Level extends ContentCreator {
 
         let token = this.levelState.players[playerId].tokens[tokenId];
 
-        console.log(token);
+        // console.log(token);
 
         // where @token is now
-        let stateOfInteres = token.absoluteState;
+        // let stateOfInteres = token.absoluteState;
 
-        console.log(stateOfInteres)
+        // console.log(stateOfInteres)
 
         for (const [playerId, p] of Object.entries(this.levelState.players)) {
 
@@ -490,7 +503,7 @@ class Level extends ContentCreator {
 
                     let k = playerId;
 
-                    console.log(t.xy, token.xy, t.xy === token.xy)
+                    // console.log(t.xy, token.xy, t.xy === token.xy)
 
 
                     if (t.xy === token.xy) {
@@ -510,22 +523,6 @@ class Level extends ContentCreator {
 
 
                     }
-
-                    // if (t.absoluteState === stateOfInteres) {
-
-                    //     if (k in occupiedSpaces) {
-                    //         occupiedSpaces[k].push({
-                    //             token: t,
-                    //             tokenId: tokenId
-                    //         });
-                    //     } else {
-                    //         occupiedSpaces[k] = [{
-                    //             token: t,
-                    //             tokenId: tokenId
-                    //         }];
-                    //     }
-
-                    // }
 
                 }
 
@@ -596,17 +593,6 @@ class Level extends ContentCreator {
 
     }
 
-    moveTokenFromStartingPoolToLivePool({
-        token,
-        playerId
-    }) {
-        // todo dehardcode absolute state
-
-        token.setPool({pool: getConfig()["pool"]["live"]});
-        token.state = 0;
-        token.absoluteState = 13 * playerId;
-
-    }
 
 
 }

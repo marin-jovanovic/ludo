@@ -107,6 +107,8 @@ function mapTokens({
     Boundary,
     colour
 }) {
+
+
     /**
      * create dyn content from api payload
      */
@@ -129,13 +131,18 @@ function mapTokens({
 
             if (symbol in mappings && mappings[symbol] === colour) {
 
+                let stateNull = "-1";
+
                 let blToken = new BlToken({
-                    state: -1,
-                    xy: {
+                    startState: stateNull,
+                    startXY: {
                         row: i,
-                        column: j
+                        column: j,
+                        type: "undefined"
                     }
+
                 });
+
                 let uiToken = new UiToken({
                     colour: mappings[symbol],
                     position: remapPosition({
@@ -143,7 +150,7 @@ function mapTokens({
                         j: j,
                         Boundary: Boundary
                     }),
-                })
+                });
 
                 uiTokens[c] = uiToken;
                 blTokens[c] = blToken;

@@ -6,15 +6,25 @@ import {
     Level
 } from "./bl_level.js";
 
-import {
-    mapTokens
-} from "./layers.js";
+// import {
+//     mapTokens
+// } from "./layers.js";
 import {
     BoardTile
 } from "./ui_board_tile.js";
 
 // import {BlToken} from "./bl_token.js";
 
+import {
+    BlToken
+} from "./bl_token.js";
+import {
+    UiToken
+} from "./ui_token.js";
+import {
+    remapPosition,
+    // remapTile
+} from "./ui_comm.js";
 class UserInterface {
 
     constructor({
@@ -24,12 +34,10 @@ class UserInterface {
         playersToTokens
     }) {
 
-
         this.staticCanvas = new CanvasStatic({
             element: staticCanvasElement,
             map: map
         });
-
 
         this.reactiveCanvas = new CanvasReactive({
             element: reactiveCanvasElement,
@@ -43,14 +51,10 @@ class UserInterface {
 class BusinessLogic {
 
     constructor({
-        config,
-        tokens
+        levelState
     }) {
         this.currentLevel = new Level({
-            // config: config,
-            moves: config['moves'],
-            players: config['players'],
-            tokens: tokens,
+            levelState: levelState
         });
     }
 
@@ -59,28 +63,9 @@ class BusinessLogic {
 class Game {
     constructor(staticCanvasElement, reactiveCanvasElement, config) {
 
-        let uiPart = {};
-        let blPart = {};
-
-        for (const [playerId, playerMetadata] of Object.entries(config['players'])) {
-
-            let r = mapTokens({
-                map: config['map'],
-                Boundary: BoardTile,
-                colour: playerMetadata.colour,
-            });
-
-            blPart[playerId] = {
-                username: playerMetadata.username,
-                tokens: r[0]
-            }
-
-            uiPart[playerId] = {
-                username: playerMetadata.username,
-                tokens: r[1]
-            }
-
-        }
+        let conf =  this.loadConfig({config: config});
+        let levelState = conf.levelState;
+        let uiPart = conf.uiTokens;
 
         this.ui = new UserInterface({
             staticCanvasElement: staticCanvasElement,
@@ -90,8 +75,7 @@ class Game {
         });
 
         this.bl = new BusinessLogic({
-            config: config,
-            tokens: blPart
+            levelState: levelState
         });
 
         this.bl.currentLevel.subscribe({
@@ -112,9 +96,7 @@ class Game {
                     s: this.bl.currentLevel.updated
                 });
             }
-
         }
-
 
         this.bl.currentLevel.start();
 
@@ -122,44 +104,55 @@ class Game {
         // for bl
 
         // how tokens should move
-        let tokenMoves =  this.loadConfig({config: config});
-
-    
+        // let levelState =  this.loadConfig({config: config});
 
         // todo 
         // where are  tokens now? (on start or somewhere in the middle)
 
 
-        console.log(tokenMoves);
+        // console.log(tokenMoves);
 
     }
 
     loadConfig = ({config}) => {
-        // console.log(config);
 
         let startPoolId = "1";
 
         let stateNull = "-1";
-        // let 
 
-        let levelState = {}
+        let levelState = {};
+        levelState["players"] = {}; 
+
+ 
+
+        let uiTokens = {};
 
 
-
-        for (const [playerId, states] of Object.entries(config.moves)) {
+        for (let [playerId, states] of Object.entries(config.moves)) {
             // for each player
 
-            levelState[playerId] = {};
+            let playerMetadata = config['players'][playerId];
 
+            console.log(playerMetadata)
+
+            let uiTokensForThisPlayer = {
+                username: playerMetadata.username,
+                tokens: {}
+
+            };
+
+             levelState.players[playerId] = {};
+            let thisPlayer = levelState.players[playerId]
 
             // find start pool states
             // this will be used to create tokens
-            let startPool = {};
+            let startPool = [];
 
-            for (const [stateId, stateMeta] of Object.entries(states)) {
+            for (const  stateMeta of Object.values(states)) {
 
                 if (stateMeta.type === startPoolId) {
-                    startPool[stateId] = stateMeta;
+                    startPool.push(stateMeta);
+                    // startPool[stateId] = stateMeta;
                 }
 
             }
@@ -176,11 +169,11 @@ class Game {
                     newD[c] = stateMeta
 
                     c++;
-
-
                 }
-
             }
+
+            thisPlayer["tokens"] = {};
+            thisPlayer.state = newD;
 
             // create tokens
             // for each start pool state
@@ -188,53 +181,65 @@ class Game {
             // add tokens to this player
             let tokenId = 0
 
-            for (const [stateId, stateMeta] of Object.entries(startPool)) {
+            c = 0; 
+
+            startPool.forEach(stateMeta => {
                 // for each token
 
-                // let token = new BlToken({
-                //     state: stateId,
-                //     xy: stateMeta,
-                // })
-
-                console.log(stateId);
-
-                let token = {
-                    currentState: stateNull,
-                    currentXY: stateMeta,
-
+                let blToken = new BlToken({
                     startState: stateNull,
-                    startXY : stateMeta,
+                    startXY: stateMeta
+                });
 
-                    states: newD
-                }
+                let uiToken = new UiToken({
+                    colour: playerMetadata.colour,
+                    // colour: mappings[playerMetadata.colour],
+                    position: remapPosition({
+                        i: stateMeta.row,
+                        j: stateMeta.column,
+                        Boundary: BoardTile
+                    }),
+                });
 
-                levelState[playerId][tokenId] = token;
+                thisPlayer["tokens"][tokenId] = blToken;
    
-
                 tokenId ++;
-            }
+                
+                blToken.subscribe({
+                    command: "restart",
+                    s: uiToken.restart
+                });
+    
+                blToken.subscribe({
+                    command: "newDestination",
+                    s: uiToken.setDestionationPosition
+                });
+
+                uiTokensForThisPlayer.tokens[c] = uiToken;
+    
+                c++;
+            });
+    
+            uiTokens[playerId] = uiTokensForThisPlayer;
 
         }
 
-        console.log(levelState)
-
-        // co
+        // console.log(uiTokens)
 
         return {
-
-            // basic game metadata
-            status: {
-                isGameDone: false,
-                quit: ['1'],
-                won: []
+            levelState: {
+                // basic game metadata
+                status: {
+                    isGameDone: false,
+                    quit: ['1'],
+                    won: []
+                },
+                // for each player info
+                ...levelState
             },
-            // for each player info
-            players: levelState
+            uiTokens: uiTokens,
+            // blTokens: blTokens
         }
-
-        // return levelState;
-
-
     }
 
     movePosition({
