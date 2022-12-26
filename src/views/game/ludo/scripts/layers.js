@@ -3,14 +3,8 @@
  * 
  */
 
+
 import {
-    BlToken
-} from "./bl_token.js";
-import {
-    UiToken
-} from "./ui_token.js";
-import {
-    remapPosition,
     remapTile
 } from "./ui_comm.js";
 
@@ -92,94 +86,10 @@ function getBoardTiles({
 
 
 
-// function getDictionary({}) {
-//     return {
-//         "a": {"type": "token", "id": "1"},
-//         "b": {"type": "token"},
-//         "c": {"type": "token"},
-//         "d": {"type": "token"}
-//     }
-// }
-
-
-function mapTokens({
-    map,
-    Boundary,
-    colour
-}) {
-
-
-    /**
-     * create dyn content from api payload
-     */
-
-
-    let mappings = {
-        q: 'green',
-        w: 'blue',
-        e: 'red',
-        r: 'yellow',
-    };
-
-    let c = 0;
-
-    let uiTokens = {};
-    let blTokens = {};
-
-    map.forEach((row, i) => {
-        row.forEach((symbol, j) => {
-
-            if (symbol in mappings && mappings[symbol] === colour) {
-
-                let stateNull = "-1";
-
-                let blToken = new BlToken({
-                    startState: stateNull,
-                    startXY: {
-                        row: i,
-                        column: j,
-                        type: "undefined"
-                    }
-
-                });
-
-                let uiToken = new UiToken({
-                    colour: mappings[symbol],
-                    position: remapPosition({
-                        i: i,
-                        j: j,
-                        Boundary: Boundary
-                    }),
-                });
-
-                uiTokens[c] = uiToken;
-                blTokens[c] = blToken;
-
-                blToken.subscribe({
-                    command: "restart",
-                    s: uiToken.restart
-                });
-
-                blToken.subscribe({
-                    command: "newDestination",
-                    s: uiToken.setDestionationPosition
-                });
-
-                c++;
-
-            }
-
-        })
-    })
-
-    return [blTokens, uiTokens];
-
-}
-
 
 
 
 export {
     getBoardTiles,
-    mapTokens
+    // mapTokens
 }

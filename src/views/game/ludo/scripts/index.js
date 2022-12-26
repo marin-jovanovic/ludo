@@ -133,7 +133,6 @@ class Game {
 
             let playerMetadata = config['players'][playerId];
 
-            console.log(playerMetadata)
 
             let uiTokensForThisPlayer = {
                 username: playerMetadata.username,
@@ -188,12 +187,11 @@ class Game {
 
                 let blToken = new BlToken({
                     startState: stateNull,
-                    startXY: stateMeta
+                    startXY: stateMeta,
                 });
 
                 let uiToken = new UiToken({
                     colour: playerMetadata.colour,
-                    // colour: mappings[playerMetadata.colour],
                     position: remapPosition({
                         i: stateMeta.row,
                         j: stateMeta.column,
@@ -224,7 +222,6 @@ class Game {
 
         }
 
-        // console.log(uiTokens)
 
         return {
             levelState: {
@@ -238,7 +235,6 @@ class Game {
                 ...levelState
             },
             uiTokens: uiTokens,
-            // blTokens: blTokens
         }
     }
 
@@ -264,27 +260,6 @@ class Game {
         });
 
     }
-
-    // // todo remove, why would this be exposed to user?
-    // restartToken({
-    //     playerId,
-    //     tokenId
-    // }) {
-    //     /**
-    //      * @player wants to move @token to starting position
-    //      * this is not something that user can do
-    //      * 
-    //      * this can only be done programaticaly => user does not have the option to chose this
-    //      * 
-    //      */
-
-
-    //     this.bl.currentLevel.restartToken({
-    //         playerId: playerId,
-    //         tokenId: tokenId
-    //     });
-
-    // }
 
 }
 

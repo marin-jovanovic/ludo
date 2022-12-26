@@ -19,29 +19,15 @@ import {
 
 class Level extends ContentCreator {
     constructor({
-        // config,
-        // moves,
-        // players,
-        // tokens,
+
         levelState
     }) {
         super();
 
-        // console.log(config);
-        // console.log(levelState)
-
-        // todo check if this is DTO
+        //  todo check if this is loading properly when passed updated dto (mid game)
+        
         // DTO - data transfer object
-        // this.levelState = this.fetchLevelState({
-        //     players: players,
-        //     moves: moves,
-        //     tokens: tokens
-        // });
-
-
-        // console.log(moves, players, tokens);
         this.levelState = levelState;
-
    
         // this is for notifying bl
         this.changleLog = [];
@@ -64,49 +50,6 @@ class Level extends ContentCreator {
         this.notify({
             command: "animateTokens",
         });
-
-    }
-
-    // todo rewrite
-    fetchLevelState({
-        players,
-        moves,
-        tokens
-    }) {
-        /**
-         * return board state
-         * 
-         */
-
-        let p = {};
-        let c = 0;
-
-        for (const playerId of Object.keys(players)) {
-
-            p[playerId] = {
-                ...tokens[playerId],
-                state: moves[c]
-            }
-
-            c += 1;
-
-        }
-
-        console.log(p);
-
-        let levelState = {
-
-            // basic game metadata
-            status: {
-                isGameDone: false,
-                quit: ['1'],
-                won: []
-            },
-            // for each player info
-            players: p
-        }
-
-        return levelState;
 
     }
 
@@ -255,16 +198,15 @@ class Level extends ContentCreator {
         }
 
         let token = this.levelState.players[playerId].tokens[tokenId];
-        let pastState = token.state;
+        let pastState = token.currentState;
 
-        console.log("move", token)
+        let states = this.levelState.players[playerId].state;
 
-        console.log(token.pool)
 
-        switch (token.pool) {
+        switch (token.poolType) {
             case getConfig()["pool"]["start"]:
 
-                token.moveTokenFromStartingPoolToLivePool();
+                token.moveTokenFromStartingPoolToLivePool({states: states});
                 
                 break;
 
@@ -273,7 +215,7 @@ class Level extends ContentCreator {
                 // check if can move so much 
 
                 if (
-                    token.state + jumpCount in this.levelState.players[playerId].state
+                    token.currentState + jumpCount in this.levelState.players[playerId].state
                 ) {
                     // state exists
 
@@ -287,6 +229,7 @@ class Level extends ContentCreator {
 
                         token.move({
                             count: jumpCount,
+                            states: states
                         });
 
                     } else {
@@ -317,31 +260,22 @@ class Level extends ContentCreator {
 
         }
 
-        if (!(token.state in this.levelState.players[playerId].state)) {
-            console.log("err not there", token.state)
+        if (!(token.currentState in this.levelState.players[playerId].state)) {
+            console.log("err not there", token.currentState)
             return
         }
 
         // /////////////////// notify UI ////////////////////////
 
-        let destinationState = token.state;
+        let destinationState = token.currentState;
 
         let history = [];
         for (let i = pastState + 1; i < destinationState + 1; i++) {
-            console.log(i)
             history.push(i);
         }
 
         // state machine pattern
-        let states = this.levelState.players[playerId].state;
-
-        console.log(pastState, destinationState)
-
-        console.log(states)
-
-        console.log(history)
-
-
+        // let states = this.levelState.players[playerId].state;
 
         // // subset of states where this token traversed
         let thisMovePath = history.map(i => states[i]);
@@ -376,17 +310,23 @@ class Level extends ContentCreator {
          */
 
 
+        // console.log(playerId, tokenId)
+
         // move this token
         // then check for moving
 
         this.levelState.players[playerId].tokens[tokenId].restart();
 
+
+
         // current token
         let token = this.levelState.players[playerId].tokens[tokenId];
 
-        let thisMovePath = [token.boardXYPosition];
+        let thisMovePath = [token.startXY];
       
-        this.xy = token.boardXYPosition;
+        // console.log(token, token.startXY)
+
+
 
         this.tryToSend({
             playerId: playerId,
@@ -488,49 +428,46 @@ class Level extends ContentCreator {
 
         let token = this.levelState.players[playerId].tokens[tokenId];
 
-        // console.log(token);
 
-        // where @token is now
-        // let stateOfInteres = token.absoluteState;
-
-        // console.log(stateOfInteres)
 
         for (const [playerId, p] of Object.entries(this.levelState.players)) {
+            // for each player
 
-            for (const [tokenId, t] of Object.entries(p.tokens)) {
+            for (const [tokenId, currToken] of Object.entries(p.tokens)) {
+                // for each token they have
 
-                if (t !== token) {
+                if (currToken === token) {
+                    // skip current token
+                    continue;
+                }
 
-                    let k = playerId;
-
-                    // console.log(t.xy, token.xy, t.xy === token.xy)
-
-
-                    if (t.xy === token.xy) {
-                        console.log("same x, y", )
-
-                        if (k in occupiedSpaces) {
-                            occupiedSpaces[k].push({
-                                token: t,
-                                tokenId: tokenId
-                            });
-                        } else {
-                            occupiedSpaces[k] = [{
-                                token: t,
-                                tokenId: tokenId
-                            }];
-                        }
-
-
-                    }
-
+                if (!(currToken.currentXY.row === token.currentXY.row && 
+                    currToken.currentXY.column === token.currentXY.column
+                )) {
+                    continue;
+                }
+           
+                if (playerId in occupiedSpaces) {
+                    occupiedSpaces[playerId].push(tokenId);
+                } else {
+                    occupiedSpaces[playerId] = [tokenId];
                 }
 
             }
 
         }
 
+
         /*
+
+            if mine 
+                return
+            if one enemy
+                eat
+            if more than one enemy
+                return my token
+
+
             case 1:
                 this user has any tokens here
             case 2:
@@ -557,41 +494,60 @@ class Level extends ContentCreator {
                         remove this token
         */
 
-        if (occupiedSpaces.length !== 1) {
-            for (const [owner, tokens] of Object.entries(occupiedSpaces)) {
+        if (Object.keys(occupiedSpaces).length === 0) {
+            // if (occupiedSpaces.length !== 1) {
+    
+                // think when nothing to rem
+                // console.log("err")
+                return;
+        }
+                    
+                    
+        console.log(occupiedSpaces)
 
-                console.log(tokens)
+        if (Object.keys(occupiedSpaces).length !== 1) {
 
-                if (Number(owner) !== playerId) {
-                    if (tokens.length === 1) {
+            console.log("err")
+        }
 
-                        // eat
+        for (const [owner, tokens] of Object.entries(occupiedSpaces)) {
 
-                        tokens.forEach(t => {
+            if (Number(owner) !== playerId) {
+                if (tokens.length === 1) {
 
-                            this.restartToken({
-                                playerId: Number(owner),
-                                tokenId: t.tokenId
-                            })
+                    // eat
 
-
-                        });
-
-                    } else if (tokens.length > 1) {
+                    tokens.forEach(t => {
 
                         this.restartToken({
                             playerId: Number(owner),
-                            tokenId: tokenId
+                            tokenId: t
                         })
 
 
-                    }
-                }
+                    });
 
+                } else if (tokens.length > 1) {
+
+                    // this token
+                    this.restartToken({
+                        playerId: playerId,
+
+                        // this token id
+                        tokenId: tokenId
+                    })
+
+
+                }
             }
+
         }
 
+
+
     }
+
+    // }
 
 
 

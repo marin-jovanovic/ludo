@@ -11,6 +11,9 @@
     <input v-model="jump" type="number" placeholder="1" />
     <button @click="move">move</button>
 
+    <br />
+    <button @click="testBlock">test block</button>
+
     <div id="container" class="container">
       <canvas id="staticcanvas" width="600" height="600"></canvas>
       <canvas id="reactivecanvas" width="600" height="600">
@@ -39,6 +42,86 @@ export default {
     this.initGame();
   },
   methods: {
+    async testBlock() {
+      // move first
+      this.movePosition({
+        player: 0,
+        token: 0,
+        jumpCount: 1,
+      });
+
+      this.movePosition({
+        player: 0,
+        token: 0,
+        jumpCount: 15,
+      });
+
+      // eat with second
+      this.movePosition({
+        player: 1,
+        token: 0,
+        jumpCount: 1,
+      });
+
+      this.movePosition({
+        player: 1,
+        token: 0,
+        jumpCount: 2,
+      });
+
+      // form block
+      this.movePosition({
+        player: 1,
+        token: 1,
+        jumpCount: 1,
+      });
+
+      this.movePosition({
+        player: 1,
+        token: 1,
+        jumpCount: 2,
+      });
+
+      // move first, try to eat
+      this.movePosition({
+        player: 0,
+        token: 0,
+        jumpCount: 1,
+      });
+
+      this.movePosition({
+        player: 0,
+        token: 0,
+        jumpCount: 15,
+      });
+
+      // kill block
+      this.movePosition({
+        player: 1,
+        token: 1,
+        jumpCount: 1,
+      });
+
+      // move first, eat
+      this.movePosition({
+        player: 0,
+        token: 0,
+        jumpCount: 1,
+      });
+
+      this.movePosition({
+        player: 0,
+        token: 0,
+        jumpCount: 15,
+      });
+
+      this.movePosition({
+        player: 0,
+        token: 0,
+        jumpCount: 1,
+      });
+    },
+
     async move() {
       this.movePosition({
         player: this.userid,

@@ -38,9 +38,8 @@ class BlToken extends ContentCreator {
 
         // todo find root cause of this
         startState = Number(startState);
-        startXY = Number(startXY);
+        // startXY = Number(startXY);
 
-        // console.log(startState, startXY)
 
         this.currentState = startState;
         this.currentXY = startXY;
@@ -48,46 +47,23 @@ class BlToken extends ContentCreator {
         this.startState = startState;
         this.startXY =  startXY;
 
-        // relative numbers
-        this.startingState = startState;
-        // natural number
-        this.state = startState;
-
-        // absolute
-        // this.absoluteState = startState;
-
-        // this is row/column position
-        // start position
-        this.boardXYPosition = startXY;
-
-
-        this.xy = startXY;
-
 
         this.poolType = {
             pool: getConfig().pool["start"]
         }
 
-    
-        this.stateTraversal = undefined;
     }
+
+    // set coordinates({stateDict}) {
+    //     this.currentXY = stateDict
+    // }
+
+    // getCoordinates = ({stateDict}) => {
+    //     this.currentXY = 
+    // }
 
     get poolType() {
         return this.pool;
-    }
-
-    moveTokenFromStartingPoolToLivePool = () => {
-        console.log("move ")
-        // todo dehardcode absolute state
-
-        this.poolType = {
-            pool: getConfig().pool["live"]
-            // pool: getPoolType({type: "live"}) 
-        }
-
-
-        this.state = 0;
-
     }
 
     // set pool ({pool}) {
@@ -102,12 +78,28 @@ class BlToken extends ContentCreator {
         this.pool = pool;
     }
 
+    moveTokenFromStartingPoolToLivePool = ({states}) => {
+        // todo dehardcode absolute state
+
+        this.poolType = {
+            pool: getConfig().pool["live"]
+            // pool: getPoolType({type: "live"}) 
+        }
+
+
+        // todo dehardcode, should be first state in live states
+        this.currentState = 0;
+        this.currentXY = states[this.currentState];
+
+    }
+
+
     getObjectMaxKey(obj) {
         return Number(Object.keys(obj).reduce((a, b) => obj[a] > obj[b] ? a : b));
     }
 
     isAtDestination(states) {
-        return this.state === this.getObjectMaxKey(states);
+        return this.currentState === this.getObjectMaxKey(states);
     }
 
     restart() {
@@ -115,16 +107,16 @@ class BlToken extends ContentCreator {
          * one enemy token eats this token; move it to start position
          */
 
-        this.state = this.startingState;
-        // this.absoluteState = this.state;
-
+        this.currentState = this.startState;
+        this.currentXY = this.startXY;
     }
 
     move = ({
-        count
+        count,states
     }) => {
-        this.state += count;
-        // this.absoluteState += count;
+        this.currentState += count;
+        this.currentXY = states[this.currentState];
+
     }
 
 }
