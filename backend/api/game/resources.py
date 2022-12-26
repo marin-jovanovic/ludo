@@ -1,93 +1,3 @@
-def get_start_pool():
-    """
-
-    player_id: {
-        token_id: {
-            "row": row,
-            "column": column
-        }
-    }
-
-    """
-
-    return {
-        "0": {
-            "0": {
-                "row": 2,
-                "column": 2
-            },
-            "1": {
-                "row": 2,
-                "column": 3
-            },
-            "2": {
-                "row": 3,
-                "column": 2
-            },
-            "3": {
-                "row": 3,
-                "column": 3
-            }
-
-        },
-        "1": {
-
-            "0": {
-                "row": 2,
-                "column": 11
-            },
-            "1": {
-                "row": 3,
-                "column": 11
-            },
-            "2": {
-                "row": 2,
-                "column": 12
-            },
-            "3": {
-                "row": 3,
-                "column": 12
-            }
-
-        },
-        "2": {
-            "0": {
-                "row": 11,
-                "column": 11
-            },
-            "1": {
-                "row": 12,
-                "column": 11
-            },
-            "2": {
-                "row": 11,
-                "column": 12
-            },
-            "3": {
-                "row": 12,
-                "column": 12
-            }
-        },
-        "3": {
-            "0": {
-                "row": 11,
-                "column": 2
-            },
-            "1": {
-                "row": 12,
-                "column": 2
-            },
-            "2": {
-                "row": 11,
-                "column": 3
-            },
-            "3": {
-                "row": 12,
-                "column": 3
-            }
-        }
-
-    }
 
 
 def _get_player_one_moves():
@@ -1347,6 +1257,54 @@ def get_moves():
         2: _get_player_three_moves(),
         3: _get_player_four_moves()
     }
+
+
+def get_start_pool():
+    """
+
+    player_id: {
+        token_id: {
+            "row": row,
+            "column": column
+        }
+    }
+
+    """
+
+    start_pool_enum = "1"
+
+    r = {}
+
+    for player_id, states in get_moves().items():
+        r[player_id] = {}
+
+        for state_id, state_meta in states.items():
+            if state_meta["type"] != start_pool_enum:
+                continue
+
+            r[player_id][state_id] = state_meta
+
+    return r
+
+def get_destination_pool():
+    start_pool_enum = "3"
+
+    r = {}
+
+    for player_id, states in get_moves().items():
+        r[player_id] = {}
+
+        for state_id, state_meta in states.items():
+            if state_meta["type"] != start_pool_enum:
+                continue
+
+            r[player_id][state_id] = state_meta
+
+    return r
+
+
+if __name__ == '__main__':
+    print(get_start_pool())
 
 
 def get_players():

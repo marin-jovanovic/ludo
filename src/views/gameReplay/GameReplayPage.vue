@@ -20,7 +20,10 @@
 
     <button @click="startReplay">start replay</button>
 
+    <button @click="replayStep">step replay</button>
+
     <div class="row">
+      <div>instruction id {{ this.instructionId }}</div>
       <div class="col">
         <TheGame ref="game"></TheGame>
       </div>
@@ -49,6 +52,11 @@ export default {
 
       username: "",
       gameId: "",
+
+      instructionId: -1,
+
+      // changleLog : [],
+      // isWaitingForAcceptance: false,
     };
   },
 
@@ -56,9 +64,50 @@ export default {
     this.username = sessionStorage.getItem("username");
     this.gameId = this.$route.params.id;
 
+    // this.$refs.game.subscribe({
+    //   command: "animateTokens",
+    //   s: this.ui.reactiveCanvas.animate
+    // });
+
+    // this.bl.currentLevel.subscribe({
+    //         command: "animateTokens",
+    //         s: this.ui.reactiveCanvas.animate
+    //     });
+
     // this.startReplay();
   },
   methods: {
+    // updated() {
+    //     /**
+    //      * callback for updating ui
+    //      */
+
+    //     // todo check for race condition
+
+    //     if (this.changleLog.length === 0) {
+
+    //         this.isWaitingForAcceptance = false;
+
+    //     } else {
+
+    //         let oldest = this.changleLog[0];
+
+    //         let oldestMove = oldest.move;
+    //         let oldestToken = oldest.token;
+
+    //         oldestToken.notify({
+    //             command: "newDestination",
+    //             diff: oldestMove
+    //         })
+
+    //         this.changleLog.shift();
+
+    //     }
+
+    // },
+
+    async replayStep() {},
+
     async startReplay() {
       let res = await apiGame.getGame(this.gameId);
 
@@ -76,7 +125,15 @@ export default {
 
       pp = Object.assign({}, ...swapped);
 
-      for (const value of Object.values(p["log"])) {
+      console.log(p);
+
+      for (const [instructionId, value] of Object.entries(p["log"])) {
+        // if (instructionId > 30) {
+        //   return;
+        // }
+
+        console.log(instructionId);
+        this.instructionId = instructionId;
         switch (value.action) {
           case "roll":
             this.$refs.dice.rollDice(value.diceResult);

@@ -1,8 +1,9 @@
 class Tile:
 
-    def __init__(self, row, column):
+    def __init__(self, row, column, type):
         self.row = row
         self.column = column
+        self.type = type
 
     def __str__(self):
         return f"row: {self.row}, column: {self.column}"

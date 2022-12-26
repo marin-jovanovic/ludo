@@ -6,7 +6,9 @@ import {
     Level
 } from "./bl_level.js";
 
-
+import {
+    ContentCreator
+} from "./content_creator.js";
 import {
     BoardTile
 } from "./ui_board_tile.js";
@@ -59,8 +61,9 @@ class BusinessLogic {
 
 }
 
-class Game {
+class Game extends ContentCreator {
     constructor(staticCanvasElement, reactiveCanvasElement, config) {
+        super();
 
         let conf = this.loadConfig({
             config: config

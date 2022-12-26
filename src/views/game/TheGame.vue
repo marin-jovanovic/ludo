@@ -67,6 +67,10 @@ export default {
       }
     },
 
+    subscribe() {
+      console.log("subs");
+    },
+
     async bl() {
       this.movePosition({
         player: 0,

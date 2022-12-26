@@ -73,14 +73,13 @@ class BlToken extends ContentCreator {
     moveTokenFromStartingPoolToLivePool = ({
         states
     }) => {
-        // todo dehardcode absolute state
 
         this.poolType = {
             pool: getConfig().pool["live"]
         }
 
+// todo dehardcode
 
-        // todo dehardcode, should be first state in live states
         this.currentState = 0;
         this.currentXY = states[this.currentState];
 
@@ -100,6 +99,8 @@ class BlToken extends ContentCreator {
          * one enemy token eats this token; move it to start position
          */
 
+        console.log("restart")
+
         this.currentState = this.startState;
         this.currentXY = this.startXY;
     }
@@ -108,6 +109,11 @@ class BlToken extends ContentCreator {
         count,
         states
     }) => {
+
+        if (count <= 0)  {
+            console.log("err count", count)
+        }
+
         this.currentState += count;
         this.currentXY = states[this.currentState];
 
