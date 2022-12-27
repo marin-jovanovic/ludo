@@ -107,7 +107,7 @@ class CanvasReactive extends Canvas {
             });
 
 
-// this is cardinality part
+            // this is cardinality part
 
             let x = {}
 

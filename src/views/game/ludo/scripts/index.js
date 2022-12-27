@@ -129,10 +129,7 @@ class Game extends ContentCreator {
         let levelState = {};
         levelState["players"] = {};
 
-
-
         let uiTokens = {};
-
 
         for (let [playerId, states] of Object.entries(config.moves)) {
             // for each player
@@ -157,7 +154,6 @@ class Game extends ContentCreator {
 
                 if (stateMeta.type === startPoolId) {
                     startPool.push(stateMeta);
-                    // startPool[stateId] = stateMeta;
                 }
 
             }

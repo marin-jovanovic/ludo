@@ -204,6 +204,10 @@ class Level extends ContentCreator {
         switch (token.poolType) {
             case getConfig()["pool"]["start"]:
 
+                if (jumpCount !== 1) {
+                    console.log("err: must be 1 if going from start pool")
+                }
+
                 token.moveTokenFromStartingPoolToLivePool({
                     states: states
                 });
@@ -292,7 +296,7 @@ class Level extends ContentCreator {
             playerId: playerId,
             tokenId: tokenId
         });
-  
+
 
         if (this.isGameWon({
                 playerId: playerId
@@ -423,9 +427,9 @@ class Level extends ContentCreator {
         let restrictedJumpingOver = this.getRestricted({
             states: states
         });
- 
+
         let tokenCount = Object.keys(this.levelState.players[playerId].tokens).length;
- 
+
         let last_n = restrictedJumpingOver.slice(-tokenCount);
 
 
@@ -477,8 +481,8 @@ class Level extends ContentCreator {
                 // for each token they have
 
                 if (!(currToken.currentXY.row === token.currentXY.row &&
-                    currToken.currentXY.column === token.currentXY.column
-                )) {
+                        currToken.currentXY.column === token.currentXY.column
+                    )) {
                     continue;
                 }
 
@@ -487,7 +491,7 @@ class Level extends ContentCreator {
                     continue;
                 }
 
-  
+
                 if (playerId in occupiedSpaces) {
                     occupiedSpaces[playerId].push(tokenId);
                 } else {

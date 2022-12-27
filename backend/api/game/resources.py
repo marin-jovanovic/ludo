@@ -1,5 +1,3 @@
-
-
 def _get_player_one_moves():
     """
         tile_id is relative to this player
@@ -317,7 +315,6 @@ def _get_player_one_moves():
             "type": "3"
         }
     }
-
 
 
 def _get_player_two_moves():
@@ -1259,6 +1256,8 @@ def get_moves():
     }
 
 
+
+
 def get_start_pool():
     """
 
@@ -1271,36 +1270,20 @@ def get_start_pool():
 
     """
 
-    start_pool_enum = "1"
+    start_state = "1"
+    start_pools = {}
 
-    r = {}
+    for player_id, states_meta in get_moves().items():
 
-    for player_id, states in get_moves().items():
-        r[player_id] = {}
+        start_pools[player_id] = {}
 
-        for state_id, state_meta in states.items():
-            if state_meta["type"] != start_pool_enum:
-                continue
+        for s_id, s_meta in states_meta.items():
 
-            r[player_id][state_id] = state_meta
+            if s_meta["type"] == start_state:
 
-    return r
+                start_pools[player_id][s_id] = s_meta
 
-def get_destination_pool():
-    start_pool_enum = "3"
-
-    r = {}
-
-    for player_id, states in get_moves().items():
-        r[player_id] = {}
-
-        for state_id, state_meta in states.items():
-            if state_meta["type"] != start_pool_enum:
-                continue
-
-            r[player_id][state_id] = state_meta
-
-    return r
+    return start_pools
 
 
 if __name__ == '__main__':

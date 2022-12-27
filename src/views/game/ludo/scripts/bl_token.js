@@ -78,7 +78,7 @@ class BlToken extends ContentCreator {
             pool: getConfig().pool["live"]
         }
 
-// todo dehardcode
+        // todo dehardcode
 
         this.currentState = 0;
         this.currentXY = states[this.currentState];
@@ -110,7 +110,7 @@ class BlToken extends ContentCreator {
         states
     }) => {
 
-        if (count <= 0)  {
+        if (count <= 0) {
             console.log("err count", count)
         }
 

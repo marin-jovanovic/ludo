@@ -182,8 +182,10 @@ export default {
 
       console.log(p);
 
-      for (const [instructionId, value] of Object.entries(p["log"])) {
-        // if (instructionId > 75) {
+      let log = p["log"];
+
+      for (const [instructionId, value] of Object.entries(log)) {
+        // if (instructionId > 70) {
         //   return;
         // }
 
