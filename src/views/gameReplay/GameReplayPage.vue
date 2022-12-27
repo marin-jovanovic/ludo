@@ -20,7 +20,7 @@
 
     <button @click="startReplay">start replay</button>
 
-    <button @click="replayStep">step replay</button>
+    <button @click="replayStep">next instruction</button>
 
     <div class="row">
       <div>instruction id {{ this.instructionId }}</div>
@@ -57,6 +57,10 @@ export default {
 
       // changleLog : [],
       // isWaitingForAcceptance: false,
+
+      p: undefined,
+      pp: undefined,
+      // currInstruction: undefined,
     };
   },
 
@@ -75,6 +79,26 @@ export default {
     //     });
 
     // this.startReplay();
+
+    let res = await apiGame.getGame(this.gameId);
+
+    if (!(res["auth"]["status"] && res["payload"]["status"])) {
+      console.log("err fetching data");
+      return;
+    }
+
+    this.p = res["payload"]["payload"];
+
+    let pp = this.p["players"]["payload"];
+    const swapped = Object.entries(pp).map(([key, value]) => ({
+      [value]: key,
+    }));
+
+    this.pp = Object.assign({}, ...swapped);
+
+    console.log(this.p);
+
+    this.currInstruction = 0;
   },
   methods: {
     // updated() {
@@ -106,7 +130,46 @@ export default {
 
     // },
 
-    async replayStep() {},
+    async replayStep() {
+      let value = this.p["log"][this.instructionId];
+      this.instructionId++;
+
+      // for (const [instructionId, value] of Object.entries(this.p["log"])) {
+      // if (instructionId > 30) {
+      //   return;
+      // }
+
+      console.log(this.instructionId);
+      switch (value.action) {
+        case "roll":
+          this.$refs.dice.rollDice(value.diceResult);
+          break;
+
+        case "goes":
+          console.log("[instruction] order ", value.username);
+          break;
+
+        case "move":
+          this.$refs.game.movePosition({
+            player: this.pp[value.username],
+            token: value.token,
+            jumpCount: value.diceResult,
+          });
+
+          await this.sleep();
+
+          break;
+
+        case "won":
+          console.log("won", value.username);
+          break;
+
+        default:
+          console.log("unknown command", value.action);
+          break;
+      }
+      // }
+    },
 
     async startReplay() {
       let res = await apiGame.getGame(this.gameId);
@@ -128,7 +191,7 @@ export default {
       console.log(p);
 
       for (const [instructionId, value] of Object.entries(p["log"])) {
-        // if (instructionId > 30) {
+        // if (instructionId > 307) {
         //   return;
         // }
 

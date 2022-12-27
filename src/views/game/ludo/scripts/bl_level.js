@@ -88,7 +88,7 @@ class Level extends ContentCreator {
     }) => {
 
         if (!thisMovePath?.length) {
-            console.log("[err] empty")
+            // console.log("[err] empty")
             return;
         }
 
