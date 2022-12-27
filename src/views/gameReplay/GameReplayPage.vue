@@ -22,6 +22,10 @@
 
     <button @click="replayStep">next instruction</button>
 
+    <br />
+    <input type="number" v-model="diceTest" />
+    <button @click="rollDice">test dice</button>
+
     <div class="row">
       <div>instruction id {{ this.instructionId }}</div>
       <div class="col">
@@ -60,6 +64,7 @@ export default {
 
       p: undefined,
       pp: undefined,
+      diceTest: 1,
       // currInstruction: undefined,
     };
   },
@@ -101,6 +106,12 @@ export default {
     this.currInstruction = 0;
   },
   methods: {
+    rollDice() {
+      console.log(this.diceTest);
+
+      this.$refs.dice.rollDice(this.diceTest);
+    },
+
     // updated() {
     //     /**
     //      * callback for updating ui

@@ -370,8 +370,6 @@ class Level extends ContentCreator {
         });
 
 
-        console.log(token)
-
         if (!(restrictedJumpingOver.includes(
                 (token.currentState + jumpCount)
             ))) {
@@ -379,8 +377,6 @@ class Level extends ContentCreator {
         }
 
         let occupiedSpaces = [];
-
-        console.log(token.currentState, typeof(token.currentState))
 
         for (const [t, tMeta] of Object.entries(this.levelState.players[player].tokens)) {
 
@@ -392,13 +388,10 @@ class Level extends ContentCreator {
                 continue; 
             }
 
-
             if (restrictedJumpingOver.includes(tMeta.currentState)) {
                     occupiedSpaces.push(tMeta.currentState);
             }
         }
-
-        console.log(occupiedSpaces)
 
         let lowest = Math.min(...occupiedSpaces);
 
