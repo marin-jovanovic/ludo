@@ -22,6 +22,8 @@ todo_move_to_last_if_exceed = True
 # todo check if jumping over can be made in restricted or they just have to be one after another
 
 
+def log_err(content):
+    print(content)
 
 class Board:
 
@@ -46,7 +48,6 @@ class Board:
 
         self.max_result = 6
 
-
     def __get_from(self, player_id, pools, dice_result):
         """
         filter @player
@@ -67,6 +68,7 @@ class Board:
             if self.is_token_at_destination(player_id, token_id):
                 continue
 
+            # fixme, not good if in start pool
             # skip if getting out of board
             if token.current_state + dice_result not in self.level_state["players"][player_id]["states"]:
                 continue
@@ -78,14 +80,16 @@ class Board:
             # check if in pools
             if any(token.pool == p for p in pools):
                 r[token_id] = token
-
+            # else:
         return r
 
     def get_from_start_pool(self, player_id, dice_result):
         "return dict {token_id -> token}"
 
+
         if dice_result != self.max_result:
             return {}
+
 
         return self.__get_from(
             player_id=player_id,
@@ -108,6 +112,7 @@ class Board:
 
         """
 
+
         return self.__get_from(
             player_id=player_id,
             pools=[
@@ -121,7 +126,7 @@ class Board:
         """wrapper"""
         return self.players[player_id]["tokens"][token_id].get_is_at_destination()
 
-    def is_game_won(self):
+    def get_winning_order(self):
         winning_order = []
 
         for p_id, p in self.players.items():
@@ -167,12 +172,10 @@ class Board:
         if token.pool == get_pool("start"):
 
             if step != 1:
-                print("[err] integrity error: step must be 1")
+                log_err("[err] integrity error: step must be 1")
                 sys.exit(-1)
 
-
         this_states = self.level_state["players"][player_id]["states"]
-
 
         is_moved = self.players[player_id]["tokens"][token_id].move_forward(
             step=step,
@@ -180,18 +183,22 @@ class Board:
         )
 
         if not is_moved:
-            print(f"[err] can not move {player_id=} {token_id=}")
-
-
+            log_err(f"[err] can not move {player_id=} {token_id=}")
 
          # todo set flags for token, chech that
 
+        # self.check_eating(player_id, token_id)
+
         return {
-            "eaten": self.check_eating(token),
-            "won order": self.is_game_won()
+            # "player": player_id,
+            "eaten": self.check_eating(player_id, token_id),
+            "won order": self.get_winning_order()
         }
 
-    def check_eating(self, token):
+    def check_eating(self, player_id, token_id):
+
+        token = self.players[player_id]["tokens"][token_id]
+
         occupied = defaultdict(list)
 
         for p_id, p_meta in self.players.items():
@@ -201,44 +208,42 @@ class Board:
                 if t.get_row_column() != token.get_row_column():
                     continue
 
-                if t == token:
+                if p_id  == player_id and t_id == token_id:
                     continue
 
-                occupied[p_id].append(t_id)
+                occupied[p_id].append({
+                    "token_id": t_id,
+                    "token": t,
+                    "player_id": p_id
+                })
 
         if len(occupied) == 0:
             return []
 
         if len(occupied) != 1:
-            print("err occupied eating")
+            log_err("err occupied eating")
 
         for owner, tokens in occupied.items():
 
+            # for p_id, p_meta in self.players.items():
+            #     for t_id, t in p_meta["tokens"].items():
+            #         print(p_id, t_id, t.get_row_column())
+
             if len(tokens) == 1:
                 for t in tokens:
-                    print("eat enemy")
-                    t.restart()
+                    t["token"].restart()
 
                 return tokens
 
             elif len(tokens) > 1:
-                print("mine is dead")
                 token.restart()
 
-                return [token]
+                return [{
+                    "token_id": token_id,
+                    "player_id": player_id
+                }]
 
-    def print_board_state(self):
-
-        for row, m_c_to_tokens in self.board_state.items():
-            for column, tokens in m_c_to_tokens.items():
-                print(row, column, [str(i) for i in tokens])
-        print()
-
-
-class Player:
-
-    def __init__(self, tokens):
-        self.tokens = tokens
+        return []
 
 
 def get_pool(type_):
@@ -273,7 +278,7 @@ class Token:
         self.pool = get_pool("start")
 
     def get_row_column(self):
-        return self.start_x_y.row, self.start_x_y.column
+        return self.current_x_y.row, self.current_x_y.column
 
     def set_at_destination(self):
         self.is_at_destination = True
@@ -284,10 +289,8 @@ class Token:
     def restart(self):
 
         if self.get_is_at_destination():
-            print("[err] token at destination")
+            log_err("[err] token at destination")
             sys.exit(-1)
-
-        print("eating")
 
         self.current_state = self.start_state
         self.current_x_y = self.start_x_y
@@ -297,14 +300,19 @@ class Token:
         """
         if step is to big, exception will be thrown, no need to check now
 
+        assumption: it is checked that this token is not jumping over other token
+        in restricted jumping pool
+
+        this ensures that it can only go to his destination position
+
         """
 
         if step <= 0:
-            print("[err] step 0")
+            log_err("[err] step 0")
             sys.exit(-1)
 
         if self.is_at_destination:
-            print('[err] at destination, can not move')
+            log_err('[err] at destination, can not move')
             sys.exit(-1)
 
         if self.pool == get_pool("start"):
@@ -317,18 +325,14 @@ class Token:
         elif self.pool == get_pool("live"):
 
             if self.current_state + step not in states:
-                print("[err] trying to jump out of board")
-
-            # print(type(states[self.current_state + step].type),states[self.current_state + step].type, get_pool("safe"), states[self.current_state + step].type == get_pool("safe"))
-            if states[self.current_state + step].type == get_pool("safe"):
-                print("landing in safe space, need ot check")
+                log_err("[err] trying to jump out of board")
 
             self.current_state += step
             try:
                 self.current_x_y = states[self.current_state]
 
             except KeyError:
-                print("[err] trying to jump out of board")
+                log_err("[err] trying to jump out of board")
                 return False
 
             if self.current_x_y.type == get_pool("safe"):
@@ -340,7 +344,7 @@ class Token:
             self.current_x_y = states[self.current_state]
 
         else:
-            print("[err] unknown pool")
+            log_err("[err] unknown pool")
             return False
 
 
@@ -348,6 +352,7 @@ class Token:
 
         if max(states.keys()) == self.current_state:
             self.set_at_destination()
+
 
         return True
 
@@ -368,9 +373,6 @@ class Level:
                 game_conf['choice: clockwise; anticlockwise'],
                 game_conf['flag: tie in order'],
             )
-
-        for i in game_conf.items():
-            print(i)
 
         player_order = self.goes_list_driver(game_conf)
 
@@ -492,11 +494,6 @@ class Level:
                                 already_won.append(j)
                             break
 
-                    else:
-                        print("err deadlock")
-                        print(start_pool_movable)
-                        print(board_movable)
-
                     if game_conf['number of players'] == len(already_won) + 1:
                         print("last player is loser")
                         print("no need to play game with only him")
@@ -521,8 +518,7 @@ def choose(board, log, player_id, roll_result, token_id, already_won):
     t = board.move_token(player_id=player_id, token_id=token_id,
                          step=roll_result)
 
-    eaten = t["eaten"]
-    gw = t["won order"]
+    # gw = t["won order"]
 
     log.append(move_token(
         player=player_id,
@@ -530,10 +526,16 @@ def choose(board, log, player_id, roll_result, token_id, already_won):
         step=roll_result
     ))
 
+
+    eaten = t["eaten"]
+    gw = t["won order"]
+
+
     for i in eaten:
+        print(i)
         log.append(log_eat_token(
-            player=i["player"],
-            token=i["token"],
+            player=i["player_id"],
+            token=i["token_id"],
         ))
 
     for i in gw:
@@ -555,6 +557,7 @@ def main():
 
     # for i, instr in enumerate(log):
     #     print(i, instr)
+
 
 if __name__ == '__main__':
     main()

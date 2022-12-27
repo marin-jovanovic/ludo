@@ -131,43 +131,35 @@ export default {
     // },
 
     async replayStep() {
-      let value = this.p["log"][this.instructionId];
-      this.instructionId++;
-
+      // let value = this.p["log"][this.instructionId];
+      // this.instructionId++;
       // for (const [instructionId, value] of Object.entries(this.p["log"])) {
-      // if (instructionId > 30) {
+      // if (this.instructionId > 85) {
       //   return;
       // }
-
-      console.log(this.instructionId);
-      switch (value.action) {
-        case "roll":
-          this.$refs.dice.rollDice(value.diceResult);
-          break;
-
-        case "goes":
-          console.log("[instruction] order ", value.username);
-          break;
-
-        case "move":
-          this.$refs.game.movePosition({
-            player: this.pp[value.username],
-            token: value.token,
-            jumpCount: value.diceResult,
-          });
-
-          await this.sleep();
-
-          break;
-
-        case "won":
-          console.log("won", value.username);
-          break;
-
-        default:
-          console.log("unknown command", value.action);
-          break;
-      }
+      // console.log(this.instructionId);
+      // switch (value.action) {
+      //   case "roll":
+      //     this.$refs.dice.rollDice(value.diceResult);
+      //     break;
+      //   case "goes":
+      //     console.log("[instruction] order ", value.username);
+      //     break;
+      //   case "move":
+      //     this.$refs.game.movePosition({
+      //       player: this.pp[value.username],
+      //       token: value.token,
+      //       jumpCount: value.diceResult,
+      //     });
+      //     await this.sleep();
+      //     break;
+      //   case "won":
+      //     console.log("won", value.username);
+      //     break;
+      //   default:
+      //     console.log("unknown command", value.action);
+      //     break;
+      // }
       // }
     },
 
@@ -191,11 +183,10 @@ export default {
       console.log(p);
 
       for (const [instructionId, value] of Object.entries(p["log"])) {
-        // if (instructionId > 307) {
+        // if (instructionId > 75) {
         //   return;
         // }
 
-        console.log(instructionId);
         this.instructionId = instructionId;
         switch (value.action) {
           case "roll":
@@ -207,6 +198,13 @@ export default {
             break;
 
           case "move":
+            console.log(
+              instructionId,
+              pp[value.username],
+              value.token,
+              value.diceResult
+            );
+
             this.$refs.game.movePosition({
               player: pp[value.username],
               token: value.token,
