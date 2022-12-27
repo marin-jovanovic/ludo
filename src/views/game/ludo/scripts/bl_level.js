@@ -361,7 +361,7 @@ class Level extends ContentCreator {
 
         // we are viewing this in relative perspective
 
-        let t = this.levelState.players[player].tokens[tokenId];
+        let token = this.levelState.players[player].tokens[tokenId];
 
         let states = this.levelState.players[player].state;
 
@@ -370,28 +370,39 @@ class Level extends ContentCreator {
         });
 
 
+        console.log(token)
 
         if (!(restrictedJumpingOver.includes(
-                (t.currentState + jumpCount)
+                (token.currentState + jumpCount)
             ))) {
             return true
         }
 
         let occupiedSpaces = [];
 
+        console.log(token.currentState, typeof(token.currentState))
+
         for (const [t, tMeta] of Object.entries(this.levelState.players[player].tokens)) {
 
-            if (Number(t) !== Number(tokenId)) {
+            if (Number(t) === Number(tokenId)) {
+                continue;
+            }
 
-                if (restrictedJumpingOver.includes(tMeta.currentState)) {
+            if (Number(tMeta.currentState) < Number(token.currentState)) {
+                continue; 
+            }
+
+
+            if (restrictedJumpingOver.includes(tMeta.currentState)) {
                     occupiedSpaces.push(tMeta.currentState);
-                }
             }
         }
 
+        console.log(occupiedSpaces)
+
         let lowest = Math.min(...occupiedSpaces);
 
-        return t.currentState + jumpCount < lowest
+        return token.currentState + jumpCount < lowest
 
     }
 

@@ -7,7 +7,6 @@ def get_start_pool_preprocessor():
     player_id -> Tile
     """
 
-
     r = {}
 
     for player_id, tokens in get_start_pool().items():
@@ -15,7 +14,8 @@ def get_start_pool_preprocessor():
         r[int(player_id)] = {}
 
         for token_id, tile in tokens.items():
-            r[int(player_id)][int(token_id)] = Tile(tile["row"], tile["column"], tile["type"])
+            r[int(player_id)][int(token_id)] = Tile(tile["row"], tile["column"],
+                                                    tile["type"])
 
     return r
 
@@ -25,7 +25,6 @@ def player_moves_preprocessor():
     state_id -> Tile
 
     """
-
 
     def aux(moves):
 
@@ -38,7 +37,6 @@ def player_moves_preprocessor():
 
     m_player_to_moves = get_non_start_states()
 
-
     # m_player_to_moves= get_moves()
 
     r = {}
@@ -47,8 +45,8 @@ def player_moves_preprocessor():
 
     return r
 
-def get_destination_pool():
 
+def get_destination_pool():
     start_pool_enum = "3"
 
     reformated_states = get_non_start_states()
@@ -107,12 +105,8 @@ def get_non_start_states():
     return reformated_states
 
 
-
-
 if __name__ == '__main__':
     # for k,v in get_start_pool_preprocessor().items():
     #     print(k,v)
 
     pre_states()
-
-

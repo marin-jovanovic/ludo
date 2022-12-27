@@ -26,6 +26,9 @@
     <br />
     <button @click="bl">create block</button>
 
+    <br />
+    <button @click="guarded">test guarded part</button>
+
     <div id="container" class="container">
       <canvas id="staticcanvas" width="600" height="600"></canvas>
       <canvas id="reactivecanvas" width="600" height="600">
@@ -69,6 +72,47 @@ export default {
 
     subscribe() {
       console.log("subs");
+    },
+
+    async guarded() {
+      this.movePosition({
+        player: 0,
+        token: 0,
+        jumpCount: 1,
+      });
+      this.movePosition({
+        player: 0,
+        token: 0,
+        jumpCount: 55,
+      });
+
+      this.movePosition({
+        player: 0,
+        token: 1,
+        jumpCount: 1,
+      });
+      this.movePosition({
+        player: 0,
+        token: 1,
+        jumpCount: 53,
+      });
+
+      this.movePosition({
+        player: 0,
+        token: 2,
+        jumpCount: 1,
+      });
+      this.movePosition({
+        player: 0,
+        token: 2,
+        jumpCount: 51,
+      });
+
+      this.movePosition({
+        player: 0,
+        token: 1,
+        jumpCount: 1,
+      });
     },
 
     async bl() {

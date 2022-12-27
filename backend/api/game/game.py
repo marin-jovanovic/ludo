@@ -5,6 +5,7 @@ from backend.api.game.dice import get_dice_result
 from backend.api.game.log import construct_roll, move_token, log_won, \
     log_eat_token
 from backend.api.game.order import determine_order
+from backend.api.game.pool import get_pool, is_valid_pool
 from backend.api.game.pre import get_destination_pool
 from backend.api.game.pre import player_moves_preprocessor
 from backend.api.game.resources import get_config
@@ -14,19 +15,22 @@ from backend.api.game.resources import get_config
 #   do not wait till user gets 3 (for placing token in win position)
 todo_move_to_last_if_exceed = True
 
-default_start_state = None
-default_start_tile = None
 
 # todo check if jumping over can be made in restricted or they just have to be one after another
 
+# todo loading mid game config, content
+# todo manual driver
 
 def log_err(content):
-    print(content)
+    print(f"[err] {content}")
 
 
 class Board:
 
-    def __init__(self, players, m_player_to_moves):
+    def __init__(
+            self, players, m_player_to_moves, game_conf, default_start_state):
+
+        self.default_start_state = default_start_state
 
         self.level_state = {
             "status": {},
@@ -43,14 +47,14 @@ class Board:
             for t_id, token in p.items():
                 self.level_state["players"][p_id]["tokens"][t_id] = token
 
-        self.players = self.level_state["players"]
-
-        self.max_result = 6
+        self.max_result = game_conf["dice number of sides"]
 
     def get_from_start_pool(self, player_id, dice_result):
         """
         return dict {token_id -> token}
-        assumption: moving by 1 if in start pool, will not jump out of board
+        assumption:
+            moving by 1 if in start pool,
+            will not jump out of board
         """
 
         if dice_result != self.max_result:
@@ -58,30 +62,30 @@ class Board:
 
         r = {}
 
-        for token_id, token in self.players[player_id]["tokens"].items():
+        for token_id, token in self.level_state["players"][player_id][
+            "tokens"].items():
 
-            # check if in pools
-            if token.get_pool() == get_pool("start"):
-                r[token_id] = token
-
-            else:
+            if token.get_pool() != get_pool("start"):
                 continue
 
-            # skip if at destination
+            r[token_id] = token
+
+            # additional checks
+
             if self.is_token_at_destination(player_id, token_id):
-                log_err("err 1 dest")
+                log_err("token at destination")
 
-            if token.current_state == default_start_state:
+            if token.get_current_state() == self.default_start_state:
                 continue
             else:
-                log_err("err not at def start state")
-                log_err(f"{token.get_pool()=} {token.current_state=}")
+                log_err("not at def start state")
+                log_err(f"{ token.get_pool()=} {token.get_current_state()=}")
 
             # skip if jumping over token in restricted area (pool 3)
             if not self.is_not_jumping_over_restricted(player_id=player_id,
                                                        token_id=token_id,
                                                        step=dice_result):
-                log_err("err 1 jump")
+                log_err("1 jump")
 
         return r
 
@@ -106,7 +110,8 @@ class Board:
 
         r = {}
 
-        for token_id, token in self.players[player_id]["tokens"].items():
+        for token_id, token in self.level_state["players"][player_id][
+            "tokens"].items():
 
             # skip if at destination
             if self.is_token_at_destination(player_id, token_id):
@@ -118,7 +123,7 @@ class Board:
                 continue
 
             if not self.state_exists(player_id,
-                                     token.current_state + dice_result):
+                                     token.get_current_state() + dice_result):
                 continue
 
             # skip if jumping over token in restricted area (pool 3)
@@ -135,58 +140,72 @@ class Board:
         """wrapper"""
 
         # return False
-        return self.players[player_id]["tokens"][
+        return self.level_state["players"][player_id]["tokens"][
             token_id].get_is_at_destination()
 
-    def get_winning_order(self):
-        winning_order = []
-
-        for p_id, p in self.players.items():
-            all_at_destination = True
-
-            for t_id, token in p["tokens"].items():
-                if not self.is_token_at_destination(player_id=p_id,
-                                                    token_id=t_id):
-                    all_at_destination = False
-                    break
-
-            if all_at_destination:
-                winning_order.append(p_id)
-
-        if winning_order:
-            print(winning_order)
-
-        return winning_order
-
     def is_not_jumping_over_restricted(self, player_id, token_id, step):
-        this_token = self.players[player_id]["tokens"][token_id]
+        this_token = self.level_state["players"][player_id]["tokens"][token_id]
 
         this_restricted_states = get_destination_pool()[player_id]
 
-        if not (this_token.current_state + step in this_restricted_states):
+        if not (
+                this_token.get_current_state() + step in this_restricted_states):
             return True
 
         # in restricted
         occupied = []
 
-        for t_id, t_meta in self.players[player_id]["tokens"].items():
+        for t_id, t_meta in self.level_state["players"][player_id][
+            "tokens"].items():
+
+            if t_meta.get_pool() != get_pool("safe"):
+                continue
 
             if t_id == token_id:
                 continue
 
-            if t_meta.current_state in this_restricted_states:
-                occupied.append(t_meta.current_state)
+            if int(t_meta.get_current_state()) < int(
+                    this_token.get_current_state()):
+                continue
+
+            if t_meta.get_current_state() in this_restricted_states:
+                occupied.append(t_meta.get_current_state())
 
         if not occupied:
             return True
 
         lowest = min(occupied)
 
-        return this_token.current_state + step < lowest
+        return this_token.get_current_state() + step < lowest
+
+    @staticmethod
+    def is_at_destination(test_state, my_states, dest_states):
+        if test_state not in dest_states:
+            return False
+
+        if set(my_states).issubset(set(dest_states)):
+            return True
+
+        dest_states.sort()
+        this = False
+        # from smaller to bigger
+        for i in dest_states:
+            # ignore prev to this
+            if not this:
+
+                if i == test_state:
+                    this = True
+                else:
+                    continue
+
+            if i not in my_states:
+                return False
+
+        return True
 
     def move_token(self, player_id, token_id, step):
 
-        token = self.players[player_id]["tokens"][token_id]
+        token = self.level_state["players"][player_id]["tokens"][token_id]
 
         if token.get_pool() == get_pool("start"):
 
@@ -196,14 +215,14 @@ class Board:
 
         this_states = self.level_state["players"][player_id]["states"]
 
-        is_moved = token.move_forward(
+        token.move_forward(
             step=step,
             states=this_states
         )
 
-        token_count = self.players[player_id]["tokens"].keys()
+        token_count = self.level_state["players"][player_id]["tokens"].keys()
 
-        keys =  [i for i in this_states.keys()]
+        keys = [i for i in this_states.keys()]
         last_n = []
         for _ in token_count:
             m = max(keys)
@@ -211,83 +230,25 @@ class Board:
             last_n.append(m)
 
         my_tokens = []
-        for t_id, t_meta in self.players[player_id]["tokens"].items():
-            my_tokens.append(t_meta.current_state)
+        for t_id, t_meta in self.level_state["players"][player_id][
+            "tokens"].items():
+            my_tokens.append(t_meta.get_current_state())
 
-        t = set(my_tokens).issubset(set(last_n))
-
-
-        def is_at_destination(test_state, my_states, dest_states):
-            # print()
-            # print("test", test_state, my_states, dest_states)
-            if test_state not in dest_states:
-                # print("not in dest (not in dest states)")
-                return False
-
-            if set(my_states).issubset(set(dest_states)):
-                return True
-
-            dest_states.sort()
-            # print(dest_states, type(dest_states))
-            this = False
-            # from smaller to bigger
-            for i in dest_states:
-                # print(i)
-                # ignore prev to this
-                if not this:
-
-                    if i == test_state:
-                        this = True
-                    else:
-                        continue
-
-                if i not in my_states:
-                    # print(f"{i=} not in my states")
-                    return False
-
-            #     print(i)
-            #     if i in my_states:
-            #         pr
-            #
-            # return False
-            return True
-
-            # print(is_at_destination(1, [1, 7, 25, 51], [56, 55, 54, 53]))
-            # print(is_at_destination(56, [56, 55, 53, 54], [56, 55, 54, 53]))
-            # print(is_at_destination(55, [56, 55, 54, 53], [56, 55, 54, 53]))
-            # print(is_at_destination(54, [56, 55, 54, 53], [56, 55, 54, 53]))
-            # print(is_at_destination(53, [56, 55, 54, 53], [56, 55, 54, 53]))
-            # print(is_at_destination(56, [56, 55, 53, 1], [56, 55, 54, 53]))
-            # print(is_at_destination(55, [56, 55, 54, 1], [56, 55, 54, 53]))
-            # print(is_at_destination(54, [56, 55, 54, 1], [56, 55, 54, 53]))
-            # print(is_at_destination( 1, [56, 55, 54, 1], [56, 55, 54, 53]))
-            # print(is_at_destination(56, [56, 1, 2, 3], [56, 55, 54, 53]))
-            # print(is_at_destination(55, [56, 55, 2, 3], [56, 55, 54, 53]))
-            # print(is_at_destination(53, [53, 1, 2, 3], [56, 55, 54, 53]))
-            # sys.exit()
-
-        iad = is_at_destination(token.current_state, my_tokens, last_n)
-
-        if iad:
+        if self.is_at_destination(token.get_current_state(), my_tokens, last_n):
             token.set_at_destination()
-
-        if not is_moved:
-            log_err(f"[err] can not move {player_id=} {token_id=}")
-
-        # todo set flags for token, chech that
 
         return {
             "eaten": self.check_eating(player_id, token_id),
-            "is done": t
+            "is done": set(my_tokens).issubset(set(last_n))
         }
 
     def check_eating(self, player_id, token_id):
 
-        token = self.players[player_id]["tokens"][token_id]
+        token = self.level_state["players"][player_id]["tokens"][token_id]
 
         occupied = defaultdict(list)
 
-        for p_id, p_meta in self.players.items():
+        for p_id, p_meta in self.level_state["players"].items():
 
             for t_id, t in p_meta["tokens"].items():
 
@@ -339,18 +300,6 @@ class Board:
         return []
 
 
-def get_pool(type_):
-    """
-    vals are those from Fe generating board part
-    """
-
-    return {
-        "start": "1",
-        "live": "2",
-        "safe": "3"
-    }[type_]
-
-
 class Token:
 
     def __init__(
@@ -359,110 +308,104 @@ class Token:
             start_x_y,
     ):
 
-        self.start_state = start_state
-        self.start_x_y = start_x_y
+        self.__start_state = start_state
+        self.__start_x_y = start_x_y
 
-        self.current_state = start_state
-        self.current_x_y = start_x_y
+        self.__current_state = start_state
+        self.__current_x_y = start_x_y
 
-        self.is_at_destination = False
+        self.__is_at_destination = False
 
-        self.pool = get_pool("start")
+        self.__pool = get_pool("start")
+
+    def get_current_state(self):
+        return self.__current_state
 
     def get_row_column(self):
-        return self.current_x_y.row, self.current_x_y.column
-
-    def set_at_destination(self):
-        self.is_at_destination = True
-
-    def get_is_at_destination(self):
-        if self.pool != get_pool("safe") and self.is_at_destination:
-            log_err("err at destination, but not in safe pool")
-        return self.is_at_destination
+        return self.__current_x_y.row, self.__current_x_y.column
 
     def get_pool(self):
-        return self.pool
+        return self.__pool
+
+    def get_is_at_destination(self):
+        if self.__pool != get_pool("safe") and self.__is_at_destination:
+            log_err("err at destination, but not in safe pool")
+        return self.__is_at_destination
+
+    def set_at_destination(self):
+        self.__is_at_destination = True
 
     def restart(self):
 
         if self.get_is_at_destination():
-            log_err("[err] token at destination")
+            log_err("token at destination")
             sys.exit(-1)
 
-        self.current_state = self.start_state
-        self.current_x_y = self.start_x_y
-        self.pool = get_pool("start")
+        self.__current_state = self.__start_state
+        self.__current_x_y = self.__start_x_y
+        self.__pool = get_pool("start")
+
+    def _update_position(self, destination_state, states):
+
+        self.__current_state = destination_state
+
+        if self.__current_state not in states:
+            log_err(f"trying to jump out of board {self.__current_state=}")
+
+        self.__current_x_y = states[self.__current_state]
+        self.__pool = self.__current_x_y.type
 
     def move_forward(self, step, states):
         """
-        if step is to big, exception will be thrown, no need to check now
+        assumption:
+            not used for moving token backwards (edge case where token is going
+            back to start pool is not handled, in general moving pools back
+             is not handled)
+
+        detects:
+            to big steps
+            step <= 0
+            token already at destination
+            ...
 
         assumption: it is checked that this token is not jumping over other token
         in restricted jumping pool
 
-        this ensures that it can only go to his destination position
-
         """
 
         if step <= 0:
-            log_err("[err] step 0")
-            sys.exit(-1)
+            log_err(f"{step=}")
 
-        if self.is_at_destination:
-            log_err('[err] at destination, can not move')
-            sys.exit(-1)
+        if self.__is_at_destination:
+            log_err('at destination, can not move')
 
-        if self.pool == get_pool("start"):
-            if step != 1:
-                log_err(f"err step not 1 {step=}")
+        if not is_valid_pool(self.__pool):
+            log_err(f"unknown pool {self.__pool}")
 
+        if self.__pool == get_pool("start") and step != 1:
+            log_err(f"step not 1 {step=}")
+
+        if self.__pool == get_pool("start"):
             # todo dehardcode
-            self.current_state = 0
-
-        elif self.pool == get_pool("live"):
-
-            if self.current_state + step not in states:
-                log_err("[err] trying to jump out of board")
-
-            self.current_state += step
-
-        elif self.pool == get_pool("safe"):
-
-            self.current_state += step
+            destination_state = 0
 
         else:
-            log_err("[err] unknown pool")
-            return False
+            destination_state = self.__current_state + step
 
-        try:
-            self.current_x_y = states[self.current_state]
-
-        except KeyError:
-            log_err("[err] trying to jump out of board")
-            return False
-
-        self.pool = self.current_x_y.type
-
-        # how is jumping over restricted controlled?
-        # print(states)
-
-        # number_of_players = 2
-        #
-        # for i in states[:-number_of_players].items():
-        #     print(i)
-        # sys.exit(-1)
-
-        # if max(states.keys()) == self.current_state:
-        #     self.set_at_destination()
-
-        return True
+        self._update_position(
+            destination_state=destination_state,
+            states=states
+        )
 
 
 class Level:
 
     def __init__(self, log=None):
+        default_start_state = None
+        default_start_tile = None
+
         game_conf = get_config()
-        self.max_result = 6
+        self.max_result = game_conf["dice number of sides"]
 
         # if mid game
         if log:
@@ -475,22 +418,16 @@ class Level:
                 game_conf['flag: tie in order'],
             )
 
-        player_order = self.goes_list_driver(game_conf)
+        playing_order = self.get_playing_order(game_conf)
 
         m_player_to_moves = player_moves_preprocessor()
 
-        # start_pool = get_start_pool_preprocessor()
-
         players = {}
-
-        # was -1
 
         for player_id in range(get_config()["number of players"]):
             tokens = {}
 
             for token_id in range(get_config()['tokens per player']):
-                # default_start_tile = start_pool[player_id][token_id]
-
                 tokens[token_id] = Token(
                     start_state=default_start_state,
                     start_x_y=default_start_tile,
@@ -498,15 +435,18 @@ class Level:
 
             players[player_id] = tokens
 
-        self.board = Board(players=players, m_player_to_moves=m_player_to_moves)
+        self.board = Board(
+            players=players,
+            m_player_to_moves=m_player_to_moves,
+            game_conf=game_conf,
+            default_start_state=default_start_state
+        )
 
-        # todo manual
+        self.auto_driver(game_conf, playing_order)
 
-        self.auto_driver( game_conf, player_order)
-
-    def goes_list_driver(self, game_conf) -> list:
+    def get_playing_order(self, game_conf) -> list:
         """
-        return [0, 2, 1]
+        return e.g. [0, 2, 1]
         """
 
         goes_list = []
@@ -516,25 +456,25 @@ class Level:
 
                 if len(goes_list) == game_conf['number of players']:
                     break
+
         return goes_list
+
+    def manual_driver(self):
+        pass
+        # to_choose = {**start_pool_movable, **board_movable}
 
     def auto_driver(
             self,
-
             game_conf,
-            goes_list,
+            playing_order,
     ):
         already_won = set()
 
-        ttl = 500
-
+        c = 0
         while True:
+            c += 1
 
-            ttl -= 1
-            if ttl < 0:
-                break
-
-            for player_id in goes_list:
+            for player_id in playing_order:
 
                 can_roll_again = True
 
@@ -556,11 +496,8 @@ class Level:
 
                     if start_pool_movable and board_movable:
 
-                        # to_choose = {**start_pool_movable, **board_movable}
-
                         for token_id, token in start_pool_movable.items():
 
-                            # todo if from board_movable then this is not changed
                             t = choose(self.board, self.log, player_id, 1,
                                        token_id)
 
@@ -592,8 +529,10 @@ class Level:
                             break
 
                     if game_conf['number of players'] == len(already_won) + 1:
-                        print("last player is loser")
-                        print("no need to play game with only him")
+                        """
+                        last player lost
+                        no need to play with only him
+                        """
 
                         return
 
@@ -630,7 +569,6 @@ def choose(board, log, player_id, roll_result, token_id):
 
     gw = t["is done"]
     if gw:
-        print(f'{t["is done"]=}, {player_id=}')
         log.append(log_won(player=player_id))
 
     return {"won": gw}
@@ -643,11 +581,8 @@ def generate_whole_game():
 
 def main():
     log = generate_whole_game()
-
-    print(len(log))
-
-    # for i, instr in enumerate(log[:100]):
-    #     print(i, instr)
+    for i in log:
+        print(i)
 
 
 if __name__ == '__main__':

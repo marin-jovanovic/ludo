@@ -1256,8 +1256,6 @@ def get_moves():
     }
 
 
-
-
 def get_start_pool():
     """
 
@@ -1280,7 +1278,6 @@ def get_start_pool():
         for s_id, s_meta in states_meta.items():
 
             if s_meta["type"] == start_state:
-
                 start_pools[player_id][s_id] = s_meta
 
     return start_pools

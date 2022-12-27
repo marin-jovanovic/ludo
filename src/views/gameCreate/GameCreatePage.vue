@@ -33,7 +33,10 @@
   <br />
   <button @click="saveAsMap">save as map</button>
 
-  <!-- <button></button> -->
+  <br />
+  import
+  <input type="text" v-model="imported" />
+  <button @click="imp">import</button>
 
   <table>
     <tr v-for="column in Object.entries(this.table)" :key="column[0]">
@@ -55,6 +58,8 @@
 export default {
   data() {
     return {
+      imported: undefined,
+
       boardBuilder: undefined,
       types: [
         { type: "1", colour: "#99c1f1" },
@@ -63,7 +68,7 @@ export default {
       ],
       selected: { type: "1", colour: "#99c1f1" },
 
-      rowCount: 5,
+      rowCount: 15,
       columnCount: 15,
       table: {},
 
@@ -77,13 +82,518 @@ export default {
   mounted() {
     this.clearTable();
 
-    this.cellClicked(2, 1);
-    this.cellClicked(3, 2);
-    this.cellClicked(4, 3);
-    this.cellClicked(3, 4);
-    this.cellClicked(2, 5);
+    // this.cellClicked(2, 1);
+    // this.cellClicked(3, 2);
+    // this.cellClicked(4, 3);
+    // this.cellClicked(3, 4);
+    // this.cellClicked(2, 5);
   },
   methods: {
+    imp() {
+      let b = {
+        0: {
+          row: "2",
+          column: "11",
+          type: "3",
+        },
+        1: {
+          row: "3",
+          column: "11",
+          type: "3",
+        },
+        2: {
+          row: "2",
+          column: "12",
+          type: "3",
+        },
+        3: {
+          row: "3",
+          column: "12",
+          type: "3",
+        },
+        4: {
+          row: "2",
+          column: "2",
+          type: "3",
+        },
+        5: {
+          row: "3",
+          column: "2",
+          type: "3",
+        },
+        6: {
+          row: "2",
+          column: "3",
+          type: "3",
+        },
+        7: {
+          row: "3",
+          column: "3",
+          type: "3",
+        },
+        8: {
+          row: "0",
+          column: "6",
+          type: "3",
+        },
+        9: {
+          row: "2",
+          column: "6",
+          type: "3",
+        },
+        10: {
+          row: "4",
+          column: "6",
+          type: "3",
+        },
+        11: {
+          row: "5",
+          column: "6",
+          type: "3",
+        },
+        12: {
+          row: "3",
+          column: "6",
+          type: "3",
+        },
+        13: {
+          row: "1",
+          column: "6",
+          type: "3",
+        },
+        14: {
+          row: "0",
+          column: "8",
+          type: "3",
+        },
+        15: {
+          row: "1",
+          column: "8",
+          type: "3",
+        },
+        16: {
+          row: "2",
+          column: "8",
+          type: "3",
+        },
+        17: {
+          row: "3",
+          column: "8",
+          type: "3",
+        },
+        18: {
+          row: "4",
+          column: "8",
+          type: "3",
+        },
+        19: {
+          row: "5",
+          column: "8",
+          type: "3",
+        },
+        20: {
+          row: "6",
+          column: "9",
+          type: "3",
+        },
+        21: {
+          row: "6",
+          column: "10",
+          type: "3",
+        },
+        22: {
+          row: "6",
+          column: "11",
+          type: "3",
+        },
+        23: {
+          row: "6",
+          column: "12",
+          type: "3",
+        },
+        24: {
+          row: "6",
+          column: "13",
+          type: "3",
+        },
+        25: {
+          row: "6",
+          column: "14",
+          type: "3",
+        },
+        26: {
+          row: "8",
+          column: "14",
+          type: "3",
+        },
+        27: {
+          row: "8",
+          column: "13",
+          type: "3",
+        },
+        28: {
+          row: "7",
+          column: "14",
+          type: "3",
+        },
+        29: {
+          row: "8",
+          column: "11",
+          type: "3",
+        },
+        30: {
+          row: "8",
+          column: "10",
+          type: "3",
+        },
+        31: {
+          row: "8",
+          column: "9",
+          type: "3",
+        },
+        32: {
+          row: "11",
+          column: "11",
+          type: "3",
+        },
+        33: {
+          row: "12",
+          column: "11",
+          type: "3",
+        },
+        34: {
+          row: "11",
+          column: "12",
+          type: "3",
+        },
+        35: {
+          row: "12",
+          column: "12",
+          type: "3",
+        },
+        36: {
+          row: "11",
+          column: "2",
+          type: "3",
+        },
+        37: {
+          row: "12",
+          column: "2",
+          type: "3",
+        },
+        38: {
+          row: "11",
+          column: "3",
+          type: "3",
+        },
+        39: {
+          row: "12",
+          column: "3",
+          type: "3",
+        },
+        40: {
+          row: "6",
+          column: "0",
+          type: "3",
+        },
+        41: {
+          row: "6",
+          column: "1",
+          type: "3",
+        },
+        42: {
+          row: "6",
+          column: "2",
+          type: "3",
+        },
+        43: {
+          row: "6",
+          column: "4",
+          type: "3",
+        },
+        44: {
+          row: "6",
+          column: "5",
+          type: "3",
+        },
+        45: {
+          row: "6",
+          column: "3",
+          type: "3",
+        },
+        46: {
+          row: "8",
+          column: "0",
+          type: "3",
+        },
+        47: {
+          row: "8",
+          column: "1",
+          type: "3",
+        },
+        48: {
+          row: "8",
+          column: "3",
+          type: "3",
+        },
+        49: {
+          row: "8",
+          column: "4",
+          type: "3",
+        },
+        50: {
+          row: "8",
+          column: "5",
+          type: "3",
+        },
+        51: {
+          row: "9",
+          column: "6",
+          type: "3",
+        },
+        52: {
+          row: "10",
+          column: "6",
+          type: "3",
+        },
+        53: {
+          row: "11",
+          column: "6",
+          type: "3",
+        },
+        54: {
+          row: "12",
+          column: "6",
+          type: "3",
+        },
+        55: {
+          row: "13",
+          column: "6",
+          type: "3",
+        },
+        56: {
+          row: "14",
+          column: "6",
+          type: "3",
+        },
+        57: {
+          row: "9",
+          column: "8",
+          type: "3",
+        },
+        58: {
+          row: "10",
+          column: "8",
+          type: "3",
+        },
+        59: {
+          row: "12",
+          column: "8",
+          type: "3",
+        },
+        60: {
+          row: "13",
+          column: "8",
+          type: "3",
+        },
+        61: {
+          row: "14",
+          column: "7",
+          type: "3",
+        },
+        62: {
+          row: "14",
+          column: "8",
+          type: "3",
+        },
+        63: {
+          row: "11",
+          column: "8",
+          type: "3",
+        },
+        64: {
+          row: "8",
+          column: "2",
+          type: "3",
+        },
+        65: {
+          row: "7",
+          column: "0",
+          type: "3",
+        },
+        66: {
+          row: "7",
+          column: "1",
+          type: "3",
+        },
+        67: {
+          row: "7",
+          column: "2",
+          type: "3",
+        },
+        68: {
+          row: "7",
+          column: "3",
+          type: "3",
+        },
+        69: {
+          row: "7",
+          column: "4",
+          type: "3",
+        },
+        70: {
+          row: "7",
+          column: "5",
+          type: "3",
+        },
+        71: {
+          row: "7",
+          column: "6",
+          type: "3",
+        },
+        72: {
+          row: "6",
+          column: "7",
+          type: "3",
+        },
+        73: {
+          row: "5",
+          column: "7",
+          type: "3",
+        },
+        74: {
+          row: "4",
+          column: "7",
+          type: "3",
+        },
+        75: {
+          row: "3",
+          column: "7",
+          type: "3",
+        },
+        76: {
+          row: "2",
+          column: "7",
+          type: "3",
+        },
+        77: {
+          row: "1",
+          column: "7",
+          type: "3",
+        },
+        78: {
+          row: "0",
+          column: "7",
+          type: "3",
+        },
+        79: {
+          row: "7",
+          column: "8",
+          type: "3",
+        },
+        80: {
+          row: "7",
+          column: "9",
+          type: "3",
+        },
+        81: {
+          row: "7",
+          column: "10",
+          type: "3",
+        },
+        82: {
+          row: "7",
+          column: "11",
+          type: "3",
+        },
+        83: {
+          row: "7",
+          column: "12",
+          type: "3",
+        },
+        84: {
+          row: "7",
+          column: "13",
+          type: "3",
+        },
+        85: {
+          row: "8",
+          column: "7",
+          type: "3",
+        },
+        86: {
+          row: "9",
+          column: "7",
+          type: "3",
+        },
+        87: {
+          row: "10",
+          column: "7",
+          type: "3",
+        },
+        88: {
+          row: "11",
+          column: "7",
+          type: "3",
+        },
+        89: {
+          row: "12",
+          column: "7",
+          type: "3",
+        },
+        90: {
+          row: "13",
+          column: "7",
+          type: "3",
+        },
+        91: {
+          row: "8",
+          column: "12",
+          type: "3",
+        },
+      };
+
+      // console.log(b);
+
+      //         0: {
+      // row: "2",
+      //   column: "11",
+      //   type: "3",
+      // },
+
+      this.selected = { type: "3", colour: "#77767b" };
+
+      for (const f of Object.values(b)) {
+        // console.log(f, Number(f.row), Number(f.column));
+
+        this.cellClicked(Number(f.row), Number(f.column));
+      }
+
+      console.log(this.imported);
+      // load;
+
+      // this.imported =
+      //   '[{"row": "7", "col": "6", "p": "0", "t": "0"}, {"row": "7", "col": "5", "p": "0", "t": "1"}, {"row": "7", "col": "4", "p": "0", "t": "2"}, {"row": "8", "col": "12", "p": "0", "t": "3"}, {"row": "6", "col": "7", "p": "1", "t": "0"}, {"row": "5", "col": "7", "p": "1", "t": "1"}, {"row": "4", "col": "7", "p": "1", "t": "2"}, {"row": "0", "col": "7", "p": "1", "t": "3"} ]';
+
+      // this.imported =
+
+      let parsed = JSON.parse(this.imported);
+      console.log(parsed);
+
+      parsed.forEach((i) => {
+        // console.log(i);
+
+        if (i.p === "0") {
+          this.selected = { type: "1", colour: "#99c1f1" };
+        } else {
+          this.selected = { type: "2", colour: "#f9f06b" };
+        }
+
+        this.cellClicked(i.row, i.col);
+        this.cellClicked(i.row, i.col);
+      });
+    },
+
     saveAsMap() {
       this.exportTable();
     },
