@@ -9,6 +9,7 @@ import SignupView from '@/views/signup/SingupView.vue';
 import GamePage from '@/views/game/GamePage.vue';
 import GameReplayPage from "@/views/gameReplay/GameReplayPage.vue";
 import GameCreatePage from "@/views/gameCreate/GameCreatePage.vue";
+import NotFound from '../views/notFound/NotFound';
 
 import LogoutPage from '../views/logout/LogoutPage';
 import SetttingsView from '../views/settings/SettingsView.vue';
@@ -63,7 +64,8 @@ export const router = createRouter({
             path: "/gameCreate",
             name: "gameCreate",
             component: GameCreatePage
-        }
+        }, 
+        { path: '/:pathMatch(.*)*', component: NotFound },
     ]
 });
 
