@@ -218,7 +218,7 @@ export default {
             break;
 
           case "won":
-            console.log("won", value.username);
+            console.log("backend won", value.username);
             break;
 
           default:

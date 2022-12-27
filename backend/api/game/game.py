@@ -2,31 +2,27 @@ import sys
 from collections import defaultdict
 
 from backend.api.game.dice import get_dice_result
-from backend.api.game.log import construct_roll, move_token, log_won, log_eat_token
+from backend.api.game.log import construct_roll, move_token, log_won, \
+    log_eat_token
 from backend.api.game.order import determine_order
-from backend.api.game.pre import get_start_pool_preprocessor, \
-    player_moves_preprocessor
+from backend.api.game.pre import get_destination_pool
+from backend.api.game.pre import player_moves_preprocessor
 from backend.api.game.resources import get_config
-from backend.api.game.pre import  get_destination_pool
 
+# this can be set up in config
 # todo if user gets 5 but there are only 3 spaces left then move
 #   do not wait till user gets 3 (for placing token in win position)
 todo_move_to_last_if_exceed = True
 
 default_start_state = None
 default_start_tile = None
-# done
-# action eat
-# if in end pool can not be eaten
-# move max to destination, not over
-# jump one by one
 
 # todo check if jumping over can be made in restricted or they just have to be one after another
 
-# fixme eating?
 
 def log_err(content):
     print(content)
+
 
 class Board:
 
@@ -82,14 +78,16 @@ class Board:
                 log_err(f"{token.get_pool()=} {token.current_state=}")
 
             # skip if jumping over token in restricted area (pool 3)
-            if not self.is_not_jumping_over_restricted(player_id=player_id, token_id=token_id, step=dice_result):
+            if not self.is_not_jumping_over_restricted(player_id=player_id,
+                                                       token_id=token_id,
+                                                       step=dice_result):
                 log_err("err 1 jump")
 
         return r
 
     def state_exists(self, player_id, state):
 
-        return state  in self.level_state["players"][player_id]["states"]
+        return state in self.level_state["players"][player_id]["states"]
 
     def get_from_board(self, player_id, dice_result):
         """
@@ -115,17 +113,18 @@ class Board:
                 continue
 
             # check if in pools
-            if not any(token.get_pool() == p for p in [get_pool("live"),   get_pool("safe")]):
+            if not any(token.get_pool() == p for p in
+                       [get_pool("live"), get_pool("safe")]):
                 continue
 
-
-
-            if not self.state_exists(player_id, token.current_state + dice_result):
+            if not self.state_exists(player_id,
+                                     token.current_state + dice_result):
                 continue
 
             # skip if jumping over token in restricted area (pool 3)
-            if not self.is_not_jumping_over_restricted(player_id=player_id, token_id=token_id, step=dice_result):
-                print("jumping over rest")
+            if not self.is_not_jumping_over_restricted(player_id=player_id,
+                                                       token_id=token_id,
+                                                       step=dice_result):
                 continue
 
             r[token_id] = token
@@ -134,7 +133,10 @@ class Board:
 
     def is_token_at_destination(self, player_id, token_id):
         """wrapper"""
-        return self.players[player_id]["tokens"][token_id].get_is_at_destination()
+
+        # return False
+        return self.players[player_id]["tokens"][
+            token_id].get_is_at_destination()
 
     def get_winning_order(self):
         winning_order = []
@@ -143,12 +145,16 @@ class Board:
             all_at_destination = True
 
             for t_id, token in p["tokens"].items():
-                if not self.is_token_at_destination(player_id=p_id, token_id=t_id):
+                if not self.is_token_at_destination(player_id=p_id,
+                                                    token_id=t_id):
                     all_at_destination = False
                     break
 
             if all_at_destination:
                 winning_order.append(p_id)
+
+        if winning_order:
+            print(winning_order)
 
         return winning_order
 
@@ -190,20 +196,89 @@ class Board:
 
         this_states = self.level_state["players"][player_id]["states"]
 
-        is_moved = self.players[player_id]["tokens"][token_id].move_forward(
+        is_moved = token.move_forward(
             step=step,
             states=this_states
         )
 
+        token_count = self.players[player_id]["tokens"].keys()
+
+        keys =  [i for i in this_states.keys()]
+        last_n = []
+        for _ in token_count:
+            m = max(keys)
+            keys.pop(m)
+            last_n.append(m)
+
+        my_tokens = []
+        for t_id, t_meta in self.players[player_id]["tokens"].items():
+            my_tokens.append(t_meta.current_state)
+
+        t = set(my_tokens).issubset(set(last_n))
+
+
+        def is_at_destination(test_state, my_states, dest_states):
+            # print()
+            # print("test", test_state, my_states, dest_states)
+            if test_state not in dest_states:
+                # print("not in dest (not in dest states)")
+                return False
+
+            if set(my_states).issubset(set(dest_states)):
+                return True
+
+            dest_states.sort()
+            # print(dest_states, type(dest_states))
+            this = False
+            # from smaller to bigger
+            for i in dest_states:
+                # print(i)
+                # ignore prev to this
+                if not this:
+
+                    if i == test_state:
+                        this = True
+                    else:
+                        continue
+
+                if i not in my_states:
+                    # print(f"{i=} not in my states")
+                    return False
+
+            #     print(i)
+            #     if i in my_states:
+            #         pr
+            #
+            # return False
+            return True
+
+            # print(is_at_destination(1, [1, 7, 25, 51], [56, 55, 54, 53]))
+            # print(is_at_destination(56, [56, 55, 53, 54], [56, 55, 54, 53]))
+            # print(is_at_destination(55, [56, 55, 54, 53], [56, 55, 54, 53]))
+            # print(is_at_destination(54, [56, 55, 54, 53], [56, 55, 54, 53]))
+            # print(is_at_destination(53, [56, 55, 54, 53], [56, 55, 54, 53]))
+            # print(is_at_destination(56, [56, 55, 53, 1], [56, 55, 54, 53]))
+            # print(is_at_destination(55, [56, 55, 54, 1], [56, 55, 54, 53]))
+            # print(is_at_destination(54, [56, 55, 54, 1], [56, 55, 54, 53]))
+            # print(is_at_destination( 1, [56, 55, 54, 1], [56, 55, 54, 53]))
+            # print(is_at_destination(56, [56, 1, 2, 3], [56, 55, 54, 53]))
+            # print(is_at_destination(55, [56, 55, 2, 3], [56, 55, 54, 53]))
+            # print(is_at_destination(53, [53, 1, 2, 3], [56, 55, 54, 53]))
+            # sys.exit()
+
+        iad = is_at_destination(token.current_state, my_tokens, last_n)
+
+        if iad:
+            token.set_at_destination()
+
         if not is_moved:
             log_err(f"[err] can not move {player_id=} {token_id=}")
 
-         # todo set flags for token, chech that
+        # todo set flags for token, chech that
 
         return {
-            # "player": player_id,
             "eaten": self.check_eating(player_id, token_id),
-            "won order": self.get_winning_order()
+            "is done": t
         }
 
     def check_eating(self, player_id, token_id):
@@ -216,16 +291,15 @@ class Board:
 
             for t_id, t in p_meta["tokens"].items():
 
-                if t.get_pool() ==  get_pool("start"):
+                if t.get_pool() == get_pool("start"):
                     continue
-
 
                 # skip those that are not on this tile
                 if t.get_row_column() != token.get_row_column():
                     continue
 
                 # skip this token
-                if p_id  == player_id and t_id == token_id:
+                if p_id == player_id and t_id == token_id:
                     continue
 
                 occupied[p_id].append({
@@ -246,23 +320,15 @@ class Board:
             if owner == player_id:
                 return []
 
-            # print()
-            # print(player_id, token_id,token.get_row_column())
-            # for p_id, p_meta in self.players.items():
-            #     for t_id, t in p_meta["tokens"].items():
-            #         print(p_id, t_id, t.get_row_column())
-
             # one enemy token
             if len(tokens) == 1:
                 for t in tokens:
-                    print("eat enemy")
                     t["token"].restart()
 
                 return tokens
 
             # multiple enemy tokens, block rule
             elif len(tokens) > 1:
-                print("eat me")
                 token.restart()
 
                 return [{
@@ -277,7 +343,6 @@ def get_pool(type_):
     """
     vals are those from Fe generating board part
     """
-
 
     return {
         "start": "1",
@@ -379,11 +444,16 @@ class Token:
         self.pool = self.current_x_y.type
 
         # how is jumping over restricted controlled?
+        # print(states)
 
-        if max(states.keys()) == self.current_state:
-            self.set_at_destination()
-            print("at destination")
+        # number_of_players = 2
+        #
+        # for i in states[:-number_of_players].items():
+        #     print(i)
+        # sys.exit(-1)
 
+        # if max(states.keys()) == self.current_state:
+        #     self.set_at_destination()
 
         return True
 
@@ -415,7 +485,6 @@ class Level:
 
         # was -1
 
-
         for player_id in range(get_config()["number of players"]):
             tokens = {}
 
@@ -429,12 +498,11 @@ class Level:
 
             players[player_id] = tokens
 
-        already_won = []
-        self.board = Board(players=players, m_player_to_moves = m_player_to_moves)
+        self.board = Board(players=players, m_player_to_moves=m_player_to_moves)
 
         # todo manual
 
-        self.auto_driver(already_won,  game_conf, player_order)
+        self.auto_driver( game_conf, player_order)
 
     def goes_list_driver(self, game_conf) -> list:
         """
@@ -450,17 +518,15 @@ class Level:
                     break
         return goes_list
 
-
     def auto_driver(
-        self,
-            already_won,
+            self,
+
             game_conf,
             goes_list,
     ):
-
+        already_won = set()
 
         ttl = 500
-
 
         while True:
 
@@ -482,10 +548,11 @@ class Level:
                         construct_roll(player=player_id, roll=roll_result)
                     )
 
-                    start_pool_movable = self.board.get_from_start_pool(player_id=player_id, dice_result=roll_result)
+                    start_pool_movable = self.board.get_from_start_pool(
+                        player_id=player_id, dice_result=roll_result)
                     board_movable = self.board.get_from_board(
-                            player_id=player_id,
-                            dice_result=roll_result)
+                        player_id=player_id,
+                        dice_result=roll_result)
 
                     if start_pool_movable and board_movable:
 
@@ -494,33 +561,34 @@ class Level:
                         for token_id, token in start_pool_movable.items():
 
                             # todo if from board_movable then this is not changed
-                            t = choose(self.board, self.log, player_id, 1, token_id,
-                                       already_won)
+                            t = choose(self.board, self.log, player_id, 1,
+                                       token_id)
 
-                            for j in t["won"]:
-                                already_won.append(j)
+                            if t["won"]:
+                                already_won.add(player_id)
+
                             break
 
                     elif start_pool_movable:
 
                         for token_id, token in start_pool_movable.items():
-                            t = choose(self.board, self.log, player_id, 1, token_id,
-                                       already_won)
+                            t = choose(self.board, self.log, player_id, 1,
+                                       token_id)
 
-                            for j in t["won"]:
-                                already_won.append(j)
+                            if t["won"]:
+                                already_won.add(player_id)
                             break
 
                     elif board_movable:
 
                         for token_id, token in board_movable.items():
 
-                            t = choose(self.board, self.log, player_id, roll_result,
-                                       token_id,
-                                       already_won)
+                            t = choose(self.board, self.log, player_id,
+                                       roll_result,
+                                       token_id)
 
-                            for j in t["won"]:
-                                already_won.append(j)
+                            if t["won"]:
+                                already_won.add(player_id)
                             break
 
                     if game_conf['number of players'] == len(already_won) + 1:
@@ -538,7 +606,7 @@ def generate_start():
     return level.get_log()
 
 
-def choose(board, log, player_id, roll_result, token_id, already_won):
+def choose(board, log, player_id, roll_result, token_id):
     """
     wrapper for moving token
 
@@ -555,16 +623,15 @@ def choose(board, log, player_id, roll_result, token_id, already_won):
 
     eaten = t["eaten"]
     for i in eaten:
-        print(i)
         log.append(log_eat_token(
             player=i["player_id"],
             token=i["token_id"],
         ))
 
-    gw = t["won order"]
-    for i in gw:
-        if i not in already_won:
-            log.append(log_won(player=i))
+    gw = t["is done"]
+    if gw:
+        print(f'{t["is done"]=}, {player_id=}')
+        log.append(log_won(player=player_id))
 
     return {"won": gw}
 
@@ -579,24 +646,9 @@ def main():
 
     print(len(log))
 
-    for i, instr in enumerate(log[:100]):
-        print(i, instr)
-
-    #     nije napravljeno predprocesiranja stateova
-
-    # print()
-    # print()
-    # print()
-    # print()
-    # cl = defaultdict(int)
     # for i, instr in enumerate(log[:100]):
-    #
-    #     if instr["action"] in ["move", "eaten"]:
-    #         print(i, instr)
-    #
-    #     if instr["action"] == "move":
-    #         cl[f"{instr['player']}{instr['token']}"] += instr["dice_result"]
-    #         print(cl)
+    #     print(i, instr)
+
 
 if __name__ == '__main__':
     main()
