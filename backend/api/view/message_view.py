@@ -3,8 +3,7 @@ import urllib
 from django.http import JsonResponse
 from rest_framework.views import APIView
 
-from backend.api.model.message import create_message
-from backend.api.model.message import get_messages
+from backend.api.model.c_q import create_message, get_messages
 from backend.api.view.comm import get_auth_ok_response_template
 
 

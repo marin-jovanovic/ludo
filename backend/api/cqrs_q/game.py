@@ -1,4 +1,4 @@
-from backend.api.cqrs_q.users import get_users_in_game
+from backend.api.cqrs_q.users import get_users_in_level
 
 
 def __is_game_full(game_name):
@@ -10,7 +10,7 @@ def __is_game_full(game_name):
 
     capacity = game_o.capacity
 
-    r = get_users_in_game(game_name)
+    r = get_users_in_level(game_name)
     if r["status"]:
         currently_active_players = len(r["payload"])
     else:
@@ -22,7 +22,7 @@ def __is_game_full(game_name):
 def __check_game_name_exists(name):
     return {
         "status": True,
-        "payload": _get_game_model().objects.filter(name=name).exists()
+        "payload": _get_level_model().objects.filter(name=name).exists()
     }
 
 
@@ -41,20 +41,14 @@ def __is_empty(game_name):
 
 
 from django.apps import apps
-
-
-def _get_game_model():
-    return apps.get_model("api.game")
-
-
-def get_user_model():
-    return apps.get_model("api.Users")
+from backend.api.model.player import get_user_model
+from backend.api.model.level import _get_level_model
 
 
 def __get_game(game_name):
     try:
         return {"status": True,
                 "payload":
-                    _get_game_model().objects.get(name=game_name)}
-    except _get_game_model().DoesNotExist:
+                    _get_level_model().objects.get(name=game_name)}
+    except _get_level_model().DoesNotExist:
         return {"status": False, "payload": "game not exist"}

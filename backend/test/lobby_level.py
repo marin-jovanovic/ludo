@@ -5,53 +5,19 @@ from backend.config import get_config
 from backend.test.auth import create_profile, login, delete_profile
 
 
-def get_games(username, access_token):
-    url = "http://localhost:8000/game"
-
-    t = requests.get(
-        f"{url}/",
-        headers={
-            "Authorization": f"Custom {username}:{access_token}"
-        },
-        data={
-        },
-        verify=False
-    )
-
-    print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
-
-
-def create_game(username, access_token, game_name, capacity):
-    url = "http://localhost:8000/game"
-
-    t = requests.post(
-        f"{url}/{game_name}",
-        headers={
-            "Authorization": f"Custom {username}:{access_token}"
-        },
-        data={
-            "capacity": capacity,
-            "tmp": 2
-        },
-        verify=False
-    )
-
-    print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
-    return json.loads(t.text)
-
-
-def leave_game(username, access_token, game_name):
-    url = "http://localhost:8000/game"
+def leave_game(url, username, access_token, level_id):
 
     t = requests.put(
-        f"{url}/{game_name}",
+        f"{url}/{level_id}",
         headers={
-            "Authorization": f"Custom {username}:{access_token}"
-        },
+            "Authorization": encode_username_access_token(
+                type_="Custom",
+                username=username,
+                access_token=access_token
+            )        },
         data={
             "leave": True,
         },
-        verify=False
     )
 
     print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
@@ -155,34 +121,48 @@ import unittest
 
 import requests
 
-from backend.test.comm import encode_username_password, \
-    encode_username_access_token
+from backend.test.comm import encode_username_access_token
+
+
+def get_games(url, username, access_token):
+    t = requests.get(
+        f"{url}/",
+        headers={
+            "Authorization": encode_username_access_token(
+                type_="Custom",
+                username=username,
+                access_token=access_token
+            )
+        },
+        data={
+        },
+    )
+
+    print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
+
+    return json.loads(t.text)
+
+
+def create_game(url, username, access_token, level_name, capacity):
+    t = requests.post(
+        f"{url}/{level_name}",
+        headers={
+            "Authorization": encode_username_access_token(
+                type_="Custom",
+                username=username,
+                access_token=access_token
+            )
+        },
+        data={
+            "capacity": capacity,
+        }
+    )
+
+    print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
+    return json.loads(t.text)
 
 
 class TestMain(unittest.TestCase):
-
-    # def load_config(cls):
-    #
-    #     config = get_config()
-    #
-    #     cls.base = config["apiURL"]
-    #
-    #     cls.game_url = cls.base + "/lobby"
-    #
-    #     cls.non_existing_username = config["nonExistingUsername"]
-    #     cls.non_existing_password = config["nonExistingPassword"]
-    #
-    #     cls.wrong_username = config["incorrectUsername"]
-    #     cls.wrong_password = config["incorrectPassword"]
-    #
-    #     cls.game_id = config["gameId"]
-    #
-    #     cls.players_username_prefix = config["gamePlayers"]["usernamePrefix"]
-    #     cls.players_password_prefix = config["gamePlayers"]["passwordPrefix"]
-    #
-    #     cls.number_of_player = config["gameUsersGenerated"]
-    #
-    #     cls.players = {}
 
     def load_config(self):
 
@@ -190,7 +170,7 @@ class TestMain(unittest.TestCase):
 
         self.base = config["apiURL"]
 
-        self.game_url = self.base + "/lobby"
+        self.level_url = self.base + "/" + config["levelPath"]
 
         self.non_existing_username = config["nonExistingUsername"]
         self.non_existing_password = config["nonExistingPassword"]
@@ -198,14 +178,18 @@ class TestMain(unittest.TestCase):
         self.wrong_username = config["incorrectUsername"]
         self.wrong_password = config["incorrectPassword"]
 
-        self.game_id = config["gameId"]
+        self.level_id_prefix = config["levelIdPrefix"]
 
-        self.players_username_prefix = config["gamePlayers"]["usernamePrefix"]
-        self.players_password_prefix = config["gamePlayers"]["passwordPrefix"]
+        self.players_username_prefix = config["levelPlayers"]["usernamePrefix"]
+        self.players_password_prefix = config["levelPlayers"]["passwordPrefix"]
 
-        self.number_of_players = config["gameUsersGenerated"]
+        self.number_of_players = config["levelUsersGenerated"]
 
         self.players = {}
+
+        self.max_level_capacity = config["levelMaxCapacity"]
+
+        self.levels = {i: self.level_id_prefix + str(i) for i in range(self.max_level_capacity + 1)}
 
     @classmethod
     def setUpClass(cls):
@@ -263,71 +247,8 @@ class TestMain(unittest.TestCase):
                 base=cls.base
             )
 
-    def create_profile(self, username, password):
-        print()
-        print("create user")
-
-        url = f"{self.base}/signup/{username}"
-
-        t = requests.post(
-            url,
-            headers={
-                "Authorization": encode_username_password(
-                    type_="Create",
-                    username=username,
-                    password=password
-                )
-            },
-            data={
-            },
-        )
-
-        print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
-        return json.loads(t.text)
-
-    def logout(self, username, access_token):
-        print()
-        print("logout")
-        url = f"{self.base}/logout/{username}"
-
-        t = requests.post(
-            url,
-            headers={
-                "Authorization": encode_username_access_token(
-                    type_="Custom",
-                    username=username,
-                    access_token=access_token
-                )
-            },
-            data={
-            },
-        )
-
-        print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
-        return json.loads(t.text)
-
     def log(self, content):
         print(content)
-
-    def create_game(self, username, access_token, game_name, capacity):
-        url = "http://localhost:8000/game"
-
-        t = requests.post(
-            f"{url}/{game_name}",
-            headers={
-                "Authorization": encode_username_access_token(
-                    type_="Custom",
-                    username=username,
-                    access_token=access_token
-                )
-            },
-            data={
-                "capacity": capacity,
-            }
-        )
-
-        print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
-        return json.loads(t.text)
 
     def test_setup_teardown(self):
         for k, v in self.players.items():
@@ -335,29 +256,111 @@ class TestMain(unittest.TestCase):
 
         self.assertEqual(True, True)
 
-    def test_create_game(self):
+    def test_get_all_levels(self):
 
-        r = self.create_profile(
-            username=self.non_existing_username,
-            password=self.non_existing_password
+        username = self.players[0]["username"]
+        access_token = self.players[0]["access token"]
+
+        r = get_games(
+            url=self.level_url,
+            username=username,
+            access_token=access_token,
         )
         self.assertEqual(3, len(r["auth"]))
-        self.assertEqual(1, len(r["payload"]))
         self.assertEqual(True, r["auth"]["status"])
-        access_token = r["auth"]["accessToken"]
-        self.assertEqual(self.non_existing_username, r["auth"]["username"])
-        self.assertEqual(True, r["payload"]["status"])
+        self.assertEqual(username, r["auth"]["username"])
+        self.assertEqual(access_token, r["auth"]["accessToken"])
 
-        r = self.create_game(
-            self.non_existing_username,
-            access_token,
-            self.game_id,
-            capacity=2
+        self.assertEqual(3, len(r["payload"]))
+        self.assertEqual(True, r["payload"]["status"])
+        self.assertEqual(True, all(
+            [
+                [i in ["capacity", "name", "players"] for i in level_meta]
+                for level_id, level_meta in r["payload"]["levels"].items()
+            ]
+        ))
+
+        for level_id, level_meta in r["payload"]["levels"].items():
+
+            self.assertEqual(True, isinstance(level_meta["capacity"], int))
+            self.assertEqual(True, isinstance(level_meta["name"], str))
+            self.assertEqual(True, isinstance(level_meta["players"], list))
+
+            capacity = level_meta["capacity"]
+            players = level_meta["players"]
+
+            if len(players) > capacity:
+                self.assertEqual(True, False)
+
+        in_level = r["payload"]["inLevel"]
+
+        if not in_level:
+            return
+
+        is_found = False
+
+        for level_id, level_meta in r["payload"]["levels"].items():
+
+            players = level_meta["players"]
+
+            if username in players:
+                if is_found:
+                    """can not be in multiple levels at the same time"""
+                    self.assertEqual(True, False)
+
+                is_found = True
+
+        self.assertEqual(True, is_found)
+
+    def test_create_level(self):
+
+        username = self.players[0]["username"]
+        access_token = self.players[0]["access token"]
+
+        for capacity, level_name in self.levels.items():
+
+            r = create_game(
+                url=self.level_url,
+                username=username,
+                access_token=access_token,
+                level_name=level_name,
+                capacity=capacity
+            )
+
+    def test_delete_level(self):
+
+
+        pass
+
+
+    def test_leave_level(self):
+
+        username = self.players[0]["username"]
+        access_token = self.players[0]["access token"]
+
+        for capacity, level_name in self.levels.items():
+
+            r = create_game(
+                url=self.level_url,
+                username=username,
+                access_token=access_token,
+                level_name=level_name,
+                capacity=capacity
+            )
+
+        r = leave_game(
+            url=self.level_url,
+            username=username,
+            access_token=access_token,
+            level_id=level_name,
+
         )
 
-        print(f"{r=}")
 
-        self.cleanup_delete_profile(self.non_existing_username, access_token)
+
+    def test_delete_other_users_level(self):
+
+        raise NotImplementedError
 
 
 if __name__ == "__main__":

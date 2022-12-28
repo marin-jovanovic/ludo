@@ -3,7 +3,7 @@ import hashlib
 
 import bcrypt
 
-from backend.api.model.users import get_user_model
+from backend.api.model.player import get_user_model
 
 
 def is_username_in_db(username):
@@ -37,7 +37,7 @@ def get_logged_users():
         get_user_model().objects.filter(access_token__isnull=False).values("username"))
 
 
-def get_users_in_game(game_id):
+def get_users_in_level(game_id):
     return {
         "status": True,
         "payload": list(get_user_model().objects.filter(currently_playing__name=game_id))

@@ -3,7 +3,7 @@ import json
 
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
-from backend.api.model.game import games_notifier
+from backend.api.model.level import games_notifier
 from backend.api.model.message import message_notifier
 
 

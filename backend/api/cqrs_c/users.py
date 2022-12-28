@@ -6,7 +6,7 @@ from backend.api.comm.comm import Notifier
 from backend.api.cqrs_q.users import get_logged_users
 from backend.api.cqrs_q.users import is_username_in_db, is_authenticated, \
     is_access_token_correct, get_user
-from backend.api.model.users import get_user_model
+from backend.api.model.player import get_user_model
 
 # todo change username
 # todo access token

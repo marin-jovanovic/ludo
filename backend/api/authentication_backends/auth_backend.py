@@ -2,6 +2,8 @@ from django.contrib.auth.backends import BaseBackend
 
 from django.contrib.auth.models import User
 
+from backend.test.auth import create_profile
+
 
 class AuthBackend(BaseBackend):
     """

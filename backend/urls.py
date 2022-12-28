@@ -2,9 +2,10 @@ from django.urls import path
 from rest_framework import routers
 
 from backend.api.startup import startup_configuration
+
 from backend.api.view.board_view import BoardView
 from backend.api.view.game_view import GameView
-from backend.api.view.lobby_view import LobbyView
+from backend.api.view.level_view import LevelView
 from backend.api.view.login_view import LoginView
 from backend.api.view.logout_view import LogoutView
 from backend.api.view.message_view import MessageView
@@ -22,8 +23,8 @@ urlpatterns = [
     path("deleteProfile/<str:username>", DeleteProfileView.as_view()),
 
     # CRUD meta game
-    path("lobby/", LobbyView.as_view()),
-    path("lobby/<str:name>", LobbyView.as_view()),
+    path("level/", LevelView.as_view()),
+    path("level/<str:name>", LevelView.as_view()),
 
     #
     path("game/", GameView.as_view()),

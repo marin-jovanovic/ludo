@@ -7,7 +7,7 @@ from backend.api.cqrs_c.game import get_specific_game, receive_instruction
 from backend.api.cqrs_c.game_log import add_entry
 from backend.api.game.order import determine_order
 from backend.api.game.resources import get_config
-from backend.api.model.player_order import get_player_order
+from backend.api.model.c_q import get_player_order
 from backend.api.view.comm import get_auth_ok_response_template
 
 

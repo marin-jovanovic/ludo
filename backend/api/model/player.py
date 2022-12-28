@@ -1,9 +1,7 @@
 from django.apps import apps
 from django.db import models
 
-
-def get_game_model():
-    return "api.game"
+from backend.api.model.level import get_level_model_as_string
 
 
 class Users(models.Model):
@@ -24,11 +22,20 @@ class Users(models.Model):
     # todo check if this is desired action
     #   if user deletes it's profile while game is in progress
     #   then game will be deleted
-    currently_playing = models.ForeignKey(get_game_model(), null=True,
+    currently_playing = models.ForeignKey(get_level_model_as_string(),
+                                          null=True,
                                           on_delete=models.SET_NULL)
 
     game_role = models.TextField(null=True)
 
 
 def get_user_model():
-    return apps.get_model("api.Users")
+    # return get_user_model_as_string()
+    # return "api.player"
+    return apps.get_model(get_user_model_as_string())
+
+
+def get_user_model_as_string():
+    # return apps.get_model("api.users")
+
+    return "api.users"

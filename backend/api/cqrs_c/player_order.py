@@ -1,6 +1,7 @@
 from backend.api.cqrs_q.game import __get_game
 from backend.api.cqrs_q.users import get_user
-from backend.api.model.player_order import PlayerOrder, _get_player_order_model
+from backend.api.model.player_order import PlayerOrder
+from backend.api.model.model_getters import _get_player_order_model
 
 
 def add_to_order(username, game_name):

@@ -4,32 +4,70 @@ from django.http import JsonResponse
 from rest_framework.views import APIView
 
 from backend.api.cqrs_c.game import create_game, leave_game, join_game, \
-    get_games, in_which_game_is_user
+    get_levels, in_which_level_is_user
 from backend.api.view.comm import get_auth_ok_response_template
 
 
-class LobbyView(APIView):
+class LevelView(APIView):
+
+    def delete(self, request, name=None):
+        """
+        can not delete level if there are users in it
+        when level is empty or only this user is in it -> level can be deleted
+
+
+        level.active = False
+            level will not be shown in get method
+            statistics can be created
+
+        this is called when user wants to delete a level
+        or
+        when level is done
+
+        """
 
     def get(self, request, name=None):
         # get basic game info
 
+        # todo get in chunks (e.g. 10 by 10 with index and total number of pages in res)
+        # todo add filters
+
         print("get games")
 
         if name:
-            print("not implemented, no use ? ")
-            response = get_auth_ok_response_template(request)
+            raise NotImplementedError
 
         else:
 
             response = get_auth_ok_response_template(request)
-            response['payload'] = get_games()
-            response["payload"]["payload"]["inGame"] = in_which_game_is_user(request.username)["payload"]
+
+            r = get_levels()
+            if r["status"]:
+                response['payload']["levels"] =r["payload"]
+            else:
+                response["payload"]["status"] = False
+                return JsonResponse(response)
+
+            r = in_which_level_is_user(request.username)
+            if r["status"]:
+                response["payload"]["inLevel"] = r["payload"]
+            else:
+                response["payload"]["status"] = False
+                return JsonResponse(response)
+
+            response["payload"]["status"] = True
 
         return JsonResponse(response)
 
     # todo observers
 
     def post(self, request, name):
+        """
+        max 1 active game per player
+
+
+        """
+
         # create game
 
         creator_username = request.username

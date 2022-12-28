@@ -7,12 +7,18 @@ def get_config():
         "apiURL": "http://localhost:8000",
 
 
-        "gameId": "game 1",
-        "gameCapacity": "2",
-
-        "gameUsersGenerated": 4,
-        "gamePlayers": {
+        "levelIdPrefix": "game ",
+        # max number of users per level
+        "levelMaxCapacity": 4,
+        # how many users will be generated
+        "levelUsersGenerated": 4,
+        "levelPlayers": {
             "usernamePrefix": "u ",
             "passwordPrefix": "@,<>12#*mdAmf- "
-        }
+        },
+        "levelPath": "level",
+
+
+        "boardPath": "board",
+
     }

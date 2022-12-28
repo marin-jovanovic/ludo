@@ -8,15 +8,16 @@ from backend.api.cqrs_c.users import make_user_game_creator, \
     make_user_available_to_play, __make_user_join
 from backend.api.cqrs_q.game import __is_game_full, __check_game_name_exists, \
     __is_empty, __get_game
-from backend.api.cqrs_q.users import get_user, get_users_in_game
-from backend.api.model.game import Game, \
+from backend.api.cqrs_q.users import get_user, get_users_in_level
+
+from backend.api.model.level import Level, \
     game_created_notifier, games_notifier, game_left_notifier, \
-    game_join_notifier
-from backend.api.model.game_log import get_entries, is_any_entry_present, \
-    GameLog
-from backend.api.model.player_order import _get_player_order_model, \
+    game_join_notifier, _get_level_model
+from backend.api.model.game_log import GameLog
+from backend.api.model.c_q import is_any_entry_present, get_entries, \
     get_player_order
-from backend.api.model.users import get_user_model
+from backend.api.model.model_getters import _get_player_order_model
+from backend.api.model.player import get_user_model
 
 
 def create_game(creator_username, name, capacity):
@@ -37,7 +38,7 @@ def create_game(creator_username, name, capacity):
     if not r["status"]:
         return r
 
-    g = Game(name=name, capacity=capacity)
+    g = Level(name=name, capacity=capacity)
     g.save()
 
     r = add_to_order(creator_username, name)
@@ -50,10 +51,10 @@ def create_game(creator_username, name, capacity):
 
     msg = json.dumps({
         "source": "game created",
-        "name": g.name, "capacity": g.capacity})
+        "name": g.id, "capacity": g.capacity})
 
     game_created_notifier.notify(msg)
-    games_notifier.notify(json.dumps(get_games()))
+    games_notifier.notify(json.dumps(get_levels()))
 
     return __assign_user_currently_playing(creator_username, name)
 
@@ -85,7 +86,7 @@ def leave_game(game_name, username):
     msg = json.dumps(
         {"source": "leave game", "name": game_name, "who left": username})
     game_left_notifier.notify(msg)
-    games_notifier.notify(json.dumps(get_games()))
+    games_notifier.notify(json.dumps(get_levels()))
     return {"status": True}
 
 
@@ -114,7 +115,7 @@ def join_game(game_name, username):
     msg = json.dumps(
         {"source": "join game", "name": game_name, "who joined": username})
     game_join_notifier.notify(msg)
-    games_notifier.notify(json.dumps(get_games()))
+    games_notifier.notify(json.dumps(get_levels()))
 
     return r
 
@@ -182,8 +183,8 @@ def __add_to_log(game_id, order):
         return r
 
     try:
-        g_o = _get_game_model().objects.get(name=game_id)
-    except _get_game_model().DoesNotExist:
+        g_o = _get_level_model().objects.get(name=game_id)
+    except _get_level_model().DoesNotExist:
         return {"status": False}
 
     for i in order:
@@ -213,11 +214,11 @@ def __add_to_log(game_id, order):
 
 def get_specific_game(game_id):
     try:
-        g_o = _get_game_model().objects.get(name=game_id)
-    except _get_game_model().DoesNotExist:
+        g_o = _get_level_model().objects.get(name=game_id)
+    except _get_level_model().DoesNotExist:
         return {"status": False}
 
-    r = get_users_in_game(g_o.name)
+    r = get_users_in_level(g_o.name)
     if r["status"]:
         pass
         # currently_active_players = r["payload"]
@@ -280,56 +281,43 @@ def get_specific_game(game_id):
             }
 
 
-def get_games():
-    full = {}
-    not_full = {}
+def get_levels():
 
-    for i in _get_game_model().objects.all():
+    levels = {}
 
-        r = __is_game_full(i.name)
+    for c, level in enumerate(_get_level_model().objects.all()):
+
+        r = get_users_in_level(level.name)
+
         if r["status"]:
-            is_full = r["payload"]
-        else:
-            return {"status": False, "payload": "get games error"}
-
-        r = __get_game(i.name)
-        if not r["status"]:
-            return r
-
-        r = get_users_in_game(i.name)
-        if r["status"]:
-            currently_active_players = r["payload"]
+            users_in_level = r["payload"]
         else:
             return r
 
-        currently_active_players = [i.username for i in
-                                    currently_active_players]
+        users_in_level = [
+            i.username for i in users_in_level
+        ]
 
-        g = {
-            "name": i.name,
-            "capacity": i.capacity,
-            "players": currently_active_players
+        levels[c] = {
+            "id": level.id,
+            "capacity": level.capacity,
+            "players": users_in_level
         }
 
-        if is_full:
-            full[i.name] = g
-
-        else:
-            not_full[i.name] = g
-
-    return {"status": True, "payload": {
-        "full": full,
-        "not full": not_full,
-        # ""
-    }}
+    return {
+        "status": True,
+        "payload": levels
+    }
 
 
-def in_which_game_is_user(username):
+def in_which_level_is_user(username):
     r = get_user_model().objects.get(username=username).currently_playing_id
 
     try:
-        g = _get_game_model().objects.get(id=r).name
-    except _get_game_model().DoesNotExist:
+        g = _get_level_model().objects.get(id=r).name
+    except _get_level_model().DoesNotExist:
+        # request is performed but user is not in any game
+        # so status is true
         g = None
 
     return {"status": True, "payload": g}
@@ -339,7 +327,7 @@ def __delete_game(name):
     if __check_game_name_exists(name):
         return {
             "status": True,
-            "payload": _get_game_model().objects.filter(name=name).delete()
+            "payload": _get_level_model().objects.filter(name=name).delete()
         }
 
     return {"status": False, "debug": "game not exist"}
@@ -371,6 +359,3 @@ def __driver_assign_user_currently_playing(username, status):
 
     return {"status": True}
 
-
-def _get_game_model():
-    return apps.get_model("api.game")
