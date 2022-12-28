@@ -62,7 +62,7 @@ class JumperMiddleware:
         #     pass
         # print(f"{request.body=}")
 
-        auth_type, payload = authorization_header.split(" ")
+        auth_type, payload = authorization_header.split(" ", 1)
 
         username = None
         access_token = None

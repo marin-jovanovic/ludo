@@ -64,8 +64,6 @@ function getAuthenticationHeader() {
 
 }
 
-
-
 function handleNewResponse(response) {
 
     if (response.data.auth.status) {
@@ -97,5 +95,6 @@ export const apiCalls = {
     api,
     getAuthenticationHeader,
     handleNewResponse,
-    getBasicAuth,getCreateAuth
+    getBasicAuth,
+    getCreateAuth,
 }
