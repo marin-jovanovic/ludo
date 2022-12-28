@@ -12,11 +12,11 @@ def is_username_in_db(username):
 
 def is_access_token_correct(username, access_token):
     if not is_username_in_db(username):
-        return False
+        return {"status": False}
 
     r = get_user_model().objects.get(username=username).access_token == access_token
 
-    return {'status': True, 'payload': r}
+    return {'status': r}
 
 
 def is_authenticated(username, password):

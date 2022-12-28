@@ -25,13 +25,14 @@ def get_empty_response_template():
     response = {
         "auth": {
             "status": False,
-            "access-token": "",
-            "refresh-token": ""
+            # "access-token": "",
+            # "refresh-token": ""
         },
         "payload": {
+            "status": False,
         },
-        "debug": {
-        }
+        # "debug": {
+        # }
     }
     return response
 

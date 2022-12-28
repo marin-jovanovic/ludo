@@ -14,31 +14,56 @@ from backend.api.model.users import get_user_model
 active_users_notifier = Notifier()
 
 def delete_profile(username, access_token):
-    if not is_access_token_correct(username, access_token):
-        return {'status': False, 'debug': 'user + access token combination err'}
+    if not is_access_token_correct(username, access_token)["status"]:
+        return {
+            'status': False,
+            "description": 'username access token combination mismatch. Please check your credentials and try again'
+        }
 
     t = get_user_model().objects.get(username=username, access_token= access_token).delete()
 
-    print(f"{t=}")
-
-    return {'status': True, 'payload': {}}
+    return {'status': True}
 
 
 def logout(username, access_token):
-    if not is_access_token_correct(username, access_token):
-        return {'status': False, 'debug': 'user + access token combination err'}
+    """
+    we trust access token because it is checked in mw
+    """
+
+    print("acces token", is_access_token_correct(username, access_token))
+
+    if not is_access_token_correct(username, access_token)["status"]:
+        return {
+            'status': False,
+            # "description": 'username access token combination mismatch. Please check your credentials and try again'
+        }
 
     k, _ = get_user_model().objects.update_or_create(
         username=username, defaults={"access_token": None}
     )
-    k.save()
 
-    return {'status': True, 'payload': {}}
+    print(f"{k=} {_=}")
+    r = k.save()
+    print(f"{r=}")
+    # k.save()
+
+    return {'status': True}
 
 
 def auth_user(username, password):
+    """
+    authenticate existing user
+
+    generate access token for this user
+    write access token to db
+
+    """
+
     if not is_authenticated(username, password):
-        return {'status': False, 'debug': 'user + pass combination err', "message": 'username password combination mismatch. Please check your credentials and try again'}
+        return {
+            'status': False,
+            "description": 'username password combination mismatch. Please check your credentials and try again'
+        }
 
     access_token = generate_access_token()
 
@@ -61,7 +86,7 @@ def auth_user(username, password):
 
 def create_user(username, password):
     if is_username_in_db(username):
-        return {'status': False, 'debug': 'user already in db', "message": 'username is taken'}
+        return {'status': False, "description": 'username is taken'}
 
     rej = is_pass_ok(password)
 

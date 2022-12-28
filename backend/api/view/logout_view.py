@@ -10,12 +10,12 @@ class LogoutView(APIView):
     def post(self, request, username):
         # todo delete access token
 
-        print(f"{username=}")
-        print(f"{request.headers=}")
-
         access_token = request.access_token
 
         response = get_auth_ok_response_template(request)
+        del response["auth"]["username"]
+        del response["auth"]["accessToken"]
+
         response["payload"] = logout(username, access_token)
 
         return JsonResponse(response)

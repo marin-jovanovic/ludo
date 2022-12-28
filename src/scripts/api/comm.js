@@ -84,7 +84,7 @@ function handleNewResponse(response) {
             location.reload(true);
         }
 
-        const error = response.data.payload.message;
+        const error = response.data.payload.description;
         return Promise.reject(error);
     }
 

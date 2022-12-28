@@ -7,7 +7,6 @@ import hat
 import hat.drivers.modbus as mod
 import hat.drivers.tcp
 from hat.drivers.modbus.common import DataType
-
 from protocols.util.client import Client
 
 
@@ -133,7 +132,7 @@ class ModbusClient(Client):
         #     return ''.join(
         #         [chr(int(''.join(c), 16)) for c in zip(a[0::2], a[1::2])])
 
-            # raise ValueError("err")
+        # raise ValueError("err")
 
     async def send(self, payload):
         async with self.tcm_master_connection() as client:

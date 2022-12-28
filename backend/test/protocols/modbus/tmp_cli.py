@@ -11,7 +11,6 @@ import hat
 import hat.drivers.modbus as mod
 import hat.drivers.tcp
 from hat.drivers.modbus.common import DataType
-
 from protocols.util.client import Client
 from protocols.util.message import Message
 

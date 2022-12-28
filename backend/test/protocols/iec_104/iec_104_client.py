@@ -2,18 +2,13 @@
 utils for address translations
 """
 import asyncio
-import time
 
 from hat.aio import run_asyncio
 from hat.drivers import iec104
-
 from protocols.util.client import Client
 
-
-
-
-
 ADDRESSES = []
+
 
 async def load_addresses(connection=None):
     global ADDRESSES
@@ -134,7 +129,6 @@ async def iec_104_init_wrapper(domain_name="127.0.0.1", port=19999):
 #
 
 async def async_main():
-
     client = await iec_104_init_wrapper("127.0.0.1", 19999)
 
     raw_data = await client.receive_all(asdu_address=65535)
@@ -187,7 +181,6 @@ def main():
 
 if __name__ == '__main__':
     main()
-
 
 # address = iec104.Address('127.0.0.1', 19999)
 # while True:

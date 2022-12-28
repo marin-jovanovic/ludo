@@ -11,7 +11,6 @@ class LoginView(APIView):
         return access token for provided username and password
         """
 
-        print("post login")
 
         # todo perform check if username is same as one in middleware used
 

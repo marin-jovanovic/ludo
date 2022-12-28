@@ -1,15 +1,11 @@
-import os
-import sys
-
 import asyncio
 import signal
 
 import nest_asyncio
 import websockets
 from hat.aio import run_asyncio
-
-from protocols.util.server import Server
 from protocols.util.message import Message
+from protocols.util.server import Server
 
 
 class WSServer(Server):
@@ -20,7 +16,6 @@ class WSServer(Server):
         self.debug_counter = 0
 
     async def driver(self, websocket, _):
-
         async for raw_data in websocket:
             print("received:", raw_data)
             print()
@@ -38,7 +33,6 @@ class WSServer(Server):
 
 
 async def init_server():
-
     server = WSServer("localhost", 8765)
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)

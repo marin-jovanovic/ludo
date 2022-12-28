@@ -25,7 +25,6 @@ class YamlConfigManager(metaclass=Singleton):
 
 
 def main():
-
     yaml_config_manager = YamlConfigManager()
     print(yaml_config_manager)
 

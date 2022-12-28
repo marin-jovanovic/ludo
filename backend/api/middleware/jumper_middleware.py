@@ -22,36 +22,24 @@ class JumperMiddleware:
 
             return None
 
-        # try:
         authorization_header = request.META['HTTP_AUTHORIZATION']
 
-        # except KeyError:
-        #     print("no authorization header")
-        #
-        #     return None
-
-        # print(f"{authorization_header=}")
-
         parsed_authorization_header = urllib.parse.unquote(
-            authorization_header)
+            authorization_header
+        )
 
-        # print(f"{parsed_authorization_header=}")
         sample_string_bytes = parsed_authorization_header.encode("ascii")
-        # print(f"{sample_string_bytes=}")
         base64_bytes = base64.b64decode(sample_string_bytes)
-        # print(f"{base64_bytes=}")
         base64_string = base64_bytes.decode("ascii")
-        # print(f"{base64_string=}")
         return base64_string
 
     def __call__(self, request):
         print()
+        rejection = get_empty_response_template()
 
         authorization_header = self.get_authorization_header(request)
 
         if not authorization_header:
-            rejection = get_empty_response_template()
-            rejection["payload"] = {"status": False}
             rejection["debug"] = "no authorization header"
             return JsonResponse(rejection)
 
@@ -66,9 +54,6 @@ class JumperMiddleware:
 
         username = None
         access_token = None
-        rejection = get_empty_response_template()
-
-
 
         if auth_type == "Digest":
             print("digest; not implemented")
@@ -82,19 +67,12 @@ class JumperMiddleware:
             r = create_user(username, password)
 
             if not r["status"]:
-                print('basic auth')
-                print(f"{username=}")
-                print(f"{password=}")
-
                 rejection["payload"] = r
                 return JsonResponse(rejection)
 
             r = auth_user(username, password)
 
             if not r["status"]:
-                print("mw: can not create user")
-                print("mw: auth err user")
-
                 rejection["payload"] = r
                 return JsonResponse(rejection)
 
@@ -102,18 +80,11 @@ class JumperMiddleware:
 
         elif auth_type == 'Basic':
 
-            # print(f"{base64_string=}")
-
             username, password = payload.split(":")
 
             r = auth_user(username, password)
 
             if not r["status"]:
-                print('basic auth')
-                print(f"{username=}")
-                print(f"{password=}")
-                print("mw: auth err user 2")
-
                 rejection["payload"] = r
                 return JsonResponse(rejection)
 
@@ -124,13 +95,8 @@ class JumperMiddleware:
 
             r = is_access_token_correct(username, access_token)
 
-            if not r:
-                print("custom auth")
-                print(f"{username=}")
-                print(f"{access_token[:5]=}")
-                print("err is_access_token_correct")
-
-                rejection["debug"] = "not is_validated"
+            if not r["status"]:
+                rejection["payload"] = r
                 return JsonResponse(rejection)
 
         request.username = username
@@ -142,4 +108,5 @@ class JumperMiddleware:
         # request.synchronizer_token_match = True
         # request.role = "role 1"
 
+        print("mw passed")
         return self.get_response(request)

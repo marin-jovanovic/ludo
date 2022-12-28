@@ -1,7 +1,7 @@
 import enum
-from ast import literal_eval
 import json
 import re
+from ast import literal_eval
 
 
 class MessageCodes(enum.Enum):
@@ -48,8 +48,6 @@ class Message:
 
     """
 
-
-
     def __init__(self, *args):
         if len(args) == 1:
 
@@ -86,7 +84,6 @@ class Message:
             payload_buffer = None
 
             if not isinstance(self.header, dict):
-
                 payload_buffer = self.header
                 self.header = {}
 
@@ -106,13 +103,13 @@ class Message:
         else:
             raise NotImplementedError
 
-
         if not hasattr(self.header, "len"):
             self.header["len"] = len(self.payload)
         # print(f"Message; instantiated with {self.header=} {self.payload=}")
 
     def byte_representation(self):
-        return (str({"header": self.header, "payload": self.payload}) + ";").encode("utf-8")
+        return (str({"header": self.header,
+                     "payload": self.payload}) + ";").encode("utf-8")
 
     def __str__(self):
         return str(["header:", self.header, "payload", self.payload])
@@ -180,7 +177,6 @@ class Message:
 
 
 def main():
-
     try:
         Message()
         assert False

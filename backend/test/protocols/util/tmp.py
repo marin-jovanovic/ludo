@@ -14,14 +14,13 @@ def bracketed_split(string):
             depth -= 1
 
         if depth == 0:
-            return 0, string[1:i], string[i+1:]
+            return 0, string[1:i], string[i + 1:]
 
     if depth != 0:
         return -1, "", ""
 
 
 if __name__ == '__main__':
-
     t = bracketed_split("{p: {a:b, c:d}, f:g}fjrfjfjejw")
     print(t)
 

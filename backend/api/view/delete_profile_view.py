@@ -16,5 +16,7 @@ class DeleteProfileView(APIView):
         """
 
         response = get_auth_ok_response_template(request)
+        del response["auth"]["username"]
+        del response["auth"]["accessToken"]
         response["payload"] = delete_profile(username, request.access_token)
         return JsonResponse(response)

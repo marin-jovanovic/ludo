@@ -1,7 +1,7 @@
 import asyncio
 
 from protocols.util.client import Client
-from protocols.util.message import Message, MessageCodes
+from protocols.util.message import Message
 
 
 class EchoConnection(asyncio.Protocol):
@@ -17,11 +17,11 @@ class EchoConnection(asyncio.Protocol):
         self.transport = transport
 
     def data_received(self, data):
-
         self.raw_data_buffer += data.decode()
 
         while self.raw_data_buffer.endswith(";"):
-            to_process, self.raw_data_buffer = self.raw_data_buffer.split(";", 1)
+            to_process, self.raw_data_buffer = self.raw_data_buffer.split(";",
+                                                                          1)
 
             message = Message(to_process)
 
@@ -63,7 +63,6 @@ class TCPClient(Client):
         if self.protocol.rec_q.empty():
             await self.protocol.rec_q.join()
 
-
         try:
             await self.on_con_lost
         finally:
@@ -92,25 +91,24 @@ async def tcp_client_wrapper(domain_name="127.0.0.1", port=8888):
 
 async def async_main():
     async with await tcp_client_wrapper() as p:
-
         await p.send(t := Message("1 aaa"))
         print("sending", t)
-        print("Data received:", await p.receive(),  "\n")
+        print("Data received:", await p.receive(), "\n")
 
         await p.send(t := Message({"a": 1, "b": 2}))
         print("sending", t)
-        print("Data received:", await p.receive(),  "\n")
+        print("Data received:", await p.receive(), "\n")
 
         await p.send(t := Message("2 bbb"))
         print("sending", t)
         await p.send(t := Message("3 ccc"))
         print("sending", t)
         print("Data received:", await p.receive())
-        print("Data received:", await p.receive(),  "\n")
+        print("Data received:", await p.receive(), "\n")
 
         await p.send(t := Message(9999 * "xxxxxxxxx"))
         print("sending", t)
-        print("Data received:", await p.receive(),  "\n")
+        print("Data received:", await p.receive(), "\n")
 
         await p.send(t := Message("4 ddd"))
         print("sending", t)
@@ -119,9 +117,10 @@ async def async_main():
         # await p.send(t := Message("FIN"))
         print("sending", t)
         print("Data received:", await p.receive())
-        print("Data received:", await p.receive(),  "\n")
+        print("Data received:", await p.receive(), "\n")
 
     print("done")
+
 
 def main():
     asyncio.run(async_main())

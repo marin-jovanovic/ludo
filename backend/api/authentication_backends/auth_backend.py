@@ -11,9 +11,9 @@ class AuthBackend(BaseBackend):
     """
 
     def authenticate(self, request, username=None, password=None):
-        print("auth backend")
-        print(80 * "-")
-        print(f"{username=} {password=}")
+        # print("auth backend")
+        # print(80 * "-")
+        # print(f"{username=} {password=}")
 
         username = "-1"
         password = "-1"
@@ -22,7 +22,7 @@ class AuthBackend(BaseBackend):
             user = User.objects.get(username=username)
 
         except User.DoesNotExist:
-            user = User.objects.create_profile(username, username,
+            user = create_profile(username, username,
                                                password)
 
             # user = User.objects.get(username=username)

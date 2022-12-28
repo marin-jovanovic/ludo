@@ -19,7 +19,8 @@ class EchoConnection(asyncio.Protocol):
         self.raw_data_buffer += data.decode()
 
         while self.raw_data_buffer.endswith(";"):
-            to_process, self.raw_data_buffer = self.raw_data_buffer.split(";", 1)
+            to_process, self.raw_data_buffer = self.raw_data_buffer.split(";",
+                                                                          1)
 
             m = Message(to_process)
 

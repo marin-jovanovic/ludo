@@ -12,6 +12,19 @@ import unittest
 
 class TestMain(unittest.TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        print("setup")
+        cls.x = 2
+        # cls._connection = createExpensiveConnectionObject()
+
+    @classmethod
+    def tearDownClass(cls):
+        print("teardown")
+        cls.x = 3
+        # cls._connection.destroy()
+
+
     def setup(self):
         self.base = "http://localhost:8000"
         self.username = "ffff"
@@ -117,7 +130,7 @@ class TestMain(unittest.TestCase):
         print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
         return json.loads(t.text)
 
-    def test_create_profile(self):
+    def test_create_room(self):
         self.setup()
 
         r = self.create_profile(username=self.username, password=self.password)
@@ -131,37 +144,13 @@ class TestMain(unittest.TestCase):
 
         self.assertEqual(True, r["payload"]["status"])
 
-    def test_login(self):
+    def test_update_room(self):
         self.setup()
 
         r = self.create_profile(username=self.username, password=self.password)
 
         r = self.login(username=self.username, password=self.password)
 
-        self.assertEqual(True, r["payload"]["status"])
-
-    def test_logout(self):
-        self.setup()
-
-        r = self.login(username=self.username, password=self.password)
-
-        self.assertEqual(True, r["auth"]["status"])
-
-        access_token = r["auth"]["accessToken"]
-
-        r = self.logout(username=self.username, access_token=access_token)
-        self.assertEqual(True, r["payload"]["status"])
-
-    def test_delete(self):
-        self.setup()
-
-        r = self.login(username=self.username, password=self.password)
-
-        self.assertEqual(True, r["auth"]["status"])
-
-        access_token = r["auth"]["accessToken"]
-
-        r = self.delete_profile(username=self.username, access_token=access_token)
         self.assertEqual(True, r["payload"]["status"])
 
 
