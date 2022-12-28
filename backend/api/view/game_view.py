@@ -15,7 +15,6 @@ class GameView(APIView):
 
     def get(self, request, name):
 
-        # print("get games")
         response = get_auth_ok_response_template(request)
         response['payload'] = get_specific_game(name)
 

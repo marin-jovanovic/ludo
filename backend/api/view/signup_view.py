@@ -10,5 +10,11 @@ class SignUpView(APIView):
     """
 
     def post(self, request, username):
+        """
+        return empty payload
+        logic handled in middleware
+        """
+
         response = get_auth_ok_response_template(request)
+        response["payload"]["status"] = True
         return JsonResponse(response)

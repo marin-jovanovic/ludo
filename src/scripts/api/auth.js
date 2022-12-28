@@ -2,8 +2,12 @@ import {
     userMetaSS
 } from '../session_storage';
 import {
-    apiCalls
+    apiCalls, getBasicAuth, getCreateAuth
 } from './comm';
+// import { Buffer } from 'buffer';
+// function encodeBase64(data)  {
+//     return Buffer.from(data).toString('base64');
+//   }
 
 async function login(username, password) {
 
@@ -12,7 +16,9 @@ async function login(username, password) {
     const response = await apiCalls.api.post(
         `login/${username}`, {}, {
             headers: {
-                'Authorization': 'Basic ' + ((encodeURIComponent(username + ':' + password)))
+ 
+                'Authorization': getBasicAuth({username: username, password: password})
+ 
             }
         }
     );
@@ -31,7 +37,11 @@ async function signup(username, password) {
     const response = await apiCalls.api.post(
         `signup/${username}`, {}, {
             headers: {
-                'Authorization': 'Create ' + ((encodeURIComponent(username + ':' + password)))
+
+
+                'Authorization': getCreateAuth({username: username, password:password})
+
+
             }
         }
     );

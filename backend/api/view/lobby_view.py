@@ -15,14 +15,15 @@ class LobbyView(APIView):
 
         print("get games")
 
-        if not name:
+        if name:
+            print("not implemented, no use ? ")
+            response = get_auth_ok_response_template(request)
+
+        else:
+
             response = get_auth_ok_response_template(request)
             response['payload'] = get_games()
             response["payload"]["payload"]["inGame"] = in_which_game_is_user(request.username)["payload"]
-        else:
-            print("not implemented, no use ? ")
-            response = get_auth_ok_response_template(request)
-            # response['payload'] = get_specific_game(name)
 
         return JsonResponse(response)
 

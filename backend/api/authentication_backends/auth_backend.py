@@ -22,8 +22,8 @@ class AuthBackend(BaseBackend):
             user = User.objects.get(username=username)
 
         except User.DoesNotExist:
-            user = User.objects.create_user(username, username,
-                                            password)
+            user = User.objects.create_profile(username, username,
+                                               password)
 
             # user = User.objects.get(username=username)
 

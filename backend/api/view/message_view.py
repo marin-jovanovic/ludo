@@ -10,7 +10,12 @@ from backend.api.view.comm import get_auth_ok_response_template
 
 class MessageView(APIView):
 
+    # todo identification for one on one messaging
+
     def get(self, request, game):
+        """
+        for initial getting messages
+        """
 
         response = get_auth_ok_response_template(request)
         response['payload'] = get_messages(game)

@@ -28,3 +28,48 @@ class BoardView(APIView):
         }
 
         return JsonResponse(response)
+
+
+"""
+lobby
+
+    create room
+        name
+
+
+room
+    create/:id
+
+    get
+       get all rooms
+    
+    put
+        join
+        leave
+            
+    
+game
+    
+    get
+        get all instructions
+    
+    make choice 
+        move token
+  
+    get next instruction
+    
+statistics
+
+    get/game
+        
+        get all statistics for this game
+        
+    
+
+
+update game 
+    notif all players that are in 
+    
+
+
+"""

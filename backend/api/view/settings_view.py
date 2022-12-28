@@ -7,10 +7,15 @@ from backend.api.view.comm import get_auth_ok_response_template
 
 class SettingsView(APIView):
     """
-
+    todo on settings view
     """
 
     def get(self, request):
+        """
+
+
+        """
+
 
         response = get_auth_ok_response_template(request)
 

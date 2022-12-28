@@ -13,9 +13,6 @@ async function getBoard(type, resource) {
 }
 
 
-
-
-
 export const apiBoard = {
     getBoard,
 

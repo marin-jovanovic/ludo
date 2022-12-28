@@ -13,6 +13,16 @@ from backend.api.model.users import get_user_model
 
 active_users_notifier = Notifier()
 
+def delete_profile(username, access_token):
+    if not is_access_token_correct(username, access_token):
+        return {'status': False, 'debug': 'user + access token combination err'}
+
+    t = get_user_model().objects.get(username=username, access_token= access_token).delete()
+
+    print(f"{t=}")
+
+    return {'status': True, 'payload': {}}
+
 
 def logout(username, access_token):
     if not is_access_token_correct(username, access_token):
@@ -98,7 +108,7 @@ def delete_user(username, password):
     if not is_authenticated(username, password):
         return {'status': False, 'debug': 'username + pass combo err'}
 
-    get_user_model().objects.filter(username=username, password=password).delete()
+    get_user_model().objects.get(username=username, password=password).delete()
 
     return {'status': True}
 

@@ -10,13 +10,7 @@ from backend.api.game.pre import get_destination_pool
 from backend.api.game.pre import player_moves_preprocessor
 from backend.api.game.resources import get_config
 
-# this can be set up in config
-# todo if user gets 5 but there are only 3 spaces left then move
-#   do not wait till user gets 3 (for placing token in win position)
-todo_move_to_last_if_exceed = True
 
-
-# todo check if jumping over can be made in restricted or they just have to be one after another
 
 # todo loading mid game config, content
 # todo manual driver

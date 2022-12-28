@@ -2,19 +2,19 @@ from django.http import JsonResponse
 from rest_framework.views import APIView
 
 from backend.api.view.comm import get_auth_ok_response_template
+from backend.api.cqrs_c.users import delete_profile
 
-
-class LoginView(APIView):
+class DeleteProfileView(APIView):
+    """
+    middleware handles business logic
+    """
 
     def post(self, request, username):
         """
-        return access token for provided username and password
+        return empty payload
+        logic handled in middleware
         """
 
-        print("post login")
-
-        # todo perform check if username is same as one in middleware used
-
         response = get_auth_ok_response_template(request)
-        response["payload"]["status"] = True
+        response["payload"] = delete_profile(username, request.access_token)
         return JsonResponse(response)

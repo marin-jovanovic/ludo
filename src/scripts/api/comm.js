@@ -7,6 +7,9 @@ import {
     apiAuth
 } from './auth';
 
+import { Buffer } from 'buffer';
+
+
 const api = axios.create({
     baseURL: 'http://localhost:8000',
     timeout: 5000,
@@ -15,6 +18,24 @@ const api = axios.create({
         'X-CSRFToken': Cookies.get('csrftoken')
     }
 })
+
+function encode(d) {
+    // return encodeBase64(d);
+    return Buffer.from(d).toString('base64');
+
+}
+
+function getBasicAuth({username, password}) {
+    return encode('Basic ' + username + ':' + password)
+}
+
+function getCreateAuth({username, password}) {
+    return encode('Create ' + username + ':' + password)
+}
+
+function getCustomAuth({username, accessToken}) {
+    return encode('Custom ' + username + ':' + accessToken)
+}
 
 function getAuthenticationHeader() {
 
@@ -27,7 +48,9 @@ function getAuthenticationHeader() {
 
         return {
             headers: {
-                'Authorization': 'Custom ' + ((encodeURIComponent(username + ':' + accessToken)))
+
+                'Authorization': getCustomAuth({username: username, accessToken: accessToken})
+
             }
         }
 
@@ -74,4 +97,5 @@ export const apiCalls = {
     api,
     getAuthenticationHeader,
     handleNewResponse,
+    getBasicAuth,getCreateAuth
 }

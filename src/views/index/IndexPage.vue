@@ -1,19 +1,25 @@
 <template>
   <BaseUserTemplate>
-    <input
-      type="text"
-      class="form-control"
-      placeholder="game name"
-      v-model="gameName"
-    />
-    <input
-      type="text"
-      class="form-control"
-      placeholder="game capacity"
-      v-model="gameCapacity"
-    />
+    <div class="row">
+      <button @click="playAgainstBot">play against bot</button>
+    </div>
 
-    <button @click="createGame">create game</button>
+    <div class="row">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="game name"
+        v-model="gameName"
+      />
+      <input
+        type="text"
+        class="form-control"
+        placeholder="game capacity"
+        v-model="gameCapacity"
+      />
+
+      <button @click="createGame">create game</button>
+    </div>
 
     <hr />
     <h1>not full</h1>
@@ -104,6 +110,10 @@ export default {
     };
   },
   methods: {
+    playAgainstBot() {
+      console.log("todo");
+    },
+
     getUserActive(message) {
       console.log("ws get user active");
       console.log(message);
