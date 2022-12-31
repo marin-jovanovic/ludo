@@ -1,13 +1,26 @@
 import json
 
-from backend.api.cqrs_q.game import __get_game
+# from backend.api.cqrs_q.level import __get_game
+# from backend.api.cqrs_q.level import __get_game
 from backend.api.cqrs_q.users import get_user, get_users_in_level
 from backend.api.model.game_log import GameLog
+from backend.api.model.level import _get_level_model
 from backend.api.model.message import Message, message_notifier
 from backend.api.model.model_getters import _get_message_model, _get_game_model, \
     _get_player_order_model
 from backend.api.model.player import get_user_model
 
+
+def __get_game(level_name):
+
+    try:
+        g_o = _get_level_model().objects.get(name=level_name, is_active=True)
+        return {"status": True,
+                "payload": g_o}
+
+    except _get_level_model().DoesNotExist:
+        print(f"level not exists {level_name=}")
+        return {"status": False}
 
 def is_any_entry_present(game):
     r = __get_game(game)
@@ -180,13 +193,13 @@ def __check_game_name_exists(name):
     }
 
 
-def __get_game(game_name):
-    try:
-        return {"status": True,
-                "payload":
-                    _get_game_model().objects.get(name=game_name)}
-    except _get_game_model().DoesNotExist:
-        return {"status": False, "payload": "game not exist"}
+# def __get_game(game_name):
+#     try:
+#         return {"status": True,
+#                 "payload":
+#                     _get_game_model().objects.get(name=game_name)}
+#     except _get_game_model().DoesNotExist:
+#         return {"status": False, "payload": "game not exist"}
 
 
 def __is_empty(game_name):
@@ -231,7 +244,6 @@ def __driver_assign_user_currently_playing(username, status):
 
 
 def get_player_order(game_name):
-    print("search game", game_name)
     r = __get_game(game_name)
     if not r["status"]:
         print("get game err")

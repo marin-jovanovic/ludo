@@ -3,7 +3,7 @@ import urllib
 from django.http import JsonResponse
 from rest_framework.views import APIView
 
-from backend.api.cqrs_c.game import get_specific_game, receive_instruction
+# from backend.api.cqrs_c.game import get_specific_game, receive_instruction
 from backend.api.cqrs_c.game_log import add_entry
 from backend.api.game.order import determine_order
 from backend.api.game.resources import get_config

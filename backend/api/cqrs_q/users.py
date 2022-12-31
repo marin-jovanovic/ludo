@@ -40,7 +40,10 @@ def get_logged_users():
 def get_users_in_level(game_id):
     return {
         "status": True,
-        "payload": list(get_user_model().objects.filter(currently_playing__name=game_id, currently_playing__is_active=True))
+        "payload": list(get_user_model().objects.filter(
+            currently_playing__name=game_id,
+            currently_playing__is_active=True
+        ))
     }
 
 

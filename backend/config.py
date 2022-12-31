@@ -17,7 +17,7 @@ def get_config():
             "passwordPrefix": "@,<>12#*mdAmf- "
         },
         "levelPath": "level",
-
+        "levelLogPath": "log",
 
         "boardPath": "board",
 

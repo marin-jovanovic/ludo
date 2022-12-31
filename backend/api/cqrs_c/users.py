@@ -138,7 +138,7 @@ def delete_user(username, password):
     return {'status': True}
 
 
-def __make_user_join(username):
+def user_set_game_roll_to_join(username):
     r = get_user(username)
     if r["status"]:
         creator_o = r["payload"]
@@ -160,6 +160,11 @@ def __is_playing_game(player_o):
 
 
 def make_user_available_to_play(username):
+    """
+    user_o.game_role = None
+    user_o.save()
+    """
+
     r = get_user(username)
     if r["status"]:
         creator_o = r["payload"]
@@ -188,6 +193,7 @@ def make_user_game_creator(username):
     is_playing_game = __is_playing_game(player_o=creator_o)
 
     if is_playing_game["payload"]:
+        print("err is_playing_game")
         return {"status": False, "payload": "user role not empty"}
 
     _assign_role_to_user(creator_o, "creator")

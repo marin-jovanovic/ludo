@@ -6,6 +6,8 @@ from backend.api.startup import startup_configuration
 from backend.api.view.board_view import BoardView
 from backend.api.view.game_view import GameView
 from backend.api.view.level_view import LevelView
+from backend.api.view.level_log_view import LevelLogView
+
 from backend.api.view.login_view import LoginView
 from backend.api.view.logout_view import LogoutView
 from backend.api.view.message_view import MessageView
@@ -25,6 +27,8 @@ urlpatterns = [
     # CRUD meta game
     path("level/", LevelView.as_view()),
     path("level/<str:name>", LevelView.as_view()),
+
+    path("level/<str:level_id>/log", LevelLogView.as_view()),
 
     #
     path("game/", GameView.as_view()),

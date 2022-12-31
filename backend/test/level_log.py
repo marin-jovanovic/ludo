@@ -103,7 +103,45 @@ def join_game(url, username, access_token, game_name):
     print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
     return json.loads(t.text)
 
+def log_driver(url, username, access_token):
+    t = requests.put(
+        # url,
+        f"{url}",
+        headers={
+            "Authorization": encode_username_access_token(
+                type_="Custom",
+                username=username,
+                access_token=access_token
+            )        },
+        data={
+            "join": True,
+        },
+    )
+
+    print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
+    return json.loads(t.text)
+
+def get_log(url, username, access_token):
+    t = requests.get(
+        f"{url}",
+        headers={
+            "Authorization": encode_username_access_token(
+                type_="Custom",
+                username=username,
+                access_token=access_token
+            )
+        },
+    )
+
+    print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
+    return json.loads(t.text)
+
+
 class TestMain(unittest.TestCase):
+
+    def construct_log_path(self, level_id):
+        config = get_config()
+        return self.base + "/" + config["levelPath"] + "/" + level_id + "/" + config["levelLogPath"]
 
 
     def load_config(self):
@@ -113,6 +151,8 @@ class TestMain(unittest.TestCase):
         self.base = config["apiURL"]
 
         self.level_url = self.base + "/" + config["levelPath"]
+        # self.level_log_url = self.base + "/" + config["levelLogPath"]
+        # self.log_url =
 
         self.non_existing_username = config["nonExistingUsername"]
         self.non_existing_password = config["nonExistingPassword"]
@@ -482,11 +522,78 @@ class TestMain(unittest.TestCase):
 
         )
 
-
-
     def test_delete_other_users_level(self):
 
         raise NotImplementedError
+
+    # def test_get(self):
+
+
+    def test_get_log(self):
+        username = self.players[0]["username"]
+        access_token = self.players[0]["access token"]
+
+        level_name = "y"
+        capacity = 2
+
+        r = create_game(
+            url=self.level_url,
+            username=username,
+            access_token=access_token,
+            level_name=level_name,
+            capacity=capacity
+        )
+
+        r = get_log(
+            url=self.construct_log_path(level_name),
+            username=username,
+            access_token=access_token,
+        )
+
+        r =  leave_game(
+            url=self.level_url,
+            username=username,
+            access_token=access_token,
+            level_id=level_name
+        )
+
+        # username = self.players[0]["username"]
+        # access_token = self.players[0]["access token"]
+        #
+        # level_name = "x"
+        # capacity = 2
+        #
+        # r = create_game(
+        #     url=self.level_url,
+        #     username=username,
+        #     access_token=access_token,
+        #     level_name=level_name,
+        #     capacity=capacity
+        # )
+        #
+        # username = self.players[1]["username"]
+        # access_token = self.players[1]["access token"]
+        #
+        # r = join_game(
+        #     url=self.level_url,
+        #     username=username,
+        #     access_token=access_token,
+        #     game_name=level_name,
+        # )
+        #
+        # username = self.players[0]["username"]
+        # access_token = self.players[0]["access token"]
+        # r = log_driver(
+        #     url=self.construct_log_path(level_name),
+        #     username=username,
+        #     access_token=access_token,
+        #     # level_name=level_name,
+        #     # capacity=capacity
+        # )
+
+        # log_driver(url, username, access_token, game_name):
+
+
 
 
 if __name__ == "__main__":

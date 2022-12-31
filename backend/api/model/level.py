@@ -40,7 +40,7 @@ def is_integrity_rule_ok(name):
     """
 
     return {
-        "status": not _get_level_model().objects.filter(name=name, is_active=True).exists()
+        "status": not _get_level_model().objects.filter(name=name, is_active=True).exists(),
     }
 
 def _get_level_model():

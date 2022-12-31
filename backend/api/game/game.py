@@ -404,6 +404,11 @@ class Level:
         # if mid game
         if log:
             self.log = log
+
+
+
+
+
         else:
             self.log = determine_order(
                 game_conf['number of players'],
@@ -413,6 +418,7 @@ class Level:
             )
 
         playing_order = self.get_playing_order(game_conf)
+        print(f"{playing_order=}")
 
         m_player_to_moves = player_moves_preprocessor()
 
@@ -436,7 +442,24 @@ class Level:
             default_start_state=default_start_state
         )
 
-        self.auto_driver(game_conf, playing_order)
+        for i in self.log:
+            if i["action"] == "move":
+                print("move token")
+
+                t = self.board.move_token(
+                    player_id=i["player"],
+                    token_id=i["token"],
+                    step=i["dice_result"]
+                )
+                #
+
+        # for user choosing
+        self.players_turn = None
+        self.start_pool_options  = {}
+        self.non_start_pool_options = {}
+
+        self.manual_driver(game_conf, playing_order)
+        # self.auto_driver(game_conf, playing_order)
 
     def get_playing_order(self, game_conf) -> list:
         """
@@ -453,9 +476,95 @@ class Level:
 
         return goes_list
 
-    def manual_driver(self):
-        pass
-        # to_choose = {**start_pool_movable, **board_movable}
+    def manual_driver(
+            self,
+            game_conf,
+            playing_order,
+    ):
+        already_won = set()
+
+        c = 0
+        while True:
+            c += 1
+
+            for player_id in playing_order:
+
+                can_roll_again = True
+
+                while can_roll_again:
+
+                    if game_conf['number of players'] == len(already_won) + 1:
+                        """
+                        last player lost
+                        no need to play with only him
+                        """
+                        print("1 lost, other won, game done")
+                        return
+
+                    roll_result = get_dice_result()
+
+                    can_roll_again = roll_result == self.max_result
+
+                    self.log.append(
+                        construct_roll(player=player_id, roll=roll_result)
+                    )
+
+                    start_pool_movable = self.board.get_from_start_pool(
+                        player_id=player_id, dice_result=roll_result)
+                    board_movable = self.board.get_from_board(
+                        player_id=player_id,
+                        dice_result=roll_result)
+
+                    # print(f"{start_pool_movable=}")
+                    # print(f"{board_movable=}")
+
+                    # to_choose = {**start_pool_movable, **board_movable}
+                    # print(f"{to_choose=}")
+
+                    if start_pool_movable or board_movable:
+                        self.players_turn = player_id
+                        self.start_pool_options = start_pool_movable
+                        self.non_start_pool_options = board_movable
+                        # self.players_options = to_choose
+
+                        return
+
+                    # if start_pool_movable and board_movable:
+                    #
+                    #     for token_id, token in start_pool_movable.items():
+                    #
+                    #         t = choose(self.board, self.log, player_id, 1,
+                    #                    token_id)
+                    #
+                    #         if t["won"]:
+                    #             already_won.add(player_id)
+                    #
+                    #         break
+                    #
+                    # elif start_pool_movable:
+                    #
+                    #     for token_id, token in start_pool_movable.items():
+                    #         t = choose(self.board, self.log, player_id, 1,
+                    #                    token_id)
+                    #
+                    #         if t["won"]:
+                    #             already_won.add(player_id)
+                    #         break
+                    #
+                    # elif board_movable:
+                    #
+                    #     for token_id, token in board_movable.items():
+                    #
+                    #         t = choose(self.board, self.log, player_id,
+                    #                    roll_result,
+                    #                    token_id)
+                    #
+                    #         if t["won"]:
+                    #             already_won.add(player_id)
+                    #         break
+
+
+
 
     def auto_driver(
             self,
@@ -492,7 +601,7 @@ class Level:
 
                         for token_id, token in start_pool_movable.items():
 
-                            t = choose(self.board, self.log, player_id, 1,
+                            t = choose(self.board, self.log, player_id,
                                        token_id)
 
                             if t["won"]:
@@ -503,7 +612,7 @@ class Level:
                     elif start_pool_movable:
 
                         for token_id, token in start_pool_movable.items():
-                            t = choose(self.board, self.log, player_id, 1,
+                            t = choose(self.board, self.log, player_id,
                                        token_id)
 
                             if t["won"]:
@@ -515,7 +624,6 @@ class Level:
                         for token_id, token in board_movable.items():
 
                             t = choose(self.board, self.log, player_id,
-                                       roll_result,
                                        token_id)
 
                             if t["won"]:
@@ -539,14 +647,33 @@ def generate_start():
     return level.get_log()
 
 
-def choose(board, log, player_id, roll_result, token_id):
+def choose(board, log, player_id,  token_id):
     """
     wrapper for moving token
 
     """
 
+    last_log = log[-1]
+    if last_log["action"] == "roll":
+        pass
+    else:
+        print("errr")
+        return
+
+    roll_result = last_log["dice_result"]
+
+    # if in start pool then 1
+
+    token = board.level_state["players"][player_id]["tokens"][token_id]
+
+    if token.get_pool() == get_pool("start"):
+        roll_result = 1
+
+
     t = board.move_token(player_id=player_id, token_id=token_id,
                          step=roll_result)
+
+
 
     log.append(move_token(
         player=player_id,
@@ -572,11 +699,87 @@ def generate_whole_game():
     level = Level()
     return level.get_log()
 
+def generate_as_much_as_you_can():
+    # user creates level
+    # order is determined
+
+    level = Level()
+    for i in level.get_log():
+        print(i)
+
+    ret_log = level.get_log()
+    to_choose = {**level.start_pool_options, **level.non_start_pool_options}
+
+    # user needs to make a choice
+
+    last_log = level.get_log()[-1]
+    if last_log["action"] == "roll":
+        pass
+    else:
+        print("errr")
+        return
+
+    player = last_log['player']
+    dice_result = last_log["dice_result"]
+
+
+    for token_id,  token in to_choose.items():
+
+        choose(level.board, level.get_log(), player,  token_id)
+
+        break
+
+    print()
+    for i in level.get_log():
+        print(i)
+    print()
+
+    # now again
+
+    level = Level(log=level.get_log())
+
+    for i in level.get_log():
+        print(i)
+
+    # user choice again
+
+    last_log = level.get_log()[-1]
+    if last_log["action"] == "roll":
+        pass
+    else:
+        print("errr")
+        return
+
+    player = last_log['player']
+    dice_result = last_log["dice_result"]
+
+    to_choose = {**level.start_pool_options, **level.non_start_pool_options}
+
+    for token_id,  token in to_choose.items():
+
+        choose(level.board, level.get_log(), player,  token_id)
+
+        break
+
+    print()
+    for i in level.get_log():
+        print(i)
+    print()
+
+
+    return level.get_log()
+
 
 def main():
-    log = generate_whole_game()
-    for i in log:
-        print(i)
+    # log = generate_whole_game()
+    # for i in log:
+    #     print(i)
+
+    log = generate_as_much_as_you_can()
+
+
+    # self.players_turn = player_id
+    # self.players_options = to_choose
 
 
 if __name__ == '__main__':
