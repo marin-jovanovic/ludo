@@ -1,11 +1,12 @@
 from backend.api.cqrs_q.users import get_users_in_level
 
 
-def __is_game_full(game_name):
+def __is_game_full_when_this_user_will_be_added(game_name):
     r = __get_game(game_name)
     if r["status"]:
         game_o = r["payload"]
     else:
+        print("err get game")
         return r
 
     capacity = game_o.capacity
@@ -14,9 +15,11 @@ def __is_game_full(game_name):
     if r["status"]:
         currently_active_players = len(r["payload"])
     else:
+        print("err get users")
         return r
 
-    return {"status": True, "payload": capacity <= currently_active_players}
+    print(f"{capacity=} {currently_active_players=}")
+    return {"status": True, "payload": capacity < currently_active_players}
 
 
 def __check_game_name_exists(name):
@@ -31,6 +34,7 @@ def __is_empty(game_name):
     if r["status"]:
         game_o = r["payload"]
     else:
+        print("err get game")
         return r
 
     r = len(
@@ -49,6 +53,6 @@ def __get_game(game_name):
     try:
         return {"status": True,
                 "payload":
-                    _get_level_model().objects.get(name=game_name)}
+                    _get_level_model().objects.get(name=game_name, is_active=True)}
     except _get_level_model().DoesNotExist:
         return {"status": False, "payload": "game not exist"}

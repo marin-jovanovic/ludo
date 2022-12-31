@@ -5,6 +5,11 @@ from backend.api.model.model_getters import _get_player_order_model
 
 
 def add_to_order(username, game_name):
+    """
+
+
+    """
+
     r = __get_game(game_name)
     if not r["status"]:
         print("get game err")
@@ -16,8 +21,8 @@ def add_to_order(username, game_name):
     max_index = 0
     for i in last_index:
         if i.player.username == username:
+            print("err already in add to order")
             return {"status": False, "debug": "already in add to order"}
-        print(i.join_index, i.player)
         max_index += 1
 
     r = get_user(username)
@@ -35,4 +40,3 @@ def add_to_order(username, game_name):
     g.save()
 
     return {"status": True}
-    # pass

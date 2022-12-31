@@ -6,13 +6,13 @@ from backend.api.cqrs_c.game_log import add_entry
 from backend.api.cqrs_c.player_order import add_to_order
 from backend.api.cqrs_c.users import make_user_game_creator, \
     make_user_available_to_play, __make_user_join
-from backend.api.cqrs_q.game import __is_game_full, __check_game_name_exists, \
+from backend.api.cqrs_q.game import __is_game_full_when_this_user_will_be_added, __check_game_name_exists, \
     __is_empty, __get_game
 from backend.api.cqrs_q.users import get_user, get_users_in_level
 
 from backend.api.model.level import Level, \
     game_created_notifier, games_notifier, game_left_notifier, \
-    game_join_notifier, _get_level_model
+    game_join_notifier, _get_level_model, is_integrity_rule_ok
 from backend.api.model.game_log import GameLog
 from backend.api.model.c_q import is_any_entry_present, get_entries, \
     get_player_order
@@ -21,37 +21,57 @@ from backend.api.model.player import get_user_model
 
 
 def create_game(creator_username, name, capacity):
+    """
+    model users
+        set game_role
+        set currently_playing_id
+
+    model level
+    * create new
+
+    player order
+    * do sth
+
+    """
+
     print("create game")
+
     capacity = int(capacity)
     if capacity <= 1:
+        print("err capacity <= 1")
         return {"status": False, "payload": "capacity must be greater than 1"}
 
     r = get_user(creator_username)
     if not r["status"]:
+        print("err no user")
         return r
 
-    r = __check_game_name_exists(name)
-    if r["payload"]:
-        return {"status": False, "payload": "duplicate game name"}
+    r = is_integrity_rule_ok(name)
+    if not r["status"]:
+        print("err integrity rule")
+        return {"status": False, "payload": "duplicate live level name"}
 
     r = make_user_game_creator(creator_username)
     if not r["status"]:
+        print("err user creator err")
         return r
 
     g = Level(name=name, capacity=capacity)
     g.save()
+    print("game created")
 
-    r = add_to_order(creator_username, name)
-    if not r["status"]:
-        return r
-
-    # r = add_entry(name, creator_username, None, None, "hello world")
+    # todo model: player order
+    # r = add_to_order(creator_username, name)
     # if not r["status"]:
     #     return r
 
     msg = json.dumps({
         "source": "game created",
-        "name": g.id, "capacity": g.capacity})
+        "name": g.name,
+        "capacity": g.capacity
+    })
+
+    print( __is_game_full_when_this_user_will_be_added(name))
 
     game_created_notifier.notify(msg)
     games_notifier.notify(json.dumps(get_levels()))
@@ -59,29 +79,30 @@ def create_game(creator_username, name, capacity):
     return __assign_user_currently_playing(creator_username, name)
 
 
-def leave_game(game_name, username):
+def leave_level(game_name, username):
     r = make_user_available_to_play(username)
     if not r["status"]:
-        print("err make_user_available_to_play")
+        print("leave_game err make_user_available_to_play")
         return r
 
     r = __free_user_currently_playing(username)
     if not r["status"]:
-        print("err __free_user_currently_playing")
+        print("leave_game err __free_user_currently_playing")
         return r
 
     r = __is_empty(game_name)
     if r["status"]:
         f_is_empty = r["payload"]
     else:
-        print("err __is_empty")
+        print("leave_game err __is_empty")
         return r
 
     if f_is_empty:
-        print("is empty")
-        r = __delete_game(game_name)
-        if not r['status']:
-            return r
+        print("leave_game level is empty")
+
+        level = _get_level_model().objects.get(name=game_name, is_active=True)
+        level.is_active = False
+        level.save()
 
     msg = json.dumps(
         {"source": "leave game", "name": game_name, "who left": username})
@@ -91,8 +112,11 @@ def leave_game(game_name, username):
 
 
 def join_game(game_name, username):
+
+
     r = add_to_order(username, game_name)
     if not r["status"]:
+        print("err add_to_order")
         return r
 
     r = __get_game(game_name)
@@ -100,16 +124,21 @@ def join_game(game_name, username):
         print("err get game")
         return r
 
-    r = __is_game_full(game_name)
+    r = __is_game_full_when_this_user_will_be_added(game_name)
     if not r["status"]:
+        print("err __is_game_full")
         return r
+
+    # logic
 
     r = __make_user_join(username)
     if not r["status"]:
+        print("err __make_user_join")
         return r
 
     r = __assign_user_currently_playing(username, game_name)
     if not r["status"]:
+        print("err __assign_user_currently_playing")
         return r
 
     msg = json.dumps(
@@ -324,13 +353,15 @@ def in_which_level_is_user(username):
 
 
 def __delete_game(name):
-    if __check_game_name_exists(name):
-        return {
-            "status": True,
-            "payload": _get_level_model().objects.filter(name=name).delete()
-        }
+    return {"status": False, "debug": "can not delete in this impl"}
 
-    return {"status": False, "debug": "game not exist"}
+    # if __check_game_name_exists(name):
+    #     return {
+    #         "status": True,
+    #         "payload": _get_level_model().objects.filter(name=name).delete()
+    #     }
+    #
+    # return {"status": False, "debug": "game not exist"}
 
 
 def __free_user_currently_playing(username):

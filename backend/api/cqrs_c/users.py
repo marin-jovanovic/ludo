@@ -172,6 +172,11 @@ def make_user_available_to_play(username):
 
 
 def make_user_game_creator(username):
+    """
+    user_o.game_role = role
+    user_o.save()
+    """
+
     # fixme what if he is currently in another game?
 
     r = get_user(username)

@@ -14,15 +14,36 @@ class Level(models.Model):
     # id
 
     # alternate primary key
-    # name = models.TextField(unique=True)
+
+    """
+    user creates game
+    game is done -> set is_active flag
+    user creates game with same name -> all ok
+
+    integrity rule
+        name + is_active=True = unique
+        name
+
+    """
+    name = models.TextField(unique=False)
+
     capacity = models.IntegerField()
 
     is_active = models.BooleanField(default=True)
 
 
-def _get_level_model():
-    return "api.level"
+def is_integrity_rule_ok(name):
+    """
+    integrity rule
 
+    return True if name is ok
+    """
+
+    return {
+        "status": not _get_level_model().objects.filter(name=name, is_active=True).exists()
+    }
+
+def _get_level_model():
     return apps.get_model(get_level_model_as_string())
 
 

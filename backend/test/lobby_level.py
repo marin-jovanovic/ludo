@@ -5,86 +5,6 @@ from backend.config import get_config
 from backend.test.auth import create_profile, login, delete_profile
 
 
-def leave_game(url, username, access_token, level_id):
-
-    t = requests.put(
-        f"{url}/{level_id}",
-        headers={
-            "Authorization": encode_username_access_token(
-                type_="Custom",
-                username=username,
-                access_token=access_token
-            )        },
-        data={
-            "leave": True,
-        },
-    )
-
-    print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
-    return json.loads(t.text)
-
-
-def join_game(username, access_token, game_name):
-    url = "http://localhost:8000/game"
-
-    t = requests.put(
-        f"{url}/{game_name}",
-        headers={
-            "Authorization": f"Custom {username}:{access_token}"
-        },
-        data={
-            "join": True,
-        },
-        verify=False
-    )
-
-    print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
-    return json.loads(t.text)
-
-
-def create_1():
-    username = "test"
-    access_token = "test"
-    game_id = "gn1"
-    capacity = 2
-    create_game(username, access_token, game_id, capacity)
-
-
-def leave_1():
-    username = "test"
-    access_token = "test"
-    game_id = "gn1"
-    capacity = 2
-    leave_game(username, access_token, game_id)
-
-
-def join_2():
-    username = "a"
-    access_token = "a"
-    game_id = "gn1"
-    join_game(username, access_token, game_id)
-
-
-def leave_2():
-    username = "a"
-    access_token = "a"
-    game_id = "gn1"
-    leave_game(username, access_token, game_id)
-
-
-def join_3():
-    username = "b"
-    access_token = "b"
-    game_id = "gn1"
-    join_game(username, access_token, game_id)
-
-
-def leave_3():
-    username = "b"
-    access_token = "b"
-    game_id = "gn1"
-    leave_game(username, access_token, game_id)
-
 
 def get_random_string(length):
     # choose from all lowercase letter
@@ -95,25 +15,7 @@ def get_random_string(length):
     return result_str
 
 
-def main():
-    username = "b"
-    access_token = "b"
-    game_id = "gn1,"
-    capacity = 2
-    create_game(username, access_token, game_id, capacity)
-
-    create_1()
-    join_2()
-    join_3()
-    leave_2()
-    leave_1()
-    leave_3()
-
-    username = "test"
-    access_token = "test"
-    get_games(username, access_token)
-    #
-    # # todo capacity = ful, adding new player?
+# # todo capacity = ful, adding new player?
 
 
 import json
@@ -161,6 +63,42 @@ def create_game(url, username, access_token, level_name, capacity):
     print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
     return json.loads(t.text)
 
+def leave_game(url, username, access_token, level_id):
+
+    t = requests.put(
+        f"{url}/{level_id}",
+        headers={
+            "Authorization": encode_username_access_token(
+                type_="Custom",
+                username=username,
+                access_token=access_token
+            )
+        },
+        data={
+            "leave": True,
+        },
+    )
+
+    print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
+    return json.loads(t.text)
+
+def join_game(url, username, access_token, game_name):
+
+    t = requests.put(
+        f"{url}/{game_name}",
+        headers={
+            "Authorization": encode_username_access_token(
+                type_="Custom",
+                username=username,
+                access_token=access_token
+            )        },
+        data={
+            "join": True,
+        },
+    )
+
+    print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
+    return json.loads(t.text)
 
 class TestMain(unittest.TestCase):
 
@@ -229,7 +167,7 @@ class TestMain(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-
+        return
         cls.load_config(cls)
 
         for i in range(cls.number_of_players):
@@ -311,6 +249,153 @@ class TestMain(unittest.TestCase):
                 is_found = True
 
         self.assertEqual(True, is_found)
+
+    def test_create_one_level(self):
+
+        username = self.players[0]["username"]
+        access_token = self.players[0]["access token"]
+
+
+        # # return ok
+        r = create_game(
+            url=self.level_url,
+            username=username,
+            access_token=access_token,
+            level_name="level_name",
+            capacity=2
+        )
+
+        # user role not empty
+        r = create_game(
+            url=self.level_url,
+            username=username,
+            access_token=access_token,
+            level_name="level_name",
+            capacity=2
+        )
+
+        # user role not empty
+        r = create_game(
+            url=self.level_url,
+            username=username,
+            access_token=access_token,
+            level_name="level_name 2",
+            capacity=2
+        )
+
+        username = self.players[1]["username"]
+        access_token = self.players[1]["access token"]
+
+        # duplicate name
+        r = create_game(
+            url=self.level_url,
+            username=username,
+            access_token=access_token,
+            level_name="level_name",
+            capacity=2
+        )
+
+        # all good
+        r = create_game(
+            url=self.level_url,
+            username=username,
+            access_token=access_token,
+            level_name="level_name 2",
+            capacity=2
+        )
+
+    def test_create_and_leave(self):
+        username = self.players[0]["username"]
+        access_token = self.players[0]["access token"]
+
+        level_name = "x"
+        capacity = 2
+
+        r = create_game(
+            url=self.level_url,
+            username=username,
+            access_token=access_token,
+            level_name=level_name,
+            capacity=capacity
+        )
+
+        r =  leave_game(
+            url=self.level_url,
+            username=username,
+            access_token=access_token,
+            level_id=level_name
+        )
+
+    def test_join_level(self):
+        username = self.players[0]["username"]
+        access_token = self.players[0]["access token"]
+
+        level_name = "x"
+        capacity = 2
+
+        r = create_game(
+            url=self.level_url,
+            username=username,
+            access_token=access_token,
+            level_name=level_name,
+            capacity=capacity
+        )
+
+        return
+
+        username = self.players[1]["username"]
+        access_token = self.players[1]["access token"]
+
+        r = join_game(
+            url = self.level_url,
+            username = username,
+            access_token = access_token,
+            game_name = level_name,
+        )
+
+        # try adding third player, this needs to fail
+        username = self.players[2]["username"]
+        access_token = self.players[2]["access token"]
+
+        r = join_game(
+            url = self.level_url,
+            username = username,
+            access_token = access_token,
+            game_name = level_name,
+        )
+
+        # return
+
+        # remove 2nd
+        username = self.players[1]["username"]
+        access_token = self.players[1]["access token"]
+        r =  leave_game(
+            url=self.level_url,
+            username=username,
+            access_token=access_token,
+            level_id=level_name
+        )
+
+        # try remove 3rd
+        username = self.players[2]["username"]
+        access_token = self.players[2]["access token"]
+        r =  leave_game(
+            url=self.level_url,
+            username=username,
+            access_token=access_token,
+            level_id=level_name
+        )
+
+        username = self.players[0]["username"]
+        access_token = self.players[0]["access token"]
+
+        r =  leave_game(
+            url=self.level_url,
+            username=username,
+            access_token=access_token,
+            level_id=level_name
+        )
+
 
     def test_create_level(self):
 

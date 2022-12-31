@@ -41,6 +41,7 @@ class JumperMiddleware:
 
         if not authorization_header:
             rejection["debug"] = "no authorization header"
+            print("ret aut header")
             return JsonResponse(rejection)
 
         # print(f"{request.headers=}")
@@ -59,6 +60,7 @@ class JumperMiddleware:
             print("digest; not implemented")
 
             rejection["debug"] = "not implemented"
+            print("ret digest")
             return JsonResponse(rejection)
 
         elif auth_type == 'Create':
@@ -68,12 +70,14 @@ class JumperMiddleware:
 
             if not r["status"]:
                 rejection["payload"] = r
+                print("ret create user")
                 return JsonResponse(rejection)
 
             r = auth_user(username, password)
 
             if not r["status"]:
                 rejection["payload"] = r
+                print("ret auth user")
                 return JsonResponse(rejection)
 
             access_token = r["payload"]["access_token"]
@@ -86,6 +90,7 @@ class JumperMiddleware:
 
             if not r["status"]:
                 rejection["payload"] = r
+                print("ret auth user")
                 return JsonResponse(rejection)
 
             access_token = r["payload"]["access_token"]
@@ -97,6 +102,7 @@ class JumperMiddleware:
 
             if not r["status"]:
                 rejection["payload"] = r
+                print("ret access token")
                 return JsonResponse(rejection)
 
         request.username = username

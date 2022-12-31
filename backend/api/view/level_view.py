@@ -3,7 +3,7 @@ import urllib
 from django.http import JsonResponse
 from rest_framework.views import APIView
 
-from backend.api.cqrs_c.game import create_game, leave_game, join_game, \
+from backend.api.cqrs_c.game import create_game, leave_level, join_game, \
     get_levels, in_which_level_is_user
 from backend.api.view.comm import get_auth_ok_response_template
 
@@ -61,6 +61,7 @@ class LevelView(APIView):
 
     # todo observers
 
+
     def post(self, request, name):
         """
         max 1 active game per player
@@ -94,13 +95,12 @@ class LevelView(APIView):
 
         response = get_auth_ok_response_template(request)
 
+        print(f"{request.data=}")
+
         if "leave" in request.data:
-            print("leave")
-            response["payload"] = leave_game(name, username)
-            print("res payload", response)
+            response["payload"] = leave_level(name, username)
 
         if "join" in request.data:
-            print("join")
             response["payload"] = join_game(name, username)
 
         return JsonResponse(response)
