@@ -64,6 +64,8 @@ class LevelView(APIView):
 
     def post(self, request, name):
         """
+        create level
+
         max 1 active game per player
 
 
@@ -73,13 +75,15 @@ class LevelView(APIView):
 
         creator_username = request.username
 
-        unquoted_body = urllib.parse.unquote(request.body)
-        body = urllib.parse.parse_qs(unquoted_body)
-
-        try:
-            capacity = body["capacity"][0]
-        except KeyError:
-            capacity = request.data["capacity"]
+        # unquoted_body = urllib.parse.unquote(request.body)
+        # body = urllib.parse.parse_qs(unquoted_body)
+        #
+        # # todo body data
+        #
+        # try:
+        #     capacity = body["capacity"][0]
+        # except KeyError:
+        capacity = request.data["capacity"]
 
         print(f"{creator_username=}")
         print(f"{capacity=}")
@@ -90,7 +94,8 @@ class LevelView(APIView):
         return JsonResponse(response)
 
     def put(self, request, name):
-        # join / leave game
+        """join or leave level"""
+
         username = request.username
 
         response = get_auth_ok_response_template(request)

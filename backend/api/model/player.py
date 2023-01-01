@@ -4,7 +4,7 @@ from django.db import models
 from backend.api.model.level import get_level_model_as_string
 
 
-class Users(models.Model):
+class User(models.Model):
     """
     when user creates game
     game_role = "creator"
@@ -30,12 +30,8 @@ class Users(models.Model):
 
 
 def get_user_model():
-    # return get_user_model_as_string()
-    # return "api.player"
     return apps.get_model(get_user_model_as_string())
 
 
 def get_user_model_as_string():
-    # return apps.get_model("api.users")
-
-    return "api.users"
+    return "api.user"

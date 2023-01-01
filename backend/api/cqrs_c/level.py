@@ -9,6 +9,7 @@ from backend.api.cqrs_c.users import make_user_game_creator, \
 from backend.api.cqrs_q.level import __is_game_full_when_this_user_will_be_added,  \
     is_level_empty, __get_game
 from backend.api.cqrs_q.users import get_user, get_users_in_level
+from backend.api.game.game import create_game_api
 from backend.api.game.order import determine_order
 from backend.api.game.resources import get_config
 
@@ -37,7 +38,7 @@ def in_which_level_is_user(username):
     return {"status": True, "payload": g}
 
 
-def create_game(creator_username, name, capacity):
+def create_game(creator_username, level_name, capacity):
     """
     model users
         set game_role
@@ -62,9 +63,9 @@ def create_game(creator_username, name, capacity):
         return r
 
     # duplicate live level name
-    r = is_integrity_rule_ok(name)
+    r = is_integrity_rule_ok(level_name)
     if not r["status"]:
-        print("err integget_userrity rule")
+        print("err is_integrity_rule_ok duplicate live level name")
         return {"status": False, "payload": "duplicate live level name"}
 
     # game_role
@@ -74,20 +75,77 @@ def create_game(creator_username, name, capacity):
         return r
 
     # create level
-    g = Level(name=name, capacity=capacity)
+    g = Level(name=level_name, capacity=capacity)
     g.save()
     print("level created")
 
-    # todo model: player order
-    # r = add_to_order(creator_username, name)
-    # if not r["status"]:
-    #     return r
 
     # player order object
-    r = player_order_create_entry(creator_username, name)
+    r = player_order_create_entry(creator_username, level_name)
     if not r["status"]:
         print("err add_to_order")
         return r
+
+    r =  user_set_currently_playing_id(creator_username, level_name)
+    if not r["status"]:
+        return r
+
+    r = create_game_api(capacity=capacity)
+
+    if not r["status"]:
+        return r
+
+    for i in r["payload"]:
+        i["game"] = level_name
+
+        add_entry(**i)
+
+    # def driver(capacity):
+    #
+    #     # todo
+    #     print("determine users")
+    #
+    #     # todo this is joining order, not playing order, change this
+    #     order = get_player_order(level_name)
+    #     print(f"{order=}")
+    #     if not order["status"]:
+    #         print("get game err")
+    #         return order
+    #     else:
+    #         # join_index -> username
+    #         o_o = order["payload"]
+    #
+    #     print(80 * "-")
+    #     print(o_o)
+    #
+    #     json = JSONRenderer().render(o_o)
+    #     print(f"{json=}")
+    #
+    #     game_conf = get_config()
+    #
+    #     order = determine_order(
+    #         capacity,
+    #         game_conf['choice: highest; order'],
+    #         game_conf['choice: clockwise; anticlockwise'],
+    #         game_conf['flag: tie in order'],
+    #     )
+    #
+    #     for i in order:
+    #         print(f"{i=}")
+    #
+    #     for i in order:
+    #         print(f"befor {i=}")
+    #         i["game"] = level_name
+    #         print(f"after {i=}")
+    #
+    #         r = add_entry(**i)
+    #         if not r["status"]:
+    #             print("err radd")
+    #             return r
+
+    # r = driver(capacity)
+
+    print(__is_game_full_when_this_user_will_be_added(level_name))
 
     msg = json.dumps({
         "source": "game created",
@@ -95,66 +153,16 @@ def create_game(creator_username, name, capacity):
         "capacity": g.capacity
     })
 
-    print( __is_game_full_when_this_user_will_be_added(name))
-
     game_created_notifier.notify(msg)
     games_notifier.notify(json.dumps(get_active_levels()))
 
-    r =  user_set_currently_playing_id(creator_username, name)
-    if not r["status"]:
-        return r
+    print(f"{g.id=}")
 
-    # dice log
+    return {"status": True,
+            "levelId": g.id
+            }
 
-    print("dice log")
-
-    def driver(capacity):
-
-        # todo
-        print("determine users")
-
-        # todo this is joining order, not playing order, change this
-        order = get_player_order(name)
-        print(f"{order=}")
-        if not order["status"]:
-            print("get game err")
-            return order
-        else:
-            # join_index -> username
-            o_o = order["payload"]
-
-        print(80 * "-")
-        print(o_o)
-
-        json = JSONRenderer().render(o_o)
-        print(f"{json=}")
-
-        game_conf = get_config()
-
-        order = determine_order(
-            capacity,
-            game_conf['choice: highest; order'],
-            game_conf['choice: clockwise; anticlockwise'],
-            game_conf['flag: tie in order'],
-        )
-
-        for i in order:
-            print(f"{i=}")
-
-        for i in order:
-            print(f"befor {i=}")
-            i["game"] = name
-            print(f"after {i=}")
-
-            r = add_entry(**i)
-            if not r["status"]:
-                print("err radd")
-                return r
-
-    r = driver(capacity)
-
-
-    return r
+    # return r
 
 
 def get_player_order(game_name):

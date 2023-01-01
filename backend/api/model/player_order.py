@@ -2,10 +2,11 @@ from django.db import models
 
 from backend.api.model.player import get_user_model_as_string
 from backend.api.model.level import _get_level_model
+from django.apps import apps
 
 
 class PlayerOrder(models.Model):
-    game_id = models.ForeignKey(
+    level_id = models.ForeignKey(
         _get_level_model(),
         on_delete=models.SET_NULL,
         null=True
@@ -15,7 +16,7 @@ class PlayerOrder(models.Model):
 
     turn_index = models.IntegerField(null=True)
 
-    player = models.ForeignKey(
+    user = models.ForeignKey(
         get_user_model_as_string(),
         on_delete=models.SET_NULL,
         null=True
@@ -28,5 +29,10 @@ class PlayerOrder(models.Model):
     index_left = models.IntegerField(null=True)
 
 
+def get_player_order_model():
+    return apps.get_model(get_player_order_model_as_string())
 
 
+def get_player_order_model_as_string():
+
+    return "api.playerOrder"

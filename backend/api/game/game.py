@@ -405,10 +405,6 @@ class Level:
         if log:
             self.log = log
 
-
-
-
-
         else:
             self.log = determine_order(
                 game_conf['number of players'],
@@ -457,6 +453,16 @@ class Level:
         self.players_turn = None
         self.start_pool_options  = {}
         self.non_start_pool_options = {}
+
+        print(f"{bool(log)=}")
+
+        if log:
+
+            print(f"{log[-1]=}")
+
+        if log and log[-1]["action"] == "roll":
+            print("action not decided")
+            return
 
         self.manual_driver(game_conf, playing_order)
         # self.auto_driver(game_conf, playing_order)
@@ -699,7 +705,10 @@ def generate_whole_game():
     level = Level()
     return level.get_log()
 
-def generate_as_much_as_you_can():
+
+def generate_next():
+    """loads level and generates log for as much as it can"""
+
     # user creates level
     # order is determined
 
@@ -707,25 +716,38 @@ def generate_as_much_as_you_can():
     for i in level.get_log():
         print(i)
 
-    ret_log = level.get_log()
+    return level
+
+def player_chose():
+    pass
+
+
+def generate_as_much_as_you_can():
+
+    level = generate_next()
+
+    # send log diff and
+    # display this options to user
     to_choose = {**level.start_pool_options, **level.non_start_pool_options}
 
     # user needs to make a choice
 
     last_log = level.get_log()[-1]
-    if last_log["action"] == "roll":
-        pass
-    else:
-        print("errr")
+    if last_log["action"] != "roll":
+        print("errr last log entry is not roll")
         return
 
     player = last_log['player']
-    dice_result = last_log["dice_result"]
 
+    for token_id, _ in to_choose.items():
+        # todo they choose first option
 
-    for token_id,  token in to_choose.items():
-
-        choose(level.board, level.get_log(), player,  token_id)
+        choose(
+            board=level.board,
+            log=level.get_log(),
+            player_id=player,
+            token_id=token_id
+        )
 
         break
 
@@ -781,6 +803,93 @@ def main():
     # self.players_turn = player_id
     # self.players_options = to_choose
 
+def create_game_api(capacity):
+    """order is guaranteed"""
+
+    # todo add config
+
+    level = Level()
+
+    for i in level.get_log():
+        print(i)
+
+    return {
+        "status": True,
+        "payload": level.get_log()
+    }
+
+def get_log_api(log):
+    """"""
+    # todo i think this exists somewhere else and logic is ok
+
+    # preprocess if loaded from db
+    for i in log:
+        for j in ["id", "game_id", "instruction_id", "performed"]:
+            if j in i:
+                del i[j]
+
+    level = Level(log=log)
+
+    to_choose = {**level.start_pool_options, **level.non_start_pool_options}
+
+    # user needs to make a choice
+
+    last_log = level.get_log()[-1]
+    if last_log["action"] != "roll":
+        print("errr last log entry is not roll")
+        return
+
+    # todo this needs to be renamed to user
+    player = last_log['player']
+
+
+
+
+def add_entry_to_log(log, player_id, token_id):
+    """
+    player_id wants to move token_id
+
+    check if they can do that (if that move is legal)
+
+    does not handle security part
+    """
+
+    for i in log:
+        print(i)
+
+    print("----")
+
+
+    # preprocess if loaded from db
+    for i in log:
+        for j in ["id", "game_id", "instruction_id", "performed"]:
+            if j in i:
+                del i[j]
+
+    for i in log:
+        print(i)
+
+    print("----")
+
+    # todo eating, game won, game lost, ...
+
+    level = Level(log=log)
+
+    print("pre")
+    for i in level.get_log():
+        print(i)
+    print()
+
+    # choose(
+    #     board=level.board,
+    #     log=level.get_log(),
+    #     player_id=player_id,
+    #     token_id=token_id
+    # )
+    #
+    # print("post")
+    # for i in level.get_log():
+    #     print(i)
 
 if __name__ == '__main__':
     main()

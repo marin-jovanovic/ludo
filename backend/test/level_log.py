@@ -136,10 +136,31 @@ def get_log(url, username, access_token):
     print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
     return json.loads(t.text)
 
+def add_to_log(url, username, access_token, token_id):
+    t = requests.put(
+        f"{url}",
+        headers={
+            "Authorization": encode_username_access_token(
+                type_="Custom",
+                username=username,
+                access_token=access_token
+            )
+        },
+        data={
+            "tokenId": token_id
+        }
+    )
+
+    print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
+    return json.loads(t.text)
+
+
 
 class TestMain(unittest.TestCase):
 
     def construct_log_path(self, level_id):
+        level_id = str(level_id)
+
         config = get_config()
         return self.base + "/" + config["levelPath"] + "/" + level_id + "/" + config["levelLogPath"]
 
@@ -238,297 +259,6 @@ class TestMain(unittest.TestCase):
 
         self.assertEqual(True, True)
 
-    def test_get_all_levels(self):
-
-        username = self.players[0]["username"]
-        access_token = self.players[0]["access token"]
-
-        r = get_games(
-            url=self.level_url,
-            username=username,
-            access_token=access_token,
-        )
-        self.assertEqual(3, len(r["auth"]))
-        self.assertEqual(True, r["auth"]["status"])
-        self.assertEqual(username, r["auth"]["username"])
-        self.assertEqual(access_token, r["auth"]["accessToken"])
-
-        self.assertEqual(3, len(r["payload"]))
-        self.assertEqual(True, r["payload"]["status"])
-        self.assertEqual(True, all(
-            [
-                [i in ["capacity", "name", "players"] for i in level_meta]
-                for level_id, level_meta in r["payload"]["levels"].items()
-            ]
-        ))
-
-        for level_id, level_meta in r["payload"]["levels"].items():
-
-            self.assertEqual(True, isinstance(level_meta["capacity"], int))
-            self.assertEqual(True, isinstance(level_meta["name"], str))
-            self.assertEqual(True, isinstance(level_meta["players"], list))
-
-            capacity = level_meta["capacity"]
-            players = level_meta["players"]
-
-            if len(players) > capacity:
-                self.assertEqual(True, False)
-
-        in_level = r["payload"]["inLevel"]
-
-        if not in_level:
-            return
-
-        is_found = False
-
-        for level_id, level_meta in r["payload"]["levels"].items():
-
-            players = level_meta["players"]
-
-            if username in players:
-                if is_found:
-                    """can not be in multiple levels at the same time"""
-                    self.assertEqual(True, False)
-
-                is_found = True
-
-        self.assertEqual(True, is_found)
-
-    def test_create_one_level(self):
-
-        username = self.players[0]["username"]
-        access_token = self.players[0]["access token"]
-
-        # # return ok
-        r = create_game(
-            url=self.level_url,
-            username=username,
-            access_token=access_token,
-            level_name="level_name",
-            capacity=2
-        )
-
-        # user role not empty
-        r = create_game(
-            url=self.level_url,
-            username=username,
-            access_token=access_token,
-            level_name="level_name",
-            capacity=2
-        )
-
-        # user role not empty
-        r = create_game(
-            url=self.level_url,
-            username=username,
-            access_token=access_token,
-            level_name="level_name 2",
-            capacity=2
-        )
-
-        username = self.players[1]["username"]
-        access_token = self.players[1]["access token"]
-
-        # duplicate name
-        r = create_game(
-            url=self.level_url,
-            username=username,
-            access_token=access_token,
-            level_name="level_name",
-            capacity=2
-        )
-
-        # all good
-        r = create_game(
-            url=self.level_url,
-            username=username,
-            access_token=access_token,
-            level_name="level_name 2",
-            capacity=2
-        )
-
-    def test_create_and_leave(self):
-        username = self.players[0]["username"]
-        access_token = self.players[0]["access token"]
-
-        level_name = "x"
-        capacity = 2
-
-        r = create_game(
-            url=self.level_url,
-            username=username,
-            access_token=access_token,
-            level_name=level_name,
-            capacity=capacity
-        )
-
-        r =  leave_game(
-            url=self.level_url,
-            username=username,
-            access_token=access_token,
-            level_id=level_name
-        )
-
-    def test_join_level_simple_same_owner(self):
-        username = self.players[0]["username"]
-        access_token = self.players[0]["access token"]
-
-        level_name = "x"
-        capacity = 2
-
-        r = create_game(
-            url=self.level_url,
-            username=username,
-            access_token=access_token,
-            level_name=level_name,
-            capacity=capacity
-        )
-
-        # throw err
-        r = join_game(
-            url=self.level_url,
-            username=username,
-            access_token=access_token,
-            game_name=level_name,
-            # capacity=capacity
-        )
-
-    def test_join_level_simple_same_owner(self):
-        username = self.players[1]["username"]
-        access_token = self.players[1]["access token"]
-
-        level_name = "x"
-        capacity = 2
-
-        # throw err
-        r = join_game(
-            url=self.level_url,
-            username=username,
-            access_token=access_token,
-            game_name=level_name,
-            # capacity=capacity
-        )
-
-    def test_join_level(self):
-        username = self.players[0]["username"]
-        access_token = self.players[0]["access token"]
-
-        level_name = "x"
-        capacity = 2
-
-        r = create_game(
-            url=self.level_url,
-            username=username,
-            access_token=access_token,
-            level_name=level_name,
-            capacity=capacity
-        )
-
-        # return
-
-        username = self.players[1]["username"]
-        access_token = self.players[1]["access token"]
-
-        r = join_game(
-            url = self.level_url,
-            username = username,
-            access_token = access_token,
-            game_name = level_name,
-        )
-
-        # try adding third player, this needs to fail
-        username = self.players[2]["username"]
-        access_token = self.players[2]["access token"]
-
-        r = join_game(
-            url = self.level_url,
-            username = username,
-            access_token = access_token,
-            game_name = level_name,
-        )
-
-        # return
-
-        # remove 2nd
-        username = self.players[1]["username"]
-        access_token = self.players[1]["access token"]
-        r =  leave_game(
-            url=self.level_url,
-            username=username,
-            access_token=access_token,
-            level_id=level_name
-        )
-
-        # try remove 3rd
-        username = self.players[2]["username"]
-        access_token = self.players[2]["access token"]
-        r =  leave_game(
-            url=self.level_url,
-            username=username,
-            access_token=access_token,
-            level_id=level_name
-        )
-
-        username = self.players[0]["username"]
-        access_token = self.players[0]["access token"]
-
-        r =  leave_game(
-            url=self.level_url,
-            username=username,
-            access_token=access_token,
-            level_id=level_name
-        )
-
-
-    def test_create_level(self):
-
-        username = self.players[0]["username"]
-        access_token = self.players[0]["access token"]
-
-        for capacity, level_name in self.levels.items():
-
-            r = create_game(
-                url=self.level_url,
-                username=username,
-                access_token=access_token,
-                level_name=level_name,
-                capacity=capacity
-            )
-
-    def test_delete_level(self):
-
-        pass
-
-    def test_leave_level(self):
-
-        username = self.players[0]["username"]
-        access_token = self.players[0]["access token"]
-
-        for capacity, level_name in self.levels.items():
-
-            r = create_game(
-                url=self.level_url,
-                username=username,
-                access_token=access_token,
-                level_name=level_name,
-                capacity=capacity
-            )
-
-        r = leave_game(
-            url=self.level_url,
-            username=username,
-            access_token=access_token,
-            level_id=level_name,
-
-        )
-
-    def test_delete_other_users_level(self):
-
-        raise NotImplementedError
-
-    # def test_get(self):
-
-
     def test_get_log(self):
         username = self.players[0]["username"]
         access_token = self.players[0]["access token"]
@@ -544,11 +274,36 @@ class TestMain(unittest.TestCase):
             capacity=capacity
         )
 
+        level_id = r["payload"]["levelId"]
+
+
         r = get_log(
-            url=self.construct_log_path(level_name),
+            url=self.construct_log_path(level_id),
             username=username,
             access_token=access_token,
         )
+
+        # log = r["payload"]["payload"]
+        # max_rule = max(log.keys())
+        # print(f"{max_rule=}")
+
+        # entry = log[max_rule]
+        # if entry.action == "roll" and
+
+
+        # r = add_to_log(
+        #     url=self.construct_log_path(level_id),
+        #     username=username,
+        #     access_token=access_token,
+        #     token_id=0
+        # )
+
+        # r = get_log(
+        #     url=self.construct_log_path(level_id),
+        #     username=username,
+        #     access_token=access_token,
+        # )
+
 
         r =  leave_game(
             url=self.level_url,
@@ -556,44 +311,6 @@ class TestMain(unittest.TestCase):
             access_token=access_token,
             level_id=level_name
         )
-
-        # username = self.players[0]["username"]
-        # access_token = self.players[0]["access token"]
-        #
-        # level_name = "x"
-        # capacity = 2
-        #
-        # r = create_game(
-        #     url=self.level_url,
-        #     username=username,
-        #     access_token=access_token,
-        #     level_name=level_name,
-        #     capacity=capacity
-        # )
-        #
-        # username = self.players[1]["username"]
-        # access_token = self.players[1]["access token"]
-        #
-        # r = join_game(
-        #     url=self.level_url,
-        #     username=username,
-        #     access_token=access_token,
-        #     game_name=level_name,
-        # )
-        #
-        # username = self.players[0]["username"]
-        # access_token = self.players[0]["access token"]
-        # r = log_driver(
-        #     url=self.construct_log_path(level_name),
-        #     username=username,
-        #     access_token=access_token,
-        #     # level_name=level_name,
-        #     # capacity=capacity
-        # )
-
-        # log_driver(url, username, access_token, game_name):
-
-
 
 
 if __name__ == "__main__":
