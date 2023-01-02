@@ -3,15 +3,15 @@ from rest_framework.views import APIView
 
 from backend.api.cqrs_c.game_log import add_entry
 from backend.api.game.game import add_entry_to_log, get_log_api
-from backend.api.model.game_log import game_log_model
-from backend.api.model.level import _get_level_model
+from backend.api.model.level_log import get_level_log_model
+from backend.api.model.level import get_level_model
 from backend.api.model.player_order import get_player_order_model
 from backend.api.view.comm import get_auth_ok_response_template
 
 
 def level_log_get(level_id):
-    log = game_log_model().objects.filter(game_id=level_id,
-                                          game_id__is_active=True).order_by(
+    log = get_level_log_model().objects.filter(game_id=level_id,
+                                               game_id__is_active=True).order_by(
         "instruction_id").values()
 
     log = list(log)
@@ -129,7 +129,7 @@ class LevelLogView(APIView):
 
 
 def level_id_to_name(level_id):
-    r = _get_level_model().objects.get(id=level_id, is_active=True)
+    r = get_level_model().objects.get(id=level_id, is_active=True)
 
     print(r.name)
 

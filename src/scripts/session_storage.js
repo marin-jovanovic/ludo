@@ -60,7 +60,7 @@ class SessionStorageWrapper {
         if (!this.isVariablePresent({
                 variable: variable
             })) {
-            console.log("err variable not present")
+            console.log("err variable not present", variable)
             return {
                 status: false
             };

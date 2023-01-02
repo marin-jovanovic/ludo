@@ -31,3 +31,72 @@ add observers for level and level log
         #     capacity = body["capacity"][0]
         # except KeyError:
         capacity = request.data["capacity"]
+
+
+
+convention
+
+    def get_message_model():
+        return apps.get_model(get_message_model_as_string())
+
+    def get_message_model_as_string():
+        return "api.gamelog"
+
+"""
+lobby
+
+    create room
+        name
+
+
+room
+    create/:id
+
+    get
+       get all rooms
+
+    put
+        join
+        leave
+
+
+game
+
+    get
+        get all instructions
+
+    make choice
+        move token
+
+    get next instruction
+
+statistics
+
+    get/game
+
+        get all statistics for this game
+
+
+
+
+update game
+    notif all players that are in
+
+
+
+"""
+
+improvements
+    delete
+        do not delete user profile -> put it in inactive state
+    settings view
+        todo
+
+    login/signup view
+        left image is moving up and down
+        show only links that are relevant
+
+    small image allongside username on navigation bar
+        add image loading
+            this is done in coffee app
+

@@ -40,7 +40,7 @@
       <hr />
     </div>
 
-    <hr />
+    <!-- <hr />
     <h1>full</h1>
     <hr />
 
@@ -57,7 +57,7 @@
       </div>
 
       <hr />
-    </div>
+    </div> -->
 
     <div>
       active users:
@@ -76,7 +76,7 @@ import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
 import BaseMessage from "@/components/BaseMessage.vue";
 import { apiLobby } from "@/scripts/api/lobby";
 import { wsListeners } from "@/scripts/ws_listener";
-// import { router } from "@/router/router";
+import { router } from "@/router/router";
 
 export default {
   setup() {
@@ -98,7 +98,6 @@ export default {
       gameName: "",
       gameCapacity: "",
 
-      full: {},
       notFull: {},
 
       username: "",
@@ -152,28 +151,39 @@ export default {
           this.isCreator = true;
 
           console.log("game created ok");
+
+          this.joinGame(this.gameName);
+
+          let levelId = res["payload"]["levelId"];
+
+          // todo wait 2 seconds or something?
+          // better: trigger notif
+
+          router.push(`waitingRoom/${levelId}`);
         }
       }
     },
 
     async fetchInitData() {
       let res = await apiLobby.getGames();
-      if (res["auth"]["status"]) {
-        this.full = res["payload"]["payload"]["full"];
-        this.notFull = res["payload"]["payload"]["not full"];
-
-        let inGame = res["payload"]["payload"]["inGame"];
-
-        console.log("in game", inGame);
-
-        if (inGame in this.full) {
-          sessionStorage.setItem("gameId", inGame);
-
-          // router.push(`game/${inGame}`);
-        }
-      } else {
+      if (!res["auth"]["status"]) {
         console.log("err fetching data");
+        return;
       }
+
+      console.log(res[["payload"]]);
+
+      this.notFull = res["payload"]["levels"];
+
+      let inGame = res["payload"]["inLevel"];
+
+      console.log("in game", inGame);
+
+      // if (inGame in this.full) {
+      //   sessionStorage.setItem("gameId", inGame);
+
+      //   // router.push(`game/${inGame}`);
+      // }
     },
   },
   components: {

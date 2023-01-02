@@ -103,6 +103,27 @@ def join_game(url, username, access_token, game_name):
     print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
     return json.loads(t.text)
 
+def get_specific_level(
+            url,
+            username,
+            access_token,
+            level_id,
+        ):
+
+    t = requests.get(
+        f"{url}/{level_id}",
+        headers={
+            "Authorization": encode_username_access_token(
+                type_="Custom",
+                username=username,
+                access_token=access_token
+            )        },
+    )
+
+    print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
+    return json.loads(t.text)
+
+
 class TestMain(unittest.TestCase):
 
 
@@ -327,6 +348,48 @@ class TestMain(unittest.TestCase):
             username=username,
             access_token=access_token,
             level_id=level_name
+        )
+
+
+    def test_get_level_data(self):
+        username = self.players[0]["username"]
+        access_token = self.players[0]["access token"]
+
+        level_name = "x"
+        capacity = 2
+
+        try:
+
+            r = create_game(
+                url=self.level_url,
+                username=username,
+                access_token=access_token,
+                level_name=level_name,
+                capacity=capacity
+            )
+
+            level_id = r["payload"]["levelId"]
+
+            r = get_specific_level(
+                url=self.level_url,
+                username=username,
+                access_token=access_token,
+                level_id=level_id,
+            )
+
+        except Exception as e:
+            print("excp", e)
+            pass
+
+
+        # throw err
+        r = leave_game(
+            url=self.level_url,
+            username=username,
+            access_token=access_token,
+            level_id="dunno",
+            # game_name=level_name,
+            # capacity=capacity
         )
 
     def test_join_level_simple_same_owner(self):

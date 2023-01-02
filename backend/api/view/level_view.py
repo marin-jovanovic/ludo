@@ -28,16 +28,47 @@ class LevelView(APIView):
 
     def get(self, request, name=None):
         # get basic game info
+        response = get_auth_ok_response_template(request)
 
         # todo get in chunks (e.g. 10 by 10 with index and total number of pages in res)
         # todo add filters
 
         if name:
-            raise NotImplementedError
+            # raise NotImplementedError
+
+            response["payload"]["status"] = True
+
+            from backend.api.model.player_order import get_player_order_model
+            from backend.api.model.player import get_user_model
+
+
+            r = get_player_order_model().objects.filter(level_id_id=name)
+
+            users_ids = [i.user_id for i in r]
+
+            print(f"{users_ids=}")
+
+            m = {}
+
+            for i in users_ids:
+                # todo add is active flag, when filtering in future
+                r = get_user_model().objects.get(id=i)
+                m[i] = r.username
+
+            for i in m.items():
+                print(i)
+
+            response["payload"] = {
+                "status": True,
+                "users": m
+            }
+
+            # for i in r:
+            #     print(f"{i.user_id=}")
+
+            # response["payload"]["users"] =
 
         else:
-
-            response = get_auth_ok_response_template(request)
 
             r = get_active_levels()
             if not r["status"]:

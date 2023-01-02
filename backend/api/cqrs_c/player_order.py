@@ -1,7 +1,7 @@
 from backend.api.cqrs_q.level import level_get_model
 from backend.api.cqrs_q.users import get_user
-from backend.api.model.player_order import PlayerOrder, get_player_order_model
-from backend.api.model.model_getters import _get_player_order_model
+from backend.api.model.player_order import PlayerOrder, get_player_order_model, \
+    get_player_order_model
 
 
 def player_order_create_entry(username, game_name):
@@ -18,7 +18,7 @@ def player_order_create_entry(username, game_name):
     # model = _get_player_order_model()
 
     # try:
-    last_index = _get_player_order_model().objects.filter(level_id=g_o)
+    last_index = get_player_order_model().objects.filter(level_id=g_o)
     for i in last_index:
         print(i.user.username, i.game_joined_timestamp)
         # if i.player.username == username:

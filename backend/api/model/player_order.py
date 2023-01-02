@@ -1,13 +1,13 @@
+from django.apps import apps
 from django.db import models
 
+from backend.api.model.level import get_level_model
 from backend.api.model.player import get_user_model_as_string
-from backend.api.model.level import _get_level_model
-from django.apps import apps
 
 
 class PlayerOrder(models.Model):
     level_id = models.ForeignKey(
-        _get_level_model(),
+        get_level_model(),
         on_delete=models.SET_NULL,
         null=True
     )
@@ -34,5 +34,4 @@ def get_player_order_model():
 
 
 def get_player_order_model_as_string():
-
     return "api.playerOrder"

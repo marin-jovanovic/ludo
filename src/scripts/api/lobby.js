@@ -7,7 +7,7 @@ import {
 async function createGame(gameName, capacity) {
     return await apiCalls.handleNewResponse(
         await apiCalls.api.post(
-            `lobby/${gameName}`,
+            `level/${gameName}`,
             JSON.stringify({
                 capacity: capacity
             }),
@@ -20,11 +20,8 @@ async function createGame(gameName, capacity) {
 async function getGames() {
     return await apiCalls.handleNewResponse(
         await apiCalls.api.get(
-            "lobby/",
-            //             {
-            //                 ...            JSON.stringify({"username": username}),
-            // ...                
-            //             }
+            "level/",
+
             apiCalls.getAuthenticationHeader()
 
         )
@@ -45,7 +42,7 @@ async function getGames() {
 async function leaveGame(gameName) {
     return await apiCalls.handleNewResponse(
         await apiCalls.api.put(
-            `lobby/${gameName}`,
+            `level/${gameName}`,
             JSON.stringify({
                 "leave": true
             }),
@@ -57,7 +54,7 @@ async function leaveGame(gameName) {
 async function joinGame(gameName) {
     return await apiCalls.handleNewResponse(
         await apiCalls.api.put(
-            `lobby/${gameName}`,
+            `level/${gameName}`,
             JSON.stringify({
                 "join": true
             }),

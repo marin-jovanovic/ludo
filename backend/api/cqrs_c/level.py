@@ -15,11 +15,10 @@ from backend.api.game.resources import get_config
 
 from backend.api.model.level import Level, \
     game_created_notifier, games_notifier, game_left_notifier, \
-    game_join_notifier, _get_level_model, is_integrity_rule_ok
-from backend.api.model.game_log import GameLog
-from backend.api.model.c_q import is_any_entry_present, get_entries
-    # get_player_order
-from backend.api.model.model_getters import _get_player_order_model
+    game_join_notifier, get_level_model, is_integrity_rule_ok
+from backend.api.model.level_log import GameLog
+# get_player_order
+from backend.api.model.player_order import get_player_order_model
 from backend.api.model.player import get_user_model
 
 from rest_framework.renderers import JSONRenderer
@@ -29,8 +28,8 @@ def in_which_level_is_user(username):
     r = get_user_model().objects.get(username=username).currently_playing_id
 
     try:
-        g = _get_level_model().objects.get(id=r).name
-    except _get_level_model().DoesNotExist:
+        g = get_level_model().objects.get(id=r).name
+    except get_level_model().DoesNotExist:
         # request is performed but user is not in any game
         # so status is true
         g = None
@@ -122,7 +121,7 @@ def get_player_order(game_name):
     else:
         g_o = r["payload"]
 
-    t = _get_player_order_model().objects.filter(game_id=g_o)
+    t = get_player_order_model().objects.filter(game_id=g_o)
     r = {}
     for i in t:
         print(i.join_index, i.player.username)
@@ -131,13 +130,27 @@ def get_player_order(game_name):
     return {"status": True, "payload": r}
 
 def leave_level(game_name, username):
+    """level name is obsolete"""
+
     r = get_user(username)
     if r["status"]:
         user_o = r["payload"]
     else:
         return r
 
-    print(f"{user_o.currently_playing_id=}")
+    # print(f"{user_o.currently_playing_id=}")
+
+    # print(f"{get_level_model().objects.get(id=user_o.currently_playing_id).name=}")
+
+    if not get_level_model().objects.get(id=user_o.currently_playing_id).name == game_name:
+        print("err  mismatch, does not matter, i can fix that")
+
+    game_name = get_level_model().objects.get(id=user_o.currently_playing_id).name
+
+    # print(f"{get_user_model().objects.get(username=username).currently_playing__name=}")
+
+    # print(f"{user_o.currently_playing_id__name=}")
+
     print(f"{user_o.game_role=}")
 
     if not user_o.currently_playing_id and not user_o.game_role:
@@ -175,7 +188,7 @@ def leave_level(game_name, username):
     if f_is_empty:
         print("leave_game level is empty")
 
-        level = _get_level_model().objects.get(name=game_name, is_active=True)
+        level = get_level_model().objects.get(name=game_name, is_active=True)
         level.is_active = False
         level.save()
 
@@ -336,7 +349,7 @@ def get_active_levels():
 
     levels = {}
 
-    for level in _get_level_model().objects.all():
+    for level in get_level_model().objects.all():
 
         if not level.is_active:
             continue

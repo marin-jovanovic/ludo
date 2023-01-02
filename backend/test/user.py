@@ -103,66 +103,41 @@ def join_game(url, username, access_token, game_name):
     print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
     return json.loads(t.text)
 
-def log_driver(url, username, access_token):
-    t = requests.put(
-        # url,
-        f"{url}",
+def get_specific_level(
+            url,
+            username,
+            access_token,
+            level_id,
+        ):
+
+    t = requests.get(
+        f"{url}/{level_id}",
         headers={
             "Authorization": encode_username_access_token(
                 type_="Custom",
                 username=username,
                 access_token=access_token
             )        },
-        data={
-            "join": True,
-        },
     )
 
     print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
     return json.loads(t.text)
 
-def get_log(url, username, access_token):
+def get_user(url, username, access_token, user_id):
     t = requests.get(
-        f"{url}",
+        f"{url}/{user_id}",
         headers={
             "Authorization": encode_username_access_token(
                 type_="Custom",
                 username=username,
                 access_token=access_token
-            )
-        },
+            )        },
     )
 
     print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
     return json.loads(t.text)
-
-def add_to_log(url, username, access_token, token_id):
-    t = requests.put(
-        f"{url}",
-        headers={
-            "Authorization": encode_username_access_token(
-                type_="Custom",
-                username=username,
-                access_token=access_token
-            )
-        },
-        data={
-            "tokenId": token_id
-        }
-    )
-
-    print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
-    return json.loads(t.text)
-
-
 
 class TestMain(unittest.TestCase):
-
-    def construct_log_path(self, level_id):
-        level_id = str(level_id)
-
-        config = get_config()
-        return self.base + "/" + config["levelPath"] + "/" + level_id + "/" + config["levelLogPath"]
 
 
     def load_config(self):
@@ -172,8 +147,9 @@ class TestMain(unittest.TestCase):
         self.base = config["apiURL"]
 
         self.level_url = self.base + "/" + config["levelPath"]
-        # self.level_log_url = self.base + "/" + config["levelLogPath"]
-        # self.log_url =
+
+        # todo extract
+        self.user_url = self.base + "/" + "user"
 
         self.non_existing_username = config["nonExistingUsername"]
         self.non_existing_password = config["nonExistingPassword"]
@@ -259,84 +235,16 @@ class TestMain(unittest.TestCase):
 
         self.assertEqual(True, True)
 
-    def test_get_log(self):
-        username = self.players[0]["username"]
-        access_token = self.players[0]["access token"]
-
-        level_name = "y"
-        capacity = 2
-
-        try:
-
-            r = create_game(
-                url=self.level_url,
-                username=username,
-                access_token=access_token,
-                level_name=level_name,
-                capacity=capacity
-            )
-            level_id = r["payload"]["levelId"]
-
-            username = self.players[1]["username"]
-            access_token = self.players[1]["access token"]
-            r = join_game(
-                url=self.level_url,
-                username=username,
-                access_token=access_token,
-                game_name=level_name,
-            )
-
-            username = self.players[0]["username"]
-            access_token = self.players[0]["access token"]
-
-
-            for i in range(5):
-                r = get_log(
-                    url=self.construct_log_path(level_id),
-                    username=username,
-                    access_token=access_token,
-                )
-
-                moves = r["payload"]["legalMoves"]
-                user_id = r["payload"]["userId"]
-                user_username = r["payload"]["userUsername"]
-
-                print(f"{user_id=}")
-                print(f"{user_username=}")
-
-                # if user_username == username:
-                print(i, user_username, username)
-
-                r = add_to_log(
-                    url=self.construct_log_path(level_id),
-                    username=username,
-                    access_token=access_token,
-                    token_id=moves[0]
-                )
-
-        except Exception as e:
-            print("excepiton", e)
-            pass
-
-
-        username = self.players[1]["username"]
-        access_token = self.players[1]["access token"]
-        r = leave_game(
-            url=self.level_url,
-            username=username,
-            access_token=access_token,
-            level_id=level_name
-        )
+    def test_get_all_levels(self):
 
         username = self.players[0]["username"]
         access_token = self.players[0]["access token"]
 
-
-        r =  leave_game(
-            url=self.level_url,
+        r = get_user(
+            url=self.user_url,
             username=username,
             access_token=access_token,
-            level_id=level_name
+            user_id="113"
         )
 
 

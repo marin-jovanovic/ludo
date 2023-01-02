@@ -1,5 +1,5 @@
 from backend.api.cqrs_q.game import __get_game
-from backend.api.model.model_getters import _get_player_order_model
+from backend.api.model.player_order import get_player_order_model
 
 
 def get_player_order(game_name):
@@ -10,7 +10,7 @@ def get_player_order(game_name):
     else:
         g_o = r["payload"]
 
-    g = _get_player_order_model().objects.filter(game_id=g_o)
+    g = get_player_order_model().objects.filter(game_id=g_o)
     # for i in g:
     #     print(f"{i.game_id=} {i.index=} {i.player.username=}")
 
