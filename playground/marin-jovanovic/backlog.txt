@@ -7,3 +7,27 @@ return in payload rest
     # POST 	Create a REST API resource
     # PUT 	Update a REST API resource
     # DELETE 	Delete a REST API resource or related component
+
+
+join and playing order?
+is this handled and is playing order used?
+i think i mapped username to join order
+game module is assumingly using only join order as base index reference for users
+
+# todo add config
+add this for capacity and other config,
+when performing post and later when construction LEVEL objects
+
+
+add observers for level and level log
+
+
+        # unquoted_body = urllib.parse.unquote(request.body)
+        # body = urllib.parse.parse_qs(unquoted_body)
+        #
+        # # todo body data
+        #
+        # try:
+        #     capacity = body["capacity"][0]
+        # except KeyError:
+        capacity = request.data["capacity"]

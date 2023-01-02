@@ -3,7 +3,7 @@ from backend.api.model.c_q import get_entries
 
 
 def __is_game_full_when_this_user_will_be_added(game_name):
-    r = __get_game(game_name)
+    r = level_get_model(game_name)
     if r["status"]:
         game_o = r["payload"]
     else:
@@ -29,7 +29,7 @@ def is_level_empty(game_name):
     for level name find all users that are currently playing it
     """
 
-    r = __get_game(game_name)
+    r = level_get_model(game_name)
     if r["status"]:
         game_o = r["payload"]
     else:
@@ -46,11 +46,6 @@ def is_level_empty(game_name):
 from django.apps import apps
 from backend.api.model.player import get_user_model
 from backend.api.model.level import _get_level_model
-
-
-def __get_game(game_name):
-
-    return level_get_model(game_name)
 
 
 def level_get_model(level_name):

@@ -266,43 +266,69 @@ class TestMain(unittest.TestCase):
         level_name = "y"
         capacity = 2
 
-        r = create_game(
+        try:
+
+            r = create_game(
+                url=self.level_url,
+                username=username,
+                access_token=access_token,
+                level_name=level_name,
+                capacity=capacity
+            )
+            level_id = r["payload"]["levelId"]
+
+            username = self.players[1]["username"]
+            access_token = self.players[1]["access token"]
+            r = join_game(
+                url=self.level_url,
+                username=username,
+                access_token=access_token,
+                game_name=level_name,
+            )
+
+            username = self.players[0]["username"]
+            access_token = self.players[0]["access token"]
+
+
+            for i in range(5):
+                r = get_log(
+                    url=self.construct_log_path(level_id),
+                    username=username,
+                    access_token=access_token,
+                )
+
+                moves = r["payload"]["legalMoves"]
+                user_id = r["payload"]["userId"]
+                user_username = r["payload"]["userUsername"]
+
+                print(f"{user_id=}")
+                print(f"{user_username=}")
+
+                # if user_username == username:
+                print(i, user_username, username)
+
+                r = add_to_log(
+                    url=self.construct_log_path(level_id),
+                    username=username,
+                    access_token=access_token,
+                    token_id=moves[0]
+                )
+
+        except Exception as e:
+            print("excepiton", e)
+            pass
+
+
+        username = self.players[1]["username"]
+        access_token = self.players[1]["access token"]
+        r = leave_game(
             url=self.level_url,
             username=username,
             access_token=access_token,
-            level_name=level_name,
-            capacity=capacity
         )
 
-        level_id = r["payload"]["levelId"]
-
-
-        r = get_log(
-            url=self.construct_log_path(level_id),
-            username=username,
-            access_token=access_token,
-        )
-
-        # log = r["payload"]["payload"]
-        # max_rule = max(log.keys())
-        # print(f"{max_rule=}")
-
-        # entry = log[max_rule]
-        # if entry.action == "roll" and
-
-
-        # r = add_to_log(
-        #     url=self.construct_log_path(level_id),
-        #     username=username,
-        #     access_token=access_token,
-        #     token_id=0
-        # )
-
-        # r = get_log(
-        #     url=self.construct_log_path(level_id),
-        #     username=username,
-        #     access_token=access_token,
-        # )
+        username = self.players[0]["username"]
+        access_token = self.players[0]["access token"]
 
 
         r =  leave_game(
@@ -311,6 +337,7 @@ class TestMain(unittest.TestCase):
             access_token=access_token,
             level_id=level_name
         )
+
 
 
 if __name__ == "__main__":

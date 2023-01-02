@@ -1,22 +1,19 @@
-import urllib
-
-from django.http import JsonResponse, HttpResponse
-from rest_framework.renderers import JSONRenderer
+from django.http import JsonResponse
 from rest_framework.views import APIView
 
-from backend.api.cqrs_c.level import create_game, leave_level, join_game, \
-    get_active_levels, in_which_level_is_user
-from backend.api.cqrs_q.users import get_user
-from backend.api.game.game import add_entry_to_log
+from backend.api.cqrs_c.game_log import add_entry
+from backend.api.game.game import add_entry_to_log, get_log_api
 from backend.api.model.game_log import game_log_model
 from backend.api.model.level import _get_level_model
 from backend.api.model.player_order import get_player_order_model
 from backend.api.view.comm import get_auth_ok_response_template
 
 
-def get_log(level_id):
-    log = game_log_model().objects.filter(game_id=level_id, game_id__is_active=True).order_by("instruction_id").values()
-    # log = game_log_model().objects.filter(game_id__name=level_id, game_id__is_active=True).order_by("instruction_id").values()
+def level_log_get(level_id):
+    log = game_log_model().objects.filter(game_id=level_id,
+                                          game_id__is_active=True).order_by(
+        "instruction_id").values()
+
     log = list(log)
 
     return {
@@ -24,14 +21,14 @@ def get_log(level_id):
         "payload": log
     }
 
+
 class LevelLogView(APIView):
-    # todo observers
 
     def get(self, request, level_id):
 
         response = get_auth_ok_response_template(request)
 
-        r = get_log(level_id)
+        r = level_log_get(level_id)
         if not r["status"]:
             return r
 
@@ -43,89 +40,134 @@ class LevelLogView(APIView):
             # todo del instruction_id from value, and all other non used entries
             ret_log[entry["instruction_id"]] = entry
 
+        opt = get_log_api(log)
 
+        t = join_id_to_username_and_user_id(opt["turn"], level_id)
+        if not t["status"]:
+            return JsonResponse(response)
 
-        # to_choose = {**level.start_pool_options, **level.non_start_pool_options}
+        ids = t["payload"]
 
         response["payload"] = {
             "status": True,
             "log": ret_log,
-            # "turn": ,
-
+            "legalMoves": opt["legalMoves"],
+            **ids,
         }
-
-        return JsonResponse(response)
-
-
-    def post(self, request):
-        """
-        max 1 active game per player
-        """
-
-        # create game
-
-        # creator_username = request.username
-        #
-        # unquoted_body = urllib.parse.unquote(request.body)
-        # body = urllib.parse.parse_qs(unquoted_body)
-        #
-        # try:
-        #     capacity = body["capacity"][0]
-        # except KeyError:
-        #     capacity = request.data["capacity"]
-
-        print(f"{creator_username=}")
-        print(f"{capacity=}")
-
-
-        response = get_auth_ok_response_template(request)
-        # response["payload"] = create_game(creator_username, name, capacity)
 
         return JsonResponse(response)
 
     def put(self, request, level_id):
         """add new entry to log"""
 
-        print(f"{level_id=}")
-
         response = get_auth_ok_response_template(request)
 
-        # print("todo log")
-
-        username = request.username
-        r = username_to_id(username=username, level_id=level_id)
+        # not trusting user which user is performing action
+        r = username_to_id(username=request.username, level_id=level_id)
         if not r["status"]:
-            return r
+            return JsonResponse(response)
 
         player_id = r["payload"]
-        token_id = request.data["tokenId"]
 
-        r = get_log(level_id)
+        r = level_log_get(level_id)
         if not r["status"]:
             return r
 
         log = r["payload"]
 
-        # print(f"{player_id=}")
-        # print(f"{token_id=}")
+        # determinate if this user can perform this action
 
-        # todo level id fix
-        print("what will be added?")
+        # try:
+        last_entry = log[-1]
+        print(f"{last_entry=}")
 
-        print(f"{log=}")
+        turn = last_entry["player"]
 
-        add_entry_to_log(log, player_id, token_id)
+        print(f"{turn=} {player_id=}")
+        if turn != player_id:
+            print(80 * "-")
+            print("can not do this, players are not matching")
+            print(80 * "-")
+            return JsonResponse(response)
 
-        #
-        # print(f"{request.data=}")
-        #
-        # if "leave" in request.data:
-        #     response["payload"] = leave_level(name, username)
-        #
-        # if "join" in request.data:
-        #     response["payload"] = join_game(name, username)
+        # except Exception as e:
+        #     print("err", e)
+
+        token_id = request.data["tokenId"]
+        r = add_entry_to_log(log, player_id, token_id)
+
+        log_diff = r["logDiff"]
+
+        legal_moves = r["legalMoves"]
+        t = join_id_to_username_and_user_id(r["turn"], level_id)
+        if not t["status"]:
+            return JsonResponse(response)
+
+        ids = t["payload"]
+
+        # add to db log diff
+
+        r = level_id_to_name(level_id)
+
+        if not r["status"]:
+            return r
+
+        level_name = r["payload"]
+
+        for i in log_diff:
+
+            i["game"] = level_name
+            add_entry(**i)
+
+        response["payload"] = {
+            "status": True,
+            **ids,
+            "legalMoves": legal_moves
+        }
 
         return JsonResponse(response)
+
+
+def level_id_to_name(level_id):
+    r = _get_level_model().objects.get(id=level_id, is_active=True)
+
+    print(r.name)
+
+    return {
+        "status": True,
+        "payload": r.name
+    }
+
+
+def join_id_to_username_and_user_id(join_index, level_id):
+    """join index (level index) -> username"""
+
+    print(f"{join_index=}")
+
+    t = int(join_index)
+
+    level_exists = get_player_order_model().objects.filter(level_id=level_id).exists()
+
+    player_order = get_player_order_model()
+
+    try:
+
+        r = get_player_order_model().objects.get(
+            level_id=level_id,
+            join_index=t
+        )
+
+    except player_order.DoesNotExist:
+        if level_exists:
+            print("err user not in level")
+        else:
+            print("err uncaught err")
+
+        return {"status": False}
+
+    return {"status": True,
+            "payload": {"userUsername": r.user.username, "userId": r.user.id}}
+
 
 def username_to_id(username, level_id):
     """
@@ -133,11 +175,8 @@ def username_to_id(username, level_id):
     join_index
     """
 
-    # # fixme it is not passed level id, it is passed level name
-    # level_id = _get_level_model().objects.get(name=level_id,is_active=True).id
-
-    r = get_player_order_model().objects.get(user__username=username, level_id=level_id)
-
+    r = get_player_order_model().objects.get(user__username=username,
+                                             level_id=level_id)
 
     r = r.join_index
 

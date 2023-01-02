@@ -32,8 +32,6 @@ class LevelView(APIView):
         # todo get in chunks (e.g. 10 by 10 with index and total number of pages in res)
         # todo add filters
 
-        print("get games")
-
         if name:
             raise NotImplementedError
 
@@ -42,18 +40,16 @@ class LevelView(APIView):
             response = get_auth_ok_response_template(request)
 
             r = get_active_levels()
-            if r["status"]:
-                response['payload']["levels"] =r["payload"]
-            else:
-                response["payload"]["status"] = False
+            if not r["status"]:
                 return JsonResponse(response)
 
+            response['payload']["levels"] =r["payload"]
+
             r = in_which_level_is_user(request.username)
-            if r["status"]:
-                response["payload"]["inLevel"] = r["payload"]
-            else:
-                response["payload"]["status"] = False
+            if not r["status"]:
                 return JsonResponse(response)
+
+            response["payload"]["inLevel"] = r["payload"]
 
             response["payload"]["status"] = True
 
@@ -71,25 +67,10 @@ class LevelView(APIView):
 
         """
 
-        # create game
-
-        creator_username = request.username
-
-        # unquoted_body = urllib.parse.unquote(request.body)
-        # body = urllib.parse.parse_qs(unquoted_body)
-        #
-        # # todo body data
-        #
-        # try:
-        #     capacity = body["capacity"][0]
-        # except KeyError:
         capacity = request.data["capacity"]
 
-        print(f"{creator_username=}")
-        print(f"{capacity=}")
-
         response = get_auth_ok_response_template(request)
-        response["payload"] = create_game(creator_username, name, capacity)
+        response["payload"] = create_game(request.username, name, capacity)
 
         return JsonResponse(response)
 

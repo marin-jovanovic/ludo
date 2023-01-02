@@ -1,13 +1,13 @@
 from django.db.models import Max
 
-from backend.api.cqrs_q.level import __get_game
+from backend.api.cqrs_q.level import level_get_model
 from backend.api.cqrs_q.users import get_user
 from backend.api.model.game_log import GameLog
 from backend.api.model.game_log import GameLog
 from backend.api.model.model_getters import get_game_log_model
 
 def add_entry(game, player, token, dice_result, action, performed=False):
-    r = __get_game(game)
+    r = level_get_model(game)
     if r["status"]:
         game_o = r["payload"]
     else:

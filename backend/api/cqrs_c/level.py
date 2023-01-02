@@ -7,7 +7,7 @@ from backend.api.cqrs_c.player_order import player_order_create_entry
 from backend.api.cqrs_c.users import make_user_game_creator, \
     make_user_available_to_play, user_set_game_roll_to_join
 from backend.api.cqrs_q.level import __is_game_full_when_this_user_will_be_added,  \
-    is_level_empty, __get_game
+    is_level_empty, level_get_model
 from backend.api.cqrs_q.users import get_user, get_users_in_level
 from backend.api.game.game import create_game_api
 from backend.api.game.order import determine_order
@@ -77,7 +77,7 @@ def create_game(creator_username, level_name, capacity):
     # create level
     g = Level(name=level_name, capacity=capacity)
     g.save()
-    print("level created")
+    # print("level created")
 
 
     # player order object
@@ -100,53 +100,6 @@ def create_game(creator_username, level_name, capacity):
 
         add_entry(**i)
 
-    # def driver(capacity):
-    #
-    #     # todo
-    #     print("determine users")
-    #
-    #     # todo this is joining order, not playing order, change this
-    #     order = get_player_order(level_name)
-    #     print(f"{order=}")
-    #     if not order["status"]:
-    #         print("get game err")
-    #         return order
-    #     else:
-    #         # join_index -> username
-    #         o_o = order["payload"]
-    #
-    #     print(80 * "-")
-    #     print(o_o)
-    #
-    #     json = JSONRenderer().render(o_o)
-    #     print(f"{json=}")
-    #
-    #     game_conf = get_config()
-    #
-    #     order = determine_order(
-    #         capacity,
-    #         game_conf['choice: highest; order'],
-    #         game_conf['choice: clockwise; anticlockwise'],
-    #         game_conf['flag: tie in order'],
-    #     )
-    #
-    #     for i in order:
-    #         print(f"{i=}")
-    #
-    #     for i in order:
-    #         print(f"befor {i=}")
-    #         i["game"] = level_name
-    #         print(f"after {i=}")
-    #
-    #         r = add_entry(**i)
-    #         if not r["status"]:
-    #             print("err radd")
-    #             return r
-
-    # r = driver(capacity)
-
-    print(__is_game_full_when_this_user_will_be_added(level_name))
-
     msg = json.dumps({
         "source": "game created",
         "name": g.name,
@@ -156,17 +109,13 @@ def create_game(creator_username, level_name, capacity):
     game_created_notifier.notify(msg)
     games_notifier.notify(json.dumps(get_active_levels()))
 
-    print(f"{g.id=}")
-
     return {"status": True,
             "levelId": g.id
             }
 
-    # return r
-
 
 def get_player_order(game_name):
-    r = __get_game(game_name)
+    r = level_get_model(game_name)
     if not r["status"]:
         print("get game err")
         return r
@@ -239,7 +188,7 @@ def leave_level(game_name, username):
 
 def join_game(game_name, username):
 
-    r = __get_game(game_name)
+    r = level_get_model(game_name)
     if not r["status"]:
         print("err get game")
         return r
@@ -421,7 +370,7 @@ def user_clear_currently_playing_id(username):
 
 
 def user_set_currently_playing_id(username, game_name):
-    r = __get_game(game_name)
+    r = level_get_model(game_name)
     if r["status"]:
         game_o = r["payload"]
     else:

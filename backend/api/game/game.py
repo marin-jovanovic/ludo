@@ -440,7 +440,7 @@ class Level:
 
         for i in self.log:
             if i["action"] == "move":
-                print("move token")
+                # print("move token")
 
                 t = self.board.move_token(
                     player_id=i["player"],
@@ -462,6 +462,35 @@ class Level:
 
         if log and log[-1]["action"] == "roll":
             print("action not decided")
+
+
+            player_id = log[-1]["player"]
+
+            # for player_id in playing_order:
+
+            # if game_conf['number of players'] == len(already_won) + 1:
+            #     """
+            #     last player lost
+            #     no need to play with only him
+            #     """
+            #     print("1 lost, other won, game done")
+            #     return
+
+            roll_result = log[-1]["dice_result"]
+
+            start_pool_movable = self.board.get_from_start_pool(
+                player_id=player_id, dice_result=roll_result)
+            board_movable = self.board.get_from_board(
+                player_id=player_id,
+                dice_result=roll_result)
+
+            if start_pool_movable or board_movable:
+                self.players_turn = player_id
+                self.start_pool_options = start_pool_movable
+                self.non_start_pool_options = board_movable
+            else:
+                print("err no moves")
+
             return
 
         self.manual_driver(game_conf, playing_order)
@@ -806,12 +835,8 @@ def main():
 def create_game_api(capacity):
     """order is guaranteed"""
 
-    # todo add config
 
     level = Level()
-
-    for i in level.get_log():
-        print(i)
 
     return {
         "status": True,
@@ -828,11 +853,10 @@ def get_log_api(log):
             if j in i:
                 del i[j]
 
+
     level = Level(log=log)
 
     to_choose = {**level.start_pool_options, **level.non_start_pool_options}
-
-    # user needs to make a choice
 
     last_log = level.get_log()[-1]
     if last_log["action"] != "roll":
@@ -842,8 +866,15 @@ def get_log_api(log):
     # todo this needs to be renamed to user
     player = last_log['player']
 
+    return {
+        "turn": player,
+        "legalMoves": list(to_choose.keys())
+    }
 
 
+#                 self.players_turn = player_id
+#                 self.start_pool_options = start_pool_movable
+#                 self.non_start_pool_options = board_movable
 
 def add_entry_to_log(log, player_id, token_id):
     """
@@ -852,13 +883,13 @@ def add_entry_to_log(log, player_id, token_id):
     check if they can do that (if that move is legal)
 
     does not handle security part
+
+
     """
+    in_len_log = len(log)
 
-    for i in log:
-        print(i)
-
-    print("----")
-
+    player_id = int(player_id)
+    token_id = int(token_id)
 
     # preprocess if loaded from db
     for i in log:
@@ -866,30 +897,61 @@ def add_entry_to_log(log, player_id, token_id):
             if j in i:
                 del i[j]
 
-    for i in log:
-        print(i)
-
-    print("----")
-
     # todo eating, game won, game lost, ...
 
     level = Level(log=log)
 
-    print("pre")
-    for i in level.get_log():
-        print(i)
-    print()
+    # print("pre")
+    # for i in level.get_log():
+    #     print(i)
+    # print()
 
-    # choose(
-    #     board=level.board,
-    #     log=level.get_log(),
-    #     player_id=player_id,
-    #     token_id=token_id
-    # )
-    #
+    # update level objects
+    choose(
+        board=level.board,
+        log=level.get_log(),
+        player_id=player_id,
+        token_id=token_id
+    )
+
+    # perfrom as much as you can new instructions
+    level = Level(log=level.get_log())
+
     # print("post")
     # for i in level.get_log():
     #     print(i)
+
+    # out_len_log = len(log)
+
+    # len_log_diff = out_len_log - in_len_log
+
+    log_diff = log[in_len_log::]
+
+    # print()
+    # for i in log_diff:
+    #     print(i)
+
+
+    to_choose = {**level.start_pool_options, **level.non_start_pool_options}
+
+    last_log = level.get_log()[-1]
+    if last_log["action"] != "roll":
+        print("errr last log entry is not roll")
+        return
+
+    # todo this needs to be renamed to user
+    player = last_log['player']
+
+    return {
+        "logDiff": log_diff,
+        "turn": player,
+        "legalMoves": list(to_choose.keys())
+    }
+
+
+    # return
+    # return diff log
+
 
 if __name__ == '__main__':
     main()
