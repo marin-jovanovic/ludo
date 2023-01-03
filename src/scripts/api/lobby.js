@@ -28,14 +28,16 @@ async function getGames() {
     );
 }
 
-// async function getSpecificGame(name) {
-//     return await apiCalls.handleNewResponse(
-//         await apiCalls.api.get(
-//             `lobby/${name}`,
-//             apiCalls.getAuthenticationHeader()
-//         )
-//     );
-// }
+
+
+async function getSpecificGame({name}) {
+    return await apiCalls.handleNewResponse(
+        await apiCalls.api.get(
+            `level/${name}`,
+            apiCalls.getAuthenticationHeader()
+        )
+    );
+}
 
 
 // todo missing data
@@ -68,6 +70,6 @@ export const apiLobby = {
     getGames,
     leaveGame,
     joinGame,
-    // getSpecificGame,
+    getSpecificGame,
 
 }

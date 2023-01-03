@@ -12,6 +12,8 @@ async function getGame(game) {
     );
 }
 
+
+
 async function updateGame(game, player, token, action) {
     console.log("action", action)
 

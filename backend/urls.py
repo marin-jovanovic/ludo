@@ -13,7 +13,7 @@ from backend.api.view.settings_view import SettingsView
 from backend.api.view.signup_view import SignUpView
 from backend.api.view.delete_profile_view import DeleteProfileView
 from backend.api.view.user_view import UserView
-
+from backend.api.view.board_view import BoardView
 startup_configuration.print_app_logo()
 api_router = routers.DefaultRouter()
 
@@ -35,4 +35,6 @@ urlpatterns = [
 
     path("user/<str:user_id>", UserView.as_view()),
 
+    # todo fix this
+    path("board/<str:name>/<str:resource>", BoardView.as_view()),
 ]

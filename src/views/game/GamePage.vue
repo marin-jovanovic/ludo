@@ -51,7 +51,7 @@ import { router } from "@/router/router";
 import TheMessages from "./TheMessages.vue";
 import { apiGame } from "@/scripts/api/game";
 // import { wsListeners } from "@/scripts/ws_listener";
-import { apiBoard } from "@/scripts/api/board";
+// import { apiBoard } from "@/scripts/api/board";
 import TheActions from "./TheActions.vue";
 
 export default {
@@ -171,13 +171,11 @@ export default {
 
     async board() {
       // for test
-      let res = await apiBoard.getBoard("1", "startPool");
-
-      console.log(res["payload"]["payload"]);
-
-      if (!(res["auth"]["status"] && res["payload"]["status"])) {
-        console.log("game leave err");
-      }
+      // let res = await apiBoard.getBoard("1", "startPool");
+      // console.log(res["payload"]["payload"]);
+      // if (!(res["auth"]["status"] && res["payload"]["status"])) {
+      //   console.log("game leave err");
+      // }
     },
 
     // getUserActive(message) {

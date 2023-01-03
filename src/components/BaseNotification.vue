@@ -2,14 +2,15 @@
   <div></div>
 </template>
 
+
+<!-- this is not designed good -->
+
 <script>
 import { useToast } from "vue-toastification";
 
 export default {
   setup() {
     const toast = useToast();
-
-
     return { toast };
   },
   data() {

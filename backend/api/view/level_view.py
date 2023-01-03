@@ -58,9 +58,18 @@ class LevelView(APIView):
             for i in m.items():
                 print(i)
 
+            # getleve
+
+            from backend.api.model.level import get_level_model
+
+            c = get_level_model().objects.get(id=name).capacity
+            capacity = -1
+            capacity = c
+
             response["payload"] = {
                 "status": True,
-                "users": m
+                "users": m,
+                "capacity": capacity
             }
 
             # for i in r:
