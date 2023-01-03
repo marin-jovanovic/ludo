@@ -1,5 +1,5 @@
 from backend.api.cqrs_q.level import level_get_model
-from backend.api.cqrs_q.users import get_user
+from backend.api.cqrs_q.user import get_user
 from backend.api.model.player_order import PlayerOrder, get_player_order_model, \
     get_player_order_model
 

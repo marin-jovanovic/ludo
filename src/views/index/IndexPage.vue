@@ -40,25 +40,6 @@
       <hr />
     </div>
 
-    <!-- <hr />
-    <h1>full</h1>
-    <hr />
-
-    <div v-for="i in this.full" :key="Object.values(i)">
-      {{ i }}
-      <div v-for="p in i.players" :key="p">
-        <div v-if="p == this.username">
-          <h1>here</h1>
-          <div v-if="this.isCreator">
-            <button @click="startGame()">start</button>
-          </div>
-          <button @click="leaveGame(i.name)">leave</button>
-        </div>
-      </div>
-
-      <hr />
-    </div> -->
-
     <div>
       active users:
       <div v-for="i in this.activeUsers" :key="i">
@@ -74,7 +55,7 @@
 import { useToast } from "vue-toastification";
 import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
 import BaseMessage from "@/components/BaseMessage.vue";
-import { apiLobby } from "@/scripts/api/lobby";
+import { apiLevel } from "@/scripts/api/level";
 import { wsListeners } from "@/scripts/ws_listener";
 import { router } from "@/router/router";
 
@@ -122,7 +103,7 @@ export default {
     },
 
     async joinGame(gameName) {
-      let res = await apiLobby.joinGame(gameName);
+      let res = await apiLevel.joinGame(gameName);
       console.log("load", res);
       if (res["auth"]["status"]) {
         if (res["payload"]["status"]) {
@@ -134,7 +115,7 @@ export default {
     },
 
     async leaveGame(gameName) {
-      let res = await apiLobby.leaveGame(gameName);
+      let res = await apiLevel.leaveGame(gameName);
       console.log("load", res);
       if (res["auth"]["status"]) {
         if (res["payload"]["status"]) {
@@ -144,7 +125,7 @@ export default {
     },
 
     async createGame() {
-      let res = await apiLobby.createGame(this.gameName, this.gameCapacity);
+      let res = await apiLevel.createGame(this.gameName, this.gameCapacity);
       console.log("load", res);
       if (res["auth"]["status"]) {
         if (res["payload"]["status"]) {
@@ -165,7 +146,7 @@ export default {
     },
 
     async fetchInitData() {
-      let res = await apiLobby.getGames();
+      let res = await apiLevel.getGames();
       if (!res["auth"]["status"]) {
         console.log("err fetching data");
         return;

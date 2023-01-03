@@ -1,7 +1,7 @@
 import json
 
 from backend.api.cqrs_q.level import __check_game_name_exists, __get_game
-from backend.api.cqrs_q.users import get_user
+from backend.api.cqrs_q.user import get_user
 from backend.api.model.message import Message, message_notifier
 
 
@@ -51,11 +51,8 @@ def create_message(sender, game, content):
 
     print(f"{msg=}")
 
-    # game_created_notifier.notify(msg)
     message_notifier.notify(msg)
 
     print("message created")
 
     return {"status": True}
-
-    # return __assign_user_currently_playing(creator_username, name)

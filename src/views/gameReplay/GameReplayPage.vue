@@ -43,7 +43,7 @@
   
 <script>
 import TheGame from "./../game/TheGame.vue";
-import TheDice from "./../game/TheDice.vue";
+import TheDice from "@/components/TheDice.vue";
 
 import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
 

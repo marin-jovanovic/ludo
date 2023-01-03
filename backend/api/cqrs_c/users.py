@@ -3,8 +3,8 @@ import json
 from backend.api.auth.main import generate_access_token
 from backend.api.auth.main import get_hashed_password, is_pass_ok
 from backend.api.comm.comm import Notifier
-from backend.api.cqrs_q.users import get_logged_users
-from backend.api.cqrs_q.users import is_username_in_db, is_authenticated, \
+from backend.api.cqrs_q.user import get_logged_users
+from backend.api.cqrs_q.user import is_username_in_db, is_authenticated, \
     is_access_token_correct, get_user
 from backend.api.model.player import get_user_model
 

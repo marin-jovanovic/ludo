@@ -5,7 +5,7 @@ from django.http import JsonResponse
 
 from backend.api.comm.comm import get_empty_response_template
 from backend.api.cqrs_c.users import create_user, auth_user
-from backend.api.cqrs_q.users import is_access_token_correct
+from backend.api.cqrs_q.user import is_access_token_correct
 
 import base64
 

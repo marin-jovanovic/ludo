@@ -11,7 +11,7 @@ import websockets
 from backend.api.ws.util.message import Message
 from backend.api.ws.util.server import Server
 
-from backend.api.cqrs_q.users import get_logged_users
+from backend.api.cqrs_q.user import get_logged_users
 from channels.db import database_sync_to_async
 
 class WSServer(Server):

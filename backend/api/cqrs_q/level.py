@@ -1,4 +1,4 @@
-from backend.api.cqrs_q.users import get_users_in_level
+from backend.api.cqrs_q.user import get_users_in_level
 
 
 def __is_game_full_when_this_user_will_be_added(game_name):
@@ -46,6 +46,15 @@ from django.apps import apps
 from backend.api.model.player import get_user_model
 from backend.api.model.level import get_level_model
 
+def level_get_model_by_id(level_id):
+    try:
+        g_o = get_level_model().objects.get(id=level_id)
+        return {"status": True,
+                "payload": g_o}
+
+    except get_level_model().DoesNotExist:
+        print(f"level not exists {level_id=}")
+        return {"status": False}
 
 def level_get_model(level_name):
 

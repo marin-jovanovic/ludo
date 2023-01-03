@@ -316,7 +316,6 @@ class UiToken extends ContentCreator {
         c.fill();
         c.closePath();
 
-
     }
 
 }

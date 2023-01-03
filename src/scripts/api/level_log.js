@@ -1,15 +1,17 @@
+
+
 import {
     apiCalls
 } from './comm';
 
 
-async function getGame(game) {
+async function getLevelLog(game) {
 
     console.log("get game", game)
 
     return await apiCalls.handleNewResponse(
         await apiCalls.api.get(
-            `game/${game}`,
+            `level/${game}/log`,
             apiCalls.getAuthenticationHeader()
         )
     );
@@ -22,7 +24,7 @@ async function updateGame(game, player, token, action) {
 
     return await apiCalls.handleNewResponse(
         await apiCalls.api.post(
-            `game/${game}`,
+            `level/${game}/log`,
             JSON.stringify({
                 player: player,
                 token: token,
@@ -41,7 +43,7 @@ async function actionPerformed(game, player, instruction_id) {
 
     return await apiCalls.handleNewResponse(
         await apiCalls.api.put(
-            `game/${game}`,
+            `level/${game}/log`,
             JSON.stringify({
                 player: player,
                 instructionId: instruction_id,
@@ -55,8 +57,8 @@ async function actionPerformed(game, player, instruction_id) {
 
 
 
-export const apiGame = {
-    getGame,
+export const apiLevelLog = {
+    getLevelLog,
     updateGame,
     actionPerformed,
 }

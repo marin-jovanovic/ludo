@@ -17,7 +17,7 @@
 
 <script>
 import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
-import { apiLobby } from "@/scripts/api/lobby";
+import { apiLevel } from "@/scripts/api/level";
 // import { useToast } from "vue-toastification";
 import BaseNotification from "@/components/BaseNotification.vue";
 import { router } from "@/router/router";
@@ -42,7 +42,7 @@ export default {
 
     // fetch users here
 
-    let res = await apiLobby.getSpecificGame({ name: this.gameId });
+    let res = await apiLevel.getSpecificLevel({ levelId: this.gameId });
     console.log("load", res);
     if (res["auth"]["status"]) {
       if (res["payload"]["status"]) {

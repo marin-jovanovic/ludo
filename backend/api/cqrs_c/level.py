@@ -8,7 +8,7 @@ from backend.api.cqrs_c.users import make_user_game_creator, \
     make_user_available_to_play, user_set_game_roll_to_join
 from backend.api.cqrs_q.level import __is_game_full_when_this_user_will_be_added,  \
     is_level_empty, level_get_model
-from backend.api.cqrs_q.users import get_user, get_users_in_level
+from backend.api.cqrs_q.user import get_user, get_users_in_level
 from backend.api.game.game import create_game_api
 from backend.api.game.order import determine_order
 from backend.api.game.resources import get_config
@@ -368,7 +368,8 @@ def get_active_levels():
         levels[level.id] = {
             "name": level.name,
             "capacity": level.capacity,
-            "players": users_in_level
+            "players": users_in_level,
+            "levelId": level.id
         }
 
     return {

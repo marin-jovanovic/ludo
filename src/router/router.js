@@ -11,6 +11,7 @@ import GameReplayPage from "@/views/gameReplay/GameReplayPage.vue";
 import GameCreatePage from "@/views/gameCreate/GameCreatePage.vue";
 import NotFound from '../views/notFound/NotFound';
 import waitingRoom from "@/views/waitingRoom/WaitingRoom.vue";
+import playingOrder from "@/views/order/PlayingOrder.vue";
 
 import LogoutPage from '../views/logout/LogoutPage';
 import SetttingsView from '../views/settings/SettingsView.vue';
@@ -70,6 +71,11 @@ export const router = createRouter({
             path: "/waitingRoom/:id",
             name: "waitingRoom",
             component: waitingRoom
+        }, 
+        {
+            path: "/playingOrder/:id",
+            name: "playingOrder",
+            component: playingOrder
         }, 
         { path: '/:pathMatch(.*)*', component: NotFound },
     ]

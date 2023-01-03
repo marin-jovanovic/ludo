@@ -14,6 +14,9 @@ from backend.api.view.signup_view import SignUpView
 from backend.api.view.delete_profile_view import DeleteProfileView
 from backend.api.view.user_view import UserView
 from backend.api.view.board_view import BoardView
+# from backend.api.view.game_view import GameView
+from backend.api.view.acceptance_log_view import AcceptanceLogView
+
 startup_configuration.print_app_logo()
 api_router = routers.DefaultRouter()
 
@@ -35,6 +38,13 @@ urlpatterns = [
 
     path("user/<str:user_id>", UserView.as_view()),
 
+    path("level/<str:level_id>/acceptanceLog/<str:entry_id>", AcceptanceLogView.as_view()),
+
     # todo fix this
     path("board/<str:name>/<str:resource>", BoardView.as_view()),
+
+    #
+    # path("game/", GameView.as_view()),
+    # path("game/<str:name>", GameView.as_view()),
+
 ]

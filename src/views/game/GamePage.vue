@@ -43,13 +43,15 @@
 <script>
 import TheInfo from "./TheInfo.vue";
 import TheGame from "./TheGame.vue";
-import TheDice from "./TheDice.vue";
+import TheDice from "@/components/TheDice.vue";
 
 import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
-import { apiLobby } from "@/scripts/api/lobby";
+import { apiLobby } from "@/scripts/api/level";
 import { router } from "@/router/router";
 import TheMessages from "./TheMessages.vue";
 import { apiGame } from "@/scripts/api/game";
+import { apiLevelLog } from "@/scripts/api/level_log";
+
 // import { wsListeners } from "@/scripts/ws_listener";
 // import { apiBoard } from "@/scripts/api/board";
 import TheActions from "./TheActions.vue";
@@ -75,14 +77,16 @@ export default {
     this.username = sessionStorage.getItem("username");
     this.gameId = this.$route.params.id;
 
-    let res = await apiGame.getGame(this.gameId);
+    let res = await apiLevelLog.getLevelLog(this.gameId);
 
     if (res["auth"]["status"] && res["payload"]["status"]) {
-      let p = res["payload"]["payload"];
+      console.log(res["payload"]);
 
-      console.table(p["log"]);
+      let p = res["payload"]["log"];
 
-      for (const [key, value] of Object.entries(p["log"])) {
+      // console.table(p["log"]);
+
+      for (const [key, value] of Object.entries(p)) {
         console.log("instruction", key);
 
         if (value.action === "goes") {
@@ -97,29 +101,42 @@ export default {
         //     break;
         // }
 
-        if (value.performed) {
-          await this.performed(value);
-        } else {
-          await this.notPefrormed(value, key);
-          break;
-        }
+        // if (value.performed) {
+        //   await this.performed(value);
+        // } else {
+        //   await this.notPefrormed(value, key);
+        //   break;
+        // }
 
         // this.lastInstructionPerformed = key;
         // console.log("last perfromed", this.lastInstructionPerformed);
       }
 
-      this.$refs.info.setHeader(p.header);
-      this.$refs.info.setPlayers(p.players);
+      // do not know what is this
       // this.$refs.info.setHeader(p.header);
-      // this.header = p.header;
-
-      // this.players = p.players;
-      // this.capacity = p.capacity;
+      // this.$refs.info.setPlayers(p.players);
     } else {
       console.log("err fetching data");
     }
+
+    await this.loadPlayingOrder();
   },
   methods: {
+    async loadPlayingOrder() {
+      let res = await apiLevelLog.getLevelLog(this.gameId);
+
+      if (!(res["auth"]["status"] && res["payload"]["status"])) {
+        console.log("err");
+        return;
+      }
+
+      console.log(res);
+
+      let log = res["payload"]["log"];
+
+      console.log(log);
+    },
+
     async notPefrormed(value, key) {
       // for not performed instructions driver
 

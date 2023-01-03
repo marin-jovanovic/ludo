@@ -37,8 +37,12 @@ class LevelLogView(APIView):
         ret_log = {}
 
         for entry in log:
+            # todo remove dice_result (not json convention)
             # todo del instruction_id from value, and all other non used entries
-            ret_log[entry["instruction_id"]] = entry
+            ret_log[entry["instruction_id"]] = {**entry, "diceResult": entry["dice_result"]}
+            # ret_log["diceResult"] = entry["dice_result"]
+
+
 
         opt = get_log_api(log)
 
@@ -54,6 +58,8 @@ class LevelLogView(APIView):
             "legalMoves": opt["legalMoves"],
             **ids,
         }
+
+        print(response)
 
         return JsonResponse(response)
 

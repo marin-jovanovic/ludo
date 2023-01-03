@@ -44,16 +44,23 @@ class LevelView(APIView):
 
             r = get_player_order_model().objects.filter(level_id_id=name)
 
+            id_to_order = {
+                i.user_id : i.join_index for i in r
+            }
+
             users_ids = [i.user_id for i in r]
 
             print(f"{users_ids=}")
 
             m = {}
 
-            for i in users_ids:
+            for id_, join_id in id_to_order.items():
                 # todo add is active flag, when filtering in future
-                r = get_user_model().objects.get(id=i)
-                m[i] = r.username
+                r = get_user_model().objects.get(id=id_)
+
+                # player_ord = get_player_order_model().objects.filter
+
+                m[id_] = {"username": r.username, "joinId": join_id}
 
             for i in m.items():
                 print(i)

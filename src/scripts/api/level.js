@@ -30,10 +30,10 @@ async function getGames() {
 
 
 
-async function getSpecificGame({name}) {
+async function getSpecificLevel({levelId}) {
     return await apiCalls.handleNewResponse(
         await apiCalls.api.get(
-            `level/${name}`,
+            `level/${levelId}`,
             apiCalls.getAuthenticationHeader()
         )
     );
@@ -65,11 +65,11 @@ async function joinGame(gameName) {
     );
 }
 
-export const apiLobby = {
+export const apiLevel = {
     createGame,
     getGames,
     leaveGame,
     joinGame,
-    getSpecificGame,
+    getSpecificLevel,
 
 }
