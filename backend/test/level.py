@@ -5,7 +5,6 @@ from backend.config import get_config
 from backend.test.auth import create_profile, login, delete_profile
 
 
-
 def get_random_string(length):
     # choose from all lowercase letter
     letters = string.ascii_lowercase
@@ -67,7 +66,6 @@ def create_game(url, username, access_token, level_name, capacity):
 # todo automate using statistics    view
 
 def leave_game(url, username, access_token, level_id):
-
     t = requests.put(
         f"{url}/{level_id}",
         headers={
@@ -85,8 +83,8 @@ def leave_game(url, username, access_token, level_id):
     print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
     return json.loads(t.text)
 
-def join_game(url, username, access_token, game_name):
 
+def join_game(url, username, access_token, game_name):
     t = requests.put(
         f"{url}/{game_name}",
         headers={
@@ -94,7 +92,7 @@ def join_game(url, username, access_token, game_name):
                 type_="Custom",
                 username=username,
                 access_token=access_token
-            )        },
+            )},
         data={
             "join": True,
         },
@@ -103,13 +101,13 @@ def join_game(url, username, access_token, game_name):
     print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
     return json.loads(t.text)
 
-def get_specific_level(
-            url,
-            username,
-            access_token,
-            level_id,
-        ):
 
+def get_specific_level(
+        url,
+        username,
+        access_token,
+        level_id,
+):
     t = requests.get(
         f"{url}/{level_id}",
         headers={
@@ -117,7 +115,7 @@ def get_specific_level(
                 type_="Custom",
                 username=username,
                 access_token=access_token
-            )        },
+            )},
     )
 
     print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
@@ -125,7 +123,6 @@ def get_specific_level(
 
 
 class TestMain(unittest.TestCase):
-
 
     def load_config(self):
 
@@ -152,7 +149,8 @@ class TestMain(unittest.TestCase):
 
         self.max_level_capacity = config["levelMaxCapacity"]
 
-        self.levels = {i: self.level_id_prefix + str(i) for i in range(self.max_level_capacity + 1)}
+        self.levels = {i: self.level_id_prefix + str(i) for i in
+                       range(self.max_level_capacity + 1)}
 
     @classmethod
     def setUpClass(cls):
@@ -343,13 +341,12 @@ class TestMain(unittest.TestCase):
             capacity=capacity
         )
 
-        r =  leave_game(
+        r = leave_game(
             url=self.level_url,
             username=username,
             access_token=access_token,
             level_id=level_name
         )
-
 
     def test_get_level_data(self):
         username = self.players[0]["username"]
@@ -380,7 +377,6 @@ class TestMain(unittest.TestCase):
         except Exception as e:
             print("excp", e)
             pass
-
 
         # throw err
         r = leave_game(
@@ -453,10 +449,10 @@ class TestMain(unittest.TestCase):
         access_token = self.players[1]["access token"]
 
         r = join_game(
-            url = self.level_url,
-            username = username,
-            access_token = access_token,
-            game_name = level_name,
+            url=self.level_url,
+            username=username,
+            access_token=access_token,
+            game_name=level_name,
         )
 
         # try adding third player, this needs to fail
@@ -464,10 +460,10 @@ class TestMain(unittest.TestCase):
         access_token = self.players[2]["access token"]
 
         r = join_game(
-            url = self.level_url,
-            username = username,
-            access_token = access_token,
-            game_name = level_name,
+            url=self.level_url,
+            username=username,
+            access_token=access_token,
+            game_name=level_name,
         )
 
         # return
@@ -475,7 +471,7 @@ class TestMain(unittest.TestCase):
         # remove 2nd
         username = self.players[1]["username"]
         access_token = self.players[1]["access token"]
-        r =  leave_game(
+        r = leave_game(
             url=self.level_url,
             username=username,
             access_token=access_token,
@@ -485,7 +481,7 @@ class TestMain(unittest.TestCase):
         # try remove 3rd
         username = self.players[2]["username"]
         access_token = self.players[2]["access token"]
-        r =  leave_game(
+        r = leave_game(
             url=self.level_url,
             username=username,
             access_token=access_token,
@@ -495,13 +491,12 @@ class TestMain(unittest.TestCase):
         username = self.players[0]["username"]
         access_token = self.players[0]["access token"]
 
-        r =  leave_game(
+        r = leave_game(
             url=self.level_url,
             username=username,
             access_token=access_token,
             level_id=level_name
         )
-
 
     def test_create_level(self):
 
@@ -509,7 +504,6 @@ class TestMain(unittest.TestCase):
         access_token = self.players[0]["access token"]
 
         for capacity, level_name in self.levels.items():
-
             r = create_game(
                 url=self.level_url,
                 username=username,
@@ -528,7 +522,6 @@ class TestMain(unittest.TestCase):
         access_token = self.players[0]["access token"]
 
         for capacity, level_name in self.levels.items():
-
             r = create_game(
                 url=self.level_url,
                 username=username,
@@ -544,8 +537,6 @@ class TestMain(unittest.TestCase):
             level_id=level_name,
 
         )
-
-
 
     def test_delete_other_users_level(self):
 
