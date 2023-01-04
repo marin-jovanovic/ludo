@@ -30,17 +30,16 @@ class AcceptanceLogView(APIView):
         for i in ret.items():
             print(i)
 
-        from backend.api.model.player_order import get_player_order_model
-        from backend.api.model.player import get_user_model
+        from backend.api.model.user import get_user_model
 
-        user_id = get_user_model().objects.get(username = request.username).id
+        user_id = get_user_model().objects.get(username=request.username).id
         print(f"{user_id=}")
 
         what_i_have_done = {}
         # c = 0
-        for en, (entry_index, users_performed)  in enumerate(ret.items()):
+        for en, (entry_index, users_performed) in enumerate(ret.items()):
             if user_id in users_performed:
-                what_i_have_done[en]  = entry_index
+                what_i_have_done[en] = entry_index
 
         print(f"{what_i_have_done=}")
 
@@ -105,14 +104,9 @@ class AcceptanceLogView(APIView):
 
         return JsonResponse(response)
 
-import json
 
 from backend.api.cqrs_q.level import level_get_model_by_id
-from backend.api.cqrs_q.user import get_user
-from backend.api.model.acceptance_log import \
-    acceptance_log_entry_created_notifier
 from backend.api.model.acceptance_log import get_acceptance_log_model
-from backend.api.model.level_log import get_level_log_model
 
 
 def get_logs_for_this_level(level_id, ):
@@ -152,7 +146,6 @@ def get_logs_for_this_level(level_id, ):
     # for i in r:
     #     print(i)
 
-
     # is_first_time = not r
     # print(f"{is_first_time=}")
     #
@@ -173,7 +166,6 @@ def get_logs_for_this_level(level_id, ):
     #     return {
     #         "status": True
     #     }
-
 
     return {
         "status": True,
