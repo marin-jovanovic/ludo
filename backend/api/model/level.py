@@ -32,19 +32,6 @@ class Level(models.Model):
     is_active = models.BooleanField(default=True)
 
 
-def is_integrity_rule_ok(name):
-    """
-    integrity rule
-
-    return True if name is ok
-    """
-
-    return {
-        "status": not get_level_model().objects.filter(name=name,
-                                                       is_active=True).exists(),
-    }
-
-
 def get_level_model():
     return apps.get_model(get_level_model_as_string())
 
