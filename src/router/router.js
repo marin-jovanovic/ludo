@@ -99,8 +99,6 @@ router.beforeEach((to, from, next) => {
 
     let isPublic = isPublicPath(to.path);
 
-    // const loggedIn = ssw.get('username');
-
     const loggedIn = userMetaSS.isAuth();
 
 
