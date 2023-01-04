@@ -1,8 +1,9 @@
 from django.http import JsonResponse
 from rest_framework.views import APIView
 
-from backend.api.view.comm import get_auth_ok_response_template
 from backend.api.cqrs_c.users import delete_profile
+from backend.api.view.comm import get_auth_ok_response_template
+
 
 class DeleteProfileView(APIView):
     """
