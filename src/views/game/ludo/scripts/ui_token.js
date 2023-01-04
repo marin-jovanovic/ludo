@@ -7,6 +7,7 @@ import {
 import {
     BoardTile
 } from "./ui_board_tile.js";
+// import { circleCollidesWithPoint } from "./collisions.js";
 
 /**
  * ===>>>
@@ -47,6 +48,10 @@ class UiToken extends ContentCreator {
 
         this.radius = 8
         this.colour = colour;
+
+        this.collides = false;
+        this.colourCollides = "white";
+
         this.startingPosition = {
             x: position.x,
             y: position.y
@@ -75,6 +80,14 @@ class UiToken extends ContentCreator {
 
 
         this.occurances = 7;
+
+
+
+
+
+
+
+
     }
 
     set number({
@@ -249,7 +262,10 @@ class UiToken extends ContentCreator {
         return atNextDestination;
     }
 
-    draw = (c) => {
+    draw = (c ) => {
+
+
+
 
 
         c.font = "30px Arial";
@@ -312,7 +328,26 @@ class UiToken extends ContentCreator {
             });
         }
 
-        c.fillStyle = this.colour;
+//         this.collides = false;
+// this.colourCollides = "white";
+
+        if (this.collides) {
+            c.fillStyle = this.colourCollides;
+
+        } else {
+            c.fillStyle = this.colour;
+
+        }
+
+
+
+            // if (circleCollidesWithPoint({circle: this, point: mousePosition})) {
+
+
+            
+            //     console.log("colliding")
+            
+            // }
         c.fill();
         c.closePath();
 
