@@ -5,23 +5,16 @@ from backend.api.cqrs_q.user import get_user
 from backend.api.model.message import Message, message_notifier
 
 
-def create_message(sender, game, content):
+def create_message(sender, level_id, content):
     print("create message")
-    # print("")
 
     r = get_user(sender)
     if not r["status"]:
         return r
 
-    else:
-        print(r)
-        user_o = r["payload"]
+    user_o = r["payload"]
 
-    # r = __check_game_name_exists(game)
-    # if not r["payload"]:
-    #     return {"status": False, "_": "__check_game_name_exists"}
-
-    r = level_get_filter_id(game)
+    r = level_get_filter_id(level_id)
     if not r["status"]:
         return {"status": False, "_": "__get_game"}
 
