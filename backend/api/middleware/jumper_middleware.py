@@ -1,3 +1,4 @@
+import base64
 import urllib
 
 from decouple import config
@@ -7,7 +8,6 @@ from backend.api.comm.comm import get_empty_response_template
 from backend.api.cqrs_c.users import create_user, auth_user
 from backend.api.cqrs_q.user import is_access_token_correct
 
-import base64
 
 class JumperMiddleware:
     def __init__(self, get_response):
