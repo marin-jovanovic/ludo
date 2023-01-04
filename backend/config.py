@@ -6,7 +6,6 @@ def get_config():
         "incorrectPassword": "1",
         "apiURL": "http://localhost:8000",
 
-
         "levelIdPrefix": "game ",
         # max number of users per level
         "levelMaxCapacity": 4,
