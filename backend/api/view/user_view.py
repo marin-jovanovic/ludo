@@ -17,13 +17,10 @@ class UserView(APIView):
 
         response = get_auth_ok_response_template(request)
 
-
-        from backend.api.model.player import get_user_model
+        from backend.api.model.user import get_user_model
         r = get_user_model().objects.get(id=user_id)
 
         print(f"{r=}")
-
-        from django.core import serializers
 
         # assuming obj is a model instance
         # serialized_obj = serializers.serialize('json', [r, ])
