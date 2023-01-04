@@ -3,8 +3,8 @@ from rest_framework.views import APIView
 
 from backend.api.cqrs_c.game_log import add_entry
 from backend.api.game.game import add_entry_to_log, get_log_api
-from backend.api.model.level_log import get_level_log_model
 from backend.api.model.level import get_level_model
+from backend.api.model.level_log import get_level_log_model
 from backend.api.model.player_order import get_player_order_model
 from backend.api.view.comm import get_auth_ok_response_template
 
@@ -39,7 +39,8 @@ class LevelLogView(APIView):
         for entry in log:
             # todo remove dice_result (not json convention)
             # todo del instruction_id from value, and all other non used entries
-            ret_log[entry["instruction_id"]] = {**entry, "diceResult": entry["dice_result"]}
+            ret_log[entry["instruction_id"]] = {**entry, "diceResult": entry[
+                "dice_result"]}
             # ret_log["diceResult"] = entry["dice_result"]
 
         opt = get_log_api(log)
@@ -119,7 +120,6 @@ class LevelLogView(APIView):
         level_name = r["payload"]
 
         for i in log_diff:
-
             i["game"] = level_name
             add_entry(**i)
 
@@ -150,7 +150,8 @@ def join_id_to_username_and_user_id(join_index, level_id):
 
     t = int(join_index)
 
-    level_exists = get_player_order_model().objects.filter(level_id=level_id).exists()
+    level_exists = get_player_order_model().objects.filter(
+        level_id=level_id).exists()
 
     player_order = get_player_order_model()
 
