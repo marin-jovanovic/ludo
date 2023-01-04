@@ -2,7 +2,7 @@ from django.apps import apps
 from django.db import models
 
 from backend.api.model.level import get_level_model
-from backend.api.model.player import get_user_model_as_string
+from backend.api.model.user import get_user_model_as_string
 
 
 class PlayerOrder(models.Model):
