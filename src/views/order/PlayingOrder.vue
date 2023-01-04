@@ -14,8 +14,6 @@
 
     <h3>order : {{ this.order }}</h3>
 
-    <!-- <BaseNotification ref="notification"></BaseNotification> -->
-
     <!-- <div>order</div>
 
     <h1>total level capacity : {{ this.capacity }}</h1>
@@ -26,6 +24,10 @@
 
     <button v-if="this.canStart" enabled @click="this.startgame">start</button>
     <button v-else disabled>start</button> -->
+
+    <div v-if="this.isOrderDetermined">
+      <button @click="goToLevel">go play</button>
+    </div>
   </base-user-template>
 </template>
 
@@ -37,11 +39,11 @@ import { apiLevelLog } from "@/scripts/api/level_log";
 import { apiLevel } from "@/scripts/api/level";
 import { acceptanceLogApi } from "@/scripts/api/acceptance_log";
 import { apiSettings } from "@/scripts/api/settings";
-// import { apiLevel } from "@/scripts/api/level";
 
 import { wsListeners } from "@/scripts/ws_listener";
 
 import { notification } from "@/scripts/notification";
+import { router } from "@/router/router";
 
 export default {
   data() {
@@ -72,6 +74,16 @@ export default {
     await this.tryNextInstruction();
   },
   methods: {
+    goToLevel() {
+      console.log("to game");
+
+      router.replace(`/game/${this.gameId}`);
+    },
+    isOrderDetermined() {
+      console.log("rec");
+      return this.capacity === this.order.length;
+    },
+
     async tryNextInstruction() {
       console.log("try");
       console.log(this.currentLogEntryIndex);
@@ -81,36 +93,20 @@ export default {
       if (logEntry.action === "goes") {
         console.log("goes");
         this.order.push(this.players[logEntry.player].username);
+
+        console.log("oder", this.isOrderDetermined());
       } else {
+        console.log("can not perform on my own");
+        console.log(logEntry);
         return;
       }
 
       this.currentLogEntryIndex++;
 
       await this.sendConfirmation(this.currentLogEntryIndex - 1);
+
+      await this.tryNextInstruction();
     },
-
-    // async playerJoinIndexToUsername(joinIndex) {
-    //   let res = await apiLevel.getSpecificLevel({
-    //     levelId: this.levelId,
-    //   });
-
-    //   let flag = res["auth"]["status"] && res["payload"]["status"];
-
-    //   if (!flag) {
-    //     console.log("err");
-    //     return;
-    //   }
-
-    //   for (const i of Object.values(res["payload"]["users"])) {
-    //     if (i.joinId === joinIndex) {
-    //       return i.username;
-    //     }
-    //   }
-
-    //   // return
-    //   // return res["payload"];
-    // },
 
     // passive actions
     async wsReceive(message) {
@@ -118,7 +114,6 @@ export default {
 
       let toAcceptIndex = message.entryId;
 
-      // this should be compared with >
       if (this.currentLogEntryIndex > Number(toAcceptIndex)) {
         console.log(this.currentLogEntryIndex, toAcceptIndex);
         console.log("mismatch, skip");
@@ -179,6 +174,7 @@ export default {
             case "goes":
               console.log("goes");
               this.order.push(this.players[entry.player].username);
+              console.log("order", this.isOrderDetermined());
               break;
             default:
               console.log("unknown");
@@ -214,14 +210,16 @@ export default {
     },
 
     async loadUsername() {
-      let r = await apiSettings.getSettings();
+      let res = await apiSettings.getSettings();
 
-      // fixthuis check
-      if (r["auth"]["status"]) {
-        let pl = r["payload"];
-
-        this.username = pl["username"];
+      if (!(res["auth"]["status"] && res["payload"]["status"])) {
+        console.log("err");
+        return;
       }
+
+      let pl = res["payload"];
+
+      this.username = pl["username"];
     },
 
     async rollDice() {
@@ -270,6 +268,10 @@ export default {
         console.log("err");
         return;
       }
+
+      // console.log(res["payload"]);
+
+      this.capacity = res["payload"]["capacity"];
 
       for (const value of Object.values(res["payload"]["users"])) {
         if (value.username === this.username) {
