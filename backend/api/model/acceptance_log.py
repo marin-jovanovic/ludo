@@ -4,7 +4,7 @@ from django.db import models
 from backend.api.comm.comm import Notifier
 from backend.api.model.level import get_level_model
 from backend.api.model.level_log import get_level_log_model
-from backend.api.model.player import get_user_model
+from backend.api.model.user import get_user_model
 
 acceptance_log_entry_created_notifier = Notifier()
 
