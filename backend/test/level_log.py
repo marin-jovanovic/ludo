@@ -5,7 +5,6 @@ from backend.config import get_config
 from backend.test.auth import create_profile, login, delete_profile
 
 
-
 def get_random_string(length):
     # choose from all lowercase letter
     letters = string.ascii_lowercase
@@ -67,7 +66,6 @@ def create_game(url, username, access_token, level_name, capacity):
 # todo automate using statistics    view
 
 def leave_game(url, username, access_token, level_id):
-
     t = requests.put(
         f"{url}/{level_id}",
         headers={
@@ -85,8 +83,8 @@ def leave_game(url, username, access_token, level_id):
     print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
     return json.loads(t.text)
 
-def join_game(url, username, access_token, game_name):
 
+def join_game(url, username, access_token, game_name):
     t = requests.put(
         f"{url}/{game_name}",
         headers={
@@ -94,7 +92,7 @@ def join_game(url, username, access_token, game_name):
                 type_="Custom",
                 username=username,
                 access_token=access_token
-            )        },
+            )},
         data={
             "join": True,
         },
@@ -102,6 +100,7 @@ def join_game(url, username, access_token, game_name):
 
     print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
     return json.loads(t.text)
+
 
 def log_driver(url, username, access_token):
     t = requests.put(
@@ -112,7 +111,7 @@ def log_driver(url, username, access_token):
                 type_="Custom",
                 username=username,
                 access_token=access_token
-            )        },
+            )},
         data={
             "join": True,
         },
@@ -120,6 +119,7 @@ def log_driver(url, username, access_token):
 
     print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
     return json.loads(t.text)
+
 
 def get_log(url, username, access_token):
     t = requests.get(
@@ -135,6 +135,7 @@ def get_log(url, username, access_token):
 
     print(json.dumps(json.loads(t.text), indent=4, sort_keys=True))
     return json.loads(t.text)
+
 
 def add_to_log(url, username, access_token, token_id):
     t = requests.put(
@@ -155,15 +156,14 @@ def add_to_log(url, username, access_token, token_id):
     return json.loads(t.text)
 
 
-
 class TestMain(unittest.TestCase):
 
     def construct_log_path(self, level_id):
         level_id = str(level_id)
 
         config = get_config()
-        return self.base + "/" + config["levelPath"] + "/" + level_id + "/" + config["levelLogPath"]
-
+        return self.base + "/" + config["levelPath"] + "/" + level_id + "/" + \
+               config["levelLogPath"]
 
     def load_config(self):
 
@@ -192,7 +192,8 @@ class TestMain(unittest.TestCase):
 
         self.max_level_capacity = config["levelMaxCapacity"]
 
-        self.levels = {i: self.level_id_prefix + str(i) for i in range(self.max_level_capacity + 1)}
+        self.levels = {i: self.level_id_prefix + str(i) for i in
+                       range(self.max_level_capacity + 1)}
 
     @classmethod
     def setUpClass(cls):
@@ -289,7 +290,6 @@ class TestMain(unittest.TestCase):
             username = self.players[0]["username"]
             access_token = self.players[0]["access token"]
 
-
             for i in range(5):
                 r = get_log(
                     url=self.construct_log_path(level_id),
@@ -318,7 +318,6 @@ class TestMain(unittest.TestCase):
             print("excepiton", e)
             pass
 
-
         username = self.players[1]["username"]
         access_token = self.players[1]["access token"]
         r = leave_game(
@@ -331,14 +330,12 @@ class TestMain(unittest.TestCase):
         username = self.players[0]["username"]
         access_token = self.players[0]["access token"]
 
-
-        r =  leave_game(
+        r = leave_game(
             url=self.level_url,
             username=username,
             access_token=access_token,
             level_id=level_name
         )
-
 
 
 if __name__ == "__main__":
