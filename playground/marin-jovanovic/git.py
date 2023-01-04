@@ -20,7 +20,7 @@ def main():
     comment = "impl: create / update portfolio"
     comment = 'ref: rewrite db scheme'
 
-    comment = "impl: #15"
+    comment = "wip: models cleanup"
 
     if same_comment:
         if not comment:
