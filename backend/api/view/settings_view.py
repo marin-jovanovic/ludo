@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 
 from backend.api.view.comm import get_auth_ok_response_template
 
+
 # todo add all settings that are hardcoded (game settings, number of players, ...)
 
 class SettingsView(APIView):
@@ -15,7 +16,6 @@ class SettingsView(APIView):
 
 
         """
-
 
         response = get_auth_ok_response_template(request)
 
