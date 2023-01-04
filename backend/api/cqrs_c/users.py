@@ -6,12 +6,13 @@ from backend.api.comm.comm import Notifier
 from backend.api.cqrs_q.user import get_logged_users
 from backend.api.cqrs_q.user import is_username_in_db, is_authenticated, \
     is_access_token_correct, get_user
-from backend.api.model.player import get_user_model
+from backend.api.model.user import get_user_model
 
 # todo change username
 # todo access token
 
 active_users_notifier = Notifier()
+
 
 def delete_profile(username, access_token):
     if not is_access_token_correct(username, access_token)["status"]:
@@ -20,7 +21,8 @@ def delete_profile(username, access_token):
             "description": 'username access token combination mismatch. Please check your credentials and try again'
         }
 
-    t = get_user_model().objects.get(username=username, access_token= access_token).delete()
+    t = get_user_model().objects.get(username=username,
+                                     access_token=access_token).delete()
 
     return {'status': True}
 
@@ -91,10 +93,8 @@ def create_user(username, password):
     rej = is_pass_ok(password)
 
     if not rej["status"]:
-
-        return  rej
+        return rej
         # return {'status': False, 'debug': 'pw not matching criteria complexiti'}
-
 
     k, _ = get_user_model().objects.update_or_create(
         username=username,
@@ -113,7 +113,7 @@ def change_password(username, old_password, new_password_1, new_password_2):
         return {'status': False, 'debug': 'username + pass combo err'}
 
     if not is_pass_ok(new_password_2)["status"]:
-        return  is_pass_ok(new_password_2)
+        return is_pass_ok(new_password_2)
 
     if not new_password_1 == new_password_2:
         return {'status': False, 'debug': 'pw1 != pw2'}
@@ -148,7 +148,8 @@ def user_set_game_roll_to_join(username):
     is_playing_game = __is_playing_game(player_o=creator_o)
 
     if is_playing_game["payload"]:
-        return {"status": False, "payload": "user role not empty (playing another game)"}
+        return {"status": False,
+                "payload": "user role not empty (playing another game)"}
 
     _assign_role_to_user(creator_o, "joined")
 
