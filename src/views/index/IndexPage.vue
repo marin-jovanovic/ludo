@@ -1,10 +1,6 @@
 <template>
   <BaseUserTemplate>
     <div class="row">
-      <button @click="playAgainstBot">play against bot</button>
-    </div>
-
-    <div class="row">
       <input
         type="text"
         class="form-control"
@@ -12,7 +8,7 @@
         v-model="gameName"
       />
       <input
-        type="text"
+        type="number"
         class="form-control"
         placeholder="game capacity"
         v-model="gameCapacity"
@@ -22,18 +18,16 @@
     </div>
 
     <hr />
-    <h1>not full</h1>
-    <hr />
 
-    <div v-for="i in this.notFull" :key="Object.values(i)">
+    <div v-for="i in this.levels" :key="Object.values(i)">
       {{ i }}
 
-      <button @click="joinGame(i.name)">join</button>
+      <button @click="joinGame(i.levelId)">join</button>
 
       <div v-for="p in i.players" :key="p">
         <div v-if="p == this.username">
           <h1>here</h1>
-          <button @click="leaveGame(i.name)">leave</button>
+          <button @click="leaveGame(i.levelId)">leave</button>
         </div>
       </div>
 
@@ -42,44 +36,36 @@
 
     <div>
       active users:
-      <div v-for="i in this.activeUsers" :key="i">
-        {{ i }}
+      <div v-for="(user, id) in this.activeUsers" :key="id">
+        {{ id }} --> {{ user }}
       </div>
     </div>
-
-    <BaseMessage ref="message"></BaseMessage>
   </BaseUserTemplate>
 </template>
 
 <script>
-// import { useToast } from "vue-toastification";
 import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
-import BaseMessage from "@/components/BaseMessage.vue";
 import { apiLevel } from "@/scripts/api/level";
 import { wsListeners } from "@/scripts/ws_listener";
 import { router } from "@/router/router";
+import { levelSessionStorage, userMetaSS } from "@/scripts/session_storage";
+import { notification } from "@/scripts/notification";
 
 export default {
-  // setup() {
-  //   const toast = useToast();
-  //   return { toast };
-  // },
-
   async mounted() {
-    this.username = sessionStorage.getItem("username");
-    console.log("this username", this.username);
+    this.username = userMetaSS.getCredentials()["username"];
+
     await this.fetchInitData();
 
     let url = "ws://127.0.0.1:8000/lobby_games/";
     new wsListeners.WebSocketListener(url, this.getUserActive);
-    console.log("ws init");
   },
   data() {
     return {
       gameName: "",
-      gameCapacity: "",
+      gameCapacity: 2,
 
-      notFull: {},
+      levels: {},
 
       username: "",
 
@@ -90,59 +76,79 @@ export default {
     };
   },
   methods: {
-    playAgainstBot() {
-      console.log("todo");
-    },
-
     getUserActive(message) {
       console.log("ws get user active");
       console.log(message);
 
-      this.activeUsers = message;
+      this.activeUsers = message["payload"];
       this.fetchInitData();
     },
 
-    async joinGame(gameName) {
-      let res = await apiLevel.joinGame(gameName);
-      console.log("load", res);
-      if (res["auth"]["status"]) {
-        if (res["payload"]["status"]) {
-          console.log("game join ok");
-        }
+    async joinGame(levelId) {
+      let res = await apiLevel.joinGame(levelId);
+
+      let flag = res["auth"]["status"] && res["payload"]["status"];
+
+      notification.showMessage(flag, "joined level", "error joining level");
+
+      if (!flag) {
+        return;
       }
 
-      sessionStorage.setItem("gameId", gameName);
+      // let levelId = res["payload"]["levelId"];
+
+      // console.log("join pl", res["payload"]);
+      console.log("level id", levelId);
+
+      if (levelId !== Number(res["payload"]["levelId"])) {
+        console.log("err not same", res["payload"]);
+      }
+
+      // cons
+
+      levelSessionStorage.joinLevel({ levelId: levelId });
+
+      router.push(`waitingRoom/${levelId}`);
     },
 
     async leaveGame(gameName) {
       let res = await apiLevel.leaveGame(gameName);
-      console.log("load", res);
-      if (res["auth"]["status"]) {
-        if (res["payload"]["status"]) {
-          console.log("game left ok");
-        }
+
+      let flag = res["auth"]["status"] && res["payload"]["status"];
+
+      notification.showMessage(flag, "leave ok", "error level leave");
+
+      if (!flag) {
+        return;
       }
+
+      levelSessionStorage.leaveLevel();
     },
 
     async createGame() {
       let res = await apiLevel.createGame(this.gameName, this.gameCapacity);
-      console.log("load", res);
-      if (res["auth"]["status"]) {
-        if (res["payload"]["status"]) {
-          this.isCreator = true;
+      console.log("load", res["payload"]);
 
-          console.log("game created ok");
+      let flag = res["auth"]["status"] && res["payload"]["status"];
 
-          this.joinGame(this.gameName);
+      notification.showMessage(flag, "level created", "error creating level");
 
-          let levelId = res["payload"]["levelId"];
-
-          // todo wait 2 seconds or something?
-          // better: trigger notif
-
-          router.push(`waitingRoom/${levelId}`);
-        }
+      if (!flag) {
+        return;
       }
+
+      this.isCreator = true;
+
+      let levelId = res["payload"]["levelId"];
+
+      this.joinGame(levelId);
+
+      // todo wait 2 seconds or something?
+      // better: trigger notif
+
+      levelSessionStorage.joinLevel({ levelId: res["payload"]["levelId"] });
+
+      router.push(`waitingRoom/${levelId}`);
     },
 
     async fetchInitData() {
@@ -154,22 +160,16 @@ export default {
 
       console.log(res[["payload"]]);
 
-      this.notFull = res["payload"]["levels"];
+      this.levels = res["payload"]["levels"];
+      console.log(res["payload"]["levels"]);
 
       let inGame = res["payload"]["inLevel"];
 
       console.log("in game", inGame);
-
-      // if (inGame in this.full) {
-      //   sessionStorage.setItem("gameId", inGame);
-
-      //   // router.push(`game/${inGame}`);
-      // }
     },
   },
   components: {
     BaseUserTemplate,
-    BaseMessage,
   },
 };
 </script>
