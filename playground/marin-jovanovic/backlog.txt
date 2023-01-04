@@ -101,3 +101,10 @@ improvements
             this is done in coffee app
 
     when page is half width then there are two buttons in the upper right
+
+    extract base url from frontend for ws
+
+    play against bot
+
+    check if session storage is called without wrapper
+        add some kind of dyn check that goes over code and try to find it
