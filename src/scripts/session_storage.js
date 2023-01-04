@@ -4,6 +4,8 @@ class SessionStorageWrapper {
             'username',
             'accessToken',
             'profilePhoto',
+            'levelId',
+
         ])
     }
 
@@ -38,6 +40,11 @@ class SessionStorageWrapper {
                 variable: variable
             })) {
             return false;
+        }
+
+        if (value === undefined) {
+            console.log("err, assumption that this was not intended")
+            return
         }
 
 
@@ -96,7 +103,7 @@ class SessionStorageWrapper {
 
 class UserMetaSS {
     constructor() {
-
+        this.ssw = new SessionStorageWrapper();
     }
 
     login({
@@ -107,7 +114,7 @@ class UserMetaSS {
         this.accessToken = accessToken;
 
         if (!
-            ssw.set({
+            this.ssw.set({
                 variable: "username",
                 value: this.username
             })
@@ -115,7 +122,7 @@ class UserMetaSS {
             console.log("err setting")
         }
         if (!
-            ssw.set({
+            this.ssw.set({
                 variable: "accessToken",
                 value: this.accessToken
             })
@@ -128,10 +135,10 @@ class UserMetaSS {
 
         if (!
 
-            ssw.remove({
+            this.ssw.remove({
                 variable: "username"
             }) &&
-            ssw.remove({
+            this.ssw.remove({
                 variable: "accessToken"
             })
 
@@ -143,9 +150,10 @@ class UserMetaSS {
     isAuth() {
 
 
-        return ssw.get({
+        return this.ssw.get({
             variable: "username"
-        }).status && ssw.get({
+        }).status && 
+        this.ssw.get({
             variable: "accessToken"
         }).status;
 
@@ -153,20 +161,71 @@ class UserMetaSS {
 
     getCredentials() {
         return {
-            username: ssw.get({
+            username: this.ssw.get({
                 variable: "username"
             }).payload,
-            accessToken: ssw.get({
+            accessToken: this.ssw.get({
                 variable: "accessToken"
             }).payload
         }
     }
 }
 
-let ssw = new SessionStorageWrapper();
+
+
+
+class LevelSS {
+    constructor() {
+        this.ssw = new SessionStorageWrapper();
+    }
+
+    joinLevel({
+        levelId
+    }) {
+
+        console.log("--------- setting", levelId)
+
+        this.levelId = levelId;
+
+        if (!
+            this.ssw.set({
+                variable: "levelId",
+                value: this.levelId
+            })
+        ) {
+            console.log("err setting")
+        }
+    }
+
+    leaveLevel() {
+        if (!
+
+            this.ssw.remove({
+                variable: "levelId"
+            }) 
+
+        ) {
+            console.log("err removing")
+        }
+
+    }
+ 
+    // is in any level
+
+    getLevelMeta() {
+        return {
+            levelId: this.ssw.get({
+                variable: "levelId"
+            }).payload,
+        }
+    }
+}
+
+
 let userMetaSS = new UserMetaSS();
+let levelSessionStorage = new LevelSS();
 
 export {
-    ssw,
-    userMetaSS
+    userMetaSS,
+    levelSessionStorage
 }
