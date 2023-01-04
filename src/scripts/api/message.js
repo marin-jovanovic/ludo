@@ -21,15 +21,16 @@ async function sendMessage(sender, game, content) {
 
 }
 
-async function getMessages(game) {
+async function getMessages(levelId) {
+console.log(levelId);
 
     let params = {
-        "game": game
+        "game": levelId
     };
 
     return await apiCalls.handleNewResponse(
         await apiCalls.api.get(
-            `message/${game}`,
+            `message/${levelId}`,
 
             {
                 ...apiCalls.getAuthenticationHeader(),
@@ -43,26 +44,6 @@ async function getMessages(game) {
     );
 }
 
-// // todo missing data
-// async function leaveGame(gameName) {
-//     return await apiCalls.handleNewResponse(
-//         await apiCalls.api.put(
-//             `lobby/${gameName}`,
-//             JSON.stringify({"leave": true}),
-//             apiCalls.getAuthenticationHeader()
-//         )
-//     );
-// }
-
-// async function joinGame(gameName) {
-//     return await apiCalls.handleNewResponse(
-//         await apiCalls.api.put(
-//             `lobby/${gameName}`,
-//             JSON.stringify({"join": true}),
-//             apiCalls.getAuthenticationHeader()
-//         )
-//     );
-// }
 
 export const apiMessage = {
     // createGame,
