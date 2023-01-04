@@ -1,21 +1,18 @@
-from backend.api.cqrs_q.level import __check_game_name_exists, __get_game
+from backend.api.cqrs_q.level import level_get_filter_id
 from backend.api.model.message import get_message_model
 
 
-def get_messages(game):
-    r = __check_game_name_exists(game)
-    if not r["payload"]:
-        return {"status": False, "payload": "gamen ot exist"}
+def get_messages(level_id):
+    # r = __check_game_name_exists(game)
+    # if not r["status"]:
+    #     return {"status": False, "t": "__check_game_name_exists"}
 
-    r = __get_game(game)
-    if not r["payload"]:
-        # print(r)
-        # print("r payload prsnet")
-        return {"status": False, "payload": "game not exiswt"}
-    else:
-        game_o = r["payload"]
+    r = level_get_filter_id(level_id)
+    if not r["status"]:
+        return {"status": False, "t": "__get_game"}
 
-    # r = {}
+    game_o = r["payload"]
+
     r = []
     for i in get_message_model().objects.filter(game=game_o).order_by(
             'timestamp'):
