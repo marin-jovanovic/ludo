@@ -9,10 +9,6 @@
     <hr />
     <button @click="leaveGame">leave game</button>
 
-    <button @click="test">test</button>
-
-    <button @click="board">board scheme api</button>
-
     <div class="row">
       <div class="col">
         <TheGame></TheGame>
@@ -184,15 +180,6 @@ export default {
       } else {
         console.log("someone else performed something");
       }
-    },
-
-    async board() {
-      // for test
-      // let res = await apiBoard.getBoard("1", "startPool");
-      // console.log(res["payload"]["payload"]);
-      // if (!(res["auth"]["status"] && res["payload"]["status"])) {
-      //   console.log("game leave err");
-      // }
     },
 
     // getUserActive(message) {
