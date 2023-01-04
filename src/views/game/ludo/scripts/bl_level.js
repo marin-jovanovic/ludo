@@ -29,7 +29,7 @@ class Level extends ContentCreator {
         // DTO - data transfer object
         this.levelState = levelState;
 
-        console.log(levelState);
+        // console.log(levelState);
 
         // this is for notifying bl
         this.changleLog = [];
