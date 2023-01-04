@@ -64,21 +64,21 @@ def is_pass_ok(password: str):
     test_list = ["?", "!", "%", "&", "@", "$",
                  "+", "-", ".", "_", ",", "\"", "\'"]
     if not any(item in list(password) for item in test_list):
-        t  = "password must contain special character"
+        t = "password must contain special character"
         print(t)
         reasons.append(t)
         flag = False
 
     # digit
     if not any(char.isdigit() for char in password):
-        t  = "password must contain number"
+        t = "password must contain number"
         print(t)
         reasons.append(t)
         flag = False
 
     # upper case
     if not any(char.isupper() for char in password):
-        t  = "password must contain uppercase letter"
+        t = "password must contain uppercase letter"
         print(t)
         reasons.append(t)
         flag = False
