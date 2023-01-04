@@ -1,10 +1,8 @@
-import urllib
-
 from django.http import JsonResponse
 from rest_framework.views import APIView
 
-from backend.api.cqrs_q.message import get_messages
 from backend.api.cqrs_c.message import create_message
+from backend.api.cqrs_q.message import get_messages
 from backend.api.view.comm import get_auth_ok_response_template
 
 
@@ -12,25 +10,24 @@ class MessageView(APIView):
 
     # todo identification for one on one messaging
 
-    def get(self, request, game):
+    def get(self, request, level_id):
         """
         for initial getting messages
         """
 
         response = get_auth_ok_response_template(request)
-        response['payload'] = get_messages(game)
+        response['payload'] = get_messages(level_id)
 
         return JsonResponse(response)
 
     # todo observers
 
-    def post(self, request, game=None):
-
+    def post(self, request, level_id):
         sender = request.data["sender"]
-        game = request.data["game"]
+        level_id = request.data["game"]
         content = request.data["content"]
 
         response = get_auth_ok_response_template(request)
-        response["payload"] = create_message(sender, game, content)
+        response["payload"] = create_message(sender, level_id, content)
 
         return JsonResponse(response)
