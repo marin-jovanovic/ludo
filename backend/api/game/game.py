@@ -11,7 +11,6 @@ from backend.api.game.pre import player_moves_preprocessor
 from backend.api.game.resources import get_config
 
 
-
 # todo loading mid game config, content
 # todo manual driver
 
@@ -451,18 +450,16 @@ class Level:
 
         # for user choosing
         self.players_turn = None
-        self.start_pool_options  = {}
+        self.start_pool_options = {}
         self.non_start_pool_options = {}
 
         print(f"{bool(log)=}")
 
         if log:
-
             print(f"{log[-1]=}")
 
         if log and log[-1]["action"] == "roll":
             print("action not decided")
-
 
             player_id = log[-1]["player"]
 
@@ -598,9 +595,6 @@ class Level:
                     #             already_won.add(player_id)
                     #         break
 
-
-
-
     def auto_driver(
             self,
             game_conf,
@@ -682,7 +676,7 @@ def generate_start():
     return level.get_log()
 
 
-def choose(board, log, player_id,  token_id):
+def choose(board, log, player_id, token_id):
     """
     wrapper for moving token
 
@@ -704,11 +698,8 @@ def choose(board, log, player_id,  token_id):
     if token.get_pool() == get_pool("start"):
         roll_result = 1
 
-
     t = board.move_token(player_id=player_id, token_id=token_id,
                          step=roll_result)
-
-
 
     log.append(move_token(
         player=player_id,
@@ -747,12 +738,12 @@ def generate_next():
 
     return level
 
+
 def player_chose():
     pass
 
 
 def generate_as_much_as_you_can():
-
     level = generate_next()
 
     # send log diff and
@@ -806,9 +797,8 @@ def generate_as_much_as_you_can():
 
     to_choose = {**level.start_pool_options, **level.non_start_pool_options}
 
-    for token_id,  token in to_choose.items():
-
-        choose(level.board, level.get_log(), player,  token_id)
+    for token_id, token in to_choose.items():
+        choose(level.board, level.get_log(), player, token_id)
 
         break
 
@@ -816,7 +806,6 @@ def generate_as_much_as_you_can():
     for i in level.get_log():
         print(i)
     print()
-
 
     return level.get_log()
 
@@ -828,13 +817,12 @@ def main():
 
     log = generate_as_much_as_you_can()
 
-
     # self.players_turn = player_id
     # self.players_options = to_choose
 
+
 def create_game_api(capacity):
     """order is guaranteed"""
-
 
     level = Level()
 
@@ -842,6 +830,7 @@ def create_game_api(capacity):
         "status": True,
         "payload": level.get_log()
     }
+
 
 def get_log_api(log):
     """"""
@@ -852,7 +841,6 @@ def get_log_api(log):
         for j in ["id", "game_id", "instruction_id", "performed"]:
             if j in i:
                 del i[j]
-
 
     level = Level(log=log)
 
@@ -931,7 +919,6 @@ def add_entry_to_log(log, player_id, token_id):
     # for i in log_diff:
     #     print(i)
 
-
     to_choose = {**level.start_pool_options, **level.non_start_pool_options}
 
     last_log = level.get_log()[-1]
@@ -947,7 +934,6 @@ def add_entry_to_log(log, player_id, token_id):
         "turn": player,
         "legalMoves": list(to_choose.keys())
     }
-
 
     # return
     # return diff log
