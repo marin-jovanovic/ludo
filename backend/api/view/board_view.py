@@ -8,8 +8,8 @@ from backend.api.view.comm import get_auth_ok_response_template
 
 class BoardView(APIView):
 
-    def get(self, request, name, resource):
-        print("get board,", name, resource)
+    def get(self, request, level_id, resource):
+        print("get board,", level_id, resource)
         response = get_auth_ok_response_template(request)
 
         configuration = {
@@ -27,4 +27,3 @@ class BoardView(APIView):
         }
 
         return JsonResponse(response)
-
