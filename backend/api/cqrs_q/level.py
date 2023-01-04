@@ -121,6 +121,12 @@ def level_get_model(level_name):
 
 def level_get_filter_id(level_id):
     try:
+        level_id = int(level_id)
+    except ValueError:
+        print("level_get_filter_id can not convert level_id to int")
+        return {"status": False}
+
+    try:
         g_o = get_level_model().objects.get(id=level_id)
         return {"status": True, "payload": g_o}
 
