@@ -40,6 +40,8 @@ export default {
     this.gameId = this.$route.params.id;
     console.log(this.gameId);
 
+    // this needs to be same as one in sesion storage
+
     // fetch users here
 
     let res = await apiLevel.getSpecificLevel({ levelId: this.gameId });
