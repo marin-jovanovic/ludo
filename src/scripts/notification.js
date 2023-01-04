@@ -29,7 +29,6 @@ let notification = new Notification();
 
 
 export {
-    Notification,
     notification
 }
 
