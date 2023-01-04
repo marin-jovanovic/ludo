@@ -1,42 +1,98 @@
 <template>
   <div>
-    <div>messages</div>
+    <w-button class="ma1" @click="openDrawer = 'right'" outline>
+      Open right drawer
+    </w-button>
 
-    <div>
-      <div v-for="i in this.messageLog" :key="i">
-        {{ i }}
+    <w-drawer v-model="openDrawer" :right="true">
+      <!-- todo css -->
+
+      <!-- <w-button
+        @click="openDrawer = false"
+        sm
+        outline
+        round
+        absolute
+        icon="wi-cross"
+      >
+        fff
+
+        <h1>f</h1>
+        <h1>f</h1>
+        <h1>f</h1>
+        <h1>f</h1>
+        <h1>f</h1>
+        <h1>f</h1>
+        <h1>f</h1>
+      </w-button> -->
+
+      <div class="w-flex pa2 align-center wrap">
+        <div class="w-flex align-center">
+          <!-- <span class="grey-dark3"> fff </span> -->
+
+          <!-- <div>messages</div> -->
+          <div class="column">
+            <div class="row">
+              <div
+                ref="messagesScrollable"
+                style="overflow-y: scroll; height: 400px"
+              >
+                <div v-for="i in this.messageLog" :key="i">
+                  {{ i }}
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <input
+                type="text"
+                v-model="this.message"
+                placeholder="type message"
+              />
+              <button @click="sendMessage">send</button>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-    <div>
-      <input type="text" v-model="this.message" placeholder="type message" />
-      <button @click="sendMessage">send</button>
-    </div>
+    </w-drawer>
   </div>
 </template>
+
+
     
     
   <script>
 import { wsListeners } from "@/scripts/ws_listener";
 import { apiMessage } from "@/scripts/api/message";
+import { levelSessionStorage, userMetaSS } from "@/scripts/session_storage";
 
 export default {
-  props: {
-    // gameId: String,
+  props: {},
+  // computed: {
+  //   position() {
+  //     return "right";
+  //   },
+  // },
+  updated() {
+    var elem = this.$el;
+    elem.scrollTop = elem.clientHeight;
   },
   data() {
     return {
-      gameId: "",
+      levelId: "",
 
       username: "",
       message: "",
       messageLog: {},
+      openDrawer: false,
     };
   },
   async mounted() {
-    this.gameId = sessionStorage.getItem("gameId");
-    console.log("gameid", this.gameId);
+    this.levelId = levelSessionStorage.getLevelMeta()["levelId"];
 
-    this.username = sessionStorage.getItem("username");
+    this.username = userMetaSS.getCredentials()["username"];
+
+    // userMetaSS,
+    // levelSessionStorage
 
     await this.fetchMessages();
 
@@ -51,7 +107,7 @@ export default {
     async sendMessage() {
       let res = await apiMessage.sendMessage(
         this.username,
-        this.gameId,
+        this.levelId,
         this.message
       );
       if (res["auth"]["status"]) {
@@ -59,15 +115,36 @@ export default {
       } else {
         console.log("err fetching data");
       }
+
+      // let el = this.$refs.messagesScrollable;
+
+      // el.scrollIntoView({ behavior: "smooth" });
+
+      var container = this.$el.querySelector(
+        ".column > div:nth-child(1) > div:nth-child(1)"
+      );
+      container.scrollTop = container.scrollHeight;
+
+      this.message = "";
     },
 
     async fetchMessages() {
-      let res = await apiMessage.getMessages(this.gameId);
-      if (res["auth"]["status"]) {
-        this.messageLog = res["payload"]["payload"];
-      } else {
-        console.log("err fetching data");
+      let res = await apiMessage.getMessages(this.levelId);
+
+      let flag = res["auth"]["status"] && res["payload"]["status"];
+
+      if (!flag) {
+        console.log("err");
       }
+
+      console.log(res["payload"]);
+
+      this.messageLog = res["payload"]["payload"];
+
+      // if (res["auth"]["status"]) {
+      // } else {
+      //   console.log("err fetching data");
+      // }
     },
   },
 };
