@@ -3,6 +3,7 @@ from django.db.models import Max
 from backend.api.cqrs_q.level import level_get_model
 from backend.api.model.level_log import get_level_log_model
 
+
 def add_entry(game, player, token, dice_result, action, performed=False):
     r = level_get_model(game)
     if r["status"]:
@@ -11,7 +12,8 @@ def add_entry(game, player, token, dice_result, action, performed=False):
         print("get game err")
         return r
 
-    instr_id = get_level_log_model().objects.filter(game=game_o).aggregate(Max("instruction_id"))["instruction_id__max"]
+    instr_id = get_level_log_model().objects.filter(game=game_o).aggregate(
+        Max("instruction_id"))["instruction_id__max"]
 
     if not isinstance(instr_id, int):
         instr_id = -1
