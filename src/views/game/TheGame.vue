@@ -301,9 +301,20 @@ export default {
       this.game = new ludo.Game(
         document.querySelector("#staticcanvas"),
         document.querySelector("#reactivecanvas"),
-
         configPayload
       );
+
+      // catch clicking on tokens
+
+      this.game.ui.reactiveCanvas.subscribe({
+        command: "tokenSelected",
+        s: this.tokenSelected,
+      });
+    },
+
+    tokenSelected({ username, tokenId }) {
+      console.log("args");
+      console.log(username, tokenId);
     },
 
     movePosition({ player, token, jumpCount }) {
@@ -322,28 +333,9 @@ export default {
   position: relative;
 }
 
-/* .staticCanvas {
-  border-style: dotted;
-} */
-
 .container > canvas {
   position: absolute;
   top: 0;
   left: 0;
 }
-
-/* body {
-    margin: 0;
-    background-color: black;
-    padding: 10px 20px;
-
-}
-
-p {
-    color: white;
-    font-family: sans-serif;
-    font-size: 14px;
-    margin-bottom: 6px;
-}
- */
 </style>
