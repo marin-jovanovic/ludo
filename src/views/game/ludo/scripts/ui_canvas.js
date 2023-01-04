@@ -4,6 +4,8 @@ import {
 import {
     getBoardTiles
 } from './layers.js'
+import { circleCollidesWithPoint } from "./collisions.js";
+import { ContentCreator } from "./content_creator.js";
 
 class Canvas {
 
@@ -31,6 +33,36 @@ class Canvas {
 
 }
 
+class DeliverableCanvas extends ContentCreator {
+
+    constructor({
+        element
+    }) {
+        super();
+
+        this.canvas = element;
+
+        // this.canvas.width = 600;
+        // this.canvas.height = 600;
+        this.canvas.width = innerWidth;
+        this.canvas.height = innerHeight;
+
+        this.context = this.canvas.getContext("2d");
+        this.animationId;
+
+    }
+
+    clear = () => {
+
+        // leave no trace
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
+
+    }
+
+
+}
+
+
 class CanvasStatic extends Canvas {
     constructor({
         element,
@@ -57,7 +89,7 @@ class CanvasStatic extends Canvas {
     }
 }
 
-class CanvasReactive extends Canvas {
+class CanvasReactive extends DeliverableCanvas {
 
     constructor({
         element,
@@ -78,6 +110,89 @@ class CanvasReactive extends Canvas {
             useBacklog: false,
         };
 
+        this.mousePosition = {
+            x: 0,
+            y: 0
+        }
+
+//         this.canvas.addEventListener("click", (e) => {
+// console.log(e)
+//         })
+
+        // what if multiple on same
+
+        // mousemove
+        this.canvas.addEventListener('click', (event) => {
+           
+            
+            this.mousePosition.x = event.layerX;
+            this.mousePosition.y = event.layerY;
+         
+            // console.log(this.playersToTokens)
+
+            Object.values(this.playersToTokens).forEach(p => {
+
+                for (const [id, t] of Object.entries(p.tokens)) {
+
+                    if (circleCollidesWithPoint({circle: t, point: this.mousePosition})) {
+
+                        t.collides =  true;
+
+                        // console.log("clicked", t.position)
+
+                         new Promise((r) => setTimeout(r, 500)).then(() => {
+                            t.collides = false
+                        });
+
+                        console.log(p.username, id)
+
+                        this.notify({
+                            command: "tokenSelected", 
+                            username: p.username,
+                            tokenId: id
+                        });
+                
+
+                    } else {
+                        // unset all others
+                        t.collides =  false;
+                    }
+
+
+
+                }
+                
+
+                // Object.values(p.tokens).forEach(t => {
+
+
+                //     // if (t.position.x === 100 && t.position.y === 460) {
+                //         // console.log(t.position, t.radius, this.mousePosition);
+
+                //         if (circleCollidesWithPoint({circle: t, point: this.mousePosition})) {
+
+                //             t.collides =  true;
+
+                //             console.log("clicked", t.position)
+
+                //              new Promise((r) => setTimeout(r, 500)).then(() => {
+                //                 t.collides = false
+                //             });
+
+                //             console.log(p.username, p, t)
+
+
+                //         } else {
+                //             // unset all others
+                //             t.collides =  false;
+                //         }
+    
+
+                // });
+            });
+
+        });
+
 
         // wait for one token to reach destination (stops moving) before other token can be moved on board
         // tokens scheduled for change
@@ -90,6 +205,10 @@ class CanvasReactive extends Canvas {
 
     animate = () => {
 
+
+
+
+
         let animateDriver = () => {
 
             this.canvas.animationId = requestAnimationFrame(animateDriver)
@@ -100,7 +219,10 @@ class CanvasReactive extends Canvas {
 
                 Object.values(p.tokens).forEach(t => {
 
-                    t.draw(this.context)
+
+                    t.draw(this.context, this.mousePosition);
+
+                    // this.context.fillStyle = 'red';
 
                 });
 
