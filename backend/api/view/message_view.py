@@ -15,6 +15,8 @@ class MessageView(APIView):
         for initial getting messages
         """
 
+        print(f"get messages {level_id=}")
+
         response = get_auth_ok_response_template(request)
         response['payload'] = get_messages(level_id)
 
@@ -28,6 +30,6 @@ class MessageView(APIView):
         content = request.data["content"]
 
         response = get_auth_ok_response_template(request)
-        response["payload"] = create_message(sender, level_id, content)
+        response["payload"] = create_message(sender=sender, level_id=level_id, content=content)
 
         return JsonResponse(response)
