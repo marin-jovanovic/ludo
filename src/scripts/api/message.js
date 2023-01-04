@@ -22,11 +22,11 @@ async function sendMessage(sender, game, content) {
 }
 
 async function getMessages(levelId) {
-console.log(levelId);
+console.log("get msg", levelId);
 
-    let params = {
-        "game": levelId
-    };
+    // let params = {
+    //     "game": levelId
+    // };
 
     return await apiCalls.handleNewResponse(
         await apiCalls.api.get(
@@ -34,7 +34,7 @@ console.log(levelId);
 
             {
                 ...apiCalls.getAuthenticationHeader(),
-                ...params
+                // ...params
 
             }
 
