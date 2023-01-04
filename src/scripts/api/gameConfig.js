@@ -7,7 +7,7 @@ async function getResource(gameId, resource) {
         console.log('resource not present');
     }
 
-    console.log("getResource", gameId, resource)
+    // console.log("getResource", gameId, resource)
 
     return await apiCalls.handleNewResponse(
         await apiCalls.api.get(
