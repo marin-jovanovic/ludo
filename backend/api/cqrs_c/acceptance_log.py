@@ -56,7 +56,6 @@ def create_entry_if_not_exists(level_id, entry_id, username):
     #         "status": True
     #     }
 
-
     # if exist return
     r = get_acceptance_log_model().objects.filter(
         level=level_o,
@@ -64,7 +63,6 @@ def create_entry_if_not_exists(level_id, entry_id, username):
         user=user_o,
         accepted=True
     ).exists()
-
 
     if r:
         print("already in db")
@@ -83,13 +81,11 @@ def create_entry_if_not_exists(level_id, entry_id, username):
     e.save()
 
     if is_first_time:
-
         msg = json.dumps({
             "entryId": entry_id
         })
         print("send msg over ws")
         acceptance_log_entry_created_notifier.notify(msg)
-
 
     return {
         "status": True
