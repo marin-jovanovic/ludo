@@ -1,45 +1,45 @@
-from backend.api.cqrs_q.level import level_get_model
+from backend.api.cqrs_q.level import level_get_model_by_id
 from backend.api.cqrs_q.user import get_user
-from backend.api.model.player_order import PlayerOrder, get_player_order_model, \
-    get_player_order_model
+from backend.api.model.player_order import get_player_order_model
 
 
-def player_order_create_entry(username, game_name):
-    print(f"{username=}")
-    print(f"{game_name=}")
-
-    r = level_get_model(game_name)
+def player_order_create_entry(username, level_id):
+    r = level_get_model_by_id(level_id)
     if not r["status"]:
         print("get game err")
         return r
     else:
         g_o = r["payload"]
 
-    # model = _get_player_order_model()
-
-    # try:
     last_index = get_player_order_model().objects.filter(level_id=g_o)
-    for i in last_index:
-        print(i.user.username, i.game_joined_timestamp)
-        # if i.player.username == username:
 
     max_index = 0
     for i in last_index:
         if i.user.username == username:
-            print("err already in add to order")
-            return {"status": False, "debug": "already in add to order"}
+            # fixme
+            # user is in this order
+
+            # this is something that should not occur
+            # but it is not an error
+
+            print("fixme already in add to order")
+
+            # check integrity
+            # r = get_user_model().objects.get(username=username)
+            # if not r.game_role:
+            # r.game_role="fix"
+            # if not r.currently_playing:
+            #     r.currently_playing=g_o
+            # r.save()
+
+            return {"status": True}
         max_index += 1
-
-    # except model.DoesNotExist:
-    #     max_index = 0
-
 
     r = get_user(username)
     if not r["status"]:
-        print("get user err")
         return r
-    else:
-        u_o = r["payload"]
+
+    u_o = r["payload"]
 
     player_order = get_player_order_model()
 
@@ -48,10 +48,6 @@ def player_order_create_entry(username, game_name):
         join_index=max_index,
         # turn_index
         user=u_o,
-        #     game_joined_timestamp
-
-        # index_won = models.IntegerField(null=True)
-        # index_left = models.IntegerField(null=True)
     )
     g.save()
 
