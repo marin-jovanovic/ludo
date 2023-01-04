@@ -1,27 +1,21 @@
 import json
 
-from django.apps import apps
-
 from backend.api.cqrs_c.game_log import add_entry
 from backend.api.cqrs_c.player_order import player_order_create_entry
 from backend.api.cqrs_c.users import make_user_game_creator, \
     make_user_available_to_play, user_set_game_roll_to_join
-from backend.api.cqrs_q.level import __is_game_full_when_this_user_will_be_added,  \
-    is_level_empty, level_get_model
+from backend.api.cqrs_q.level import \
+    level_get_model, is_level_empty_by_id, \
+    level_get_model_by_id, is_level_full_when_this_user_will_be_added_by_id, \
+    is_integrity_rule_ok
 from backend.api.cqrs_q.user import get_user, get_users_in_level
 from backend.api.game.game import create_game_api
-from backend.api.game.order import determine_order
-from backend.api.game.resources import get_config
-
 from backend.api.model.level import Level, \
     game_created_notifier, games_notifier, game_left_notifier, \
-    game_join_notifier, get_level_model, is_integrity_rule_ok
-from backend.api.model.level_log import GameLog
+    game_join_notifier, get_level_model
 # get_player_order
 from backend.api.model.player_order import get_player_order_model
-from backend.api.model.player import get_user_model
-
-from rest_framework.renderers import JSONRenderer
+from backend.api.model.user import get_user_model
 
 
 def in_which_level_is_user(username):
@@ -78,14 +72,13 @@ def create_game(creator_username, level_name, capacity):
     g.save()
     # print("level created")
 
-
     # player order object
-    r = player_order_create_entry(creator_username, level_name)
+    r = player_order_create_entry(creator_username, g.id)
     if not r["status"]:
         print("err add_to_order")
         return r
 
-    r =  user_set_currently_playing_id(creator_username, level_name)
+    r = user_set_currently_playing_id(creator_username, level_name)
     if not r["status"]:
         return r
 
@@ -129,7 +122,8 @@ def get_player_order(game_name):
 
     return {"status": True, "payload": r}
 
-def leave_level(game_name, username):
+
+def leave_level(username):
     """level name is obsolete"""
 
     r = get_user(username)
@@ -138,18 +132,11 @@ def leave_level(game_name, username):
     else:
         return r
 
-    # print(f"{user_o.currently_playing_id=}")
+    # todo one player playing multiple levels at same time
+    # if not user_o.currently_playing_id == level_id:
+    #     print("err  mismatch, does not matter, i can fix that")
 
-    # print(f"{get_level_model().objects.get(id=user_o.currently_playing_id).name=}")
-
-    if not get_level_model().objects.get(id=user_o.currently_playing_id).name == game_name:
-        print("err  mismatch, does not matter, i can fix that")
-
-    game_name = get_level_model().objects.get(id=user_o.currently_playing_id).name
-
-    # print(f"{get_user_model().objects.get(username=username).currently_playing__name=}")
-
-    # print(f"{user_o.currently_playing_id__name=}")
+    level_id = user_o.currently_playing_id
 
     print(f"{user_o.game_role=}")
 
@@ -161,7 +148,7 @@ def leave_level(game_name, username):
 
     try:
         _ = get_user_model().objects.get(username=username,
-                                     currently_playing__name=game_name)
+                                         currently_playing_id=level_id)
     except get_user_model().DoesNotExist:
         print("user not in this level")
         return {"status": False, "payload": "user not in this level"}
@@ -178,7 +165,7 @@ def leave_level(game_name, username):
         print("leave_game err __free_user_currently_playing")
         return r
 
-    r = is_level_empty(game_name)
+    r = is_level_empty_by_id(level_id)
     if r["status"]:
         f_is_empty = r["payload"]
     else:
@@ -188,25 +175,70 @@ def leave_level(game_name, username):
     if f_is_empty:
         print("leave_game level is empty")
 
-        level = get_level_model().objects.get(name=game_name, is_active=True)
+        level = get_level_model().objects.get(level_id=level_id, is_active=True)
         level.is_active = False
         level.save()
 
+    # "levelName": "__todo__"
     msg = json.dumps(
-        {"source": "leave game", "name": game_name, "who left": username})
+
+        {"source": "leave game", "levelId": level_id, "who left": username})
     game_left_notifier.notify(msg)
     games_notifier.notify(json.dumps(get_active_levels()))
     return {"status": True}
 
 
-def join_game(game_name, username):
+def join_level(level_id, username):
+    # todo cleanup for consistency
 
-    r = level_get_model(game_name)
+    # assumption: user in another level
+    r = get_user_model().objects.get(username=username)
+    # print(f"{r.game_role=}")
+    # print(f"{r.currently_playing=}")
+
+    # fixme what if bool(1)
+    # this should be fixed with db, not on this level
+
+    # this is quick fix
+
+    if r.game_role and r.currently_playing:
+        """assuming both are correct"""
+
+    elif r.game_role and not r.currently_playing:
+        """
+        if currently_playing is not present ->
+        go over all levels and find where this one is present
+        """
+
+        r.game_role = None
+        r.save()
+
+    elif not r.game_role and r.currently_playing:
+        """
+        if game_role is not present, I need to find currently_playing
+        if creator is present -> game_role = "joined"
+        else -> game_role = "creator"
+        """
+
+        r.currently_playing = None
+        r.save()
+
+    else:
+        """
+        assumption: nothing is present
+        """
+
+    # print("after fixing")
+    r = get_user_model().objects.get(username=username)
+    # print(f"{r.game_role=}")
+    # print(f"{r.currently_playing=}")
+
+    r = level_get_model_by_id(level_id)
     if not r["status"]:
         print("err get game")
         return r
 
-    r = __is_game_full_when_this_user_will_be_added(game_name)
+    r = is_level_full_when_this_user_will_be_added_by_id(level_id)
     if not r["status"]:
         print("err __is_game_full")
         return r
@@ -218,134 +250,42 @@ def join_game(game_name, username):
     # logic
 
     # player order object
-    r = player_order_create_entry(username, game_name)
+    r = player_order_create_entry(username, level_id)
     if not r["status"]:
-        print("err add_to_order")
         return r
 
     # user object
 
-    r = user_set_game_roll_to_join(username)
+    r = user_set_game_roll_to_join(username=username)
     if not r["status"]:
         print("err __make_user_join")
         return r
 
-    r = user_set_currently_playing_id(username, game_name)
+    r = user_set_currently_playing_id(username=username, level_id=level_id)
     if not r["status"]:
-        print("err __assign_user_currently_playing")
         return r
 
     # other
 
-    msg = json.dumps(
-        {"source": "join game", "name": game_name, "who joined": username})
+    msg = json.dumps({
+        "source": "join game",
+        "name": level_id,
+        "who joined": username,
+        "levelId": level_id
+    })
+
     game_join_notifier.notify(msg)
     games_notifier.notify(json.dumps(get_active_levels()))
+
+    r["payload"]["levelId"] = level_id
+
+    print(f"{r=}")
 
     return r
 
 
-
-
-"""aux"""
-
-
-
-# def receive_instruction(game_id, instruction_id):
-#     r = __get_game(game_id)
-#     if not r["status"]:
-#         return r
-#     else:
-#         game_o = r["payload"]
-#
-#     if instruction_id == "test":
-#         from backend.api.game.game import generate_whole_game
-#
-#         # todo hardcoded
-#         g = generate_whole_game()
-#
-#         r = __add_to_log(game_id, g)
-#         if not r["status"]:
-#             return r
-#         # print("test")
-#
-#     elif instruction_id == 'generatestart':
-#         from backend.api.game.game import generate_start
-#
-#         # todo hardcoded
-#         g = generate_start()
-#
-#         r = __add_to_log(game_id, g)
-#         if not r["status"]:
-#             return r
-#
-#     else:
-#         print(f'other instruction {instruction_id=}')
-#         # for logging that they user performed this action
-#         pass
-#
-#         # GameLog. \
-#         #     objects. \
-#         #     filter(
-#         #     game=game_o,
-#         #     instruction_id=instruction_id
-#         # ). \
-#         #     update(performed=True)
-#
-#     # todo check all in log if not
-#
-#     is_any_performed_false = GameLog.objects.filter(performed=False,
-#                                                     game_id=game_o)
-#     # print(f"{is_any_performed_false=}")
-#
-#     if is_any_performed_false:
-#         print("not last instruciton, required user action")
-#     else:
-#         print("last instruction, generate new")
-#
-#
-#
-#     return {"status": True}
-#
-
-# def __add_to_log(game_id, order):
-#     r = __get_game(game_id)
-#     if not r["status"]:
-#         return r
-#
-#     try:
-#         g_o = _get_level_model().objects.get(name=game_id)
-#     except _get_level_model().DoesNotExist:
-#         return {"status": False}
-#
-#     for i in order:
-#
-#         if i["action"] == "roll":
-#             i["performed"] = False
-#         else:
-#             i["performed"] = True
-#
-#         i["game"] = game_id
-#
-#         t = _get_player_order_model().objects.get(
-#             game_id=g_o,
-#             join_index=i["player"]
-#         )
-#
-#         i["player"] = t.player.username
-#         # print(i)
-#
-#         add_entry(**i)
-#
-#         # r = add_entry(**i)
-#         # print("result add", r)
-#
-#     return {"status": True}
-
-
-
-
 def get_active_levels():
+    # perform cleanup
 
     levels = {}
 
@@ -354,7 +294,7 @@ def get_active_levels():
         if not level.is_active:
             continue
 
-        r = get_users_in_level(level.name)
+        r = get_users_in_level(level.id)
 
         if r["status"]:
             users_in_level = r["payload"]
@@ -372,36 +312,51 @@ def get_active_levels():
             "levelId": level.id
         }
 
+    # cleanup
+    is_changed = False
+    for id_, meta in levels.items():
+
+        if not meta["players"]:
+            level = get_level_model().objects.get(id=meta["levelId"])
+            level.is_active = False
+            level.save()
+            is_changed = True
+
+    if is_changed:
+        return get_active_levels()
+
     return {
         "status": True,
         "payload": levels
     }
 
 
-
 def user_clear_currently_playing_id(username):
-    return __driver_assign_user_currently_playing(username, None)
+    # todo
+    return driver_assign_user_currently_playing(username, None, "todo")
 
 
-def user_set_currently_playing_id(username, game_name):
-    r = level_get_model(game_name)
-    if r["status"]:
-        game_o = r["payload"]
-    else:
+def user_set_currently_playing_id(username, level_id):
+    r = level_get_model_by_id(level_id)
+    if not r["status"]:
         return r
 
-    return __driver_assign_user_currently_playing(username, game_o)
+    game_o = r["payload"]
+
+    return driver_assign_user_currently_playing(username, game_o, level_id)
 
 
-def __driver_assign_user_currently_playing(username, game_o):
+def driver_assign_user_currently_playing(username, game_o, level_id):
     r = get_user(username)
-    if r["status"]:
-        user_o = r["payload"]
-    else:
+    if not r["status"]:
         return r
 
+    user_o = r["payload"]
     user_o.currently_playing = game_o
     user_o.save()
 
-    return {"status": True}
+    # r["payload"]["levelId"]
+    return {"status": True, "payload": {
+        "levelId": level_id
 
+    }}
