@@ -100,3 +100,4 @@ improvements
         add image loading
             this is done in coffee app
 
+    when page is half width then there are two buttons in the upper right

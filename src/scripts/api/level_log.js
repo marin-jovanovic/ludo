@@ -7,7 +7,6 @@ import {
 
 async function getLevelLog(game) {
 
-    console.log("get game", game)
 
     return await apiCalls.handleNewResponse(
         await apiCalls.api.get(
@@ -20,7 +19,6 @@ async function getLevelLog(game) {
 
 
 async function updateGame(game, player, token, action) {
-    console.log("action", action)
 
     return await apiCalls.handleNewResponse(
         await apiCalls.api.post(
@@ -39,7 +37,6 @@ async function updateGame(game, player, token, action) {
 async function actionPerformed(game, player, instruction_id) {
     // todo type check before fetching
 
-    console.log(game, player, instruction_id)
 
     return await apiCalls.handleNewResponse(
         await apiCalls.api.put(

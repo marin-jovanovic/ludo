@@ -2,11 +2,16 @@ import json
 
 from backend.api.cqrs_q.level import level_get_model_by_id
 from backend.api.cqrs_q.user import get_user
+from backend.api.model.acceptance_log import \
+    acceptance_log_entry_created_notifier
 from backend.api.model.acceptance_log import get_acceptance_log_model
 from backend.api.model.level_log import get_level_log_model
-from backend.api.model.acceptance_log import acceptance_log_entry_created_notifier
+
 
 def create_entry_if_not_exists(level_id, entry_id, username):
+    # todo add check if this user can call this function
+    # is someone else performing this move for this user
+
     print(f"{level_id=}")
     print(f"{entry_id=}")
 
@@ -32,6 +37,26 @@ def create_entry_if_not_exists(level_id, entry_id, username):
 
     print(f"{log_entry_o=}")
 
+    r = get_acceptance_log_model().objects.filter(
+        level=level_o,
+        log_entry=log_entry_o,
+        # user=user_o,
+        accepted=True
+    ).exists()
+
+    is_first_time = not r
+    print(f"{is_first_time=}")
+
+    # if r:
+    #     # someone peformed this move, this is just confirmation that move is received
+    #     print()
+    # if r:
+    #     print("already in db")
+    #     return {
+    #         "status": True
+    #     }
+
+
     # if exist return
     r = get_acceptance_log_model().objects.filter(
         level=level_o,
@@ -39,6 +64,7 @@ def create_entry_if_not_exists(level_id, entry_id, username):
         user=user_o,
         accepted=True
     ).exists()
+
 
     if r:
         print("already in db")
@@ -56,19 +82,13 @@ def create_entry_if_not_exists(level_id, entry_id, username):
     )
     e.save()
 
-    msg = json.dumps({
-        "source": "msg created",
-        "game": g.game.name,
+    if is_first_time:
 
-        "timestamp": str(g.timestamp),
-        "sender": g.sender.username,
-        "content": g.content
-
-    })
-
-    print(f"{msg=}")
-
-    acceptance_log_entry_created_notifier.notify(msg)
+        msg = json.dumps({
+            "entryId": entry_id
+        })
+        print("send msg over ws")
+        acceptance_log_entry_created_notifier.notify(msg)
 
 
     return {

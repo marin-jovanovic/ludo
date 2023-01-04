@@ -42,8 +42,6 @@ class LevelLogView(APIView):
             ret_log[entry["instruction_id"]] = {**entry, "diceResult": entry["dice_result"]}
             # ret_log["diceResult"] = entry["dice_result"]
 
-
-
         opt = get_log_api(log)
 
         t = join_id_to_username_and_user_id(opt["turn"], level_id)
@@ -59,7 +57,7 @@ class LevelLogView(APIView):
             **ids,
         }
 
-        print(response)
+        # print(response)
 
         return JsonResponse(response)
 
@@ -148,7 +146,7 @@ def level_id_to_name(level_id):
 def join_id_to_username_and_user_id(join_index, level_id):
     """join index (level index) -> username"""
 
-    print(f"{join_index=}")
+    # print(f"{join_index=}")
 
     t = int(join_index)
 

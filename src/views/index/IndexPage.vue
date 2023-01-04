@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import { useToast } from "vue-toastification";
+// import { useToast } from "vue-toastification";
 import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
 import BaseMessage from "@/components/BaseMessage.vue";
 import { apiLevel } from "@/scripts/api/level";
@@ -60,10 +60,10 @@ import { wsListeners } from "@/scripts/ws_listener";
 import { router } from "@/router/router";
 
 export default {
-  setup() {
-    const toast = useToast();
-    return { toast };
-  },
+  // setup() {
+  //   const toast = useToast();
+  //   return { toast };
+  // },
 
   async mounted() {
     this.username = sessionStorage.getItem("username");

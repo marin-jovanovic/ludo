@@ -31,6 +31,23 @@ class AcceptanceLogApi {
 
     }
 
+    getAcceptanceLogForLevel = async ({levelId}) => {
+
+        return await apiCalls.handleNewResponse(
+            await apiCalls.api.get(
+                this.constructUrl({levelId: levelId}) ,
+                
+                // `${this.baseUrl}/${levelId}/acceptanceLog`,
+                // JSON.stringify({
+                //     // entryId: entryId,
+                //     // payload: payload
+                // }),
+                apiCalls.getAuthenticationHeader()
+            )
+        );
+
+
+    }
 
 
 }

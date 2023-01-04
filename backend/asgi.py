@@ -18,7 +18,7 @@ application = ProtocolTypeRouter(
                 URLRouter([
                     path('lobby_games/', GameConsumer().as_asgi()),
                     path('msg/', MessageConsumer().as_asgi()),
-                    path('acceptanceLogEntryCreated', AcceptanceLogEntryCreatedConsumer.as_asgi())
+                    path('acceptanceLogEntryCreated/', AcceptanceLogEntryCreatedConsumer.as_asgi())
 
                     # path('game_state/', MessageConsumer().as_asgi()),
 

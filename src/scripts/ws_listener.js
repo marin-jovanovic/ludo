@@ -9,14 +9,14 @@ class WebSocketListener {
         };
 
         self.socket.onmessage = function(event) {
-            console.log("[ws message]");
+            console.log("[ws message]", event);
 
-            console.log(event.data, typeof(event.data))
+            // console.log(event.data, typeof(event.data))
 
 
             let message = JSON.parse(event.data);
 
-            console.log(message.message)
+            // console.log(message.message)
 
             onMessageAction(message);
 

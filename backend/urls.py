@@ -38,6 +38,7 @@ urlpatterns = [
 
     path("user/<str:user_id>", UserView.as_view()),
 
+    path("level/<str:level_id>/acceptanceLog", AcceptanceLogView.as_view()),
     path("level/<str:level_id>/acceptanceLog/<str:entry_id>", AcceptanceLogView.as_view()),
 
     # todo fix this
