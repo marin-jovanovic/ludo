@@ -34,16 +34,13 @@
 <script>
 import TheDice from "@/components/TheDice.vue";
 import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
-
 import { apiLevelLog } from "@/scripts/api/level_log";
 import { apiLevel } from "@/scripts/api/level";
 import { acceptanceLogApi } from "@/scripts/api/acceptance_log";
-import { apiSettings } from "@/scripts/api/settings";
-
 import { wsListeners } from "@/scripts/ws_listener";
-
 import { notification } from "@/scripts/notification";
 import { router } from "@/router/router";
+import { userMetaSS } from "@/scripts/session_storage";
 
 export default {
   data() {
@@ -64,7 +61,7 @@ export default {
     let url = "ws://127.0.0.1:8000/acceptanceLogEntryCreated/";
     new wsListeners.WebSocketListener(url, this.wsReceive);
 
-    await this.loadUsername();
+    this.username = userMetaSS.getCredentials()["username"];
 
     await this.loadPlayers();
     await this.loadPlayingOrder();
@@ -209,22 +206,7 @@ export default {
       return flag;
     },
 
-    async loadUsername() {
-      let res = await apiSettings.getSettings();
-
-      if (!(res["auth"]["status"] && res["payload"]["status"])) {
-        console.log("err");
-        return;
-      }
-
-      let pl = res["payload"];
-
-      this.username = pl["username"];
-    },
-
     async rollDice() {
-      // todo sta ako ovaj reloada stranicu, nece sve ponovo krenut vrtit, treba samo ovo sta se nije rjesilo
-
       let logEntry = this.log[this.currentLogEntryIndex];
 
       if (!this.players[this.joinId].isTurn) {
@@ -268,8 +250,6 @@ export default {
         console.log("err");
         return;
       }
-
-      // console.log(res["payload"]);
 
       this.capacity = res["payload"]["capacity"];
 

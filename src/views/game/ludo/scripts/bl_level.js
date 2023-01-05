@@ -385,11 +385,11 @@ class Level extends ContentCreator {
             }
 
             if (Number(tMeta.currentState) < Number(token.currentState)) {
-                continue; 
+                continue;
             }
 
             if (restrictedJumpingOver.includes(tMeta.currentState)) {
-                    occupiedSpaces.push(tMeta.currentState);
+                occupiedSpaces.push(tMeta.currentState);
             }
         }
 

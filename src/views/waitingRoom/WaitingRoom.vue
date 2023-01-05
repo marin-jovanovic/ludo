@@ -18,7 +18,6 @@
 <script>
 import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
 import { apiLevel } from "@/scripts/api/level";
-// import { useToast } from "vue-toastification";
 import BaseNotification from "@/components/BaseNotification.vue";
 import { router } from "@/router/router";
 
@@ -32,13 +31,8 @@ export default {
       canStart: false,
     };
   },
-  // setup() {
-  //   const toast = useToast();
-  //   return { toast };
-  // },
   async mounted() {
     this.gameId = this.$route.params.id;
-    console.log(this.gameId);
 
     // this needs to be same as one in sesion storage
 
@@ -87,8 +81,6 @@ export default {
   },
   methods: {
     startgame() {
-      //   sessionStorage.setItem("gameId", inGame);
-
       // router.push(`/game/${this.gameId}`);
 
       router.replace(`/game/${this.gameId}`);

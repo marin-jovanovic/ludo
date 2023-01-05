@@ -1,4 +1,6 @@
-import { useToast } from "vue-toastification";
+import {
+    useToast
+} from "vue-toastification";
 
 
 class Notification {
@@ -21,7 +23,7 @@ class Notification {
             }
         }
     }
-    
+
 
 }
 
@@ -31,5 +33,3 @@ let notification = new Notification();
 export {
     notification
 }
-
-

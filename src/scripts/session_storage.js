@@ -1,3 +1,12 @@
+function isJsonString(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
+
 class SessionStorageWrapper {
     constructor() {
         this.vals = new Set([
@@ -5,7 +14,10 @@ class SessionStorageWrapper {
             'accessToken',
             'profilePhoto',
             'levelId',
+            'order',
+            'capacity',
 
+            "levelJoinIndex",
         ])
     }
 
@@ -47,8 +59,24 @@ class SessionStorageWrapper {
             return
         }
 
+        if (
+            typeof value === 'object' &&
+            !Array.isArray(value) &&
+            value !== null
+        ) {
 
-        sessionStorage.setItem(variable, value);
+
+            sessionStorage.setItem(variable, JSON.stringify(
+                value
+            ));
+
+        } else {
+
+            sessionStorage.setItem(variable, value);
+
+        }
+
+
 
         return true;
     }
@@ -74,13 +102,25 @@ class SessionStorageWrapper {
 
         }
 
+        let item = sessionStorage.getItem(variable);
+
+        let parsed = undefined;
+
+        if (isJsonString(item)) {
+
+            parsed = JSON.parse(item);
+
+        } else {
+
+            parsed = item;
+
+        }
 
 
-        // console.log(sessionStorage.getItem(variable));
 
         return {
             status: true,
-            payload: sessionStorage.getItem(variable)
+            payload: parsed
         };
     }
 
@@ -151,11 +191,11 @@ class UserMetaSS {
 
 
         return this.ssw.get({
-            variable: "username"
-        }).status && 
-        this.ssw.get({
-            variable: "accessToken"
-        }).status;
+                variable: "username"
+            }).status &&
+            this.ssw.get({
+                variable: "accessToken"
+            }).status;
 
     }
 
@@ -166,7 +206,8 @@ class UserMetaSS {
             }).payload,
             accessToken: this.ssw.get({
                 variable: "accessToken"
-            }).payload
+            }).payload,
+     
         }
     }
 }
@@ -197,26 +238,83 @@ class LevelSS {
         }
     }
 
+    set({variable, value}) {
+        // joinId
+
+        if (!
+            this.ssw.set({
+                variable: "level"+  variable,
+                value: value
+            })
+        ) {
+            console.log("err setting", variable, value)
+        }
+
+        
+    }
+
+    setCapacity({capacity}) {
+
+        if (!
+            this.ssw.set({
+                variable: "capacity",
+                value: capacity
+            })
+        ) {
+            console.log("err setting")
+        }
+
+    }
+
+    setOrder({
+        order
+    }) {
+        if (!
+            this.ssw.set({
+                variable: "order",
+                value: order
+            })
+        ) {
+            console.log("err setting")
+        }
+
+    }
+
     leaveLevel() {
         if (!
 
             this.ssw.remove({
                 variable: "levelId"
-            }) 
+            })
 
         ) {
             console.log("err removing")
         }
 
     }
- 
+
     // is in any level
 
     getLevelMeta() {
+
+        // todo rewrite with level prefix
+
         return {
             levelId: this.ssw.get({
                 variable: "levelId"
             }).payload,
+
+            order: this.ssw.get({
+                variable: "order"
+            }).payload,
+            capacity: this.ssw.get({
+                variable: "capacity"
+            }).payload,
+
+            levelJoinIndex: this.ssw.get({
+                variable: "levelJoinIndex"
+            }).payload,
+
         }
     }
 }

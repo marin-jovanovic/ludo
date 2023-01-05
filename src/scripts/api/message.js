@@ -5,8 +5,7 @@ import {
 
 
 async function sendMessage(sender, game, content) {
-    console.log("seend maesggae")
-    console.log("game", game);
+
     return await apiCalls.handleNewResponse(
         await apiCalls.api.post(
             `message/${game}`,
@@ -22,7 +21,6 @@ async function sendMessage(sender, game, content) {
 }
 
 async function getMessages(levelId) {
-console.log("get msg", levelId);
 
     // let params = {
     //     "game": levelId

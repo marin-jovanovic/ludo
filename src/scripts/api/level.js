@@ -30,7 +30,9 @@ async function getGames() {
 
 
 
-async function getSpecificLevel({levelId}) {
+async function getSpecificLevel({
+    levelId
+}) {
     return await apiCalls.handleNewResponse(
         await apiCalls.api.get(
             `level/${levelId}`,

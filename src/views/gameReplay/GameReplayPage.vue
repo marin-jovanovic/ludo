@@ -48,6 +48,7 @@ import TheDice from "@/components/TheDice.vue";
 import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
 
 import { apiGame } from "@/scripts/api/game";
+import { userMetaSS } from "@/scripts/session_storage";
 
 export default {
   data() {
@@ -70,7 +71,7 @@ export default {
   },
 
   async mounted() {
-    this.username = sessionStorage.getItem("username");
+    this.username = userMetaSS.getCredentials()["username"];
     this.gameId = this.$route.params.id;
 
     // this.$refs.game.subscribe({

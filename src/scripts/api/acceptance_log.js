@@ -1,5 +1,3 @@
-
-
 import {
     apiCalls
 } from './comm';
@@ -9,16 +7,24 @@ class AcceptanceLogApi {
         this.baseUrl = "level"
     }
 
-    constructUrl = ({levelId}) => {
+    constructUrl = ({
+        levelId
+    }) => {
         return `level/${levelId}/acceptanceLog`;
     }
 
-    addEntryToAcceptanceLog = async ({levelId, entryId, payload=undefined}) => {
+    addEntryToAcceptanceLog = async ({
+        levelId,
+        entryId,
+        payload = undefined
+    }) => {
 
         return await apiCalls.handleNewResponse(
             await apiCalls.api.post(
-                this.constructUrl({levelId: levelId}) + "/" + entryId,
-                
+                this.constructUrl({
+                    levelId: levelId
+                }) + "/" + entryId,
+
                 // `${this.baseUrl}/${levelId}/acceptanceLog`,
                 JSON.stringify({
                     // entryId: entryId,
@@ -27,16 +33,20 @@ class AcceptanceLogApi {
                 apiCalls.getAuthenticationHeader()
             )
         );
-    
+
 
     }
 
-    getAcceptanceLogForLevel = async ({levelId}) => {
+    getAcceptanceLogForLevel = async ({
+        levelId
+    }) => {
 
         return await apiCalls.handleNewResponse(
             await apiCalls.api.get(
-                this.constructUrl({levelId: levelId}) ,
-                
+                this.constructUrl({
+                    levelId: levelId
+                }),
+
                 // `${this.baseUrl}/${levelId}/acceptanceLog`,
                 // JSON.stringify({
                 //     // entryId: entryId,

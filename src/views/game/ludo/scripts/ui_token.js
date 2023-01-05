@@ -262,7 +262,7 @@ class UiToken extends ContentCreator {
         return atNextDestination;
     }
 
-    draw = (c ) => {
+    draw = (c) => {
 
 
 
@@ -328,8 +328,8 @@ class UiToken extends ContentCreator {
             });
         }
 
-//         this.collides = false;
-// this.colourCollides = "white";
+        //         this.collides = false;
+        // this.colourCollides = "white";
 
         if (this.collides) {
             c.fillStyle = this.colourCollides;
@@ -341,13 +341,13 @@ class UiToken extends ContentCreator {
 
 
 
-            // if (circleCollidesWithPoint({circle: this, point: mousePosition})) {
+        // if (circleCollidesWithPoint({circle: this, point: mousePosition})) {
 
 
-            
-            //     console.log("colliding")
-            
-            // }
+
+        //     console.log("colliding")
+
+        // }
         c.fill();
         c.closePath();
 

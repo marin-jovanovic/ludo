@@ -7,7 +7,9 @@ import {
     apiAuth
 } from './auth';
 
-import { Buffer } from 'buffer';
+import {
+    Buffer
+} from 'buffer';
 
 
 const api = axios.create({
@@ -25,15 +27,24 @@ function encode(d) {
 
 }
 
-function getBasicAuth({username, password}) {
+function getBasicAuth({
+    username,
+    password
+}) {
     return encode('Basic ' + username + ':' + password)
 }
 
-function getCreateAuth({username, password}) {
+function getCreateAuth({
+    username,
+    password
+}) {
     return encode('Create ' + username + ':' + password)
 }
 
-function getCustomAuth({username, accessToken}) {
+function getCustomAuth({
+    username,
+    accessToken
+}) {
     return encode('Custom ' + username + ':' + accessToken)
 }
 
@@ -49,7 +60,10 @@ function getAuthenticationHeader() {
         return {
             headers: {
 
-                'Authorization': getCustomAuth({username: username, accessToken: accessToken})
+                'Authorization': getCustomAuth({
+                    username: username,
+                    accessToken: accessToken
+                })
 
             }
         }

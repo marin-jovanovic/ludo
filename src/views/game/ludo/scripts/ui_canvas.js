@@ -4,8 +4,12 @@ import {
 import {
     getBoardTiles
 } from './layers.js'
-import { circleCollidesWithPoint } from "./collisions.js";
-import { ContentCreator } from "./content_creator.js";
+import {
+    circleCollidesWithPoint
+} from "./collisions.js";
+import {
+    ContentCreator
+} from "./content_creator.js";
 
 class Canvas {
 
@@ -115,53 +119,56 @@ class CanvasReactive extends DeliverableCanvas {
             y: 0
         }
 
-//         this.canvas.addEventListener("click", (e) => {
-// console.log(e)
-//         })
+        //         this.canvas.addEventListener("click", (e) => {
+        // console.log(e)
+        //         })
 
         // what if multiple on same
 
         // mousemove
         this.canvas.addEventListener('click', (event) => {
-           
-            
+
+
             this.mousePosition.x = event.layerX;
             this.mousePosition.y = event.layerY;
-         
+
             // console.log(this.playersToTokens)
 
             Object.values(this.playersToTokens).forEach(p => {
 
                 for (const [id, t] of Object.entries(p.tokens)) {
 
-                    if (circleCollidesWithPoint({circle: t, point: this.mousePosition})) {
+                    if (circleCollidesWithPoint({
+                            circle: t,
+                            point: this.mousePosition
+                        })) {
 
-                        t.collides =  true;
+                        t.collides = true;
 
                         // console.log("clicked", t.position)
 
-                         new Promise((r) => setTimeout(r, 500)).then(() => {
+                        new Promise((r) => setTimeout(r, 500)).then(() => {
                             t.collides = false
                         });
 
                         console.log(p.username, id)
 
                         this.notify({
-                            command: "tokenSelected", 
+                            command: "tokenSelected",
                             username: p.username,
                             tokenId: id
                         });
-                
+
 
                     } else {
                         // unset all others
-                        t.collides =  false;
+                        t.collides = false;
                     }
 
 
 
                 }
-                
+
 
                 // Object.values(p.tokens).forEach(t => {
 
@@ -186,7 +193,7 @@ class CanvasReactive extends DeliverableCanvas {
                 //             // unset all others
                 //             t.collides =  false;
                 //         }
-    
+
 
                 // });
             });

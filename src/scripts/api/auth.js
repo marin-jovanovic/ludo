@@ -16,9 +16,12 @@ async function login(username, password) {
     const response = await apiCalls.api.post(
         `login/${username}`, {}, {
             headers: {
- 
-                'Authorization': apiCalls.getBasicAuth({username: username, password: password})
- 
+
+                'Authorization': apiCalls.getBasicAuth({
+                    username: username,
+                    password: password
+                })
+
             }
         }
     );
@@ -34,14 +37,20 @@ async function login(username, password) {
 async function signup(username, password) {
 
     console.log(username, password)
-    console.log(apiCalls.getCreateAuth({username: username, password:password}))
+    console.log(apiCalls.getCreateAuth({
+        username: username,
+        password: password
+    }))
 
     const response = await apiCalls.api.post(
         `signup/${username}`, {}, {
             headers: {
 
 
-                'Authorization': apiCalls.getCreateAuth({username: username, password:password})
+                'Authorization': apiCalls.getCreateAuth({
+                    username: username,
+                    password: password
+                })
 
 
             }

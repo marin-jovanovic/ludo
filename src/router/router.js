@@ -66,18 +66,21 @@ export const router = createRouter({
             path: "/gameCreate",
             name: "gameCreate",
             component: GameCreatePage
-        }, 
+        },
         {
             path: "/waitingRoom/:id",
             name: "waitingRoom",
             component: waitingRoom
-        }, 
+        },
         {
             path: "/playingOrder/:id",
             name: "playingOrder",
             component: playingOrder
-        }, 
-        { path: '/:pathMatch(.*)*', component: NotFound },
+        },
+        {
+            path: '/:pathMatch(.*)*',
+            component: NotFound
+        },
     ]
 });
 

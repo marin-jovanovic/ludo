@@ -14,6 +14,7 @@
 import { router } from "./router/router";
 import { INACTIVE_THRESHOLD, TIME_RESOLUTION } from "./scripts/constants";
 import { apiAuth } from "./scripts/api/auth";
+import { userMetaSS } from "./scripts/session_storage";
 
 export default {
   data() {
@@ -91,7 +92,8 @@ export default {
     // this.deactivateActivityTracker();
     // clearTimeout(this.userActivityTimeout);
     // clearTimeout(this.userActivityThrottlerTimeout);
-    // window.sessionStorage.removeItem("user");
+
+    userMetaSS.logout();
   },
 };
 </script>
