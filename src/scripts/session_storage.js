@@ -9,14 +9,17 @@ function isJsonString(str) {
 
 class SessionStorageWrapper {
     constructor() {
+
+// match by regex order | Order -> levelOrder
+
         this.vals = new Set([
             'username',
             'accessToken',
             'profilePhoto',
-            'levelId',
-            'order',
-            'capacity',
 
+            'levelId',
+            'levelOrder',
+            'levelCapacity',
             "levelJoinIndex",
         ])
     }
@@ -218,6 +221,8 @@ class UserMetaSS {
 class LevelSS {
     constructor() {
         this.ssw = new SessionStorageWrapper();
+
+        this.prefix = "level";
     }
 
     joinLevel({
@@ -253,39 +258,32 @@ class LevelSS {
         
     }
 
-    setCapacity({capacity}) {
 
-        if (!
-            this.ssw.set({
-                variable: "capacity",
-                value: capacity
-            })
-        ) {
-            console.log("err setting")
-        }
-
-    }
-
-    setOrder({
-        order
-    }) {
-        if (!
-            this.ssw.set({
-                variable: "order",
-                value: order
-            })
-        ) {
-            console.log("err setting")
-        }
-
-    }
 
     leaveLevel() {
-        if (!
+        if (!(
 
             this.ssw.remove({
                 variable: "levelId"
             })
+                &&
+
+                this.ssw.remove({
+                    variable: "levelOrder"
+                })
+                &&
+
+                this.ssw.remove({
+                    variable: "levelCapacity"
+                })
+                &&
+
+                this.ssw.remove({
+                    variable: "levelJoinIndex"
+                })
+
+                )
+
 
         ) {
             console.log("err removing")
@@ -299,20 +297,21 @@ class LevelSS {
 
         // todo rewrite with level prefix
 
+
         return {
             levelId: this.ssw.get({
-                variable: "levelId"
+                variable: this.prefix + "Id"
             }).payload,
 
             order: this.ssw.get({
-                variable: "order"
+                variable: this.prefix + "Order"
             }).payload,
             capacity: this.ssw.get({
-                variable: "capacity"
+                variable: this.prefix + "Capacity"
             }).payload,
 
             levelJoinIndex: this.ssw.get({
-                variable: "levelJoinIndex"
+                variable: this.prefix + "JoinIndex"
             }).payload,
 
         }

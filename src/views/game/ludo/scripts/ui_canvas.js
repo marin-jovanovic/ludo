@@ -18,11 +18,15 @@ class Canvas {
     }) {
         this.canvas = element;
 
-        // this.canvas.width = 600;
-        // this.canvas.height = 600;
-        this.canvas.width = innerWidth;
-        this.canvas.height = innerHeight;
-
+        this.canvas.width = 600;
+        this.canvas.height = 600;
+        // this.canvas.width = innerWidth;
+        // this.canvas.height = innerHeight;
+        // this.canvas.style.position = 'absolute';
+        // this.canvas.style.width = '100%';
+        // this.canvas.style.height = '100%';
+        
+        
         this.context = this.canvas.getContext("2d");
         this.animationId;
 
@@ -46,10 +50,14 @@ class DeliverableCanvas extends ContentCreator {
 
         this.canvas = element;
 
-        // this.canvas.width = 600;
-        // this.canvas.height = 600;
-        this.canvas.width = innerWidth;
-        this.canvas.height = innerHeight;
+        this.canvas.width = 600;
+        this.canvas.height = 600;
+        // this.canvas.width = innerWidth;
+        // this.canvas.height = innerHeight;
+        // this.canvas.style.width = '100%';
+        // this.canvas.style.height = '100%';
+
+        this.canvas.style.position = 'absolute';
 
         this.context = this.canvas.getContext("2d");
         this.animationId;

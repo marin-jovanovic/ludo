@@ -108,3 +108,6 @@ improvements
 
     check if session storage is called without wrapper
         add some kind of dyn check that goes over code and try to find it
+
+    stop determine order performing log entries when order is determined
+

@@ -48,7 +48,7 @@ export default {
   data() {
     return {
       username: "a",
-      password: "a",
+      password: "aa1A&ffffffff",
       submitted: false,
       loading: false,
       returnUrl: "",

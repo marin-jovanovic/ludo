@@ -1,6 +1,6 @@
 <template>
   <div>
-    <br />
+    <!-- <br />
     user id
     <input v-model="userid" type="number" placeholder="1" />
     <br />
@@ -27,11 +27,17 @@
     <button @click="bl">create block</button>
 
     <br />
-    <button @click="guarded">test guarded part</button>
+    <button @click="guarded">test guarded part</button> -->
 
-    <div id="container" class="container">
-      <canvas id="staticcanvas" width="600" height="600"></canvas>
-      <canvas id="reactivecanvas" width="600" height="600">
+    <div
+      style="border-style: solid; width: 700px; height: 700px"
+      id="container"
+      class="container"
+    >
+      <canvas id="staticcanvas"></canvas>
+      <canvas id="reactivecanvas">
+        <!-- <canvas id="staticcanvas" width="600" height="600"></canvas>
+      <canvas id="reactivecanvas" width="600" height="600"> -->
         <!-- todo test -->
         Your browser does not support the canvas element.
       </canvas>

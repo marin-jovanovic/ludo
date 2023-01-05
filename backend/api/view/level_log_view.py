@@ -10,9 +10,11 @@ from backend.api.view.comm import get_auth_ok_response_template
 
 
 def level_log_get(level_id):
-    log = get_level_log_model().objects.filter(game_id=level_id,
-                                               game_id__is_active=True).order_by(
-        "instruction_id").values()
+    log = get_level_log_model()\
+        .objects\
+        .filter(game_id=level_id,game_id__is_active=True)\
+        .order_by("instruction_id")\
+        .values()
 
     log = list(log)
 
@@ -40,7 +42,7 @@ class LevelLogView(APIView):
             # todo remove dice_result (not json convention)
             # todo del instruction_id from value, and all other non used entries
             ret_log[entry["instruction_id"]] = {**entry, "diceResult": entry[
-                "dice_result"]}
+                "dice_result"], "id": entry["id"]}
             # ret_log["diceResult"] = entry["dice_result"]
 
         opt = get_log_api(log)

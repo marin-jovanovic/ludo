@@ -23,9 +23,11 @@ async function setPlayingOrder({
 
     let capacity = res["payload"]["capacity"]
 
-    levelSessionStorage.setCapacity({
-        capacity: capacity
-    });
+     levelSessionStorage.set({
+        variable: "Capacity",
+        value: capacity,
+      });
+
 
     let joinToUsername = {}
 
@@ -70,9 +72,10 @@ async function setPlayingOrder({
         console.log("err logical")
     }
 
-    levelSessionStorage.setOrder({
-        order: order
-    });
+    levelSessionStorage.set({
+        variable: "Order",
+        value: order,
+      });
 
     return order;
 

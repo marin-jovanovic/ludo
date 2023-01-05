@@ -30,38 +30,16 @@ def create_entry_if_not_exists(level_id, entry_id, username):
     print(f"{level_o=}")
     print(f"{user_o=}")
 
-    log_entry_o = get_level_log_model().objects.get(
-        instruction_id=entry_id,
-        game_id=level_o
-    )
-
-    print(f"{log_entry_o=}")
-
     r = get_acceptance_log_model().objects.filter(
-        level=level_o,
-        log_entry=log_entry_o,
-        # user=user_o,
-        accepted=True
+        log_entry_id=entry_id,
     ).exists()
 
     is_first_time = not r
     print(f"{is_first_time=}")
 
-    # if r:
-    #     # someone peformed this move, this is just confirmation that move is received
-    #     print()
-    # if r:
-    #     print("already in db")
-    #     return {
-    #         "status": True
-    #     }
-
-    # if exist return
     r = get_acceptance_log_model().objects.filter(
-        level=level_o,
-        log_entry=log_entry_o,
+        log_entry_id=entry_id,
         user=user_o,
-        accepted=True
     ).exists()
 
     if r:
@@ -72,9 +50,18 @@ def create_entry_if_not_exists(level_id, entry_id, username):
 
     acceptance_log = get_acceptance_log_model()
 
+    from backend.api.model.level_log import get_level_log_model
+    r = get_level_log_model().objects.filter(id=entry_id).exists()
+
+    if not r:
+        print(f"err not exists entry with this {entry_id=}")
+        return {
+                "status": False
+        }
+
     e = acceptance_log(
         level=level_o,
-        log_entry=log_entry_o,
+        log_entry_id=entry_id,
         user=user_o,
         accepted=True
     )
@@ -90,6 +77,3 @@ def create_entry_if_not_exists(level_id, entry_id, username):
     return {
         "status": True
     }
-    # r = get_acceptance_log_model().objects.filter(level__id=level_id)
-    #
-    # print(r)
