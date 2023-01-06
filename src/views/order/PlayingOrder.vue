@@ -3,7 +3,7 @@
 
   <BaseUserTemplate>
     <TheMessages></TheMessages>
-    <TheInfo ref="info"></TheInfo>
+    <!-- <TheInfo ref="info"></TheInfo> -->
 
     <button @click="leaveGame">leave game</button>
 
@@ -50,15 +50,20 @@
       </tr>
     </table>
 
-    <table>
-      <tr></tr>
-    </table>
-
     all {{ this.lastExecutedByAll }}
     <br />
     any {{ this.lastExecutedByAny }}
     <br />
     this{{ this.lastExecutedThisUser }}
+
+    <br />
+    <button @click="this.tryNextInstruction">try next</button>
+
+    <br />
+    order:{{ this.order }}
+
+    <br />
+    <button v-if="this.isDone">start game</button>
   </BaseUserTemplate>
 </template>
 <style>
@@ -81,7 +86,7 @@ tr:nth-child(even) {
 </style>
 
 <script>
-import TheInfo from "@/views/game/TheInfo.vue";
+// import TheInfo from "@/views/game/TheInfo.vue";
 import TheDice from "@/components/TheDice.vue";
 
 import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
@@ -93,7 +98,7 @@ import { levelSessionStorage, userMetaSS } from "@/scripts/session_storage";
 import { acceptanceLogApi } from "@/scripts/api/acceptance_log";
 // import { wsListeners } from "@/scripts/ws_listener";
 import { notification } from "@/scripts/notification";
-import { setJoinIndex } from "@/scripts/set_playing_order";
+// import { setJoinIndex } from "@/scripts/set_playing_order";
 
 /**
  * currentEntryIndex = 0
@@ -112,33 +117,36 @@ export default {
       log: undefined,
 
       levelId: undefined,
-      players: {},
+      // players: {},
       joinId: undefined,
-      currentLogEntryIndex: undefined,
+      // currentLogEntryIndex: 0,
       // globalPerformedLogEntryIndexToId: undefined,
       // privatePerformedLogEntryIndexToId: undefined,
       isWaitingForUserToChooseToken: false,
 
-      user: undefined,
+      // user: undefined,
       lastExecutedByAll: undefined,
       lastExecutedThisUser: undefined,
       lastExecutedByAny: undefined,
+
+      order: [],
+
+      isDone: false,
     };
   },
   async mounted() {
     this.levelId = this.$route.params.id;
     this.username = userMetaSS.getCredentials()["username"];
 
-    await setJoinIndex(this.username, this.levelId);
+    // await setJoinIndex(this.username, this.levelId);
 
     this.joinId = levelSessionStorage.getLevelMeta()["levelJoinIndex"];
 
-    // let capacity = levelSessionStorage.getLevelMeta()["capacity"];
     // this.currentLogEntryIndex = await this.bypassGoes(this.levelId, capacity);
 
     // console.log(capacity);
 
-    this.currentLogEntryIndex = 0;
+    // this.currentLogEntryIndex = 0;
 
     // todo this late
     // let url = "ws://127.0.0.1:8000/acceptanceLogEntryCreated/";
@@ -153,17 +161,13 @@ export default {
 
     // console.log("this user", this.joinId);
 
-    // this.user = {
-    //   "username":
-    // }
-
     console.log(
       this.lastExecutedByAll,
       this.lastExecutedThisUser,
       this.lastExecutedByAny
     );
 
-    // await this.tryNextInstruction();
+    await this.tryNextInstruction();
   },
   methods: {
     // check for goes
@@ -199,6 +203,19 @@ export default {
     // },
 
     // this is from playing order
+
+    addToOrder(orderObj) {
+      this.order.push(orderObj);
+
+      let capacity = levelSessionStorage.getLevelMeta()["capacity"];
+
+      let isOrderDetermined = capacity === this.order.length;
+
+      if (isOrderDetermined) {
+        this.isDone = true;
+        console.log("block any new movements");
+      }
+    },
 
     isMyTurn(logEntry) {
       return logEntry.userJoinIndex === this.joinId;
@@ -301,9 +318,14 @@ export default {
 
       console.log("todo try next instruction");
 
+      if (this.isDone) {
+        console.log("--- done");
+        return;
+      }
+
       let logEntry = this.getCurrentLogEntry();
 
-      if (!this.isMyTurn()) {
+      if (!this.isMyTurn(logEntry)) {
         console.log("role: slave");
 
         // someone else performed this instruction
@@ -321,7 +343,7 @@ export default {
         }
       }
 
-      if (logEntry.action === "roll" && !this.isMyTurn()) {
+      if (logEntry.action === "roll" && !this.isMyTurn(logEntry)) {
         console.log("master executed roll");
         console.log("role: slave");
 
@@ -330,9 +352,20 @@ export default {
         // send confirmation
         await this.entryCleanup();
         return;
-      } else if (logEntry.action === "roll" && this.isMyTurn()) {
+      } else if (logEntry.action === "roll" && this.isMyTurn(logEntry)) {
         console.log("role: master");
         console.log("can not auto execute my roll");
+        return;
+      } else if (this.isMyTurn(logEntry) && logEntry.action === "goes") {
+        console.log("goes", logEntry);
+
+        this.addToOrder({
+          username: this.username,
+          userJoinIndex: logEntry.userJoinIndex,
+        });
+
+        await this.entryCleanup();
+        return;
       } else {
         // if (logEntry.action === "roll") {
         //   console.log("can not perform roll auto, user needs to click dice");
@@ -341,6 +374,65 @@ export default {
         console.log("unknown action", logEntry.action);
         return;
       }
+
+      // for (const [i, logEntry] of Object.entries(this.log)) {
+      //   console.log(i, logEntry);
+
+      //   console.log("fast reload", i, this.lastExecutedThisUser.entryIndex);
+
+      //   if (Number(i) > this.lastExecutedThisUser.entryIndex) {
+      //     // this user did not execute this yet
+
+      //     console.log("i have not yet executed this");
+
+      //     if (Number(i) <= this.lastExecutedByAny.entryIndex) {
+      //       console.log("master executed this");
+
+      //       if (logEntry.action === "roll") {
+      //         this.$refs.dice.rollDice(logEntry.diceResult);
+
+      //         let isLogged = await this.sendConfirmation(logEntry.entryId);
+
+      //         notification.showMessage(
+      //           isLogged,
+      //           "move logged",
+      //           "error logging to server"
+      //         );
+
+      //         if (!isLogged) {
+      //           console.log("err");
+      //         }
+      //       } else {
+      //         console.log("err");
+      //         console.log("fast setup", i, logEntry);
+      //         console.log("unknow action", logEntry.action);
+      //       }
+      //     } else {
+      //       console.log("master also did not execute this");
+      //     }
+      //   } else {
+      //     // this user did execute this yet
+
+      //     if (logEntry.action === "roll") {
+      //       this.$refs.dice.rollDice(logEntry.diceResult);
+
+      //       let isLogged = await this.sendConfirmation(logEntry.entryId);
+
+      //       notification.showMessage(
+      //         isLogged,
+      //         "move logged",
+      //         "error logging to server"
+      //       );
+
+      //       if (!isLogged) {
+      //         console.log("err");
+      //       }
+      //     } else {
+      //       console.log("fast setup", i, logEntry);
+      //       console.log("unknow action", logEntry.action);
+      //     }
+      //   }
+      // }
 
       // return;
 
@@ -387,12 +479,17 @@ export default {
     async wsReceive(message) {
       console.log("received update", message);
 
+      if (this.isDone) {
+        console.log("--- done");
+        return;
+      }
+
       // todo check if this key exists then sorting problem (? assumption that this is cause)
 
       // todo this is not nice naming, change this to reflect it better
       // this.globalPerformedLogEntryIndexToId[message.id] = message.entryId;
 
-      await this.tryNextInstruction();
+      // await this.tryNextInstruction();
 
       // how does it know that it can contine?
 
@@ -425,32 +522,32 @@ export default {
       // await this.tryNextInstruction();
     },
 
-    async fetchPerformedLogEntryIndexToId() {
-      let res = await acceptanceLogApi.getAcceptanceLogForLevel({
-        levelId: this.levelId,
-      });
+    // async fetchPerformedLogEntryIndexToId() {
+    //   let res = await acceptanceLogApi.getAcceptanceLogForLevel({
+    //     levelId: this.levelId,
+    //   });
 
-      let flag = res["auth"]["status"] && res["payload"]["status"];
+    //   let flag = res["auth"]["status"] && res["payload"]["status"];
 
-      if (!flag) {
-        console.log("err");
-      }
+    //   if (!flag) {
+    //     console.log("err");
+    //   }
 
-      console.log(res["payload"]);
+    //   // console.log(res["payload"]);
 
-      // return {}
+    //   // return {}
 
-      // this.globalPerformedLogEntryIndexToId =
-      //   res["payload"]["globalPerformedEntries"];
-      // this.privatePerformedLogEntryIndexToId =
-      //   res["payload"]["performedEntries"];
+    //   // this.globalPerformedLogEntryIndexToId =
+    //   //   res["payload"]["globalPerformedEntries"];
+    //   // this.privatePerformedLogEntryIndexToId =
+    //   //   res["payload"]["performedEntries"];
 
-      // console.log(Object.keys(res["payload"]["globalPerformedEntries"]).length);
+    //   // console.log(Object.keys(res["payload"]["globalPerformedEntries"]).length);
 
-      // console.log(Object.keys(res["payload"]["performedEntries"]).length);
+    //   // console.log(Object.keys(res["payload"]["performedEntries"]).length);
 
-      // return res["payload"]["performedEntries"];
-    },
+    //   // return res["payload"]["performedEntries"];
+    // },
 
     // if page refreshed
     async loadConfirmationLog() {
@@ -468,30 +565,123 @@ export default {
       this.lastExecutedThisUser = res["payload"]["lastExecutedThisUser"];
       this.lastExecutedByAny = res["payload"]["lastExecutedByAny"];
 
+      /**
+      if all is empty
+        non confirmed - maybe master send something, do not use this
+        
+      if user
+        this one did not perform anything 
+
+       */
+
+      if (!this.lastExecutedByAny.status) {
+        /*
+        master did not execute first entry
+        */
+
+        console.log("lastExecutedByAny empty");
+        return;
+      }
+
+      // if ()
+
       console.log(this.lastExecutedThisUser);
 
       // do all until lastExecutedThisUser
       for (const [i, logEntry] of Object.entries(this.log)) {
         console.log(i, logEntry);
 
-        console.log(
-          typeof Number(i),
-          typeof this.lastExecutedThisUser.entryIndex,
-          i,
-          this.lastExecutedThisUser.entryIndex
-        );
+        if (this.isDone) {
+          console.log("--- done");
+          return;
+        }
+
+        console.log("fast reload", i, this.lastExecutedThisUser.entryIndex);
 
         if (Number(i) > this.lastExecutedThisUser.entryIndex) {
+          // this user did not execute this yet
+
           console.log("i have not yet executed this");
 
           if (Number(i) <= this.lastExecutedByAny.entryIndex) {
             console.log("master executed this");
+
+            if (logEntry.action === "roll") {
+              this.$refs.dice.rollDice(logEntry.diceResult);
+
+              let isLogged = await this.sendConfirmation(logEntry.entryId);
+
+              notification.showMessage(
+                isLogged,
+                "move logged",
+                "error logging to server"
+              );
+
+              if (!isLogged) {
+                console.log("err");
+              }
+            } else if (logEntry.action === "goes") {
+              console.log("goes", logEntry);
+              this.addToOrder({
+                username: "todo",
+                userJoinIndex: logEntry.userJoinIndex,
+              });
+
+              let isLogged = await this.sendConfirmation(logEntry.entryId);
+
+              notification.showMessage(
+                isLogged,
+                "move logged",
+                "error logging to server"
+              );
+
+              if (!isLogged) {
+                console.log("err");
+              }
+            } else {
+              console.log("err");
+              console.log("fast setup", i, logEntry);
+              console.log("unknow action", logEntry.action);
+            }
           } else {
             console.log("master also did not execute this");
           }
         } else {
+          // this user did execute this yet
+          console.log("already executed this");
+
           if (logEntry.action === "roll") {
             this.$refs.dice.rollDice(logEntry.diceResult);
+
+            let isLogged = await this.sendConfirmation(logEntry.entryId);
+
+            notification.showMessage(
+              isLogged,
+              "move logged",
+              "error logging to server"
+            );
+
+            if (!isLogged) {
+              console.log("err");
+            }
+          } else if (logEntry.action === "goes") {
+            console.log("goes", logEntry);
+            this.addToOrder({
+              username: "todo",
+              userJoinIndex: logEntry.userJoinIndex,
+            });
+
+            let isLogged = await this.sendConfirmation(logEntry.entryId);
+
+            notification.showMessage(
+              isLogged,
+              "move logged",
+              "error logging to server"
+            );
+
+            if (!isLogged) {
+              console.log("err");
+            }
           } else {
             console.log("fast setup", i, logEntry);
             console.log("unknow action", logEntry.action);
@@ -614,26 +804,19 @@ export default {
     },
 
     async rollDice() {
-      // console.log(this.log);
-
-      // console.log(this.currentLogEntryIndex);
+      if (this.isDone) {
+        console.log("--- done");
+        return;
+      }
 
       let logEntry = this.getCurrentLogEntry();
 
-      // console.log("did everyone confirmed?");
+      if (this.lastExecutedByAll.status) {
+        if (this.lastExecutedByAll.entryIndex !== logEntry.entryIndex - 1) {
+          console.log("small");
 
-      // console.log(
-      //   this.lastExecutedByAll,
-      //   this.lastExecutedThisUser,
-      //   this.lastExecutedByAny
-      // );
-
-      // console.log(this.lastExecutedByAll.entryIndex, logEntry.entryIndex - 1);
-
-      if (this.lastExecutedByAll.entryIndex !== logEntry.entryIndex - 1) {
-        console.log("small");
-
-        return;
+          return;
+        }
       }
 
       if (!this.isMyTurn(logEntry)) {
@@ -692,6 +875,11 @@ export default {
       // no need for additional checks, assumption is that they are run in previous function
 
       console.log("user clicked on token", username, tokenId);
+
+      if (this.isDone) {
+        console.log("--- done");
+        return;
+      }
 
       console.log("todo");
       return;
@@ -775,7 +963,7 @@ export default {
     },
   },
   components: {
-    TheInfo,
+    // TheInfo,
     TheDice,
     BaseUserTemplate,
     TheMessages,

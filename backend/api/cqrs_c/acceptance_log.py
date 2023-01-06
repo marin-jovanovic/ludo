@@ -43,28 +43,7 @@ def create_entry_if_not_exists(level_id, entry_id, username):
     ).exists()
 
     if r:
-        print("already in db")
-
-        r = get_acceptance_log_model().objects \
-            .filter(level_id=level_id, log_entry_id=entry_id).count()
-
-        print("total nwo", r)
-
-        capacity = get_level_model().objects.get(id=level_id).capacity
-
-        print(f"{capacity=}")
-
-        if capacity == r:
-            print("everyone confirmed")
-
-            q = get_level_log_model().objects.get(id=entry_id)
-            q.performed = True
-            q.save()
-
-            #    send message that this entry is performed by all
-
-        else:
-            print("missing",  capacity - 1, "users to confirm this command")
+        check_all_accepted(entry_id, level_id)
 
         return {
             "status": True
@@ -170,6 +149,7 @@ def create_entry_if_not_exists(level_id, entry_id, username):
                 )
                 e.save()
 
+                check_all_accepted(entry_id, level_id)
 
                 # max_ = get_last_performed_by_all_users(level_id)
 
@@ -203,6 +183,37 @@ def create_entry_if_not_exists(level_id, entry_id, username):
         return {
             "status": False
         }
+
+
+def check_all_accepted(entry_id, level_id):
+    print(80 * "+")
+    print("already in db")
+    r = get_acceptance_log_model().objects \
+        .filter(level_id=level_id, log_entry_id=entry_id).count()
+    print("total nwo", r)
+    capacity = get_level_model().objects.get(id=level_id).capacity
+    print(f"{capacity=}")
+    if capacity == r:
+        print("everyone confirmed")
+
+        q = get_level_log_model().objects.get(id=entry_id)
+        q.performed = True
+        q.save()
+
+        #    send message that this entry is performed by all
+
+        msg = json.dumps({
+            "type": "last",
+            "entryIndex": q.instruction_id,
+            "entryId": entry_id
+            # "lastExecutedAccepted": max_,
+            # "entryId": e.log_entry.id,
+            # "id": e.log_entry.instruction_id
+        })
+        acceptance_log_entry_created_notifier.notify(msg)
+
+    else:
+        print("missing", capacity - 1, "users to confirm this command")
 
 
 def is_entry_accepted(level_id, entry_id):
