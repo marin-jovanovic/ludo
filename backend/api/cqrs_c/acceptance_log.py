@@ -8,6 +8,7 @@ from backend.api.model.level import get_level_model
 from backend.api.model.level_log import get_level_log_model
 from backend.api.model.player_order import get_player_order_model
 from backend.api.model.user import get_user_model
+from backend.api.cqrs_q.level_log import get_last_performed_by_all_users
 
 
 def create_entry_if_not_exists(level_id, entry_id, username):
@@ -43,6 +44,28 @@ def create_entry_if_not_exists(level_id, entry_id, username):
 
     if r:
         print("already in db")
+
+        r = get_acceptance_log_model().objects \
+            .filter(level_id=level_id, log_entry_id=entry_id).count()
+
+        print("total nwo", r)
+
+        capacity = get_level_model().objects.get(id=level_id).capacity
+
+        print(f"{capacity=}")
+
+        if capacity == r:
+            print("everyone confirmed")
+
+            q = get_level_log_model().objects.get(id=entry_id)
+            q.performed = True
+            q.save()
+
+            #    send message that this entry is performed by all
+
+        else:
+            print("missing",  capacity - 1, "users to confirm this command")
+
         return {
             "status": True
         }
@@ -54,10 +77,10 @@ def create_entry_if_not_exists(level_id, entry_id, username):
     is_first_time = not r
     print(f"{is_first_time=}")
 
-    are_any_rows_present = get_player_order_model() \
-        .objects \
-        .filter(level_id=level_id, user_id=user_id)\
-        .exists()
+    # are_any_rows_present = get_player_order_model() \
+    #     .objects \
+    #     .filter(level_id=level_id, user_id=user_id)\
+    #     .exists()
 
 
     # print("is first entry", t)
@@ -119,11 +142,11 @@ def create_entry_if_not_exists(level_id, entry_id, username):
                 e.save()
 
                 msg = json.dumps({
+                    "type": "first",
                     "entryId": e.log_entry.id,
                     "id": e.log_entry.instruction_id
                 })
                 acceptance_log_entry_created_notifier.notify(msg)
-
 
                 return {
                     "status": True
@@ -147,6 +170,28 @@ def create_entry_if_not_exists(level_id, entry_id, username):
                 )
                 e.save()
 
+
+                # max_ = get_last_performed_by_all_users(level_id)
+
+                # if ()
+
+                # if max = this rule
+
+                # msg = json.dumps({
+                #     # "type": "maybeLast",
+                #     # "lastExecutedAccepted": max_,
+                #     # "entryId": e.log_entry.id,
+                #     # "id": e.log_entry.instruction_id
+                # })
+                # acceptance_log_entry_created_notifier.notify(msg)
+
+                # t = is_entry_accepted(level_id, entry_id)
+                #
+                #
+                # print("max accedpt", t)
+
+                # todo if everyone accepted then log as accepted
+
                 return {
                     "status": True
                 }
@@ -158,3 +203,14 @@ def create_entry_if_not_exists(level_id, entry_id, username):
         return {
             "status": False
         }
+
+
+def is_entry_accepted(level_id, entry_id):
+    print(80 * "-")
+    capacity = get_level_model().objects.get(id=level_id).capacity
+    print(f"{capacity=}")
+    num_of_entries_for_this_entry = get_acceptance_log_model() \
+        .objects.filter(level_id=level_id, log_entry_id=entry_id).count()
+    print(f"{num_of_entries_for_this_entry=}")
+    t = capacity == num_of_entries_for_this_entry
+    return t

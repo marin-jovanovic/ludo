@@ -12,7 +12,7 @@ from backend.api.view.comm import get_auth_ok_response_template
 def level_log_get(level_id):
     log = get_level_log_model()\
         .objects\
-        .filter(game_id=level_id,game_id__is_active=True)\
+        .filter(game_id=level_id)\
         .order_by("instruction_id")\
         .values()
 
@@ -30,20 +30,40 @@ class LevelLogView(APIView):
 
         response = get_auth_ok_response_template(request)
 
-        r = level_log_get(level_id)
-        if not r["status"]:
-            return r
+        log = get_level_log_model() \
+            .objects \
+            .filter(game_id=level_id) \
+            .order_by("instruction_id") \
+            .values()
 
-        log = r["payload"]
+        log = list(log)
+
+        # r = level_log_get(level_id)
+        # if not r["status"]:
+        #     return r
+        #
+        # log = r["payload"]
 
         ret_log = {}
 
         for entry in log:
+            print(entry)
             # todo remove dice_result (not json convention)
             # todo del instruction_id from value, and all other non used entries
-            ret_log[entry["instruction_id"]] = {**entry, "diceResult": entry[
-                "dice_result"], "id": entry["id"]}
-            # ret_log["diceResult"] = entry["dice_result"]
+            ret_log[entry["instruction_id"]] = {
+                "action": entry["action"],
+                "diceResult": entry["dice_result"],
+                "levelId": entry["game_id"],
+                "entryId": entry["id"],
+                "entryIndex": entry["instruction_id"],
+                "performed": entry["performed"],
+                "userJoinIndex": entry["player"],
+                "tokenId": entry["token"]
+            }
+
+
+            if not entry["performed"]:
+                break
 
         opt = get_log_api(log)
 

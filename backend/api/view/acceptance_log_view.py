@@ -2,8 +2,10 @@ from django.http import JsonResponse
 from rest_framework.views import APIView
 
 from backend.api.cqrs_c.acceptance_log import create_entry_if_not_exists
-from backend.api.model.acceptance_log import get_acceptance_log_model
+from backend.api.cqrs_q.level_log import get_last_performed_by_all_users, \
+    get_last_performed_by_this_user, get_any
 from backend.api.view.comm import get_auth_ok_response_template
+from backend.api.model.user import get_user_model
 
 
 class AcceptanceLogView(APIView):
@@ -11,49 +13,30 @@ class AcceptanceLogView(APIView):
     def get(self, request, level_id):
 
         response = get_auth_ok_response_template(request)
+        user_id = get_user_model().objects.get(username=request.username).id
 
-        # only for this user
-        # "performedEntries"
-        # table game_log
-        # id -> index
 
-        r = get_acceptance_log_model().objects \
-            .filter(level_id=level_id, user__username=request.username) \
-            .values_list("log_entry", "log_entry__instruction_id") \
-            .order_by("log_entry__instruction_id")
+        last_e_all = get_last_performed_by_all_users(level_id)
 
-        performed_entries = {}
-        for id_, index in r:
-            performed_entries[index] = id_
+        last_e_this = get_last_performed_by_this_user(level_id=level_id, user_id=user_id)
 
-        for i in performed_entries.items():
-            print(i)
-
-        # global
-
-        r = get_acceptance_log_model().objects \
-            .filter(level_id=level_id) \
-            .values_list("log_entry", "log_entry__instruction_id") \
-            .order_by("log_entry__instruction_id")
-
-        global_performed_entries = {}
-        for id_, index in r:
-            global_performed_entries[index] = id_
-
-        for i in global_performed_entries.items():
-            print(i)
+        last_e_any = get_any(level_id)
 
         response["payload"] = {
             "status": True,
-            "performedEntries": performed_entries,
-            "globalPerformedEntries": global_performed_entries,
+            "lastExecutedByAll": last_e_all,
+            "lastExecutedThisUser": last_e_this,
+            "lastExecutedByAny": last_e_any
         }
 
+
+        print(f"{last_e_all=}")
+        print(f"{last_e_this=}")
+        print(f"{last_e_any=}")
         return JsonResponse(response)
 
     def post(self, request, level_id, entry_id):
         """add new entry to log"""
-        print("post")
         response = get_auth_ok_response_template(request)
 
         # todo check for payload
@@ -97,7 +80,6 @@ class AcceptanceLogView(APIView):
         #
         # else:
 
-
         r = create_entry_if_not_exists(level_id, entry_id, request.username)
         if not r["status"]:
             return JsonResponse(response)
@@ -107,3 +89,4 @@ class AcceptanceLogView(APIView):
         }
 
         return JsonResponse(response)
+
