@@ -28,6 +28,9 @@ class PlayerOrder(models.Model):
 
     index_left = models.IntegerField(null=True)
 
+    colour = models.TextField()
+
+
 
 def get_player_order_model():
     return apps.get_model(get_player_order_model_as_string())

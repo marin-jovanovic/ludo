@@ -8,7 +8,7 @@ from backend.api.game.order import determine_order
 from backend.api.game.pool import get_pool, is_valid_pool
 from backend.api.game.pre import get_destination_pool
 from backend.api.game.pre import player_moves_preprocessor
-from backend.api.game.resources import get_config
+from backend.api.cqrs_q.level_config import get_config
 
 
 # todo loading mid game config, content

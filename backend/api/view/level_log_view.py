@@ -84,7 +84,6 @@ class LevelLogView(APIView):
 
         # determinate if this user can perform this action
 
-        # try:
         last_entry = log[-1]
         print(f"{last_entry=}")
 
@@ -97,8 +96,7 @@ class LevelLogView(APIView):
             print(80 * "-")
             return JsonResponse(response)
 
-        # except Exception as e:
-        #     print("err", e)
+
 
         token_id = request.data["tokenId"]
         r = add_entry_to_log(log, player_id, token_id)

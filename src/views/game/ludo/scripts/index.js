@@ -134,7 +134,12 @@ class Game extends ContentCreator {
         for (let [playerId, states] of Object.entries(config.moves)) {
             // for each player
 
+            if (!(playerId in config["players"]  )) {
+                continue
+            }
+
             let playerMetadata = config['players'][playerId];
+
 
 
             let uiTokensForThisPlayer = {

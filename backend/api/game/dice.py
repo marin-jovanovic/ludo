@@ -1,6 +1,6 @@
 from random import SystemRandom
 
-from backend.api.game.resources import get_config
+from backend.api.cqrs_q.level_config import get_config
 
 
 def get_dice_result():

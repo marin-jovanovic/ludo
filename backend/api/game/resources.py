@@ -1256,6 +1256,12 @@ def get_moves():
     }
 
 
+def get_enum_config(type_):
+    return {
+        "startPool": "1",
+
+    }[type_]
+
 def get_start_pool():
     """
 
@@ -1268,7 +1274,7 @@ def get_start_pool():
 
     """
 
-    start_state = "1"
+    start_state = get_enum_config("startPool")
     start_pools = {}
 
     for player_id, states_meta in get_moves().items():
@@ -1285,56 +1291,6 @@ def get_start_pool():
 
 if __name__ == '__main__':
     print(get_start_pool())
-
-
-def get_players():
-    return {
-        '0': {
-            'colour': 'green',
-            'username': '0 username / nickname',
-
-        },
-        '1': {
-            'colour': 'blue',
-            'username': '1 username / nickname',
-
-        },
-        '2': {
-            'colour': 'yellow',
-            'username': '2 username / nickname',
-
-        },
-        '3': {
-            'colour': 'red',
-            'username': '3 username / nickname',
-        }
-    }
-
-
-def get_config():
-    return {
-        "number of players": 2,
-        "tokens per player": 4,
-        "dice number of sides": 6,
-
-        # assumption: talking for each player individually
-        # if True: all tokens must reach the same destination
-        # else: each token has it unique(multiple can go to same destination, but it is not a rule)
-        # destination location
-        "flag: same destination": True,
-
-        # highest: highest goes first and then clockwise or anticlockwise (6, right, right, right)
-        # order: 1st, 2nd, 3rd, 4th highest roll (6, 3, 2, 1)
-        'choice: highest; order': True,
-
-        # if highest then in which direction
-        'choice: clockwise; anticlockwise': False,
-
-        # when rolling dice to see who goes first
-        # skip if tie will occur
-        'flag: tie in order': False,
-
-    }
 
 
 def getMap():

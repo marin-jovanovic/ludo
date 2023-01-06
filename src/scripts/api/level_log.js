@@ -35,6 +35,8 @@ async function updateGame(game, player, token, action) {
 async function actionPerformed(game, player, instruction_id) {
     // todo type check before fetching
 
+// todo i think this is not used
+
 
     return await apiCalls.handleNewResponse(
         await apiCalls.api.put(
@@ -50,10 +52,25 @@ async function actionPerformed(game, player, instruction_id) {
 }
 
 
+async function addToLog(levelId, tokenId) {
+    
+    return await apiCalls.handleNewResponse(
+        await apiCalls.api.put(
+            `level/${levelId}/log`,
+            JSON.stringify({
+                tokenId: tokenId
+            }),
+            apiCalls.getAuthenticationHeader()
+        )
+    );
+
+}
+
 
 
 export const apiLevelLog = {
     getLevelLog,
     updateGame,
     actionPerformed,
+    addToLog
 }

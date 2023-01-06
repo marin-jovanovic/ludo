@@ -57,226 +57,229 @@ export default {
       userid: 0,
       tokenid: 0,
       jump: 5,
+
+      // selectedUsername: undefined,
+      // selectedTokenId: undefined,
     };
   },
   async mounted() {
     this.initGame();
   },
   methods: {
-    async win() {
-      for (let playerId = 0; playerId < 4; playerId++) {
-        for (let i = 0; i < 60; i++) {
-          // move first
-          this.movePosition({
-            player: 0,
-            token: playerId,
-            jumpCount: 1,
-          });
-        }
-      }
-    },
+    // async win() {
+    //   for (let playerId = 0; playerId < 4; playerId++) {
+    //     for (let i = 0; i < 60; i++) {
+    //       // move first
+    //       this.movePosition({
+    //         player: 0,
+    //         token: playerId,
+    //         jumpCount: 1,
+    //       });
+    //     }
+    //   }
+    // },
 
-    subscribe() {
-      console.log("subs");
-    },
+    // subscribe() {
+    //   console.log("subs");
+    // },
 
-    async guarded() {
-      this.movePosition({
-        player: 0,
-        token: 0,
-        jumpCount: 1,
-      });
-      this.movePosition({
-        player: 0,
-        token: 0,
-        jumpCount: 55,
-      });
+    // async guarded() {
+    //   this.movePosition({
+    //     player: 0,
+    //     token: 0,
+    //     jumpCount: 1,
+    //   });
+    //   this.movePosition({
+    //     player: 0,
+    //     token: 0,
+    //     jumpCount: 55,
+    //   });
 
-      this.movePosition({
-        player: 0,
-        token: 1,
-        jumpCount: 1,
-      });
-      this.movePosition({
-        player: 0,
-        token: 1,
-        jumpCount: 53,
-      });
+    //   this.movePosition({
+    //     player: 0,
+    //     token: 1,
+    //     jumpCount: 1,
+    //   });
+    //   this.movePosition({
+    //     player: 0,
+    //     token: 1,
+    //     jumpCount: 53,
+    //   });
 
-      this.movePosition({
-        player: 0,
-        token: 2,
-        jumpCount: 1,
-      });
-      this.movePosition({
-        player: 0,
-        token: 2,
-        jumpCount: 51,
-      });
+    //   this.movePosition({
+    //     player: 0,
+    //     token: 2,
+    //     jumpCount: 1,
+    //   });
+    //   this.movePosition({
+    //     player: 0,
+    //     token: 2,
+    //     jumpCount: 51,
+    //   });
 
-      this.movePosition({
-        player: 0,
-        token: 1,
-        jumpCount: 1,
-      });
-    },
+    //   this.movePosition({
+    //     player: 0,
+    //     token: 1,
+    //     jumpCount: 1,
+    //   });
+    // },
 
-    async bl() {
-      this.movePosition({
-        player: 0,
-        token: 0,
-        jumpCount: 1,
-      });
-      this.movePosition({
-        player: 0,
-        token: 1,
-        jumpCount: 1,
-      });
-      this.movePosition({
-        player: 0,
-        token: 2,
-        jumpCount: 1,
-      });
-      this.movePosition({
-        player: 0,
-        token: 3,
-        jumpCount: 1,
-      });
-    },
+    // async bl() {
+    //   this.movePosition({
+    //     player: 0,
+    //     token: 0,
+    //     jumpCount: 1,
+    //   });
+    //   this.movePosition({
+    //     player: 0,
+    //     token: 1,
+    //     jumpCount: 1,
+    //   });
+    //   this.movePosition({
+    //     player: 0,
+    //     token: 2,
+    //     jumpCount: 1,
+    //   });
+    //   this.movePosition({
+    //     player: 0,
+    //     token: 3,
+    //     jumpCount: 1,
+    //   });
+    // },
 
-    async restr() {
-      // move first
-      this.movePosition({
-        player: 0,
-        token: 0,
-        jumpCount: 1,
-      });
-      this.movePosition({
-        player: 0,
-        token: 0,
-        jumpCount: 55,
-      });
-      // move first
-      this.movePosition({
-        player: 0,
-        token: 1,
-        jumpCount: 1,
-      });
-      this.movePosition({
-        player: 0,
-        token: 1,
-        jumpCount: 54,
-      });
-      this.movePosition({
-        player: 0,
-        token: 1,
-        jumpCount: 1,
-      });
-      this.movePosition({
-        player: 0,
-        token: 1,
-        jumpCount: 1,
-      });
-      this.movePosition({
-        player: 0,
-        token: 1,
-        jumpCount: 1,
-      });
-    },
+    // async restr() {
+    //   // move first
+    //   this.movePosition({
+    //     player: 0,
+    //     token: 0,
+    //     jumpCount: 1,
+    //   });
+    //   this.movePosition({
+    //     player: 0,
+    //     token: 0,
+    //     jumpCount: 55,
+    //   });
+    //   // move first
+    //   this.movePosition({
+    //     player: 0,
+    //     token: 1,
+    //     jumpCount: 1,
+    //   });
+    //   this.movePosition({
+    //     player: 0,
+    //     token: 1,
+    //     jumpCount: 54,
+    //   });
+    //   this.movePosition({
+    //     player: 0,
+    //     token: 1,
+    //     jumpCount: 1,
+    //   });
+    //   this.movePosition({
+    //     player: 0,
+    //     token: 1,
+    //     jumpCount: 1,
+    //   });
+    //   this.movePosition({
+    //     player: 0,
+    //     token: 1,
+    //     jumpCount: 1,
+    //   });
+    // },
 
-    async testBlock() {
-      // move first
-      this.movePosition({
-        player: 0,
-        token: 0,
-        jumpCount: 1,
-      });
+    // async testBlock() {
+    //   // move first
+    //   this.movePosition({
+    //     player: 0,
+    //     token: 0,
+    //     jumpCount: 1,
+    //   });
 
-      this.movePosition({
-        player: 0,
-        token: 0,
-        jumpCount: 15,
-      });
+    //   this.movePosition({
+    //     player: 0,
+    //     token: 0,
+    //     jumpCount: 15,
+    //   });
 
-      // eat with second
-      this.movePosition({
-        player: 1,
-        token: 0,
-        jumpCount: 1,
-      });
+    //   // eat with second
+    //   this.movePosition({
+    //     player: 1,
+    //     token: 0,
+    //     jumpCount: 1,
+    //   });
 
-      this.movePosition({
-        player: 1,
-        token: 0,
-        jumpCount: 2,
-      });
+    //   this.movePosition({
+    //     player: 1,
+    //     token: 0,
+    //     jumpCount: 2,
+    //   });
 
-      // form block
-      this.movePosition({
-        player: 1,
-        token: 1,
-        jumpCount: 1,
-      });
+    //   // form block
+    //   this.movePosition({
+    //     player: 1,
+    //     token: 1,
+    //     jumpCount: 1,
+    //   });
 
-      this.movePosition({
-        player: 1,
-        token: 1,
-        jumpCount: 2,
-      });
+    //   this.movePosition({
+    //     player: 1,
+    //     token: 1,
+    //     jumpCount: 2,
+    //   });
 
-      // move first, try to eat
-      this.movePosition({
-        player: 0,
-        token: 0,
-        jumpCount: 1,
-      });
+    //   // move first, try to eat
+    //   this.movePosition({
+    //     player: 0,
+    //     token: 0,
+    //     jumpCount: 1,
+    //   });
 
-      this.movePosition({
-        player: 0,
-        token: 0,
-        jumpCount: 15,
-      });
+    //   this.movePosition({
+    //     player: 0,
+    //     token: 0,
+    //     jumpCount: 15,
+    //   });
 
-      // kill block
-      this.movePosition({
-        player: 1,
-        token: 1,
-        jumpCount: 1,
-      });
+    //   // kill block
+    //   this.movePosition({
+    //     player: 1,
+    //     token: 1,
+    //     jumpCount: 1,
+    //   });
 
-      // move first, eat
-      this.movePosition({
-        player: 0,
-        token: 0,
-        jumpCount: 1,
-      });
+    //   // move first, eat
+    //   this.movePosition({
+    //     player: 0,
+    //     token: 0,
+    //     jumpCount: 1,
+    //   });
 
-      this.movePosition({
-        player: 0,
-        token: 0,
-        jumpCount: 15,
-      });
+    //   this.movePosition({
+    //     player: 0,
+    //     token: 0,
+    //     jumpCount: 15,
+    //   });
 
-      this.movePosition({
-        player: 0,
-        token: 0,
-        jumpCount: 1,
-      });
-    },
+    //   this.movePosition({
+    //     player: 0,
+    //     token: 0,
+    //     jumpCount: 1,
+    //   });
+    // },
 
-    async fill() {
-      for (let tokenId = 0; tokenId < 4; tokenId++) {
-        for (let playerId = 0; playerId < 4; playerId++) {
-          for (let i = 0; i < 70; i++) {
-            this.movePosition({
-              player: playerId,
-              token: tokenId,
-              jumpCount: 1,
-            });
-          }
-        }
-      }
-    },
+    // async fill() {
+    //   for (let tokenId = 0; tokenId < 4; tokenId++) {
+    //     for (let playerId = 0; playerId < 4; playerId++) {
+    //       for (let i = 0; i < 70; i++) {
+    //         this.movePosition({
+    //           player: playerId,
+    //           token: tokenId,
+    //           jumpCount: 1,
+    //         });
+    //       }
+    //     }
+    //   }
+    // },
 
     async move() {
       this.movePosition({
@@ -319,9 +322,32 @@ export default {
     },
 
     tokenSelected({ username, tokenId }) {
-      console.log("args");
+      // this is triggered when something is clicked on board
+
       console.log(username, tokenId);
+
+      // todo clear get and set, and fields, this is not used, instead emit is used
+      // this.selectedUsername = username;
+      // this.selectedTokenId;
+
+      this.$emit("tokenSelected", username, tokenId);
     },
+
+    // getSelectedUsername() {
+    //   return this.selectedUsername;
+    // },
+
+    // getSelectedTokenId() {
+    //   return this.selectedTokenId;
+    // },
+
+    // clearSelectedUsername() {
+    //   this.selectedUsername = undefined;
+    // },
+
+    // clearSelectedTokenId() {
+    //   this.selectedTokenId = undefined;
+    // },
 
     movePosition({ player, token, jumpCount }) {
       this.game.movePosition({

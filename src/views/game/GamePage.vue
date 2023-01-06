@@ -9,7 +9,7 @@
 
     <div class="row">
       <div class="col">
-        <TheGame></TheGame>
+        <TheGame @tokenSelected="userClickedOnToken" ref="level"></TheGame>
       </div>
 
       <div class="col">
@@ -46,6 +46,7 @@ import { acceptanceLogApi } from "@/scripts/api/acceptance_log";
 import { wsListeners } from "@/scripts/ws_listener";
 import { notification } from "@/scripts/notification";
 import { setJoinIndex } from "@/scripts/set_playing_order";
+// import { apiLevelLog } from "@/scripts/api/level_log";
 
 /**
  * currentEntryIndex = 0
@@ -61,18 +62,15 @@ export default {
       gameId: "",
       log: undefined,
 
-      // canRoll: false,
-      // rollResult: -1,
-
-      // instructionCurrentlyPerforming: -1,
-      // lastInstructionPerformed: -1,
-
       // from playing order
 
       levelId: undefined,
       players: {},
       joinId: undefined,
       currentLogEntryIndex: undefined,
+      globalPerformedLogEntryIndexToId: undefined,
+      privatePerformedLogEntryIndexToId: undefined,
+      isWaitingForUserToChooseToken: false,
     };
   },
   async mounted() {
@@ -92,6 +90,8 @@ export default {
     new wsListeners.WebSocketListener(url, this.wsReceive);
 
     // run condition, what if get then ws vs ws then get
+
+    // return;
 
     await this.loadPlayers();
     await this.loadLog();
@@ -157,10 +157,9 @@ export default {
 
     // this is from playing order
 
-    async tryNextInstruction() {
-      // setup
+    entrySetup() {
       let entryLogIndex = this.currentLogEntryIndex + 1;
-      console.log("try", entryLogIndex);
+      console.log(entryLogIndex);
 
       if (!(entryLogIndex in this.log)) {
         console.log("err? not in this.log");
@@ -168,21 +167,14 @@ export default {
         // i assume that player needs to make a move
       }
 
-      // main
-
       let logEntry = this.log[entryLogIndex];
+      return logEntry;
+    },
 
-      if (logEntry.action === "goes") {
-        console.log("err goes");
-      } else {
-        console.log("can not perform on my own");
-        console.log(logEntry);
-        return;
-      }
+    async entryCleanup(logEntry, payload = undefined) {
+      console.log("entryCleanup");
 
-      // cleanup
-
-      let isLogged = await this.sendConfirmation(this.log[entryLogIndex]);
+      let isLogged = await this.sendConfirmation(logEntry.id, payload);
 
       notification.showMessage(
         isLogged,
@@ -196,8 +188,49 @@ export default {
       } else {
         console.log("err");
       }
+    },
 
-      // await this.tryNextInstruction();
+    async tryNextInstruction() {
+      console.log("try next instruction");
+      let logEntry = this.entrySetup();
+
+      if (logEntry.player !== this.joinId) {
+        if (logEntry.instruction_id in this.globalPerformedLogEntryIndexToId) {
+          console.log("master made this instruction");
+        } else {
+          console.log("need to wait for master player to log this move");
+          return;
+        }
+      }
+
+      // main
+
+      if (logEntry.action === "goes") {
+        console.log("err tryNextInstruction goes");
+      } else if (logEntry.action === "move") {
+        console.log("move", logEntry);
+
+        if (this.joinId !== logEntry.player) {
+          console.log("err not same", this.joinId, logEntry.player);
+        }
+
+        this.$refs.level.movePosition({
+          player: logEntry.player,
+          token: logEntry.token,
+          jumpCount: logEntry.diceResult,
+        });
+      } else if (
+        logEntry.player !== this.joinId &&
+        logEntry.action === "roll"
+      ) {
+        console.log("roll");
+        this.$refs.dice.rollDice(logEntry.diceResult);
+      } else {
+        console.log("tryNextInstruction can not perform on my own", logEntry);
+        return;
+      }
+
+      this.entryCleanup(logEntry);
     },
 
     // passive actions
@@ -244,6 +277,17 @@ export default {
         console.log("err");
       }
 
+      console.log(res["payload"]);
+
+      this.globalPerformedLogEntryIndexToId =
+        res["payload"]["globalPerformedEntries"];
+      this.privatePerformedLogEntryIndexToId =
+        res["payload"]["performedEntries"];
+
+      // console.log(Object.keys(res["payload"]["globalPerformedEntries"]).length);
+
+      // console.log(Object.keys(res["payload"]["performedEntries"]).length);
+
       return res["payload"]["performedEntries"];
     },
 
@@ -252,13 +296,13 @@ export default {
       let performedLogEntryIndexToId =
         await this.fetchPerformedLogEntryIndexToId();
 
-      console.log(performedLogEntryIndexToId);
+      console.log("ui updated", Object.keys(performedLogEntryIndexToId));
 
       console.log("starting confirmation log with", this.currentLogEntryIndex);
 
       // confirm everything before this
       for (let i = 0; i < this.currentLogEntryIndex + 1; i++) {
-        console.log("auto confirm this", i, this.log[i].id);
+        // console.log("auto confirm this", i, this.log[i].id);
 
         let isLogged = await this.sendConfirmation(this.log[i].id);
 
@@ -270,55 +314,76 @@ export default {
       // add those instructions to performed entries
       // this is executed instead of calling again fetchPerformedLogEntryIndexToId
       for (let i = 0; i < this.currentLogEntryIndex + 1; i++) {
-        console.log("auto add this", i, this.log[i].id);
+        // console.log("auto add this", i, this.log[i].id);
 
         // todo check if something diff is here then this is not correctly implemented (possible error while sorting?)
         performedLogEntryIndexToId[i] = this.log[i].id;
       }
 
       // fast loading (updating board)
-      for (const [i, entry] of Object.entries(this.log)) {
-        if (Number(i) !== entry.instruction_id) {
-          console.log("sorting error", Number(i), entry.instruction_id);
+      for (const [i, logEntry] of Object.entries(this.log)) {
+        if (Number(i) !== logEntry.instruction_id) {
+          console.log("sorting error", Number(i), logEntry.instruction_id);
         }
 
         if (this.currentLogEntryIndex >= i) {
-          console.log(
-            "skip (pre goes instruction)",
-            this.currentLogEntryIndex,
-            i
-          );
+          // console.log(
+          //   "skip (pre goes instruction)",
+          //   this.currentLogEntryIndex,
+          //   i
+          // );
           continue;
         }
 
         if (!(i in performedLogEntryIndexToId)) {
-          console.log("entry not yet performed", i, entry);
+          // console.log("logEntry not yet performed", i, logEntry);
           break;
         }
 
-        console.log(i, entry);
+        console.log("fast perform", i, logEntry);
 
-        // console.log("perform", entry.id);
+        switch (logEntry.action) {
+          case "roll":
+            this.$refs.dice.rollDice(logEntry.diceResult);
 
-        // switch (entry.action) {
-        //   case "roll":
-        //     break;
-        //   case "goes":
-        //     console.log("err goes");
-        //     break;
-        //   default:
-        //     console.log("err unknown");
-        //     break;
-        // }
+            break;
+          case "goes":
+            console.log("err goes");
+            break;
+
+          case "move":
+            if (this.joinId !== logEntry.player) {
+              console.log("err not same", this.joinId, logEntry.player);
+            }
+
+            this.$refs.level.movePosition({
+              player: logEntry.player,
+              token: logEntry.token,
+              jumpCount: logEntry.diceResult,
+            });
+
+            break;
+
+          default:
+            console.log("err unknown");
+            break;
+        }
 
         // this.currentLogEntryIndex++;
       }
 
-      console.log("currentLogEntryIndex", this.currentLogEntryIndex);
+      this.currentLogEntryIndex =
+        Object.keys(performedLogEntryIndexToId).length - 1;
 
-      // // set turn
-      // let logEntry = this.log[this.currentLogEntryIndex];
-      // this.players[logEntry.player].isTurn = true;
+      console.log(
+        "after fast reloading, last executed is",
+        this.currentLogEntryIndex
+      );
+
+      // console.log(
+      //   "after realoding, we can be sure this is performed:",
+      //   Object.keys(this.privatePerformedLogEntryIndexToId),
+      // );
     },
 
     async sendConfirmation(entryIndex, payload = undefined) {
@@ -333,53 +398,84 @@ export default {
       let flag = res["auth"]["status"] && res["payload"]["status"];
 
       if (!flag) {
-        console.log("err");
+        console.log("err", res);
       }
 
       return flag;
     },
 
     async rollDice() {
-      // setup
-      let entryLogIndex = this.currentLogEntryIndex + 1;
-      let logEntry = this.log[entryLogIndex];
+      // console.log(this.log);
+
+      // console.log(this.currentLogEntryIndex);
+
+      let logEntry = this.entrySetup();
 
       if (!(this.joinId === logEntry.player)) {
         console.log("not your turn");
+        notification.showMessage(false, "", "not your turn");
         return;
       }
 
       if (logEntry.action !== "roll") {
-        console.log("not roll action");
+        console.log("err not roll action", logEntry.action);
         return;
       }
 
       this.$refs.dice.rollDice(logEntry.diceResult);
 
-      let isLogged = await this.sendConfirmation(this.log[entryLogIndex]);
-
-      notification.showMessage(
-        isLogged,
-        "move logged",
-        "error logging to server"
+      console.log(
+        this.currentLogEntryIndex + 1,
+        this.log,
+        this.currentLogEntryIndex + 1 in this.log
       );
 
-      if (isLogged) {
-        // or this.currentLogEntryIndex = entryLogIndex
-        this.currentLogEntryIndex++;
+      if (!(this.currentLogEntryIndex + 1 + 1 in this.log)) {
+        console.log("assumption: user needs to decide");
+
+        this.isWaitingForUserToChooseToken = true;
       } else {
-        console.log("err");
+        console.log("assumption: not used");
+
+        this.entryCleanup(logEntry);
       }
+
+      // no cleanup
 
       // backend needs to send to others this info
       // backend waits for all others to confirm (timeout)
+    },
+
+    async userClickedOnToken(username, tokenId) {
+      // no need for additional checks, assumption is that they are run in previous function
+
+      console.log("user clicked on token", username, tokenId);
+
+      if (!this.isWaitingForUserToChooseToken) {
+        console.log("not waiting for this");
+        return;
+      }
+
+      this.isWaitingForUserToChooseToken = false;
+
+      // do this step again
+      let logEntry = this.entrySetup();
+
+      let t = await apiLevelLog.addToLog(this.levelId, tokenId);
+      console.log(t);
+
+      this.entryCleanup(logEntry, {
+        instruction: "moveToken",
+        username: username,
+        tokenId: tokenId,
+      });
     },
 
     async loadPlayers() {
       let res = await apiLevel.getSpecificLevel({ levelId: this.levelId });
 
       if (!(res["auth"]["status"] && res["payload"]["status"])) {
-        console.log("err");
+        console.log("err", res);
         return;
       }
 

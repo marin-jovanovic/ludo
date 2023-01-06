@@ -2,7 +2,7 @@ import sys
 
 from backend.api.game.dice import get_dice_result
 from backend.api.game.log import construct_goes, construct_roll, construct_tie
-from backend.api.game.resources import get_config
+from backend.api.cqrs_q.level_config import get_config
 
 
 def determine_order(
