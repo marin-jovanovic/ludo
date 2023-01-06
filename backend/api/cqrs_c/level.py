@@ -78,9 +78,26 @@ def create_game(creator_username, level_name, capacity):
         print("err add_to_order")
         return r
 
-    r = user_set_currently_playing_id(creator_username, level_name)
+    # r = user_set_currently_playing_id(creator_username, level_name)
+    # if not r["status"]:
+    #     return r
+
+
+    r = level_get_model(level_name=level_name)
+
+    # r = level_get_model_by_id(level_id)
     if not r["status"]:
         return r
+
+    game_o = r["payload"]
+
+    level_id = game_o.id
+
+    r =  driver_assign_user_currently_playing(creator_username, game_o, level_id)
+    if not r["status"]:
+        return r
+    #
+
 
     r = create_game_api(capacity=capacity)
 
@@ -175,7 +192,7 @@ def leave_level(username):
     if f_is_empty:
         print("leave_game level is empty")
 
-        level = get_level_model().objects.get(level_id=level_id, is_active=True)
+        level = get_level_model().objects.get(id=level_id)
         level.is_active = False
         level.save()
 

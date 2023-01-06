@@ -54,6 +54,15 @@ def create_entry_if_not_exists(level_id, entry_id, username):
     is_first_time = not r
     print(f"{is_first_time=}")
 
+    are_any_rows_present = get_player_order_model() \
+        .objects \
+        .filter(level_id=level_id, user_id=user_id)\
+        .exists()
+
+
+    # print("is first entry", t)
+
+
     join_index = get_player_order_model() \
         .objects \
         .get(level_id=level_id, user_id=user_id).join_index
@@ -109,11 +118,12 @@ def create_entry_if_not_exists(level_id, entry_id, username):
                 )
                 e.save()
 
-                # msg = json.dumps({
-                #     "entryId": entry_id
-                # })
-                # print("send msg over ws")
-                # acceptance_log_entry_created_notifier.notify(msg)
+                msg = json.dumps({
+                    "entryId": e.log_entry.id,
+                    "id": e.log_entry.instruction_id
+                })
+                acceptance_log_entry_created_notifier.notify(msg)
+
 
                 return {
                     "status": True

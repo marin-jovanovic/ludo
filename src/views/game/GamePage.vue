@@ -46,12 +46,13 @@ import { acceptanceLogApi } from "@/scripts/api/acceptance_log";
 import { wsListeners } from "@/scripts/ws_listener";
 import { notification } from "@/scripts/notification";
 import { setJoinIndex } from "@/scripts/set_playing_order";
-// import { apiLevelLog } from "@/scripts/api/level_log";
 
 /**
  * currentEntryIndex = 0
  *
  * try perform it, if can perfrom then advance to next index
+ *
+ * this is different from dice order part
  *
  */
 
@@ -236,6 +237,13 @@ export default {
     // passive actions
     async wsReceive(message) {
       console.log("received update", message);
+
+      // todo check if this key exists then sorting problem (? assumption that this is cause)
+
+      // todo this is not nice naming, change this to reflect it better
+      this.globalPerformedLogEntryIndexToId[message.id] = message.entryId;
+
+      await this.tryNextInstruction();
 
       // let toAcceptIndex = message.entryId;
 
@@ -430,7 +438,13 @@ export default {
         this.currentLogEntryIndex + 1 in this.log
       );
 
-      if (!(this.currentLogEntryIndex + 1 + 1 in this.log)) {
+      if (
+        !(this.currentLogEntryIndex + 1 + 1 in this.log) ||
+        !(
+          this.currentLogEntryIndex + 1 in
+          this.privatePerformedLogEntryIndexToId
+        )
+      ) {
         console.log("assumption: user needs to decide");
 
         this.isWaitingForUserToChooseToken = true;

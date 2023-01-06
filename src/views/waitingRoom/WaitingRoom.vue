@@ -21,6 +21,8 @@ import { apiLevel } from "@/scripts/api/level";
 import BaseNotification from "@/components/BaseNotification.vue";
 import { router } from "@/router/router";
 
+// todo ws for joining
+
 export default {
   components: { BaseUserTemplate, BaseNotification },
   data() {
@@ -81,9 +83,11 @@ export default {
   },
   methods: {
     startgame() {
+      router.replace(`/playingOrder/${this.gameId}`);
+
       // router.push(`/game/${this.gameId}`);
 
-      router.replace(`/game/${this.gameId}`);
+      // router.replace(`/game/${this.gameId}`);
       // router.replace({path: "/results/xxxx"});
     },
 
