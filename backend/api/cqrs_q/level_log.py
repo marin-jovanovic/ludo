@@ -14,6 +14,7 @@ def get_last_performed_by_all_users(level_id):
         .values("instruction_id", "id")\
         .order_by("instruction_id")
 
+
     r = list(r)
 
     if not r:
@@ -56,7 +57,7 @@ def get_last_performed_by_this_user(level_id, user_id):
     r = get_acceptance_log_model().objects\
         .filter(level_id=level_id,user_id=user_id)\
         .values("log_entry__instruction_id", "log_entry_id", ) \
-        .order_by("log_entry_id")
+        .order_by("log_entry_id").distinct()
 
     r = list(r)
 

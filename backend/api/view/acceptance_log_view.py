@@ -4,8 +4,8 @@ from rest_framework.views import APIView
 from backend.api.cqrs_c.acceptance_log import create_entry_if_not_exists
 from backend.api.cqrs_q.level_log import get_last_performed_by_all_users, \
     get_last_performed_by_this_user, get_any
-from backend.api.view.comm import get_auth_ok_response_template
 from backend.api.model.user import get_user_model
+from backend.api.view.comm import get_auth_ok_response_template
 
 
 class AcceptanceLogView(APIView):
@@ -15,10 +15,10 @@ class AcceptanceLogView(APIView):
         response = get_auth_ok_response_template(request)
         user_id = get_user_model().objects.get(username=request.username).id
 
-
         last_e_all = get_last_performed_by_all_users(level_id)
 
-        last_e_this = get_last_performed_by_this_user(level_id=level_id, user_id=user_id)
+        last_e_this = get_last_performed_by_this_user(level_id=level_id,
+                                                      user_id=user_id)
 
         last_e_any = get_any(level_id)
 
@@ -28,7 +28,6 @@ class AcceptanceLogView(APIView):
             "lastExecutedThisUser": last_e_this,
             "lastExecutedByAny": last_e_any
         }
-
 
         print(f"{last_e_all=}")
         print(f"{last_e_this=}")
@@ -89,4 +88,3 @@ class AcceptanceLogView(APIView):
         }
 
         return JsonResponse(response)
-

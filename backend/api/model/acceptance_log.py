@@ -1,3 +1,5 @@
+import json
+
 from django.apps import apps
 from django.db import models
 
@@ -42,3 +44,24 @@ def get_acceptance_log_model():
 
 def get_acceptance_log_model_as_string():
     return "api.acceptanceLog"
+
+
+def notify_all_received(entry_id, entry_index):
+    msg = json.dumps({
+        "type": "allReceived",
+        "entryIndex": entry_index,
+        "entryId": entry_id,
+    })
+    acceptance_log_entry_created_notifier.notify(msg)
+
+
+def notify_first_received(entry_id, entry_index, user_join_index=None, user_username=None, user_id=None):
+    msg = json.dumps({
+        "type": "firstReceived",
+        "entryIndex": entry_index,
+        "entryId": entry_id,
+        "userJoinIndex": user_join_index,
+        "userUsername": user_username,
+        "userId": user_id
+    })
+    acceptance_log_entry_created_notifier.notify(msg)

@@ -1,14 +1,15 @@
-import json
-
 from backend.api.cqrs_q.level import level_get_model_by_id
 from backend.api.model.acceptance_log import \
-    acceptance_log_entry_created_notifier
+    notify_all_received, \
+    notify_first_received
 from backend.api.model.acceptance_log import get_acceptance_log_model
 from backend.api.model.level import get_level_model
 from backend.api.model.level_log import get_level_log_model
 from backend.api.model.player_order import get_player_order_model
 from backend.api.model.user import get_user_model
-from backend.api.cqrs_q.level_log import get_last_performed_by_all_users
+
+
+# def test_id():
 
 
 def create_entry_if_not_exists(level_id, entry_id, username):
@@ -54,15 +55,6 @@ def create_entry_if_not_exists(level_id, entry_id, username):
     ).exists()
 
     is_first_time = not r
-    print(f"{is_first_time=}")
-
-    # are_any_rows_present = get_player_order_model() \
-    #     .objects \
-    #     .filter(level_id=level_id, user_id=user_id)\
-    #     .exists()
-
-
-    # print("is first entry", t)
 
 
     join_index = get_player_order_model() \
@@ -78,7 +70,6 @@ def create_entry_if_not_exists(level_id, entry_id, username):
     r = level_get_model_by_id(level_id)
     if not r["status"]:
         return r
-
 
     # todo
     mode = "fast"
@@ -120,12 +111,27 @@ def create_entry_if_not_exists(level_id, entry_id, username):
                 )
                 e.save()
 
-                msg = json.dumps({
-                    "type": "first",
-                    "entryId": e.log_entry.id,
-                    "id": e.log_entry.instruction_id
-                })
-                acceptance_log_entry_created_notifier.notify(msg)
+                entry_index = e.log_entry.instruction_id
+
+                # user_id
+                # def notify_first_received(
+                #         entry_id, entry_index, user_join_index=None,
+                #         user_username=None, user_id=None):
+
+                print(80 * "-")
+                print(80 * "-")
+                print(80 * "-")
+                print(80 * "-")
+                print(f"{entry_id=}")
+                print(f"{entry_index=}")
+                notify_first_received(
+                    entry_id=entry_id,
+                    entry_index=entry_index,
+                    user_join_index=None,
+                    user_username=username,
+                    user_id=None
+                )
+
 
                 return {
                     "status": True
@@ -151,26 +157,6 @@ def create_entry_if_not_exists(level_id, entry_id, username):
 
                 check_all_accepted(entry_id, level_id)
 
-                # max_ = get_last_performed_by_all_users(level_id)
-
-                # if ()
-
-                # if max = this rule
-
-                # msg = json.dumps({
-                #     # "type": "maybeLast",
-                #     # "lastExecutedAccepted": max_,
-                #     # "entryId": e.log_entry.id,
-                #     # "id": e.log_entry.instruction_id
-                # })
-                # acceptance_log_entry_created_notifier.notify(msg)
-
-                # t = is_entry_accepted(level_id, entry_id)
-                #
-                #
-                # print("max accedpt", t)
-
-                # todo if everyone accepted then log as accepted
 
                 return {
                     "status": True
@@ -202,15 +188,9 @@ def check_all_accepted(entry_id, level_id):
 
         #    send message that this entry is performed by all
 
-        msg = json.dumps({
-            "type": "last",
-            "entryIndex": q.instruction_id,
-            "entryId": entry_id
-            # "lastExecutedAccepted": max_,
-            # "entryId": e.log_entry.id,
-            # "id": e.log_entry.instruction_id
-        })
-        acceptance_log_entry_created_notifier.notify(msg)
+
+
+        notify_all_received(entry_id, q.instruction_id)
 
     else:
         print("missing", capacity - 1, "users to confirm this command")

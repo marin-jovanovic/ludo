@@ -293,6 +293,17 @@ class LevelSS {
 
     // is in any level
 
+    getOrder() {
+        return {
+
+            order: this.ssw.get({
+                variable: this.prefix + "Order"
+            }).payload,
+
+        }
+
+    }
+
     getLevelMeta() {
 
         // todo rewrite with level prefix
@@ -303,9 +314,9 @@ class LevelSS {
                 variable: this.prefix + "Id"
             }).payload,
 
-            order: this.ssw.get({
-                variable: this.prefix + "Order"
-            }).payload,
+            // order: this.ssw.get({
+            //     variable: this.prefix + "Order"
+            // }).payload,
             capacity: this.ssw.get({
                 variable: this.prefix + "Capacity"
             }).payload,
