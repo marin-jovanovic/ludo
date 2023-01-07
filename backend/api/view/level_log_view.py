@@ -166,8 +166,6 @@ def level_id_to_name(level_id):
 def join_id_to_username_and_user_id(join_index, level_id):
     """join index (level index) -> username"""
 
-    # print(f"{join_index=}")
-
     t = int(join_index)
 
     level_exists = get_player_order_model().objects.filter(

@@ -1,14 +1,14 @@
 import sys
 from collections import defaultdict
 
+from backend.api.cqrs_q.level_config import get_config
 from backend.api.game.dice import get_dice_result
 from backend.api.game.log import construct_roll, move_token, log_won, \
-    log_eat_token
+    log_eat_token, user_choose
 from backend.api.game.order import determine_order
 from backend.api.game.pool import get_pool, is_valid_pool
 from backend.api.game.pre import get_destination_pool
 from backend.api.game.pre import player_moves_preprocessor
-from backend.api.cqrs_q.level_config import get_config
 
 
 # todo loading mid game config, content
@@ -453,17 +453,10 @@ class Level:
         self.start_pool_options = {}
         self.non_start_pool_options = {}
 
-        print(f"{bool(log)=}")
-
-        if log:
-            print(f"{log[-1]=}")
-
         if log and log[-1]["action"] == "roll":
             print("action not decided")
 
             player_id = log[-1]["player"]
-
-            # for player_id in playing_order:
 
             # if game_conf['number of players'] == len(already_won) + 1:
             #     """
@@ -547,53 +540,18 @@ class Level:
                         player_id=player_id,
                         dice_result=roll_result)
 
-                    # print(f"{start_pool_movable=}")
-                    # print(f"{board_movable=}")
-
-                    # to_choose = {**start_pool_movable, **board_movable}
-                    # print(f"{to_choose=}")
-
                     if start_pool_movable or board_movable:
+                        # todo add logic if more then one then auto ?
+
+                        self.log.append(
+                            user_choose(player=player_id, roll=roll_result)
+                        )
+
                         self.players_turn = player_id
                         self.start_pool_options = start_pool_movable
                         self.non_start_pool_options = board_movable
-                        # self.players_options = to_choose
 
                         return
-
-                    # if start_pool_movable and board_movable:
-                    #
-                    #     for token_id, token in start_pool_movable.items():
-                    #
-                    #         t = choose(self.board, self.log, player_id, 1,
-                    #                    token_id)
-                    #
-                    #         if t["won"]:
-                    #             already_won.add(player_id)
-                    #
-                    #         break
-                    #
-                    # elif start_pool_movable:
-                    #
-                    #     for token_id, token in start_pool_movable.items():
-                    #         t = choose(self.board, self.log, player_id, 1,
-                    #                    token_id)
-                    #
-                    #         if t["won"]:
-                    #             already_won.add(player_id)
-                    #         break
-                    #
-                    # elif board_movable:
-                    #
-                    #     for token_id, token in board_movable.items():
-                    #
-                    #         t = choose(self.board, self.log, player_id,
-                    #                    roll_result,
-                    #                    token_id)
-                    #
-                    #         if t["won"]:
-                    #             already_won.add(player_id)
-                    #         break
 
     def auto_driver(
             self,
@@ -751,11 +709,13 @@ def generate_as_much_as_you_can():
     to_choose = {**level.start_pool_options, **level.non_start_pool_options}
 
     # user needs to make a choice
-
+    #
     last_log = level.get_log()[-1]
-    if last_log["action"] != "roll":
-        print("errr last log entry is not roll")
-        return
+
+    # all ok with new implementation
+    # if last_log["action"] != "roll":
+    #     print("errr last log entry is not roll")
+    #     return
 
     player = last_log['player']
 
@@ -810,19 +770,11 @@ def generate_as_much_as_you_can():
     return level.get_log()
 
 
-def main():
-    # log = generate_whole_game()
-    # for i in log:
-    #     print(i)
 
-    log = generate_as_much_as_you_can()
+def create_game_api():
+    """todo level settings must be loaded from level_config model"""
 
-    # self.players_turn = player_id
-    # self.players_options = to_choose
-
-
-def create_game_api(capacity):
-    """order is guaranteed"""
+    """order is guaranteed of entries in log"""
 
     level = Level()
 
@@ -847,9 +799,9 @@ def get_log_api(log):
     to_choose = {**level.start_pool_options, **level.non_start_pool_options}
 
     last_log = level.get_log()[-1]
-    if last_log["action"] != "roll":
-        print("errr last log entry is not roll")
-        return
+    # if last_log["action"] != "roll":
+    #     print("errr last log entry is not roll")
+    #     return
 
     # todo this needs to be renamed to user
     player = last_log['player']
@@ -859,10 +811,6 @@ def get_log_api(log):
         "legalMoves": list(to_choose.keys())
     }
 
-
-#                 self.players_turn = player_id
-#                 self.start_pool_options = start_pool_movable
-#                 self.non_start_pool_options = board_movable
 
 def add_entry_to_log(log, player_id, token_id):
     """
@@ -889,11 +837,6 @@ def add_entry_to_log(log, player_id, token_id):
 
     level = Level(log=log)
 
-    # print("pre")
-    # for i in level.get_log():
-    #     print(i)
-    # print()
-
     # update level objects
     choose(
         board=level.board,
@@ -905,26 +848,14 @@ def add_entry_to_log(log, player_id, token_id):
     # perfrom as much as you can new instructions
     level = Level(log=level.get_log())
 
-    # print("post")
-    # for i in level.get_log():
-    #     print(i)
-
-    # out_len_log = len(log)
-
-    # len_log_diff = out_len_log - in_len_log
-
     log_diff = log[in_len_log::]
-
-    # print()
-    # for i in log_diff:
-    #     print(i)
 
     to_choose = {**level.start_pool_options, **level.non_start_pool_options}
 
     last_log = level.get_log()[-1]
-    if last_log["action"] != "roll":
-        print("errr last log entry is not roll")
-        return
+    # if last_log["action"] != "roll":
+    #     print("errr last log entry is not roll")
+    #     return
 
     # todo this needs to be renamed to user
     player = last_log['player']
@@ -935,9 +866,19 @@ def add_entry_to_log(log, player_id, token_id):
         "legalMoves": list(to_choose.keys())
     }
 
-    # return
-    # return diff log
+def main():
+    # log = generate_whole_game()
+    # for i in log:
+    #     print(i)
 
+    # log = generate_as_much_as_you_can()
+
+    # todo what if user quits mid game, -> need to split log
+    #   generate without them
+
+    t = create_game_api()
+    for i in t["payload"]:
+        print(i)
 
 if __name__ == '__main__':
     main()

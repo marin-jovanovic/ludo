@@ -55,9 +55,11 @@ async function setPlayingOrder({
 
         if (value.action === "goes") {
 
+            console.log("value", value)
+
             order[c] = {
                 joinIndex: value.player,
-                username: joinToUsername[value.player].username
+                username: joinToUsername[value.userJoinIndex].username
             }
             c++;
         }

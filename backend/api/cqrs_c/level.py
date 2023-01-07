@@ -13,7 +13,6 @@ from backend.api.game.game import create_game_api
 from backend.api.model.level import Level, \
     game_created_notifier, games_notifier, game_left_notifier, \
     game_join_notifier, get_level_model
-# get_player_order
 from backend.api.model.player_order import get_player_order_model
 from backend.api.model.user import get_user_model
 
@@ -78,14 +77,8 @@ def create_game(creator_username, level_name, capacity):
         print("err add_to_order")
         return r
 
-    # r = user_set_currently_playing_id(creator_username, level_name)
-    # if not r["status"]:
-    #     return r
-
 
     r = level_get_model(level_name=level_name)
-
-    # r = level_get_model_by_id(level_id)
     if not r["status"]:
         return r
 
@@ -96,10 +89,8 @@ def create_game(creator_username, level_name, capacity):
     r =  driver_assign_user_currently_playing(creator_username, game_o, level_id)
     if not r["status"]:
         return r
-    #
 
-
-    r = create_game_api(capacity=capacity)
+    r = create_game_api()
 
     if not r["status"]:
         return r

@@ -18,13 +18,23 @@ def construct_roll(player, roll):
 
     """
     return {
-        # "game": None,
         "player": player,
         "token": None,
         "dice_result": roll,
         "action": "roll"
     }
 
+def user_choose(player, roll):
+    """
+    @player rolled @roll
+
+    """
+    return {
+        "player": player,
+        "token": None,
+        "dice_result": roll,
+        "action": "choose"
+    }
 
 def construct_tie():
     """

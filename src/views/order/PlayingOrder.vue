@@ -8,8 +8,6 @@
     <button @click="leaveGame">leave game</button>
 
     <div class="row">
-      <div class="col"></div>
-
       <div class="col">
         <div class="row">
           <div class="col">
@@ -264,8 +262,10 @@ export default {
   },
   methods: {
     goToLevel() {
-      console.log("to game");
-      router.replace(`/game/${this.gameId}`);
+      console.log("to game", this.levelId);
+      // conso
+
+      router.replace(`/game/${this.levelId}`);
     },
 
     // check for goes
