@@ -6,6 +6,36 @@
     <!-- <TheInfo ref="info"></TheInfo> -->
 
     <div class="row">
+      <h1>toggle</h1>
+
+      <div class="col">
+        <ui-switch
+          v-model="autoRoll"
+          input-id="basic-switch"
+          :true-value="1"
+          :false-value="0"
+        >
+          <!--           @selected="balmUI.onChange('toggle1Label', $event)"
+ -->
+        </ui-switch>
+        <label for="basic-switch-custom">autoRoll: {{ autoRoll }} </label>
+      </div>
+
+      <div class="col">
+        <ui-switch
+          v-model="autoChoose"
+          input-id="basic-switch"
+          :true-value="1"
+          :false-value="0"
+        >
+        </ui-switch>
+        <label for="basic-switch-custom">autoChoose: {{ autoChoose }} </label>
+      </div>
+
+      <!-- <base-toggle-button value="false">ff</base-toggle-button> -->
+    </div>
+
+    <div class="row">
       <div class="col">
         <TheGame @tokenSelected="userClickedOnToken" ref="level"></TheGame>
       </div>
@@ -32,6 +62,7 @@
       <div class="col">
         <h5>join index: {{ this.joinId }}</h5>
         <h5>username: {{ this.username }}</h5>
+        <!-- <h5>turn : {{ this.log[this.lastExecutedThisUser] }}</h5> -->
       </div>
     </div>
 
@@ -101,6 +132,7 @@ import TheGame from "./TheGame.vue";
 import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
 import TheMessages from "@/views/game/TheMessages.vue";
 import { apiLevelLog } from "@/scripts/api/level_log";
+// import BaseToggleButton from "@/components/BaseToggleButton.vue";
 
 import { levelSessionStorage, userMetaSS } from "@/scripts/session_storage";
 // import { apiLevel } from "@/scripts/api/level";
@@ -205,8 +237,44 @@ export default {
       isRolledAlready: false,
 
       trySuccessful: false,
+
+      // toggle1: false,
+      // toggle1Label: 0,
+      // toggle2: true,
+      // toggle2Label: "on",
+
+      autoRoll: false,
+      autoChoose: false,
     };
   },
+
+  watch: {
+    // whenever question changes, this function will run
+    autoRoll() {
+      // if (newQuestion.includes('?')) {
+      //   this.getAnswer()
+      // }
+
+      // if ()
+
+      notification.showMessage(
+        this.autoRoll,
+        "autoroll set",
+        "auto roll dissabled"
+      );
+    },
+
+    autoChoose() {
+      notification.showMessage(
+        this.autoChoose,
+        "autoroll set",
+        "auto roll dissabled"
+      );
+
+      this.tryNextInstruction();
+    },
+  },
+
   async mounted() {
     let flag = await this.$refs.level.initGame();
     // let flag = res["auth"]["status"] && res["payload"]["status"];
@@ -233,7 +301,7 @@ export default {
       value: Object.keys(res["payload"]["users"]).length,
     });
 
-    console.log(levelSessionStorage.getLevelMeta());
+    // console.log(levelSessionStorage.getLevelMeta());
     let capacity = levelSessionStorage.getLevelMeta()["capacity"];
 
     console.log("capacity", capacity);
@@ -302,28 +370,28 @@ export default {
     // this is from playing order
 
     addToOrder(orderObj) {
-      console.log(orderObj);
+      // console.log(orderObj);
       this.order[orderObj.userJoinIndex] = {
         orderObj,
       };
-      let capacity = levelSessionStorage.getLevelMeta()["capacity"];
-      console.log(this.order, this.order.size, capacity);
+      // let capacity = levelSessionStorage.getLevelMeta()["capacity"];
+      // console.log(this.order, this.order.size, capacity);
 
-      let isOrderDetermined = capacity === Object.keys(this.order).length;
-      if (isOrderDetermined) {
-        let logEntry = this.getCurrentLogEntry();
+      // let isOrderDetermined = capacity === Object.keys(this.order).length;
+      // if (isOrderDetermined) {
+      //   // let logEntry = this.getCurrentLogEntry();
 
-        console.log("last what needs to be confirmed", logEntry);
+      //   // console.log("last what needs to be confirmed", logEntry);
 
-        // this.isDoneNeedToConfirm = {
-        //   entryId: logEntry.entryId,
-        //   entryIndex: logEntry.entryIndex,
-        // };
+      //   // this.isDoneNeedToConfirm = {
+      //   //   entryId: logEntry.entryId,
+      //   //   entryIndex: logEntry.entryIndex,
+      //   // };
 
-        // done only when all except one user won
-        // this.isDone = true;
-        // console.log("block any new movements");
-      }
+      //   // done only when all except one user won
+      //   // this.isDone = true;
+      //   // console.log("block any new movements");
+      // }
     },
 
     isMyTurn(logEntry) {
@@ -361,11 +429,7 @@ export default {
     async tryNextInstruction() {
       let logEntry = this.getCurrentLogEntry();
 
-      console.log(
-        this.isDone,
-        this.lastExecutedByAll.entryIndex,
-        logEntry.entryIndex
-      );
+      console.log("try", logEntry);
 
       if (this.isDone) {
         console.log("done");
@@ -390,66 +454,66 @@ export default {
           this.lastExecutedByAny.entryIndex === logEntry.entryIndex
         )
       ) {
-        console.log(this.lastExecutedByAny.entryIndex, logEntry.entryIndex);
+        console.log(
+          "info?err",
+          this.lastExecutedByAny.entryIndex,
+          logEntry.entryIndex
+        );
         return;
       }
 
       // 4 5
       if (!(this.lastExecutedThisUser.entryIndex + 1 === logEntry.entryIndex)) {
-        console.log(this.lastExecutedThisUser.entryIndex, logEntry.entryIndex);
+        console.log(
+          "info?err",
+          this.lastExecutedThisUser.entryIndex,
+          logEntry.entryIndex
+        );
         return;
       }
 
       if (this.lastExecutedThisUser.entryIndex >= logEntry.entryIndex) {
-        console.log("err implementation, i have execute this already");
+        console.log("info?err implementation, i have execute this already");
         return;
       }
-
-      console.log(this.lastExecutedThisUser.entryIndex, logEntry.entryIndex);
 
       // >=
       if (this.lastExecutedThisUser.entryIndex > logEntry.entryIndex) {
-        console.log("this is executed by this user already");
+        console.log("info?err this is executed by this user already");
         return;
-      } else {
-        console.log("ok, this index is bigger or eq");
       }
 
-      console.log("log entry", logEntry);
-
       if (!this.isMyTurn(logEntry)) {
-        console.log("role: slave");
-
         // someone else performed this instruction
         // if true than it is master
         // i can perform this instruction
 
         let masterEntryIndex = this.lastExecutedByAny.entryIndex;
-        console.log(masterEntryIndex);
+        // console.log(masterEntryIndex);
 
-        if (masterEntryIndex >= logEntry.entryIndex) {
-          console.log("master executed >=");
-        } else {
-          console.log("not yet executed");
+        if (!(masterEntryIndex >= logEntry.entryIndex)) {
+          //   console.log("master executed >=");
+          // } else {
+          console.log("info?err: not yet executed");
           return;
         }
       }
 
       if (this.isMyTurn(logEntry)) {
         // my turn
+        console.log("role: master");
 
         switch (logEntry.action) {
           case "roll":
-            console.log("role: master");
-            console.log("can not auto execute my roll");
-
-            await this.rollDice();
+            if (this.autoRoll) {
+              await this.rollDice();
+            } else {
+              notification.showMessage(false, "", "roll the dice");
+            }
 
             break;
 
           case "goes":
-            console.log("can auto goes", logEntry);
-
             this.addToOrder({
               username: this.username,
               userJoinIndex: logEntry.userJoinIndex,
@@ -459,12 +523,52 @@ export default {
             break;
 
           case "choose":
-            console.log("can not auto choose");
+            if (this.autoChoose) {
+              console.log("todo autochoose");
+
+              let res = await apiLevelLog.getLevelLog(this.levelId);
+
+              console.log(res);
+
+              if (!(res["auth"]["status"] && res["payload"]["status"])) {
+                console.log("err");
+                return;
+              }
+
+              console.log(res);
+
+              let tokenId = res["payload"]["legalMoves"][0];
+
+              let t = this.manualActionsPre();
+
+              if (!t) {
+                return;
+              }
+
+              res = await apiLevelLog.addToLog(
+                this.levelId,
+                tokenId,
+                logEntry.entryId
+              );
+
+              if (!(res["auth"]["status"] && res["payload"]["status"])) {
+                console.log("err");
+                return;
+              }
+
+              this.entryCleanup();
+              this.$refs.level.movePosition(
+                logEntry.userJoinIndex,
+                logEntry.tokenId,
+                logEntry.diceResult
+              );
+            } else {
+              notification.showMessage(false, "", "choose token");
+            }
+
             break;
 
           case "move":
-            console.log("i have to auto move my token");
-
             this.$refs.level.movePosition(
               logEntry.userJoinIndex,
               logEntry.tokenId,
@@ -476,7 +580,7 @@ export default {
             break;
 
           case "eaten":
-            console.log("auto eat, canvas does this auto");
+            // canvas does this automatically
             await this.entryCleanup();
             break;
 
@@ -492,10 +596,10 @@ export default {
       } else {
         // other player choose
 
+        // role: slave
+
         switch (logEntry.action) {
           case "roll":
-            console.log("master executed roll");
-
             this.$refs.dice.rollDice(logEntry.diceResult);
 
             await this.entryCleanup();
@@ -503,8 +607,6 @@ export default {
             break;
 
           case "goes":
-            console.log("goes", logEntry);
-
             this.addToOrder({
               username: this.username,
               userJoinIndex: logEntry.userJoinIndex,
@@ -513,14 +615,11 @@ export default {
 
             break;
           case "choose":
-            console.log("master has choosen");
-
             await this.entryCleanup();
 
             break;
 
           case "move":
-            console.log("i have to auto move someone elses token");
             this.$refs.level.movePosition(
               logEntry.userJoinIndex,
               logEntry.tokenId,
@@ -532,7 +631,6 @@ export default {
             break;
 
           case "eaten":
-            console.log("auto eat, canvas does this auto");
             await this.entryCleanup();
             break;
 
@@ -543,9 +641,7 @@ export default {
       }
     },
 
-    // passive actions
     async wsReceive(message) {
-      console.log("received update", message);
       await this.loadLog();
 
       if (this.isDone) {
@@ -560,8 +656,6 @@ export default {
       };
 
       if (message.type === "firstReceived") {
-        console.log("firstReceived");
-
         // all stays the same
         // this is changed to this if received from this user
 
@@ -572,17 +666,10 @@ export default {
         }
 
         if (this.username === message.userUsername) {
-          console.log("this usernaem");
-
           this.lastExecutedThisUser = lastExecuted;
-        } else {
-          console.log("other user");
         }
-
         // no need to try next instruction because this one is not yet confirmed
       } else if (message.type === "allReceived") {
-        console.log("allReceived");
-
         this.isRolledAlready = false;
 
         if (this.lastExecutedByAny.entryIndex < lastExecuted.entryIndex) {
@@ -641,79 +728,27 @@ export default {
 
       // do all until lastExecutedThisUser
       for (const [i, logEntry] of Object.entries(this.log)) {
-        console.log(i, logEntry);
-
         if (this.isDone) {
           console.log("--- done");
           return;
         }
 
-        console.log("fast reload", i, this.lastExecutedThisUser.entryIndex);
-
         if (Number(i) > this.lastExecutedThisUser.entryIndex) {
           // this user did not execute this yet
 
-          console.log("i have not yet executed this");
-
-          if (Number(i) <= this.lastExecutedByAny.entryIndex) {
-            console.log("master executed this");
-
-            switch (logEntry.action) {
-              case "roll":
-                console.log("have to manualy roll");
-                // this.$refs.dice.rollDice(logEntry.diceResult);
-                break;
-              case "goes":
-                console.log("goes", logEntry);
-                this.addToOrder({
-                  username: "todo",
-                  userJoinIndex: logEntry.userJoinIndex,
-                });
-                break;
-
-              case "choose":
-                console.log("choose");
-                break;
-
-              case "move":
-                console.log("------------- mvoe");
-
-                this.$refs.level.movePosition(
-                  logEntry.userJoinIndex,
-                  logEntry.tokenId,
-                  logEntry.diceResult
-                );
-
-                break;
-              case "eaten":
-                console.log("auto eat, canvas does this auto");
-                break;
-              default:
-                console.log("err");
-                console.log("fast setup", i, logEntry);
-                console.log("unknow action", logEntry.action);
-                return;
-            }
-            const isLogged = await this.sendConfirmation(logEntry.entryId);
-            notification.showMessage(
-              isLogged,
-              "move logged",
-              "error logging to server"
-            );
-            if (!isLogged) console.log("err api call");
-          } else {
-            console.log("master also did not execute this");
+          if (!(Number(i) <= this.lastExecutedByAny.entryIndex)) {
+            continue;
           }
-        } else {
-          // this user did execute this yet
-          console.log("already executed this");
+
+          // master executed this
 
           switch (logEntry.action) {
             case "roll":
+              // this is not true?
+              console.log("have to manualy roll");
               this.$refs.dice.rollDice(logEntry.diceResult);
               break;
             case "goes":
-              console.log("goes", logEntry);
               this.addToOrder({
                 username: "todo",
                 userJoinIndex: logEntry.userJoinIndex,
@@ -721,11 +756,10 @@ export default {
               break;
 
             case "choose":
-              console.log("choose");
               break;
 
             case "move":
-              console.log("------------- mvoe did this", logEntry);
+              console.log("------------- mvoe");
 
               this.$refs.level.movePosition(
                 logEntry.userJoinIndex,
@@ -735,11 +769,48 @@ export default {
 
               break;
             case "eaten":
-              console.log("auto eat, canvas does this auto");
               break;
             default:
-              console.log("fast setup", i, logEntry);
-              console.log("unknow action", logEntry.action);
+              console.log("err");
+              return;
+          }
+          const isLogged = await this.sendConfirmation(logEntry.entryId);
+          notification.showMessage(
+            isLogged,
+            "move logged",
+            "error logging to server"
+          );
+          if (!isLogged) console.log("err api call");
+        } else {
+          // this user did execute this
+
+          switch (logEntry.action) {
+            case "roll":
+              this.$refs.dice.rollDice(logEntry.diceResult);
+              break;
+            case "goes":
+              // console.log("goes", logEntry);
+              this.addToOrder({
+                username: "todo",
+                userJoinIndex: logEntry.userJoinIndex,
+              });
+              break;
+
+            case "choose":
+              break;
+
+            case "move":
+              this.$refs.level.movePosition(
+                logEntry.userJoinIndex,
+                logEntry.tokenId,
+                logEntry.diceResult
+              );
+
+              break;
+            case "eaten":
+              break;
+            default:
+              console.log("err unknow action", logEntry.action);
               return;
           }
 
@@ -886,6 +957,7 @@ export default {
     BaseUserTemplate,
     TheMessages,
 
+    // BaseToggleButton,
     // TheInfo,
     TheGame,
   },

@@ -99,8 +99,6 @@ class BlToken extends ContentCreator {
          * one enemy token eats this token; move it to start position
          */
 
-        console.log("restart")
-
         this.currentState = this.startState;
         this.currentXY = this.startXY;
     }

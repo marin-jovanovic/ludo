@@ -567,15 +567,15 @@ class Level extends ContentCreator {
 
                     // eat
 
-                    console.log("eat")
-                    console.log(this.levelState)
+                    // console.log("eat")
+                    // console.log(this.levelState)
 
 
 
 
                     tokens.forEach(t => {
 
-                        console.log(owner, t, "eaten by", playerId, tokenId)
+                        // console.log(owner, t, "eaten by", playerId, tokenId)
 
                         this.restartToken({
                             playerId: Number(owner),

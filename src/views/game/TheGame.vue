@@ -46,7 +46,7 @@
 </template>
     
 <script>
-import { ludo } from "@/views/game/ludo/scripts/index.js";
+import { ludo } from "@/scripts/ludo/index.js";
 import { apiGameConfig } from "@/scripts/api/gameConfig";
 
 export default {

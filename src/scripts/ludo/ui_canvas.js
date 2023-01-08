@@ -25,8 +25,8 @@ class Canvas {
         // this.canvas.style.position = 'absolute';
         // this.canvas.style.width = '100%';
         // this.canvas.style.height = '100%';
-        
-        
+
+
         this.context = this.canvas.getContext("2d");
         this.animationId;
 

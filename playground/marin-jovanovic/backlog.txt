@@ -82,6 +82,9 @@ statistics
 update game
     notif all players that are in
 
+fix
+    two tokens on same till
+    if click log only first
 
 
 """

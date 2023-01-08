@@ -164,7 +164,8 @@ class LevelLogView(APIView):
 
         response["payload"] = {
             "status": True,
-            **ids,
+            "userUsername": ids["userUsername"],
+            "userId": ids["userId"],
             "legalMoves": legal_moves
         }
 

@@ -10,7 +10,7 @@ function isJsonString(str) {
 class SessionStorageWrapper {
     constructor() {
 
-// match by regex order | Order -> levelOrder
+        // match by regex order | Order -> levelOrder
 
         this.vals = new Set([
             'username',
@@ -213,7 +213,7 @@ class UserMetaSS {
             accessToken: this.ssw.get({
                 variable: "accessToken"
             }).payload,
-     
+
         }
     }
 }
@@ -243,19 +243,22 @@ class LevelSS {
         }
     }
 
-    set({variable, value}) {
+    set({
+        variable,
+        value
+    }) {
         // joinId
 
         if (!
             this.ssw.set({
-                variable: "level"+  variable,
+                variable: "level" + variable,
                 value: value
             })
         ) {
             console.log("err setting", variable, value)
         }
 
-        
+
     }
 
 
@@ -263,26 +266,23 @@ class LevelSS {
     leaveLevel() {
         if (!(
 
-            this.ssw.remove({
-                variable: "levelId"
-            })
-                &&
+                this.ssw.remove({
+                    variable: "levelId"
+                }) &&
 
                 this.ssw.remove({
                     variable: "levelOrder"
-                })
-                &&
+                }) &&
 
                 this.ssw.remove({
                     variable: "levelCapacity"
-                })
-                &&
+                }) &&
 
                 this.ssw.remove({
                     variable: "levelJoinIndex"
                 })
 
-                )
+            )
 
 
         ) {
@@ -335,7 +335,9 @@ class MusicSS {
         this.ssw = new SessionStorageWrapper();
     }
 
-    set({value}) {
+    set({
+        value
+    }) {
         // joinId
 
         if (!
@@ -344,17 +346,17 @@ class MusicSS {
                 value: value
             })
         ) {
-            console.log("err setting",  value)
+            console.log("err setting", value)
         }
 
-        
+
     }
 
     get() {
         return {
 
             order: this.ssw.get({
-                variable: "music" 
+                variable: "music"
             }).payload,
 
         }

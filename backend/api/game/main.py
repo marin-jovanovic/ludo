@@ -1,5 +1,7 @@
 from backend.api.game.game import Level, choose
 from backend.api.game.adapter import artificially_add_choose_row, artificially_remove_choose_entries
+from backend.api.game.log import user_choose
+
 
 def create_game_api():
     """todo level settings must be loaded from level_config model"""
@@ -13,6 +15,64 @@ def create_game_api():
     return {
         "status": True,
         "payload": log
+    }
+
+def try_generating_api(log):
+    log = artificially_remove_choose_entries(log)
+
+    in_len_log = len(log)
+
+    # player_id = int(player_id)
+    # token_id = int(token_id)
+
+    # preprocess if loaded from db
+    for i in log:
+        for j in ["id", "game_id", "instruction_id", "performed"]:
+            if j in i:
+                del i[j]
+
+    # todo eating, game won, game lost, ...
+
+    level = Level(log=log)
+
+    # update level objects
+    # choose(
+    #     board=level.board,
+    #     log=level.get_log(),
+    #     player_id=player_id,
+    #     token_id=token_id
+    # )
+
+    # perfrom as much as you can new instructions
+    # level = Level(log=level.get_log())
+
+    log_diff = log[in_len_log:]
+
+    to_choose = {**level.start_pool_options, **level.non_start_pool_options}
+
+    last_entry = level.get_log()[-1]
+    if last_entry["action"] != "roll":
+        print("errr last log entry is not roll, i think game is done")
+        return
+
+    # todo this needs to be renamed to user
+    player = last_entry['player']
+
+    if log_diff :
+
+        log_diff = artificially_add_choose_row(log_diff)
+
+    else:
+        print("err? nothing generated")
+
+        if last_entry["action"] == "roll":
+            new_entry = user_choose(player=last_entry["player"], roll=last_entry["dice_result"])
+            log_diff.append(new_entry)
+
+    return {
+        "logDiff": log_diff,
+        "turn": player,
+        "legalMoves": list(to_choose.keys())
     }
 
 
@@ -66,13 +126,19 @@ def add_entry_to_log(log, player_id, token_id):
     # todo this needs to be renamed to user
     player = last_log['player']
 
-    log_diff = artificially_add_choose_row(log_diff)
+    if log_diff:
+
+        log_diff = artificially_add_choose_row(log_diff)
+
+    else:
+        print("err? nothing generated")
 
     return {
         "logDiff": log_diff,
         "turn": player,
         "legalMoves": list(to_choose.keys())
     }
+
 
 
 def get_log_api(log):

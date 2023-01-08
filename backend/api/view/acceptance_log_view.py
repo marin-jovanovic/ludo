@@ -7,10 +7,13 @@ from backend.api.cqrs_q.level_log import get_last_performed_by_all_users, \
 from backend.api.model.user import get_user_model
 from backend.api.view.comm import get_auth_ok_response_template
 
+from backend.api.cqrs_c._cleanup import clean
 
 class AcceptanceLogView(APIView):
 
     def get(self, request, level_id):
+
+        clean(level_id)
 
         response = get_auth_ok_response_template(request)
         user_id = get_user_model().objects.get(username=request.username).id

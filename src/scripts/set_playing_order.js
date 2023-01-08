@@ -23,10 +23,10 @@ async function setPlayingOrder({
 
     let capacity = res["payload"]["capacity"]
 
-     levelSessionStorage.set({
+    levelSessionStorage.set({
         variable: "Capacity",
         value: capacity,
-      });
+    });
 
 
     let joinToUsername = {}
@@ -77,31 +77,33 @@ async function setPlayingOrder({
     levelSessionStorage.set({
         variable: "Order",
         value: order,
-      });
+    });
 
     return order;
 
 }
 
 async function setJoinIndex(username, levelId) {
-    let res = await apiLevel.getSpecificLevel({ levelId: levelId });
+    let res = await apiLevel.getSpecificLevel({
+        levelId: levelId
+    });
 
     if (!(res["auth"]["status"] && res["payload"]["status"])) {
-      console.log("err");
-      return;
+        console.log("err");
+        return;
     }
 
     for (const value of Object.values(res["payload"]["users"])) {
-      if (value.username === username) {
-        levelSessionStorage.set({
-          variable: "JoinIndex",
-          value: value.joinId,
-        });
+        if (value.username === username) {
+            levelSessionStorage.set({
+                variable: "JoinIndex",
+                value: value.joinId,
+            });
 
-        return;
-      }
+            return;
+        }
     }
-  }
+}
 
 export {
     setPlayingOrder,

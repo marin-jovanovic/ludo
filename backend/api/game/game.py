@@ -11,6 +11,14 @@ from backend.api.game.pre import get_destination_pool
 from backend.api.game.pre import player_moves_preprocessor
 
 
+def reorder_playing_order(playing_order, goes_first):
+    new_order = []
+    for i in range(len(playing_order)):
+        new_order.append(
+            playing_order[(goes_first + i) % len(playing_order)])
+    return new_order
+
+
 def log_err(content):
     print(f"[err] {content}")
 
@@ -479,27 +487,101 @@ class Level:
 
             return
 
-        goes_first = playing_order[0]
+        # goes_first = playing_order[0]
 
         """if we have log, and in that log last entry was 6 for this player
             they cen perform again
         """
 
-        print(f"{self.log[-2]=}")
-        # this should be roll instruction
-        if self.log[-2]["dice_result"] == 6:
-            goes_first = self.log[-1]["player"]
+        last_entry = self.log[-1]
+
+        if last_entry["action"] == "goes":
+            # i think this will never execute because it generates till first choosable
+            self.manual_driver(game_conf, playing_order)
+            # self.auto_driver(game_conf, playing_order)
+            return
+
+        # only_rollable = []
+        # for i in self.log:
+        #     if i["action"] == "move":
+        #         only_rollable.append(i)
+
+        # if
+
+        # what if not enough
+
+        # last_roll = None
+
+        # for entry in reversed(self.log):
+        #     if entry['action'] == 'roll':
+        #         last_roll = entry
+        #         break
+
+        only_roll = []
+        for i in self.log:
+            if i["action"] == "roll":
+                only_roll.append(i)
+
+        # for i in only_roll:
+        #     print(i)
+
+        last_entry = only_roll[-1]
+
+        # one_before_last_entry = only_roll[-2]
+
+        # print(f"{last_entry=}")
+        # print(f"{one_before_last_entry=}")
+
+        can_go_again = False
+
+        if last_entry["dice_result"] == 6:
+            # print("last executed: player rolled 6")
+            can_go_again = True
+
+        #     playing_order = reorder_playing_order(playing_order, goes_first)
+        #
+        # else:
+        #
+        #     # not correct, must be one after current
+        #     # goes_first = playing_order[1]
+        #
+        #     # last_played =
+        #
+        #     playing_order = reorder_playing_order(playing_order, goes_first)
+
+        # if not last_roll:
+        #     """"""
+        #
+        #
+        # print(f"{self.log[-2]=}")
+        # # this should be roll instruction
+        # if self.log[-2]["dice_result"] == 6:
+        #     goes_first = self.log[-2]["player"]
+        #     # goes_first = self.log[-1]["player"]
+        # else:
+        #     goes_first = self.log[-]["player"]
 
         # print(f"{goes_first=}")
 
-        def reorder_playing_order(playing_order, goes_first):
-            new_order = []
-            for i in range(len(playing_order)):
-                new_order.append(
-                    playing_order[(goes_first + i) % len(playing_order)])
-            return new_order
 
-        playing_order = reorder_playing_order(playing_order, goes_first)
+        # def find_next(playing_order, last):
+        #     # Check if the last element is already at the front of the list
+        #     # if last == 0:
+        #     #     return playing_order
+        #
+        #     # Otherwise, we need to reorder the list
+        #     # First, remove the element at index last from the list
+        #     element = playing_order.pop(last)
+        #     # Then, insert the element at the front of the list
+        #     playing_order.insert(0, element)
+        #     return playing_order
+
+        # print(f([2, 3, 0, 1], 2, True))  # [2, 3, 0, 1]
+
+        # print(f"{playing_order=}")
+
+        playing_order = f(playing_order, last_entry["player"], can_go_again)
+        # print(f"{playing_order=}")
 
         self.manual_driver(game_conf, playing_order)
         # self.auto_driver(game_conf, playing_order)
@@ -691,3 +773,122 @@ def choose(board, log, player_id, token_id):
         log.append(log_won(player=player_id))
 
     return {"won": gw}
+
+
+# def f(playing_order, last, choice):
+#     if choice:
+#         if last not in playing_order:
+#             print("err")
+#         while playing_order[0] != last:
+#
+#             playing_order.append(playing_order.pop(0))
+#         # print(f"{playing_order=}")
+#         # playing_order = reorder_playing_order(playing_order, last)
+#         return playing_order
+#
+#     else:
+#         if last not in playing_order:
+#             print("err")
+#         while playing_order[0] != last:
+#             playing_order.append(playing_order.pop(0))
+#
+#         playing_order.append(playing_order.pop(0))
+#         # print(f"{playing_order=}")
+#         # playing_order = reorder_playing_order(playing_order, last)
+#         return playing_order
+
+def f(playing_order, last, choice):
+    while True:
+        if playing_order[0] == last:
+            break
+        playing_order.append(playing_order.pop(0))
+
+    if not choice:
+        playing_order.append(playing_order.pop(0))
+
+    return playing_order
+
+    # new_order = []
+    # if choice:
+    #     for i in range(len(playing_order)):
+    #         new_order.append(playing_order[(last + i) % len(playing_order)])
+    # else:
+    #     for i in range(len(playing_order)):
+    #         new_order.append(playing_order[(last - i) % len(playing_order)])
+    # return new_order
+
+if __name__ == '__main__':
+    print(f([2, 3, 0, 1], 2, True))  # [2, 3, 0, 1]
+    print(f([0, 1, 2, 3], 2, True))  # [2, 3, 0, 1]
+    print(f([1, 2, 3, 0], 2, True))  # [2, 3, 0, 1]
+
+    print(f([2, 3, 0, 1], 2, False))  # [3, 0, 1, 2]
+    print(f([0, 1, 2, 3], 2, False))  # [3, 0, 1, 2]
+    print(f([1, 2, 3, 0], 2, False))  # [3, 0, 1, 2]
+
+    assert f([0,1,2,3], 0, True) == [0,1,2,3]
+    assert f([1,2,3,0], 0, True) == [0,1,2,3]
+    assert f([2,3,0,1], 0, True) == [0,1,2,3]
+    assert f([3,0,1,2], 0, True) == [0,1,2,3]
+
+    assert f([0,1,2,3], 1, True) == [1,2,3,0]
+    assert f([1,2,3,0], 1, True) == [1,2,3,0]
+    assert f([2,3,0,1], 1, True) == [1,2,3,0]
+    assert f([3,0,1,2], 1, True) == [1,2,3,0]
+
+    assert f([0,1,2,3], 2, True) == [2,3,0,1]
+    assert f([1,2,3,0], 2, True) == [2,3,0,1]
+    assert f([2,3,0,1], 2, True) == [2,3,0,1]
+    assert f([3,0,1,2], 2, True) == [2,3,0,1]
+
+    assert f([0,1,2,3], 3, True) == [3,0,1,2]
+    assert f([1,2,3,0], 3, True) == [3,0,1,2]
+    assert f([2,3,0,1], 3, True) == [3,0,1,2]
+    assert f([3,0,1,2], 3, True) == [3,0,1,2]
+
+
+    assert f([0,1,2,3], 0, False) == [1,2,3,0,]
+    assert f([1,2,3,0], 0, False) == [1,2,3,0,]
+    assert f([2,3,0,1], 0, False) == [1,2,3,0,]
+    assert f([3,0,1,2], 0, False) == [1,2,3,0,]
+
+    assert f([0,1,2,3], 1, False) == [2,3,0,1]
+    assert f([1,2,3,0], 1, False) == [2,3,0,1]
+    assert f([2,3,0,1], 1, False) == [2,3,0,1]
+    assert f([3,0,1,2], 1, False) == [2,3,0,1]
+
+    assert f([0,1,2,3], 2, False) == [3,0,1,2]
+    assert f([1,2,3,0], 2, False) == [3,0,1,2]
+    assert f([2,3,0,1], 2, False) == [3,0,1,2]
+    assert f([3,0,1,2], 2, False) == [3,0,1,2]
+
+    assert f([0,1,2,3], 3, False) == [0,1,2,3]
+    assert f([1,2,3,0], 3, False) == [0,1,2,3]
+    assert f([2,3,0,1], 3, False) == [0,1,2,3]
+    assert f([3,0,1,2], 3, False) == [0,1,2,3]
+
+
+
+    assert (f([2,3,0,1], 2, True) == [2,3,0,1])
+    assert(f([0, 1, 2, 3], 2, True) == [2, 3, 0, 1])
+    assert(f([1, 2, 3, 0], 2, True) == [2, 3, 0, 1])
+
+    assert(f([2,3,0,1], 2, False) == [3,0,1, 2])
+    assert(f([0, 1, 2, 3], 2, False) == [3, 0, 1, 2])
+    assert(f([1, 2, 3, 0], 2, False) == [3, 0, 1, 2])
+
+    assert(f([2,3,0,1], 0, False) == [1, 2,3,0,])
+    assert(f([0, 1, 2, 3], 0, False) == [1, 2,3,0,])
+    assert(f([1, 2, 3, 0], 0, False) == [1, 2,3,0,])
+
+
+    # playing_order = [2, 3, 0, 1]
+    #
+    # curr = 2
+    #
+    # goes_again = True
+    #
+    # if goes_again:
+    #     playing_order = reorder_playing_order(playing_order, curr)
+    #
+    # print(f"{playing_order=}")

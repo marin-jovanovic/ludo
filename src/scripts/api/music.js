@@ -58,6 +58,6 @@ function handleNewResponse(response) {
 
 
 
-export const apiMusic= {
-getMusic,
+export const apiMusic = {
+    getMusic,
 }

@@ -35,7 +35,7 @@ async function updateGame(game, player, token, action) {
 async function actionPerformed(game, player, instruction_id) {
     // todo type check before fetching
 
-// todo i think this is not used
+    // todo i think this is not used
 
 
     return await apiCalls.handleNewResponse(
@@ -53,7 +53,7 @@ async function actionPerformed(game, player, instruction_id) {
 
 
 async function addToLog(levelId, tokenId, entryId) {
-    
+
     return await apiCalls.handleNewResponse(
         await apiCalls.api.put(
             `level/${levelId}/log`,
