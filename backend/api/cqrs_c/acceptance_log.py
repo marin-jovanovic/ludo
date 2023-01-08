@@ -9,7 +9,6 @@ from backend.api.model.player_order import get_player_order_model
 from backend.api.model.user import get_user_model
 
 
-# def test_id():
 
 
 def create_entry_if_not_exists(level_id, entry_id, username):
@@ -172,13 +171,10 @@ def create_entry_if_not_exists(level_id, entry_id, username):
 
 
 def check_all_accepted(entry_id, level_id):
-    print(80 * "+")
     print("already in db")
     r = get_acceptance_log_model().objects \
         .filter(level_id=level_id, log_entry_id=entry_id).count()
-    print("total nwo", r)
     capacity = get_level_model().objects.get(id=level_id).capacity
-    print(f"{capacity=}")
     if capacity == r:
         print("everyone confirmed")
 
@@ -186,17 +182,25 @@ def check_all_accepted(entry_id, level_id):
         q.performed = True
         q.save()
 
-        #    send message that this entry is performed by all
-
-
-
         notify_all_received(entry_id, q.instruction_id)
 
     else:
         print("missing", capacity - 1, "users to confirm this command")
 
 
-def is_entry_accepted(level_id, entry_id):
+def is_entry_accepted(level_id: int, entry_id: int) -> bool:
+    """
+    Check if a given entry has been accepted by all users in a given level.
+
+    Parameters:
+    level_id (int): The ID of the level to check.
+    entry_id (int): The ID of the entry to check.
+
+    Returns:
+    bool: True if the entry has been accepted by all users in the level,
+          False otherwise.
+    """
+
     print(80 * "-")
     capacity = get_level_model().objects.get(id=level_id).capacity
     print(f"{capacity=}")

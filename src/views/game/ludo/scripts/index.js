@@ -259,8 +259,7 @@ class Game extends ContentCreator {
          * 
          */
 
-
-        this.bl.currentLevel.movePosition({
+       this.bl.currentLevel.movePosition({
             playerId: playerId,
             tokenId: tokenId,
             jumpCount: jumpCount

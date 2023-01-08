@@ -9,7 +9,10 @@ from backend.api.cqrs_q.level import \
     level_get_model_by_id, is_level_full_when_this_user_will_be_added_by_id, \
     is_integrity_rule_ok
 from backend.api.cqrs_q.user import get_user, get_users_in_level
-from backend.api.game.game import create_game_api
+# from backend.api.game.main import create_game_api
+
+from backend.api.game.main import create_game_api
+
 from backend.api.model.level import Level, \
     game_created_notifier, games_notifier, game_left_notifier, \
     game_join_notifier, get_level_model
@@ -77,7 +80,6 @@ def create_game(creator_username, level_name, capacity):
         print("err add_to_order")
         return r
 
-
     r = level_get_model(level_name=level_name)
     if not r["status"]:
         return r
@@ -91,11 +93,16 @@ def create_game(creator_username, level_name, capacity):
         return r
 
     r = create_game_api()
-
     if not r["status"]:
         return r
 
-    for i in r["payload"]:
+    log = r["payload"]
+
+    # from backend.api.game.adapter import artificially_add_choose_row
+    #
+    # log = artificially_add_choose_row(log)
+
+    for i in log:
         i["game"] = level_name
 
         add_entry(**i)
@@ -112,6 +119,15 @@ def create_game(creator_username, level_name, capacity):
     return {"status": True,
             "levelId": g.id
             }
+
+
+# def add_new_last_entry(log):
+#     last_entry = log[-1]
+#     # this fixes "choose" part
+#     from backend.api.game.log import user_choose
+#     new_last_entry = user_choose(last_entry["player"],
+#                                  last_entry["dice_result"])
+#     log.append(new_last_entry)
 
 
 def get_player_order(game_name):

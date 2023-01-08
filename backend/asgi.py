@@ -11,6 +11,15 @@ from backend.api.consumer import GameConsumer, MessageConsumer, \
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings.prod')
 
+"""
+The code defines three consumers: GameConsumer, MessageConsumer, 
+and AcceptanceLogEntryCreatedConsumer. 
+These consumers are responsible for handling WebSocket requests for 
+specific URLs: '/lobby_games/', '/msg/', and '/acceptanceLogEntryCreated/', 
+respectively. The consumers are added to the URLRouter instance using the path 
+function and the as_asgi method.
+"""
+
 application = ProtocolTypeRouter(
     {
         "http": get_asgi_application(),
@@ -21,9 +30,6 @@ application = ProtocolTypeRouter(
                     path('msg/', MessageConsumer().as_asgi()),
                     path('acceptanceLogEntryCreated/',
                          AcceptanceLogEntryCreatedConsumer.as_asgi())
-
-                    # path('game_state/', MessageConsumer().as_asgi()),
-
                 ])
             )
         ),

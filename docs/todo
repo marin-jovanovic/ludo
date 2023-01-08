@@ -3,3 +3,16 @@ api path for user info
 bl
     add specialization of canvas 
         sth like canvas_game
+
+
+    Number of players (e.g. 2, 3, or 4)
+    Player names
+    Player colors
+    Difficulty level (e.g. easy, medium, hard)
+    Game mode (e.g. single player vs. multiplayer)
+    Rules (e.g. allow/disallow "flying" when rolling a 6)
+
+        Music and sound effects
+    Themes or skins for the game interface
+    The ability to save and load games
+    Language preference

@@ -52,13 +52,14 @@ async function actionPerformed(game, player, instruction_id) {
 }
 
 
-async function addToLog(levelId, tokenId) {
+async function addToLog(levelId, tokenId, entryId) {
     
     return await apiCalls.handleNewResponse(
         await apiCalls.api.put(
             `level/${levelId}/log`,
             JSON.stringify({
-                tokenId: tokenId
+                tokenId: tokenId,
+                entryId: entryId
             }),
             apiCalls.getAuthenticationHeader()
         )

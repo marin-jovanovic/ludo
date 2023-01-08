@@ -16,7 +16,6 @@ def is_level_full_when_this_user_will_be_added_by_id(level_id):
         print("err get users")
         return r
 
-    print(f"{capacity=} {currently_active_players=}")
     return {"status": True, "payload": capacity <= currently_active_players}
 
 
@@ -38,7 +37,6 @@ def is_level_full_when_this_user_will_be_added(game_name):
         print("err get users")
         return r
 
-    print(f"{capacity=} {currently_active_players=}")
     return {"status": True, "payload": capacity <= currently_active_players}
 
 

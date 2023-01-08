@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from rest_framework.views import APIView
 
 from backend.api.cqrs_c.game_log import add_entry
-from backend.api.game.game import add_entry_to_log, get_log_api
+from backend.api.game.main import add_entry_to_log, get_log_api
 from backend.api.model.level import get_level_model
 from backend.api.model.level_log import get_level_log_model
 from backend.api.model.player_order import get_player_order_model
@@ -38,18 +38,9 @@ class LevelLogView(APIView):
 
         log = list(log)
 
-        # r = level_log_get(level_id)
-        # if not r["status"]:
-        #     return r
-        #
-        # log = r["payload"]
-
         ret_log = {}
 
         for entry in log:
-            print(entry)
-            # todo remove dice_result (not json convention)
-            # todo del instruction_id from value, and all other non used entries
             ret_log[entry["instruction_id"]] = {
                 "action": entry["action"],
                 "diceResult": entry["dice_result"],
@@ -61,31 +52,51 @@ class LevelLogView(APIView):
                 "tokenId": entry["token"]
             }
 
-
             if not entry["performed"]:
                 break
 
         opt = get_log_api(log)
 
-        t = join_id_to_username_and_user_id(opt["turn"], level_id)
-        if not t["status"]:
-            return JsonResponse(response)
+        if not opt["turn"] and not opt["legalMoves"]:
 
-        ids = t["payload"]
+            response["payload"] = {
+                "status": True,
+                "log": ret_log,
+                "legalMoves": opt["legalMoves"],
+                "userUsername": None,
+                "userId": None
+            }
 
-        response["payload"] = {
-            "status": True,
-            "log": ret_log,
-            "legalMoves": opt["legalMoves"],
-            **ids,
-        }
+        else:
 
-        # print(response)
+            t = join_id_to_username_and_user_id(opt["turn"], level_id)
+            if not t["status"]:
+                return JsonResponse(response)
+
+            ids = t["payload"]
+
+            response["payload"] = {
+                "status": True,
+                "log": ret_log,
+                "legalMoves": opt["legalMoves"],
+                "userUsername": ids["userUsername"],
+                "userId": ids["userId"]
+            }
 
         return JsonResponse(response)
 
     def put(self, request, level_id):
         """add new entry to log"""
+
+        """
+        threats:
+        user2 send instead user1
+        
+        user1 chooses user2 token
+        
+        user1 chooses immovable token
+        
+        """
 
         response = get_auth_ok_response_template(request)
 
@@ -102,10 +113,20 @@ class LevelLogView(APIView):
 
         log = r["payload"]
 
+        provided_entry_id = request.data["entryId"]
         # determinate if this user can perform this action
 
         last_entry = log[-1]
-        print(f"{last_entry=}")
+
+        true_last_entry = last_entry["id"]
+
+        print(f"{true_last_entry=} {provided_entry_id=}")
+
+        if true_last_entry == provided_entry_id:
+            print("all ok")
+        else:
+            print(f"not last entry id ")
+            return JsonResponse(response)
 
         turn = last_entry["player"]
 
@@ -116,12 +137,15 @@ class LevelLogView(APIView):
             print(80 * "-")
             return JsonResponse(response)
 
-
-
         token_id = request.data["tokenId"]
+
+        # log = artificially_remove_choose_entries(log)
+
         r = add_entry_to_log(log, player_id, token_id)
 
         log_diff = r["logDiff"]
+        for i in log_diff:
+            print(i)
 
         legal_moves = r["legalMoves"]
         t = join_id_to_username_and_user_id(r["turn"], level_id)
@@ -133,11 +157,12 @@ class LevelLogView(APIView):
         # add to db log diff
 
         r = level_id_to_name(level_id)
-
         if not r["status"]:
             return r
 
         level_name = r["payload"]
+
+        # log_diff = artificially_add_choose_row(log_diff)
 
         for i in log_diff:
             i["game"] = level_name

@@ -95,14 +95,20 @@ def determine_order(
     return r
 
 
-def find_max(current_iteration_roll_history):
-    is_same_max = False
-    max_r_obj = None
-    for i in current_iteration_roll_history:
-        if not max_r_obj or i['dice_result'] > max_r_obj['dice_result']:
-            is_same_max = False
-            max_r_obj = i
-        elif i['dice_result'] == max_r_obj['dice_result']:
-            is_same_max = True
+# def find_max(current_iteration_roll_history):
+#     is_same_max = False
+#     max_r_obj = None
+#     for i in current_iteration_roll_history:
+#         if not max_r_obj or i['dice_result'] > max_r_obj['dice_result']:
+#             is_same_max = False
+#             max_r_obj = i
+#         elif i['dice_result'] == max_r_obj['dice_result']:
+#             is_same_max = True
+#
+#     return is_same_max, max_r_obj
 
-    return is_same_max, max_r_obj
+def find_max(current_iteration_roll_history):
+    max_r = max(i['dice_result'] for i in current_iteration_roll_history)
+    max_r_obj = [i for i in current_iteration_roll_history if i['dice_result'] == max_r]
+    is_same_max = len(max_r_obj) > 1
+    return is_same_max, max_r_obj[0]

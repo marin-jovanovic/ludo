@@ -58,13 +58,10 @@ export default {
       tokenid: 0,
       jump: 5,
 
-      // selectedUsername: undefined,
-      // selectedTokenId: undefined,
+      configPayload: {},
     };
   },
-  async mounted() {
-    this.initGame();
-  },
+
   methods: {
     // async win() {
     //   for (let playerId = 0; playerId < 4; playerId++) {
@@ -80,7 +77,6 @@ export default {
     // },
 
     // subscribe() {
-    //   console.log("subs");
     // },
 
     // async guarded() {
@@ -300,8 +296,8 @@ export default {
         let res = await apiGameConfig.getResource(gameId, i);
 
         if (!(res["auth"]["status"] && res["payload"]["status"])) {
-          console.log("fetch resource err");
-          console.log("can not continue, abort");
+          console.log("err fetch resource ");
+          return false;
         }
 
         configPayload[i] = res["payload"]["payload"];
@@ -319,12 +315,12 @@ export default {
         command: "tokenSelected",
         s: this.tokenSelected,
       });
+
+      return true;
     },
 
     tokenSelected({ username, tokenId }) {
       // this is triggered when something is clicked on board
-
-      console.log(username, tokenId);
 
       // todo clear get and set, and fields, this is not used, instead emit is used
       // this.selectedUsername = username;
@@ -333,23 +329,7 @@ export default {
       this.$emit("tokenSelected", username, tokenId);
     },
 
-    // getSelectedUsername() {
-    //   return this.selectedUsername;
-    // },
-
-    // getSelectedTokenId() {
-    //   return this.selectedTokenId;
-    // },
-
-    // clearSelectedUsername() {
-    //   this.selectedUsername = undefined;
-    // },
-
-    // clearSelectedTokenId() {
-    //   this.selectedTokenId = undefined;
-    // },
-
-    movePosition({ player, token, jumpCount }) {
+    movePosition(player, token, jumpCount) {
       this.game.movePosition({
         playerId: player,
         tokenId: token,

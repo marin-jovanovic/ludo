@@ -111,3 +111,4 @@ improvements
 
     stop determine order performing log entries when order is determined
 
+    timeoute if some user did not do any action then kick him out of level
