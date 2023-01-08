@@ -641,10 +641,10 @@ def choose(board, log, player_id, token_id):
     """
 
     last_log = log[-1]
-    if last_log["action"] == "roll":
+    if last_log["action"] == "choose":
         pass
     else:
-        print("errr")
+        print("errr def choose(board, log, player_id, token_id):"  )
         return
 
     roll_result = last_log["dice_result"]
