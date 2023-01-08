@@ -479,8 +479,30 @@ class Level:
 
             return
 
-        # self.manual_driver(game_conf, playing_order)
-        self.auto_driver(game_conf, playing_order)
+        goes_first = playing_order[0]
+
+        """if we have log, and in that log last entry was 6 for this player
+            they cen perform again
+        """
+
+        print(f"{self.log[-2]=}")
+        # this should be roll instruction
+        if self.log[-2]["dice_result"] == 6:
+            goes_first = self.log[-1]["player"]
+
+        # print(f"{goes_first=}")
+
+        def reorder_playing_order(playing_order, goes_first):
+            new_order = []
+            for i in range(len(playing_order)):
+                new_order.append(
+                    playing_order[(goes_first + i) % len(playing_order)])
+            return new_order
+
+        playing_order = reorder_playing_order(playing_order, goes_first)
+
+        self.manual_driver(game_conf, playing_order)
+        # self.auto_driver(game_conf, playing_order)
 
     def get_playing_order(self, game_conf) -> list:
         """
@@ -501,6 +523,7 @@ class Level:
             self,
             game_conf,
             playing_order,
+            # goes_first
     ):
         already_won = set()
 

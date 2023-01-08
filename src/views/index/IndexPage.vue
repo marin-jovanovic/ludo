@@ -19,6 +19,10 @@
 
     <hr />
 
+    <base-audio></base-audio>
+
+    <hr />
+
     <div v-for="i in this.levels" :key="Object.values(i)">
       {{ i }}
 
@@ -50,6 +54,10 @@ import { wsListeners } from "@/scripts/ws_listener";
 import { router } from "@/router/router";
 import { levelSessionStorage, userMetaSS } from "@/scripts/session_storage";
 import { notification } from "@/scripts/notification";
+// import { apiSettings } from "@/scripts/api/settings";
+// import axios from "axios";
+// import { apiMusic } from "@/scripts/api/music";
+import BaseAudio from "@/components/BaseAudio.vue";
 
 export default {
   async mounted() {
@@ -59,6 +67,25 @@ export default {
 
     let url = "ws://127.0.0.1:8000/lobby_games/";
     new wsListeners.WebSocketListener(url, this.getUserActive);
+
+    // let res = await apiMusic.getMusic();
+    // console.log(res);
+
+    // async function getData() {
+    //   try {
+    //     const response = await axios.get("localhost:8000/music");
+    //     const data = response.data;
+    //     console.log(data);
+    //   } catch (error) {
+    //     console.error(error);
+    //   }
+    // }
+
+    // let res = await getData();
+    // console.log(res);
+
+    // let res = await apiSettings.getSettings();
+    // console.log(res);
   },
   data() {
     return {
@@ -170,6 +197,7 @@ export default {
   },
   components: {
     BaseUserTemplate,
+    BaseAudio,
   },
 };
 </script>

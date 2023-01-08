@@ -1,4 +1,6 @@
-from django.http import JsonResponse
+import pathlib
+
+from django.http import JsonResponse, FileResponse
 from rest_framework.views import APIView
 
 from backend.api.view.comm import get_auth_ok_response_template
@@ -11,17 +13,30 @@ class SettingsView(APIView):
     todo on settings view
     """
 
-    def get(self, request):
+    def get(self, request, resource_id=None):
         """
 
 
         """
-
         response = get_auth_ok_response_template(request)
+
+
+
+
+
+
 
         response["payload"] = {
             "status": True,
-            "username": request.username
+            "username": request.username,
+            # "song": 1,
+            # "songPayload": song_data
+
         }
 
+        # return FileResponse(song_path.open("rb"))
+
         return JsonResponse(response)
+
+
+

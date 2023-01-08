@@ -118,10 +118,65 @@ def main():
     if not t["status"]:
         print("not status")
 
-
     log = t["payload"]
-    for i in log:
-        print(i)
+    for e, i in enumerate(log):
+        print(e, i)
+
+    print(80 * "-")
+
+    last_entry =  log[-1]
+
+    r = add_entry_to_log(log, last_entry["player"], 0)
+
+    log_diff = r["logDiff"]
+    turn = r["turn"]
+    legal_moves = r["legalMoves"]
+
+    log = log + log_diff
+    last_entry = log[-1]
+
+    print()
+    print("log diff")
+    for e, i in enumerate(log_diff):
+        print(e, i)
+
+    print()
+    print("log")
+    for e, i in enumerate(log):
+        print(e, i)
+
+    print(80 * "-")
+
+    r = add_entry_to_log(log, last_entry["player"], legal_moves[0])
+
+    log_diff = r["logDiff"]
+    turn = r["turn"]
+    legal_moves = r["legalMoves"]
+
+    print()
+    print("log diff")
+    for e, i in enumerate(log_diff):
+        print(e, i)
+
+    print()
+    print("log")
+    for e, i in enumerate(log):
+        print(e, i)
+
+    # for i in r:
+    #     print(i)
+    #
+    # print(r)
+    #
+    # log = r["payload"]
+    #
+    #
+    #
+    # print()
+    # for e, i in enumerate(log):
+    #     print(e, i)
+    # print()
+
 
     return
     t = get_log_api(log)

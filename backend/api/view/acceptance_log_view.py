@@ -38,46 +38,8 @@ class AcceptanceLogView(APIView):
         """add new entry to log"""
         response = get_auth_ok_response_template(request)
 
-        # todo check for payload
-
         if "payload" in request.data:
             print("fixme not used, remove this calls")
-
-        # if "payload" in request.data:
-        #
-        #     payload = request.data["payload"]
-        #
-        #     print(f"{payload=}")
-        #
-        #     print(type(payload))
-        #
-        #     if "instruction" not in payload:
-        #         print(f"instruction not in payload {payload=}")
-        #         return JsonResponse(response)
-        #
-        #     instruction = payload["instruction"]
-        #
-        #     if instruction == "moveToken":
-        #         username = payload["username"]
-        #         token_id = payload["tokenId"]
-        #
-        #         if username != request.username:
-        #             print(f"username mismatch {username=} {request.username=}")
-        #             return JsonResponse(response)
-        #
-        #         print(f"{username=} {type(username)=}")
-        #         print(f"{token_id=} {type(token_id)=}")
-        #
-        #         print("move token")
-        #
-        #     else:
-        #         print("err not implemented instruction")
-        #         return JsonResponse(response)
-        #
-        #     return JsonResponse(response)
-        #
-        #
-        # else:
 
         r = create_entry_if_not_exists(level_id, entry_id, request.username)
         if not r["status"]:

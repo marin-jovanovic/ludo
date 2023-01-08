@@ -117,29 +117,25 @@ class LevelLogView(APIView):
         # determinate if this user can perform this action
 
         last_entry = log[-1]
-
         true_last_entry = last_entry["id"]
 
-        print(f"{true_last_entry=} {provided_entry_id=}")
+        if true_last_entry != provided_entry_id:
+            # they are not making decision for the last entry
 
-        if true_last_entry == provided_entry_id:
-            print("all ok")
-        else:
+            print(f"{true_last_entry=} {provided_entry_id=}")
             print(f"not last entry id ")
             return JsonResponse(response)
 
         turn = last_entry["player"]
 
-        print(f"{turn=} {player_id=}")
         if turn != player_id:
             print(80 * "-")
             print("can not do this, players are not matching")
+            print(f"{turn=} {player_id=}")
             print(80 * "-")
             return JsonResponse(response)
 
         token_id = request.data["tokenId"]
-
-        # log = artificially_remove_choose_entries(log)
 
         r = add_entry_to_log(log, player_id, token_id)
 
@@ -161,8 +157,6 @@ class LevelLogView(APIView):
             return r
 
         level_name = r["payload"]
-
-        # log_diff = artificially_add_choose_row(log_diff)
 
         for i in log_diff:
             i["game"] = level_name

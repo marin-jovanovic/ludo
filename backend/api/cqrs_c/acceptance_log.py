@@ -9,8 +9,6 @@ from backend.api.model.player_order import get_player_order_model
 from backend.api.model.user import get_user_model
 
 
-
-
 def create_entry_if_not_exists(level_id, entry_id, username):
     # test id
     r = get_level_model().objects.filter(id=level_id).exists()
@@ -55,7 +53,6 @@ def create_entry_if_not_exists(level_id, entry_id, username):
 
     is_first_time = not r
 
-
     join_index = get_player_order_model() \
         .objects \
         .get(level_id=level_id, user_id=user_id).join_index
@@ -95,10 +92,8 @@ def create_entry_if_not_exists(level_id, entry_id, username):
         #   notify only if choosable
 
         if who_can_create_entry_first == join_index:
-            print("index match, must go first")
 
             if is_first_time:
-                print("all good")
 
                 acceptance_log = get_acceptance_log_model()
 
@@ -117,12 +112,8 @@ def create_entry_if_not_exists(level_id, entry_id, username):
                 #         entry_id, entry_index, user_join_index=None,
                 #         user_username=None, user_id=None):
 
-                print(80 * "-")
-                print(80 * "-")
-                print(80 * "-")
-                print(80 * "-")
-                print(f"{entry_id=}")
-                print(f"{entry_index=}")
+
+
                 notify_first_received(
                     entry_id=entry_id,
                     entry_index=entry_index,
@@ -143,7 +134,6 @@ def create_entry_if_not_exists(level_id, entry_id, username):
             print("must no go first")
 
             if not is_first_time:
-                print("all good")
 
                 acceptance_log = get_acceptance_log_model()
                 e = acceptance_log(
@@ -171,12 +161,15 @@ def create_entry_if_not_exists(level_id, entry_id, username):
 
 
 def check_all_accepted(entry_id, level_id):
-    print("already in db")
+    # r = get_acceptance_log_model().objects \
+    #     .filter(level_id=level_id, log_entry_id=entry_id).count()
+
     r = get_acceptance_log_model().objects \
-        .filter(level_id=level_id, log_entry_id=entry_id).count()
+        .filter(level_id=level_id, log_entry_id=entry_id)\
+        .values("user_id").distinct().count()
+
     capacity = get_level_model().objects.get(id=level_id).capacity
     if capacity == r:
-        print("everyone confirmed")
 
         q = get_level_log_model().objects.get(id=entry_id)
         q.performed = True
@@ -201,11 +194,11 @@ def is_entry_accepted(level_id: int, entry_id: int) -> bool:
           False otherwise.
     """
 
-    print(80 * "-")
+    # print(80 * "-")
     capacity = get_level_model().objects.get(id=level_id).capacity
-    print(f"{capacity=}")
+    # print(f"{capacity=}")
     num_of_entries_for_this_entry = get_acceptance_log_model() \
         .objects.filter(level_id=level_id, log_entry_id=entry_id).count()
-    print(f"{num_of_entries_for_this_entry=}")
+    # print(f"{num_of_entries_for_this_entry=}")
     t = capacity == num_of_entries_for_this_entry
     return t

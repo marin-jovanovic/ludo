@@ -14,7 +14,7 @@ from backend.api.view.message_view import MessageView
 from backend.api.view.settings_view import SettingsView
 from backend.api.view.signup_view import SignUpView
 from backend.api.view.user_view import UserView
-
+from backend.api.view.music_view import MusicView
 startup_configuration.print_app_logo()
 api_router = routers.DefaultRouter()
 
@@ -36,6 +36,9 @@ urlpatterns = [
     path("message/<str:level_id>", MessageView.as_view()),
 
     path("settings/", SettingsView.as_view()),
+    path("settings/<str:resource_id>", SettingsView.as_view()),
+
+    path("music/", MusicView.as_view()),
 
     path("user/<str:user_id>", UserView.as_view()),
 
@@ -45,6 +48,8 @@ urlpatterns = [
 
     # todo fix this
     path("board/<str:level_id>/<str:resource>", BoardView.as_view()),
+
+
 
     #
     # path("game/", GameView.as_view()),

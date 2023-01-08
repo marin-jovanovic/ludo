@@ -13,13 +13,14 @@ import {
 
 
 const api = axios.create({
-    baseURL: 'http://localhost:8000',
+    baseURL: process.env.VUE_APP_BACKEND_URL,
     timeout: 5000,
     headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': Cookies.get('csrftoken')
     }
 })
+
 
 function encode(d) {
     // return encodeBase64(d);

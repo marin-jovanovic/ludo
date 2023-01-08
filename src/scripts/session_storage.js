@@ -21,6 +21,8 @@ class SessionStorageWrapper {
             'levelOrder',
             'levelCapacity',
             "levelJoinIndex",
+
+            "music",
         ])
     }
 
@@ -149,6 +151,7 @@ class UserMetaSS {
         this.ssw = new SessionStorageWrapper();
     }
 
+
     login({
         username,
         accessToken
@@ -214,9 +217,6 @@ class UserMetaSS {
         }
     }
 }
-
-
-
 
 class LevelSS {
     constructor() {
@@ -330,10 +330,46 @@ class LevelSS {
 }
 
 
+class MusicSS {
+    constructor() {
+        this.ssw = new SessionStorageWrapper();
+    }
+
+    set({value}) {
+        // joinId
+
+        if (!
+            this.ssw.set({
+                variable: "music",
+                value: value
+            })
+        ) {
+            console.log("err setting",  value)
+        }
+
+        
+    }
+
+    get() {
+        return {
+
+            order: this.ssw.get({
+                variable: "music" 
+            }).payload,
+
+        }
+
+    }
+
+}
+
 let userMetaSS = new UserMetaSS();
 let levelSessionStorage = new LevelSS();
 
+let musicSS = new MusicSS();
+
 export {
     userMetaSS,
-    levelSessionStorage
+    levelSessionStorage,
+    musicSS
 }

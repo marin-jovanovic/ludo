@@ -660,7 +660,8 @@ export default {
 
             switch (logEntry.action) {
               case "roll":
-                this.$refs.dice.rollDice(logEntry.diceResult);
+                console.log("have to manualy roll");
+                // this.$refs.dice.rollDice(logEntry.diceResult);
                 break;
               case "goes":
                 console.log("goes", logEntry);

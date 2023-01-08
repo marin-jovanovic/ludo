@@ -110,7 +110,7 @@ class JumperMiddleware:
 
         # fixme only for testing
         #
-        # request.ip = "127.0.0.1"
+        # request.ip = "todo"
         # request.synchronizer_token_match = True
         # request.role = "role 1"
 
