@@ -86,6 +86,23 @@ function logout() {
 
 }
 
+// async function deleteAccount() {
+//     if (userMetaSS.isAuth()) {
+
+//         let credentials = userMetaSS.getCredentials();
+//         let username = credentials.username;
+
+//         console.log(username)
+
+//         apiCalls.api.post(
+//             `logout/${username}`, {},
+//             apiCalls.getAuthenticationHeader()
+//         );
+
+//         userMetaSS.logout();
+//     }
+// }
+
 
 
 export const apiAuth = {

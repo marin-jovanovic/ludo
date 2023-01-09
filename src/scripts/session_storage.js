@@ -7,15 +7,18 @@ function isJsonString(str) {
     return true;
 }
 
+
+
 class SessionStorageWrapper {
     constructor() {
 
         // match by regex order | Order -> levelOrder
 
         this.vals = new Set([
+
+            'userProfilePhoto',
             'username',
             'accessToken',
-            'profilePhoto',
 
             'levelId',
             'levelOrder',
@@ -152,6 +155,25 @@ class UserMetaSS {
     }
 
 
+    updateSettings({changes}) {
+
+        for (const [key, value] of Object.entries(changes)) {
+            console.log("updating", key, value)
+
+            if (!
+                this.ssw.set({
+                    variable: key,
+                    value: value
+                                })
+            ) {
+                console.log("err setting")
+            }
+    
+
+        }
+
+    }
+
     login({
         username,
         accessToken
@@ -213,6 +235,37 @@ class UserMetaSS {
             accessToken: this.ssw.get({
                 variable: "accessToken"
             }).payload,
+
+        }
+    }
+
+
+    getUserMeta() {
+
+        // todo rewrite with level prefix
+
+
+        return {
+            userProfilePhoto: this.ssw.get({
+                variable: "userProfilePhoto"
+            }).payload,
+
+
+
+            // levelId: this.ssw.get({
+            //     variable: this.prefix + "Id"
+            // }).payload,
+
+            // // order: this.ssw.get({
+            // //     variable: this.prefix + "Order"
+            // // }).payload,
+            // capacity: this.ssw.get({
+            //     variable: this.prefix + "Capacity"
+            // }).payload,
+
+            // levelJoinIndex: this.ssw.get({
+            //     variable: this.prefix + "JoinIndex"
+            // }).payload,
 
         }
     }

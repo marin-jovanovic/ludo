@@ -15,6 +15,9 @@ import playingOrder from "@/views/order/PlayingOrder.vue";
 
 import LogoutPage from '../views/logout/LogoutPage';
 import SetttingsView from '../views/settings/SettingsView.vue';
+
+import MessagesView from "@/views/messages/MessagesView.vue";
+
 import {
     store
 } from "@/store/store"
@@ -76,6 +79,11 @@ export const router = createRouter({
             path: "/playingOrder/:id",
             name: "playingOrder",
             component: playingOrder
+        },
+        {
+            path: "/messages",
+            name: "messages",
+            component: MessagesView
         },
         {
             path: '/:pathMatch(.*)*',

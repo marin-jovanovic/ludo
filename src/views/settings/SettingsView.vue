@@ -2,73 +2,142 @@
   <BaseUserTemplate>
     <div class="container-fluid">
       <div class="row">
-        <h1>Settings</h1>
+        <h1>personal info</h1>
+
+        username
+        <input v-model="this.username" placeholder="" />
+        <br />
+        <br />
+
+        email
+        <input v-model="this.email" placeholder="" />
+        <br />
+        <br />
+
+        password
+        <input v-model="this.password" placeholder="" type="password" />
+        <input v-model="this.passwordConfirm" placeholder="" type="password" />
+        <br />
+
+        profile photo
+
+        <div>
+          <img v-bind:src="this.profilePhoto" />
+          <br />
+          <input type="file" accept="image" @change="uploadImage" />
+        </div>
+
+        <br />
+
+        <button @click="saveChanges">save changes on profile metadata</button>
+        <button>view reviews</button>
+
+        <button @click="deleteAccount">delete account</button>
+
+        profile picture
+        <img
+          :src="this.profilePhoto"
+          style="width: 100px; height: 100px; border-radius: 50%"
+          :alt="this.username"
+        />
       </div>
-
-      todo
-
-      <BaseNotification ref="notifications"></BaseNotification>
     </div>
   </BaseUserTemplate>
 </template>
   
 <script>
-import BaseNotification from "@/components/BaseNotification.vue";
 import { apiSettings } from "@/scripts/api/settings";
 import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
+import { router } from "@/router/router";
+import { notification } from "@/scripts/notification";
+import { userMetaSS } from "@/scripts/session_storage";
+
 export default {
   data() {
     return {
-      booleable: {
-        zoomUserLocation: false,
-      },
-      zoomUserLocation: false,
+      username: "",
+      email: "",
+      profilePhoto: "",
+      password: "",
+      passwordConfirm: "",
+      passwordCurrent: "",
+
+      originalUsername: "",
     };
   },
+
+  watch: {
+    profilePhoto(newProfilePhoto) {
+      userMetaSS.updateSettings({
+        changes: { userProfilePhoto: newProfilePhoto },
+      });
+    },
+  },
+
   async mounted() {
+    let res = await apiSettings.getSettings();
+
+    let flag = res["auth"]["status"] && res["payload"]["status"];
+
+    if (!flag) {
+      console.log("err");
+      return;
+    }
+
+    this.profilePhoto = res["payload"]["profilePhoto"];
+    this.originalUsername = res["payload"]["username"];
+    this.username = res["payload"]["username"];
+
+    this.profilePhoto = userMetaSS.getUserMeta()["userProfilePhoto"];
+
+    console.log(this.profilePhoto);
+
     let r = await apiSettings.getSettings();
+
     if (r["auth"]["status"]) {
       let pl = r["payload"];
 
-      console.log("pl", pl);
+      this.username = pl["username"];
 
-      this.zoomUserLocation = pl["zoomUserLocation"];
+      this.profilePhoto = pl["userProfilePhoto"];
     }
   },
   methods: {
-    updateStore(action, variable, value, message) {
-      this.$store.dispatch(action, value);
-      let curr = this.$store.getters[variable];
+    async deleteAccount() {
+      console.log("delete acc");
 
-      this.$refs.notifications.showMessage(
-        curr === value,
-        `update: ${message} = ${value}`,
-        `setting ${message} = ${value} error`
+      let res = await apiSettings.deleteAccount(this.originalUsername);
+
+      notification.showMessage(
+        res["auth"]["status"] && res["payload"]["status"],
+        `post deleted`,
+        `error deleting post`
       );
+
+      console.log("remove from session storage user");
+
+      this.returnUrl = "/login";
+      router.push(this.returnUrl);
     },
 
-    async zoomToggle(isSelected) {
-      console.log(isSelected);
+    uploadImage(e) {
+      const image = e.target.files[0];
+      const reader = new FileReader();
+      reader.readAsDataURL(image);
+      reader.onload = (e) => {
+        this.profilePhoto = e.target.result;
+      };
+    },
 
-      let r = await apiSettings.updateSettings({
-        zoomUserLocation: isSelected,
+    saveChanges() {
+      apiSettings.updateSettings({
+        username: this.username,
+        email: this.email,
+        profilePhoto: this.profilePhoto,
       });
-      if (r["auth"]["status"]) {
-        let pl = r["payload"];
-
-        console.log("pl", pl);
-
-        this.zoomUserLocation = isSelected;
-      }
-
-      this.$refs.notifications.showMessage(
-        r["payload"]["status"],
-        `update: user zoom`,
-        `error updating user zoom`
-      );
     },
   },
-  components: { BaseNotification, BaseUserTemplate },
+  components: { BaseUserTemplate },
 };
 </script>
   

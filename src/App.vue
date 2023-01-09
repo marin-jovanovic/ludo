@@ -8,6 +8,13 @@
 @import "https://cdn.jsdelivr.net/npm/@mdi/font@5.8.55/css/materialdesignicons.min.css";
 @import "https://use.fontawesome.com/releases/v5.2.0/css/all.css";
 @import "balm-ui/dist/balm-ui.css";
+
+body {
+  background-image: url("/public/jpg/pexels-johannes-plenio-1103970.jpg");
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: 100% 100%;
+}
 </style>
 
 <script>

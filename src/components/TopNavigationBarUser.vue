@@ -10,30 +10,40 @@
   >
     <span class="navbar-toggler-icon"></span>
   </button>
+
   <div class="collapse navbar-collapse" id="topNavBar">
     <form class="d-flex ms-auto my-3 my-lg-0"></form>
     <ul class="navbar-nav">
       <li class="nav-item dropdown">
-        <a
+        <!-- {{ this.$store.getters.username }} -->
+        <!-- <i class="bi bi-person-fill"></i> -->
+        {{ username }}
+
+        <!-- <a
           class="nav-link dropdown-toggle ms-2"
           href="#"
           role="button"
           data-bs-toggle="dropdown"
           aria-expanded="false"
-        >
-          {{ username }}
-          <!-- {{ this.$store.getters.username }} -->
-          <!-- <i class="bi bi-person-fill"></i> -->
+        > -->
+
+        <a
+          href="#"
+          data-bs-toggle="dropdown"
+        > 
+
+
+        <top-navigation-bar-profile-picture></top-navigation-bar-profile-picture>
         </a>
         <ul class="dropdown-menu dropdown-menu-end">
-          <li>
-            <router-link class="dropdown-item" to="/settings"
-              >Settings</router-link
-            >
+
+
+          <li v-for="i in this.links" :key="i">
+            
+            <router-link class="dropdown-item" :to="i.to">{{i.name}}</router-link>
+            
           </li>
-          <li>
-            <router-link class="dropdown-item" to="/logout">Logout</router-link>
-          </li>
+
         </ul>
       </li>
     </ul>
@@ -41,10 +51,19 @@
 </template>
   
 <script>
+import TopNavigationBarProfilePicture from "./TopNavigationBarProfilePicture.vue";
+
 import { apiSettings } from "@/scripts/api/settings";
 export default {
   data() {
-    return { username: undefined };
+    return { username: undefined, profilePhoto: undefined ,
+    
+    links: [
+      {to: "/settings", name : "Settings"},
+      {to: "/logout", name: "Logout"},
+      {to: "/messages", name: "Messages"}
+    ]
+    };
   },
   async mounted() {
     let r = await apiSettings.getSettings();
@@ -54,6 +73,9 @@ export default {
 
       this.username = pl["username"];
     }
+  },
+  components: {
+    TopNavigationBarProfilePicture,
   },
 };
 </script>
