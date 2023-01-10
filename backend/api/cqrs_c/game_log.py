@@ -4,7 +4,7 @@ from backend.api.cqrs_q.level import level_get_model
 from backend.api.model.level_log import get_level_log_model
 
 
-def add_entry(game, player, token, dice_result, action, performed=False):
+def add_entry(game, player, token, dice_result, action):
     r = level_get_model(game)
     if r["status"]:
         game_o = r["payload"]
@@ -28,7 +28,7 @@ def add_entry(game, player, token, dice_result, action, performed=False):
         token=token,
         dice_result=dice_result,
         action=action,
-        performed=performed
+        # performed=performed
     )
     e.save()
 

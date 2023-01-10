@@ -113,6 +113,37 @@ def create_game(creator_username, level_name, capacity):
 
         add_entry(**i)
 
+    from backend.api.model.level_log import get_level_log_model
+    from backend.api.model.acceptance_log import get_acceptance_log_model
+    acceptance_log_model = get_acceptance_log_model()
+
+    log = get_level_log_model().objects.filter(
+        game=level_id
+    )
+
+    q = get_player_order_model().objects.filter(level_id_id=level_id).values()
+    q = list(q)
+
+    for i in q:
+        print(i)
+
+
+    for entry in log:
+        for player_index in range(capacity):
+
+            q = acceptance_log_model(
+                level_id=level_id,
+                log_entry=entry,
+                user_join_index=player_index,
+                accepted=False,
+                is_first=False,
+            )
+            q.save()
+
+
+
+
+
     msg = json.dumps({
         "source": "game created",
         "name": g.name,

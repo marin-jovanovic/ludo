@@ -28,8 +28,19 @@ class GameLog(models.Model):
     # todo extract in separate table
     action = models.TextField()
 
-    performed = models.BooleanField()
+    # performed = models.BooleanField()
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['game', 'instruction_id'],
+                                    name='game instruction_id pk')
+        ]
+
+#     class Meta:
+#         constraints = [
+#             models.UniqueConstraint(fields=['game', 'instruction_id'],
+#                                     name='game instruction_id pk')
+#         ]
 
 def get_level_log_model():
     return apps.get_model(get_level_log_model_as_string())

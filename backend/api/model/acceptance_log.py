@@ -29,6 +29,8 @@ class AcceptanceLog(models.Model):
         null=True
     )
 
+    user_join_index = models.IntegerField(null=True)
+
     user = models.ForeignKey(
         get_user_model(),
         on_delete=models.SET_NULL,
@@ -37,6 +39,7 @@ class AcceptanceLog(models.Model):
 
     accepted = models.BooleanField(default=False)
 
+    is_first = models.BooleanField(default=False)
 
 def get_acceptance_log_model():
     return apps.get_model(get_acceptance_log_model_as_string())

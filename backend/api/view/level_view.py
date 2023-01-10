@@ -21,7 +21,6 @@ class LevelView(APIView):
 
         if level_id:
 
-            response["payload"]["status"] = True
 
             r = get_player_order_model().objects.filter(level_id=level_id)
 
