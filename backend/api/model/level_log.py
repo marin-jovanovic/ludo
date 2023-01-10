@@ -18,16 +18,9 @@ class GameLog(models.Model):
 
     # pl
 
+    # why not foreign key to user
     player = models.IntegerField()
 
-    # player = models.ForeignKey(
-    #     # "api.miniPersonPlayer",
-    #     get_user_model(),
-    #     on_delete=models.SET_NULL,
-    #     null=True
-    # )
-
-    # if null then it is global action
     token = models.IntegerField(null=True)
     dice_result = models.IntegerField(null=True)
 

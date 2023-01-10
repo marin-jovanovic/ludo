@@ -58,3 +58,46 @@ def get_players(level_id):
 
     return ret
 
+
+def join_id_to_username_and_user_id(join_index, level_id):
+    """join index (level index) -> username"""
+
+    t = int(join_index)
+
+    level_exists = get_player_order_model().objects.filter(
+        level_id=level_id).exists()
+
+    player_order = get_player_order_model()
+
+    try:
+
+        r = get_player_order_model().objects.get(
+            level_id=level_id,
+            join_index=t
+        )
+
+    except player_order.DoesNotExist:
+        if level_exists:
+            print("err user not in level")
+        else:
+            print("err uncaught err")
+
+        return {"status": False}
+
+    return {"status": True,
+            "payload": {"userUsername": r.user.username, "userId": r.user.id}}
+
+
+def username_to_id(username, level_id):
+    """
+    username -> player_id ->
+    join_index
+    """
+
+    r = get_player_order_model().objects.get(user__username=username,
+                                             level_id=level_id)
+
+    r = r.join_index
+
+    return {"status": True,
+            "payload": r}

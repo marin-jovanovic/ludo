@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.http import JsonResponse
 from rest_framework.views import APIView
 
@@ -11,6 +12,7 @@ from backend.api.cqrs_c._cleanup import clean
 
 class AcceptanceLogView(APIView):
 
+    @transaction.atomic
     def get(self, request, level_id):
 
         clean(level_id)
@@ -37,12 +39,10 @@ class AcceptanceLogView(APIView):
         print(f"{last_e_any=}")
         return JsonResponse(response)
 
+    @transaction.atomic
     def post(self, request, level_id, entry_id):
         """add new entry to log"""
         response = get_auth_ok_response_template(request)
-
-        if "payload" in request.data:
-            print("fixme not used, remove this calls")
 
         r = create_entry_if_not_exists(level_id, entry_id, request.username)
         if not r["status"]:

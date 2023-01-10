@@ -38,3 +38,21 @@ def get_level_model():
 
 def get_level_model_as_string():
     return "api.level"
+
+
+#///////////////////////
+
+import json
+
+from django.apps import apps
+from django.db import models
+
+from backend.api.comm.comm import Notifier
+
+level_join_left_notifier = Notifier()
+
+def notify_join_leave():
+    msg = json.dumps({
+        "msg": "someone joined or left"
+    })
+    level_join_left_notifier.notify(msg)

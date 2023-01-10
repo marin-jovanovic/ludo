@@ -47,7 +47,7 @@ urlpatterns = [
          AcceptanceLogView.as_view()),
 
     # todo fix this
-    path("board/<str:level_id>/<str:resource>", BoardView.as_view()),
+    path("board/<str:level_id>", BoardView.as_view()),
 
 
 

@@ -24,24 +24,50 @@ def artificially_add_choose_row(log: list) -> list:
         print("err artificially_add_choose_row", last_entry)
     return log
 
+#
+# # remove last choose when loading ? or remove all
+# def artificially_remove_choose_entries(log: list) -> list:
+#     """
+#     Remove choose entries from the log.
+#
+#     Parameters:
+#     log (list): A list of dictionaries representing the log.
+#
+#     Returns:
+#     list: The modified log with the choose entries removed.
+#
+#     """
+#     new_log = []
+#     for entry in log:
+#         if entry["action"] != "choose":
+#             # print(f"{entry=}")
+#             # else:
+#             new_log.append(entry)
+#
+#     return new_log
 
-# remove last choose when loading ? or remove all
-def artificially_remove_choose_entries(log: list) -> list:
-    """
-    Remove choose entries from the log.
+# def add_to_dict(log):
+#     max_ = max(log.keys())
+#
+#     last_entry = log[max_]
+#
+#     if last_entry["action"] == "roll":
+#         new_entry = user_choose(player=last_entry["player"],
+#                                 roll=last_entry["dice_result"])
+#         # log.append(new_entry)
+#
+#         log[max_ + 1] = new_entry
+#
+#
+#     elif last_entry["action"] == "won":
+#         pass
+#
+#     else:
+#         print("err artificially_add_choose_row", last_entry)
+#
+#     return log
 
-    Parameters:
-    log (list): A list of dictionaries representing the log.
 
-    Returns:
-    list: The modified log with the choose entries removed.
 
-    """
-    new_log = []
-    for entry in log:
-        if entry["action"] != "choose":
-            # print(f"{entry=}")
-            # else:
-            new_log.append(entry)
-
-    return new_log
+# new_entry = user_choose(player=last_entry["player"],
+#                         roll=last_entry["dice_result"])

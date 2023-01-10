@@ -15,10 +15,28 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarCollapse">
         <ul class="navbar-nav me-auto mb-2 mb-md-0">
-          <li v-for="(i, j) in linksD" :key="i" class="nav-item">
-            <router-link class="nav-link" :to="{ name: j }">{{
-              i.name
-            }}</router-link>
+          <li v-for="(i, j) in links" :key="i" class="nav-item">
+            <div v-if="i.active">
+              <router-link class="nav-link active" :to="{ name: j }">{{
+                i.name
+              }}</router-link>
+            </div>
+
+            <div v-else>
+              <router-link
+                @click="clicked(i)"
+                class="nav-link"
+                :to="{ name: j }"
+                >{{ i.name }}</router-link
+              >
+            </div>
+
+            <!-- <router-link
+              @click="clicked(i)"
+              class="nav-link"
+              :to="{ name: j }"
+              >{{ i.name }}</router-link
+            > -->
           </li>
         </ul>
       </div>
@@ -34,25 +52,45 @@ import TopNavigationBarUser from "./TopNavigationBarUser.vue";
 export default {
   data() {
     return {
-      linksD: {
+      links: {
         index: { name: "Home", active: true },
         gameCreate: { name: "gameCreate", active: false },
+        messages: { name: "Messages", active: false },
+        // setting: { name: "Messages", active: false },
+
         // gameReplay: { name: "gameReplay", active: false },
       },
-      links: [{ pathName: "index", name: "Home", active: true }],
     };
   },
+  mounted() {
+    // console.log(this.$router.currentRoute);
+
+    // console.log(this.$router);
+    // console.log(this.$route);
+
+    let currentPath = this.$route.name;
+
+    for (const value of Object.values(this.links)) {
+      value.active = false;
+    }
+
+    if (!(currentPath in this.links)) {
+      return;
+    }
+
+    this.links[currentPath].active = true;
+  },
+
   methods: {
     clicked(i) {
-      console.log("clicked", i.pathName, i.name, i.active);
-      for (const [key, value] of Object.entries(this.linksD)) {
-        console.log(key, value);
+      for (const value of Object.values(this.links)) {
         value.active = false;
       }
-      this.linksD[i].active = true;
-    },
-    setActive(p) {
-      console.log("set", p);
+
+      i.active = true;
+
+      // todo localstorage
+      // err ocurs if refresh site on e.g. /messages because link is not acitve
     },
   },
   components: { TopNavigationBarName, TopNavigationBarUser },

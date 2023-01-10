@@ -3,18 +3,23 @@ import {
 } from './comm';
 
 
-async function getBoard(type, resource) {
+async function getLevel(levelId) {
+
     return await apiCalls.handleNewResponse(
         await apiCalls.api.get(
-            `board/${type}/${resource}`,
+            `board/${levelId}`,
             apiCalls.getAuthenticationHeader()
         )
     );
 }
 
 
-export const apiBoard = {
-    getBoard,
 
+
+
+
+
+export const apiBoard = {
+    getLevel,
 
 }

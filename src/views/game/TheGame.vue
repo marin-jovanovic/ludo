@@ -283,25 +283,11 @@ export default {
         token: this.tokenid,
         jumpCount: this.jump,
       });
-
-      //  todo call backend
     },
     async initGame() {
-      let config = ["startPool", "moves", "map", "players"];
       let gameId = this.$route.params.id;
 
-      let configPayload = {};
-
-      for (const i of config) {
-        let res = await apiGameConfig.getResource(gameId, i);
-
-        if (!(res["auth"]["status"] && res["payload"]["status"])) {
-          console.log("err fetch resource ");
-          return false;
-        }
-
-        configPayload[i] = res["payload"]["payload"];
-      }
+      let configPayload = await apiGameConfig.getResources(gameId);
 
       this.game = new ludo.Game(
         document.querySelector("#staticcanvas"),

@@ -102,7 +102,7 @@
     order:{{ this.order }}
 
     <br />
-    <button v-if="this.isDone" @click="goToLevel">start game</button>
+    <button v-if="this.isDone">go to home page</button>
   </BaseUserTemplate>
 </template>
 <style>
@@ -135,7 +135,6 @@ import { apiLevelLog } from "@/scripts/api/level_log";
 // import BaseToggleButton from "@/components/BaseToggleButton.vue";
 
 import { levelSessionStorage, userMetaSS } from "@/scripts/session_storage";
-// import { apiLevel } from "@/scripts/api/level";
 import { acceptanceLogApi } from "@/scripts/api/acceptance_log";
 import { wsListeners } from "@/scripts/ws_listener";
 import { notification } from "@/scripts/notification";
@@ -225,7 +224,6 @@ export default {
 
       isWaitingForUserToChooseToken: false,
 
-      // user: undefined,
       lastExecutedByAll: undefined,
       lastExecutedThisUser: undefined,
       lastExecutedByAny: undefined,
@@ -237,11 +235,6 @@ export default {
       isRolledAlready: false,
 
       trySuccessful: false,
-
-      // toggle1: false,
-      // toggle1Label: 0,
-      // toggle2: true,
-      // toggle2Label: "on",
 
       autoRoll: false,
       autoChoose: false,
@@ -289,16 +282,9 @@ export default {
 
     let res = await apiLevel.getSpecificLevel({ levelId: this.levelId });
 
-    flag = res["auth"]["status"] && res["payload"]["status"];
-
-    if (!flag) {
-      console.log("err");
-      return;
-    }
-
     levelSessionStorage.set({
       variable: "Capacity",
-      value: Object.keys(res["payload"]["users"]).length,
+      value: Object.keys(res["users"]).length,
     });
 
     // console.log(levelSessionStorage.getLevelMeta());
@@ -308,7 +294,7 @@ export default {
 
     this.username = userMetaSS.getCredentials()["username"];
 
-    for (const val of Object.values(res["payload"]["users"])) {
+    for (const val of Object.values(res["users"])) {
       if (val.username === this.username) {
         levelSessionStorage.set({
           variable: "JoinIndex",
@@ -319,7 +305,9 @@ export default {
 
     this.joinId = levelSessionStorage.getLevelMeta()["levelJoinIndex"];
 
-    let url = "ws://127.0.0.1:8000/acceptanceLogEntryCreated/";
+    let url =
+      "ws://" + process.env.VUE_APP_BACKEND_WS + "/acceptanceLogEntryCreated/";
+
     new wsListeners.WebSocketListener(url, this.wsReceive);
 
     // run condition, what if get then ws vs ws then get
@@ -339,6 +327,17 @@ export default {
     await this.tryNextInstruction();
   },
   methods: {
+    async leaveGame() {
+      // leaveGame
+      // let res = await apiLevel.leaveGame(gameName);
+      // let flag = res["auth"]["status"] && res["payload"]["status"];
+      // notification.showMessage(flag, "leave ok", "error level leave");
+      // if (!flag) {
+      //   return;
+      // }
+      // levelSessionStorage.leaveLevel();
+    },
+
     // check for goes
     // async bypassGoes(levelId, capacity) {
     //   // skip first part of the log where order is determined
@@ -530,14 +529,7 @@ export default {
 
               console.log(res);
 
-              if (!(res["auth"]["status"] && res["payload"]["status"])) {
-                console.log("err");
-                return;
-              }
-
-              console.log(res);
-
-              let tokenId = res["payload"]["legalMoves"][0];
+              let tokenId = res["legalMoves"][0];
 
               let t = this.manualActionsPre();
 
@@ -551,12 +543,27 @@ export default {
                 logEntry.entryId
               );
 
-              if (!(res["auth"]["status"] && res["payload"]["status"])) {
+              // let logEntry = this.getCurrentLogEntry();
+
+              let isLogged = await this.sendConfirmation(logEntry.entryId);
+
+              if (!isLogged) {
                 console.log("err");
                 return;
               }
 
-              this.entryCleanup();
+              // this.entryCleanup();
+
+              //     async entryCleanup() {
+              // console.log("prepare for sending confirmation");
+              //     let logEntry = this.getCurrentLogEntry();
+
+              //     let isLogged = await this.sendConfirmation(logEntry.entryId);
+
+              //     if (!isLogged) {
+              //       console.log("err");
+              //     }
+
               this.$refs.level.movePosition(
                 logEntry.userJoinIndex,
                 logEntry.tokenId,
@@ -700,14 +707,10 @@ export default {
       const res = await acceptanceLogApi.getAcceptanceLogForLevel({
         levelId: this.levelId,
       });
-      const flag = res["auth"]["status"] && res["payload"]["status"];
-      if (!flag) {
-        console.log("err, try fetch from api again");
-        return false;
-      }
-      this.lastExecutedByAll = res["payload"]["lastExecutedByAll"];
-      this.lastExecutedThisUser = res["payload"]["lastExecutedThisUser"];
-      this.lastExecutedByAny = res["payload"]["lastExecutedByAny"];
+
+      this.lastExecutedByAll = res["lastExecutedByAll"];
+      this.lastExecutedThisUser = res["lastExecutedThisUser"];
+      this.lastExecutedByAny = res["lastExecutedByAny"];
       const lastExecuted = { status: true, entryIndex: -1, entryId: undefined };
       if (!this.lastExecutedByAll.status) this.lastExecutedByAll = lastExecuted;
       if (!this.lastExecutedByAny.status) this.lastExecutedByAny = lastExecuted;
@@ -780,7 +783,6 @@ export default {
             "move logged",
             "error logging to server"
           );
-          if (!isLogged) console.log("err api call");
         } else {
           // this user did execute this
 
@@ -823,15 +825,13 @@ export default {
 
     async sendConfirmation(entryId) {
       console.log("confirmation for", entryId);
-      const res = await acceptanceLogApi.addEntryToAcceptanceLog({
+
+      await acceptanceLogApi.addEntryToAcceptanceLog({
         levelId: this.levelId,
         entryId: entryId,
       });
-      const flag = res["auth"]["status"] && res["payload"]["status"];
 
-      if (!flag) console.log("err", res);
-
-      return flag;
+      return true;
     },
 
     manualActionsPre() {
@@ -919,16 +919,7 @@ export default {
         return;
       }
 
-      let res = await apiLevelLog.addToLog(
-        this.levelId,
-        tokenId,
-        logEntry.entryId
-      );
-
-      if (!(res["auth"]["status"] && res["payload"]["status"])) {
-        console.log("err");
-        return;
-      }
+      await apiLevelLog.addToLog(this.levelId, tokenId, logEntry.entryId);
 
       this.entryCleanup();
       this.$refs.level.movePosition(
@@ -943,12 +934,7 @@ export default {
     async loadLog() {
       let res = await apiLevelLog.getLevelLog(this.levelId);
 
-      if (!(res["auth"]["status"] && res["payload"]["status"])) {
-        console.log("err");
-        return;
-      }
-
-      this.log = res["payload"]["log"];
+      this.log = res["log"];
     },
   },
   components: {

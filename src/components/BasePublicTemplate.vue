@@ -54,8 +54,8 @@
                   <div class="d-flex align-items-center mb-3 pb-1">
                     <span class="h1 fw-bold mb-0">
                       <img
-                        src="assets/Screenshot from 2023-01-02 16-13-35.png"
-                        alt="img"
+                        src="assets/pexels-ann-h-1888015.jpg"
+                        alt="Ludo"
                         class="img-fluid float-left"
                       />
                     </span>

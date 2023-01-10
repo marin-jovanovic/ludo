@@ -60,22 +60,22 @@ export default {
     this.returnUrl = this.$route.query.returnUrl || "/";
   },
   methods: {
-    handleSubmit() {
+    async handleSubmit() {
       this.submitted = true;
       const { username, password } = this;
       if (!(username && password)) {
         return;
       }
       this.loading = true;
-      apiAuth.login(username, password).then(
-        () => {
-          router.push(this.returnUrl);
-        },
-        (error) => {
-          this.error = error;
-          this.loading = false;
-        }
-      );
+
+      let r = await apiAuth.login(username, password);
+
+      if (r.description) {
+        this.error = r.description;
+        this.loading = false;
+      } else {
+        router.push(this.returnUrl);
+      }
     },
   },
 };

@@ -7,10 +7,10 @@ from backend.api.game.log import construct_goes, construct_roll, construct_tie
 
 def determine_order(
         number_of_players, choice_highest_or_order,
-        choice_clockwise_or_anticlockwise, f_tie_in_order):
+        choice_clockwise_or_anticlockwise, f_tie_in_order, level_config):
     def driver(
             number_of_players, choice_highest_or_order,
-            choice_clockwise_or_anticlockwise):
+            choice_clockwise_or_anticlockwise, level_config):
         # pre
 
         # global, pass as arg
@@ -27,7 +27,7 @@ def determine_order(
 
             current_iteration_roll_history = []
             for player in rollers:
-                r = get_dice_result()
+                r = get_dice_result(level_config['dice number of sides'])
                 pr = {'player': player, 'dice_result': r}
 
                 roll_history.append(construct_roll(player, r))
@@ -71,9 +71,9 @@ def determine_order(
                 current_iteration_roll_history.remove(max_r_obj)
 
     r = driver(number_of_players, choice_highest_or_order,
-               choice_clockwise_or_anticlockwise)
+               choice_clockwise_or_anticlockwise, level_config)
 
-    if number_of_players > get_config()['dice number of sides']:
+    if number_of_players > level_config['dice number of sides']:
         print('err')
         sys.exit(-1)
 
@@ -87,7 +87,7 @@ def determine_order(
 
             if is_present:
                 r = driver(number_of_players, choice_highest_or_order,
-                           choice_clockwise_or_anticlockwise)
+                           choice_clockwise_or_anticlockwise, level_config)
 
             else:
                 break

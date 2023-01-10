@@ -4,7 +4,7 @@ from collections import defaultdict
 from backend.api.cqrs_q.level_config import get_config
 from backend.api.game.dice import get_dice_result
 from backend.api.game.log import construct_roll, move_token, log_won, \
-    log_eat_token
+    log_eat_token, user_choose
 from backend.api.game.order import determine_order
 from backend.api.game.pool import get_pool, is_valid_pool
 from backend.api.game.pre import get_destination_pool
@@ -398,11 +398,18 @@ class Token:
 
 class Level:
 
-    def __init__(self, log=None):
+    def get_log_as_dict(self):
+        r = {}
+        for e, i in enumerate(self.log):
+            r[e] = i
+
+        return r
+
+    def __init__(self, log=None, level_id=None):
         default_start_state = None
         default_start_tile = None
 
-        game_conf = get_config()
+        game_conf = get_config(level_id=level_id)
         self.max_result = game_conf["dice number of sides"]
 
         # if mid game
@@ -415,6 +422,7 @@ class Level:
                 game_conf['choice: highest; order'],
                 game_conf['choice: clockwise; anticlockwise'],
                 game_conf['flag: tie in order'],
+                game_conf
             )
 
         playing_order = self.get_playing_order(game_conf)
@@ -423,10 +431,10 @@ class Level:
 
         players = {}
 
-        for player_id in range(get_config()["number of players"]):
+        for player_id in range(game_conf["number of players"]):
             tokens = {}
 
-            for token_id in range(get_config()['tokens per player']):
+            for token_id in range(game_conf['tokens per player']):
                 tokens[token_id] = Token(
                     start_state=default_start_state,
                     start_x_y=default_start_tile,
@@ -450,14 +458,14 @@ class Level:
                     token_id=i["token"],
                     step=i["dice_result"]
                 )
-                #
 
         # for user choosing
         self.players_turn = None
         self.start_pool_options = {}
         self.non_start_pool_options = {}
 
-        if log and log[-1]["action"] == "roll":
+        # if log and log[-1]["action"] == "roll":
+        if log and log[-1]["action"] == "choose":
             print("last action is roll. waiting for user to choose. no new entries")
 
             player_id = log[-1]["player"]
@@ -487,7 +495,6 @@ class Level:
 
             return
 
-        # goes_first = playing_order[0]
 
         """if we have log, and in that log last entry was 6 for this player
             they cen perform again
@@ -501,87 +508,19 @@ class Level:
             # self.auto_driver(game_conf, playing_order)
             return
 
-        # only_rollable = []
-        # for i in self.log:
-        #     if i["action"] == "move":
-        #         only_rollable.append(i)
-
-        # if
-
-        # what if not enough
-
-        # last_roll = None
-
-        # for entry in reversed(self.log):
-        #     if entry['action'] == 'roll':
-        #         last_roll = entry
-        #         break
-
         only_roll = []
         for i in self.log:
             if i["action"] == "roll":
                 only_roll.append(i)
 
-        # for i in only_roll:
-        #     print(i)
-
         last_entry = only_roll[-1]
-
-        # one_before_last_entry = only_roll[-2]
-
-        # print(f"{last_entry=}")
-        # print(f"{one_before_last_entry=}")
 
         can_go_again = False
 
         if last_entry["dice_result"] == 6:
-            # print("last executed: player rolled 6")
             can_go_again = True
 
-        #     playing_order = reorder_playing_order(playing_order, goes_first)
-        #
-        # else:
-        #
-        #     # not correct, must be one after current
-        #     # goes_first = playing_order[1]
-        #
-        #     # last_played =
-        #
-        #     playing_order = reorder_playing_order(playing_order, goes_first)
-
-        # if not last_roll:
-        #     """"""
-        #
-        #
-        # print(f"{self.log[-2]=}")
-        # # this should be roll instruction
-        # if self.log[-2]["dice_result"] == 6:
-        #     goes_first = self.log[-2]["player"]
-        #     # goes_first = self.log[-1]["player"]
-        # else:
-        #     goes_first = self.log[-]["player"]
-
-        # print(f"{goes_first=}")
-
-
-        # def find_next(playing_order, last):
-        #     # Check if the last element is already at the front of the list
-        #     # if last == 0:
-        #     #     return playing_order
-        #
-        #     # Otherwise, we need to reorder the list
-        #     # First, remove the element at index last from the list
-        #     element = playing_order.pop(last)
-        #     # Then, insert the element at the front of the list
-        #     playing_order.insert(0, element)
-        #     return playing_order
-
-        # print(f([2, 3, 0, 1], 2, True))  # [2, 3, 0, 1]
-
-        # print(f"{playing_order=}")
-
         playing_order = f(playing_order, last_entry["player"], can_go_again)
-        # print(f"{playing_order=}")
 
         self.manual_driver(game_conf, playing_order)
         # self.auto_driver(game_conf, playing_order)
@@ -605,7 +544,6 @@ class Level:
             self,
             game_conf,
             playing_order,
-            # goes_first
     ):
         already_won = set()
 
@@ -627,7 +565,7 @@ class Level:
                         print("1 lost, other won, game done")
                         return
 
-                    roll_result = get_dice_result()
+                    roll_result = get_dice_result(game_conf['dice number of sides'])
 
                     can_roll_again = roll_result == self.max_result
 
@@ -644,9 +582,9 @@ class Level:
                     if start_pool_movable or board_movable:
                         # todo add logic if more then one then auto ?
 
-                        # self.log.append(
-                        #     user_choose(player=player_id, roll=roll_result)
-                        # )
+                        self.log.append(
+                            user_choose(player=player_id, roll=roll_result)
+                        )
 
                         self.players_turn = player_id
                         self.start_pool_options = start_pool_movable
@@ -671,7 +609,7 @@ class Level:
 
                 while can_roll_again:
 
-                    roll_result = get_dice_result()
+                    roll_result = get_dice_result(game_conf['dice number of sides'])
 
                     can_roll_again = roll_result == self.max_result
 
@@ -737,10 +675,11 @@ def choose(board, log, player_id, token_id):
     """
 
     last_log = log[-1]
-    if last_log["action"] == "roll":
+    # if last_log["action"] == "roll":
+    if last_log["action"] == "choose":
         pass
     else:
-        print("errr")
+        print("errr choose")
         return
 
     roll_result = last_log["dice_result"]
@@ -775,27 +714,6 @@ def choose(board, log, player_id, token_id):
     return {"won": gw}
 
 
-# def f(playing_order, last, choice):
-#     if choice:
-#         if last not in playing_order:
-#             print("err")
-#         while playing_order[0] != last:
-#
-#             playing_order.append(playing_order.pop(0))
-#         # print(f"{playing_order=}")
-#         # playing_order = reorder_playing_order(playing_order, last)
-#         return playing_order
-#
-#     else:
-#         if last not in playing_order:
-#             print("err")
-#         while playing_order[0] != last:
-#             playing_order.append(playing_order.pop(0))
-#
-#         playing_order.append(playing_order.pop(0))
-#         # print(f"{playing_order=}")
-#         # playing_order = reorder_playing_order(playing_order, last)
-#         return playing_order
 
 def f(playing_order, last, choice):
     while True:
@@ -808,14 +726,6 @@ def f(playing_order, last, choice):
 
     return playing_order
 
-    # new_order = []
-    # if choice:
-    #     for i in range(len(playing_order)):
-    #         new_order.append(playing_order[(last + i) % len(playing_order)])
-    # else:
-    #     for i in range(len(playing_order)):
-    #         new_order.append(playing_order[(last - i) % len(playing_order)])
-    # return new_order
 
 if __name__ == '__main__':
     print(f([2, 3, 0, 1], 2, True))  # [2, 3, 0, 1]

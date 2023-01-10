@@ -20,11 +20,18 @@
 
     <button @click="startReplay">start replay</button>
 
-    <button @click="replayStep">next instruction</button>
-
     <br />
-    <input type="number" v-model="diceTest" />
-    <button @click="rollDice">test dice</button>
+    <hr />
+
+    user join index:
+    <input type="number" v-model="userJoinIndex" />
+
+    token id:
+    <input type="number" v-model="tokenId" />
+
+    <button @click="move">move</button>
+
+    <hr />
 
     <div class="row">
       <div>instruction id {{ this.instructionId }}</div>
@@ -49,10 +56,15 @@ import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
 
 import { apiGame } from "@/scripts/api/game";
 import { userMetaSS } from "@/scripts/session_storage";
+import { apiBoard } from "@/scripts/api/board";
+import { apiLevelLog } from "@/scripts/api/level_log";
 
 export default {
   data() {
     return {
+      userJoinIndex: 0,
+      tokenId: 0,
+
       slider: 0,
 
       username: "",
@@ -64,173 +76,112 @@ export default {
       // isWaitingForAcceptance: false,
 
       p: undefined,
-      pp: undefined,
+      // pp: undefined,
       diceTest: 1,
       // currInstruction: undefined,
+
+      lastEntry: undefined,
     };
   },
 
   async mounted() {
-    this.username = userMetaSS.getCredentials()["username"];
-    this.gameId = this.$route.params.id;
+    let flag = await this.$refs.game.initGame();
+    // let flag = res["auth"]["status"] && res["payload"]["status"];
 
-    // this.$refs.game.subscribe({
-    //   command: "animateTokens",
-    //   s: this.ui.reactiveCanvas.animate
-    // });
-
-    // this.bl.currentLevel.subscribe({
-    //         command: "animateTokens",
-    //         s: this.ui.reactiveCanvas.animate
-    //     });
-
-    // this.startReplay();
-
-    let res = await apiGame.getGame(this.gameId);
-
-    if (!(res["auth"]["status"] && res["payload"]["status"])) {
-      console.log("err fetching data");
+    if (!flag) {
+      console.log("err");
       return;
     }
 
-    this.p = res["payload"]["payload"];
+    this.username = userMetaSS.getCredentials()["username"];
+    this.gameId = this.$route.params.id;
 
-    let pp = this.p["players"]["payload"];
-    const swapped = Object.entries(pp).map(([key, value]) => ({
-      [value]: key,
-    }));
-
-    this.pp = Object.assign({}, ...swapped);
-
-    console.log(this.p);
+    // let res = await apiGame.getGame(this.gameId);
 
     this.currInstruction = 0;
   },
   methods: {
-    rollDice() {
-      console.log(this.diceTest);
+    async move() {
+      console.log("moe", this.userJoinIndex, this.tokenId);
 
-      this.$refs.dice.rollDice(this.diceTest);
-    },
+      let targetInstructionId = this.lastEntry.entryId;
 
-    // updated() {
-    //     /**
-    //      * callback for updating ui
-    //      */
+      console.log("current instruction id", targetInstructionId);
 
-    //     // todo check for race condition
+      let t = await apiLevelLog.addToLog(
+        this.gameId,
+        this.tokenId,
+        targetInstructionId
+      );
 
-    //     if (this.changleLog.length === 0) {
-
-    //         this.isWaitingForAcceptance = false;
-
-    //     } else {
-
-    //         let oldest = this.changleLog[0];
-
-    //         let oldestMove = oldest.move;
-    //         let oldestToken = oldest.token;
-
-    //         oldestToken.notify({
-    //             command: "newDestination",
-    //             diff: oldestMove
-    //         })
-
-    //         this.changleLog.shift();
-
-    //     }
-
-    // },
-
-    async replayStep() {
-      // let value = this.p["log"][this.instructionId];
-      // this.instructionId++;
-      // for (const [instructionId, value] of Object.entries(this.p["log"])) {
-      // if (this.instructionId > 85) {
-      //   return;
-      // }
-      // console.log(this.instructionId);
-      // switch (value.action) {
-      //   case "roll":
-      //     this.$refs.dice.rollDice(value.diceResult);
-      //     break;
-      //   case "goes":
-      //     console.log("[instruction] order ", value.username);
-      //     break;
-      //   case "move":
-      //     this.$refs.game.movePosition({
-      //       player: this.pp[value.username],
-      //       token: value.token,
-      //       jumpCount: value.diceResult,
-      //     });
-      //     await this.sleep();
-      //     break;
-      //   case "won":
-      //     console.log("won", value.username);
-      //     break;
-      //   default:
-      //     console.log("unknown command", value.action);
-      //     break;
-      // }
-      // }
+      console.log(t);
     },
 
     async startReplay() {
-      let res = await apiGame.getGame(this.gameId);
+      let res = await apiBoard.getLevel(this.gameId);
 
-      if (!(res["auth"]["status"] && res["payload"]["status"])) {
-        console.log("err fetching data");
-        return;
-      }
+      // let res = await apiGame.getGame(this.gameId);
 
-      let p = res["payload"]["payload"];
+      console.log(res["players"]);
 
-      let pp = p["players"]["payload"];
+      let pp = res["players"];
+
+      // username to join id
+
       const swapped = Object.entries(pp).map(([key, value]) => ({
         [value]: key,
       }));
 
       pp = Object.assign({}, ...swapped);
 
-      console.log(p);
+      // cons
 
-      let log = p["log"];
+      res = await apiLevelLog.getLevelLog(this.gameId);
+      // console.log(res["log"]);
+
+      let log = res["log"];
 
       for (const [instructionId, value] of Object.entries(log)) {
-        // if (instructionId > 70) {
-        //   return;
-        // }
+        console.log(instructionId, value);
 
         this.instructionId = instructionId;
+
+        this.lastEntry = value;
+
         switch (value.action) {
           case "roll":
+            console.log("roll");
             this.$refs.dice.rollDice(value.diceResult);
             break;
 
           case "goes":
-            console.log("[instruction] order ", value.username);
+            console.log("goes");
+            console.log("[instruction] order ", value.userJoinIndex);
             break;
 
           case "move":
             console.log(
               instructionId,
-              pp[value.username],
+              value.userJoinIndex,
               value.token,
               value.diceResult
             );
 
-            this.$refs.game.movePosition({
-              player: pp[value.username],
-              token: value.token,
-              jumpCount: value.diceResult,
-            });
+            this.$refs.game.movePosition(
+              value.userJoinIndex,
+              value.tokenId,
+              value.diceResult
+            );
 
             await this.sleep();
 
             break;
 
+          case "choose":
+            break;
+
           case "won":
-            console.log("backend won", value.username);
+            console.log("backend won", value.userJoinIndex);
             break;
 
           default:
@@ -248,15 +199,7 @@ export default {
     },
 
     async performAction(action) {
-      let res = await apiGame.actionPerformed(
-        this.gameId,
-        this.username,
-        action
-      );
-
-      if (!(res["auth"]["status"] && res["payload"]["status"])) {
-        console.log("game leave err");
-      }
+      await apiGame.actionPerformed(this.gameId, this.username, action);
     },
 
     async gostpnti() {

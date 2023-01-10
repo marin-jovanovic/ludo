@@ -7,25 +7,10 @@ from backend.api.model.level import get_level_model
 from backend.api.model.player_order import get_player_order_model
 from backend.api.model.user import get_user_model
 from backend.api.view.comm import get_auth_ok_response_template
+from backend.api.model.level import notify_join_leave
 
 
 class LevelView(APIView):
-
-    def delete(self, request, name=None):
-        """
-        can not delete level if there are users in it
-        when level is empty or only this user is in it -> level can be deleted
-
-
-        level.active = False
-            level will not be shown in get method
-            statistics can be created
-
-        this is called when user wants to delete a level
-        or
-        when level is done
-
-        """
 
     def get(self, request, level_id=None):
         # get basic game info
@@ -35,7 +20,6 @@ class LevelView(APIView):
         # todo add filters
 
         if level_id:
-            # raise NotImplementedError
 
             response["payload"]["status"] = True
 
@@ -45,10 +29,6 @@ class LevelView(APIView):
                 i.user_id: i.join_index for i in r
             }
 
-            users_ids = [i.user_id for i in r]
-
-            print(f"{users_ids=}")
-
             m = {}
 
             for id_, join_id in id_to_order.items():
@@ -57,11 +37,7 @@ class LevelView(APIView):
 
                 m[id_] = {"username": r.username, "joinId": join_id}
 
-            for i in m.items():
-                print(i)
-
-            c = get_level_model().objects.get(id=level_id).capacity
-            capacity = c
+            capacity = get_level_model().objects.get(id=level_id).capacity
 
             response["payload"] = {
                 "status": True,
@@ -122,5 +98,9 @@ class LevelView(APIView):
 
         if "join" in request.data:
             response["payload"] = join_level(level_id, username)
+
+        notify_join_leave()
+
+        print(f"{response['payload']=}")
 
         return JsonResponse(response)

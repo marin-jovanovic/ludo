@@ -1,3 +1,4 @@
+import sys
 from collections import defaultdict
 
 from backend.api.cqrs_c.game_log import add_entry
@@ -5,8 +6,8 @@ from backend.api.game.main import try_generating_api
 from backend.api.model.acceptance_log import get_acceptance_log_model
 from backend.api.model.level import get_level_model
 from backend.api.model.level_log import get_level_log_model
-from backend.api.view.level_log_view import join_id_to_username_and_user_id, \
-    level_id_to_name
+from backend.api.cqrs_q.player_order import join_id_to_username_and_user_id
+from backend.api.cqrs_q.level import level_id_to_name
 
 
 def clean(level_id):
@@ -22,81 +23,131 @@ def clean(level_id):
 
     """
 
-    capacity = get_level_model().objects.get(id=level_id).capacity
+    # capacity = get_level_model().objects.get(id=level_id).capacity
+    #
+    # fix_1(capacity, level_id)
+    #
+    # fix_2(level_id)
+    #
+    # fix_3(level_id)
+    #
+    # # fix_4(level_id)
+    #
+    # fix_5(level_id)
 
-    fix_1(capacity, level_id)
 
-    fix_2(level_id)
-
-    fix_3(level_id)
-
-    """if last log is choose and true and we have log for that
-    just generate new
+def fix_5(level_id):
+    """
+    delete all wrongly generated
     """
 
-    log = get_level_log_model().objects.filter(
-        game_id=level_id).values().order_by("id")
+    log = get_level_log_model()\
+        .objects\
+        .filter(game_id=level_id)\
+        .values("id",
+                    "action",
+        "performed").order_by(
+        "-id")
+
     log = list(log)
+    first_id = log[0]["id"]
+    choose_count = 0
+    last = None
+    for i in log:
+        if i["performed"]:
+            break
 
-    last_entry = log[-1]
+        last = i
 
-    if last_entry["action"] == "choose":
-        last_entry_id = last_entry["id"]
+        if i["action"] == "choose":
+            choose_count += 1
 
-        l = get_level_log_model().objects.get(
-            id=last_entry_id)
+        print(i)
+    print(f"{last=}")
+    if choose_count != 0 and choose_count != 1:
+        if last["action"] == "choose":
+            print("del")
 
-        l.performed = False
-        l.save()
+            for i in range(last["id"] + 1, first_id + 1):
+                print("staging for deleting", i)
+                get_level_log_model().objects.filter(id=i).delete()
 
-        get_acceptance_log_model().objects.filter(
-            log_entry_id=last_entry_id
-        ).delete()
 
-    """now try generating new rows"""
-
-    r = try_generating_api(log)
-
-    print(f"{r=}")
-
-    if r["logDiff"]:
-        log_diff = r["logDiff"]
-
-        t = join_id_to_username_and_user_id(r["turn"], level_id)
-        if not t["status"]:
-            print("err join_id_to_username_and_user_id")
-
-        # add to db log diff
-
-        r = level_id_to_name(level_id)
-        if not r["status"]:
-            return r
-
-        level_name = r["payload"]
-
-        log = get_level_log_model().objects.filter(
-            game_id=level_id).values().order_by("id")
-        log = list(log)
-        last_entry = log[-1]
-
-        is_last_entry_choose = last_entry["action"] == "choose"
-
-        for i in log_diff[:-1]:
-            i["game"] = level_name
-
-            print("adding", i)
-            add_entry(**i)
-
-        if not is_last_entry_choose:
-            i  =log_diff[-1]
-            i["game"] = level_name
-
-            print("adding", i)
-            add_entry(**i)
-
+# def fix_4(level_id):
+#
+#     """if last log is choose and true and we have log for that
+#     just generate new
+#     """
+#
+#     log = get_level_log_model().objects.filter(
+#         game_id=level_id).values().order_by("id")
+#     log = list(log)
+#
+#     last_entry = log[-1]
+#
+#     if last_entry["action"] == "choose":
+#         last_entry_id = last_entry["id"]
+#
+#         l = get_level_log_model().objects.get(
+#             id=last_entry_id)
+#
+#         l.performed = False
+#         l.save()
+#
+#         get_acceptance_log_model().objects.filter(
+#             log_entry_id=last_entry_id
+#         ).delete()
+#
+#     """now try generating new rows"""
+#
+#     r = try_generating_api(log, level_id)
+#
+#     print(f"{r=}")
+#
+#     if not r["logDiff"]:
+#         return
+#
+#     log_diff = r["logDiff"]
+#     log = r["log"]
+#
+#     t = join_id_to_username_and_user_id(r["turn"], level_id)
+#     if not t["status"]:
+#         print("err join_id_to_username_and_user_id")
+#
+#     # add to db log diff
+#
+#     r = level_id_to_name(level_id)
+#     if not r["status"]:
+#         print("err level_id_to_name")
+#         sys.exit(-1)
+#         return r
+#
+#
+#     level_name = r["payload"]
+#
+#     log = get_level_log_model().objects.filter(
+#         game_id=level_id).values().order_by("id")
+#     log = list(log)
+#     last_entry = log[-1]
+#
+#     is_last_entry_choose = last_entry["action"] == "choose"
+#
+#     for i in log_diff[:-1]:
+#
+#         i["game"] = level_name
+#         print("adding", i)
+#         add_entry(**i)
+#
+#     if not is_last_entry_choose:
+#         i = log_diff[-1]
+#
+#         i["game"] = level_name
+#         print("adding", i)
+#         add_entry(**i)
 
 def fix_3(level_id):
-    """go over acceptance log and find everything that is confirmed but does not exist in level lgo"""
+    """go over acceptance log and find everything that is
+    confirmed but does not exist in level lgo"""
 
     acceptance_log = get_acceptance_log_model().objects.filter(
         level_id=level_id)

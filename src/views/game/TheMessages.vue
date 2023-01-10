@@ -112,7 +112,8 @@ export default {
 
     await this.fetchMessages();
 
-    let url = "ws://127.0.0.1:8000/msg/";
+    let url = "ws://" + process.env.VUE_APP_BACKEND_WS + "/msg/";
+
     new wsListeners.WebSocketListener(url, this.newMsg);
 
     this.scrollToBottom();
@@ -125,17 +126,7 @@ export default {
     },
 
     async sendMessage() {
-      let res = await apiMessage.sendMessage(
-        this.username,
-        this.levelId,
-        this.message
-      );
-
-      let flag = res["auth"]["status"] && res["payload"]["status"];
-
-      if (!flag) {
-        console.log("err");
-      }
+      await apiMessage.sendMessage(this.username, this.levelId, this.message);
 
       this.message = "";
 
@@ -156,13 +147,7 @@ export default {
     async fetchMessages() {
       let res = await apiMessage.getMessages(this.levelId);
 
-      let flag = res["auth"]["status"] && res["payload"]["status"];
-
-      if (!flag) {
-        console.log("err");
-      }
-
-      this.messageLog = res["payload"]["payload"];
+      this.messageLog = res["payload"];
 
       await this.scrollToBottom();
     },

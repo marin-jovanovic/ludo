@@ -54,9 +54,7 @@ import { wsListeners } from "@/scripts/ws_listener";
 import { router } from "@/router/router";
 import { levelSessionStorage, userMetaSS } from "@/scripts/session_storage";
 import { notification } from "@/scripts/notification";
-// import { apiSettings } from "@/scripts/api/settings";
-// import axios from "axios";
-// import { apiMusic } from "@/scripts/api/music";
+
 import BaseAudio from "@/components/BaseAudio.vue";
 
 export default {
@@ -65,27 +63,8 @@ export default {
 
     await this.fetchInitData();
 
-    let url = "ws://127.0.0.1:8000/lobby_games/";
+    let url = "ws://" + process.env.VUE_APP_BACKEND_WS + "/lobby_games/";
     new wsListeners.WebSocketListener(url, this.getUserActive);
-
-    // let res = await apiMusic.getMusic();
-    // console.log(res);
-
-    // async function getData() {
-    //   try {
-    //     const response = await axios.get("localhost:8000/music");
-    //     const data = response.data;
-    //     console.log(data);
-    //   } catch (error) {
-    //     console.error(error);
-    //   }
-    // }
-
-    // let res = await getData();
-    // console.log(res);
-
-    // let res = await apiSettings.getSettings();
-    // console.log(res);
   },
   data() {
     return {
@@ -114,24 +93,11 @@ export default {
     async joinGame(levelId) {
       let res = await apiLevel.joinGame(levelId);
 
-      let flag = res["auth"]["status"] && res["payload"]["status"];
+      notification.showMessage(res, "joined level", "error joining level");
 
-      notification.showMessage(flag, "joined level", "error joining level");
-
-      if (!flag) {
-        return;
-      }
-
-      // let levelId = res["payload"]["levelId"];
-
-      // console.log("join pl", res["payload"]);
-      console.log("level id", levelId);
-
-      if (levelId !== Number(res["payload"]["levelId"])) {
+      if (levelId !== Number(res["levelId"])) {
         console.log("err not same", res["payload"]);
       }
-
-      // cons
 
       levelSessionStorage.joinLevel({ levelId: levelId });
 
@@ -141,58 +107,35 @@ export default {
     async leaveGame(gameName) {
       let res = await apiLevel.leaveGame(gameName);
 
-      let flag = res["auth"]["status"] && res["payload"]["status"];
-
-      notification.showMessage(flag, "leave ok", "error level leave");
-
-      if (!flag) {
-        return;
-      }
+      notification.showMessage(res, "leave ok", "error level leave");
 
       levelSessionStorage.leaveLevel();
     },
 
     async createGame() {
       let res = await apiLevel.createGame(this.gameName, this.gameCapacity);
-      console.log("load", res["payload"]);
+      console.log("load", res);
 
-      let flag = res["auth"]["status"] && res["payload"]["status"];
-
-      notification.showMessage(flag, "level created", "error creating level");
-
-      if (!flag) {
-        return;
-      }
+      notification.showMessage(res, "level created", "error creating level");
 
       this.isCreator = true;
 
-      let levelId = res["payload"]["levelId"];
+      let levelId = res["levelId"];
 
       this.joinGame(levelId);
 
       // todo wait 2 seconds or something?
       // better: trigger notif
 
-      levelSessionStorage.joinLevel({ levelId: res["payload"]["levelId"] });
+      // levelSessionStorage.joinLevel({ levelId: res["levelId"] });
 
-      router.push(`waitingRoom/${levelId}`);
+      // router.push(`waitingRoom/${levelId}`);
     },
 
     async fetchInitData() {
       let res = await apiLevel.getGames();
-      if (!res["auth"]["status"]) {
-        console.log("err fetching data");
-        return;
-      }
 
-      console.log(res[["payload"]]);
-
-      this.levels = res["payload"]["levels"];
-      console.log(res["payload"]["levels"]);
-
-      let inGame = res["payload"]["inLevel"];
-
-      console.log("in game", inGame);
+      this.levels = res["levels"];
     },
   },
   components: {

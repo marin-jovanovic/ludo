@@ -99,7 +99,7 @@ export default {
       return false;
     },
 
-    handleSubmit() {
+    async handleSubmit() {
       this.submitted = true;
       const { username, password } = this;
 
@@ -122,20 +122,15 @@ export default {
         return;
       }
 
-      console.log(this.checkComplexity());
+      let r = await apiAuth.signup(username, password);
 
-      // this.loading = true;
-      apiAuth.signup(username, password).then(
-        () => {
-          router.push(this.returnUrl);
-          this.$store.dispatch("setUsername", username);
-        },
-        (error) => {
-          this.error = "invalid credentials";
-          this.error = error;
-          this.loading = false;
-        }
-      );
+      if (r.description) {
+        this.error = r.description;
+        this.loading = false;
+
+        return;
+      }
+      router.push(this.returnUrl);
     },
   },
 };

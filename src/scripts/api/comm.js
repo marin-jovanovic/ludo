@@ -3,9 +3,9 @@ import Cookies from 'js-cookie'
 import {
     userMetaSS
 } from '../session_storage';
-import {
-    apiAuth
-} from './auth';
+// import {
+//     apiAuth
+// } from './auth';
 
 import {
     Buffer
@@ -81,6 +81,29 @@ function getAuthenticationHeader() {
 
 function handleNewResponse(response) {
 
+    if (!response.data.auth.status) {
+        console.log("[auth] not correct")
+        let t = response.data.payload;
+        delete t.status;
+        return t;
+    }
+
+    if (!response.data.payload.status) {
+        console.log("[server] internal err")
+    let t = response.data.payload;
+    delete t.status;
+    return t;
+
+    }
+
+        // todo this will never be true, not implemented
+        // if (response.data.status === 401) {
+        //     apiAuth.logout();
+        //     location.reload(true);
+        // }
+
+
+
     if (response.data.auth.status) {
 
         let accessToken = response.data.auth.accessToken;
@@ -91,19 +114,14 @@ function handleNewResponse(response) {
             accessToken: accessToken
         })
 
+    } 
 
-    } else {
-        // todo this will never be true, not implemented
-        if (response.data.status === 401) {
-            apiAuth.logout();
-            location.reload(true);
-        }
+    let t = response.data.payload;
+    delete t.status;
+    return t;
 
-        const error = response.data.payload.description;
-        return Promise.reject(error);
-    }
 
-    return response.data
+
 }
 
 export const apiCalls = {

@@ -11,7 +11,7 @@ from backend.api.cqrs_q.level import \
 from backend.api.cqrs_q.user import get_user, get_users_in_level
 # from backend.api.game.main import create_game_api
 
-from backend.api.game.main import create_game_api
+from backend.api.game.main import create_level
 
 from backend.api.model.level import Level, \
     game_created_notifier, games_notifier, game_left_notifier, \
@@ -92,7 +92,13 @@ def create_game(creator_username, level_name, capacity):
     if not r["status"]:
         return r
 
-    r = create_game_api()
+    from backend.api.cqrs_q.level import level_name_to_level_id
+    r = level_name_to_level_id(level_name)
+    if not r["status"]:
+        return r
+    level_id = r["payload"]
+
+    r = create_level(level_id)
     if not r["status"]:
         return r
 
@@ -252,11 +258,6 @@ def join_level(level_id, username):
         assumption: nothing is present
         """
 
-    # print("after fixing")
-    r = get_user_model().objects.get(username=username)
-    # print(f"{r.game_role=}")
-    # print(f"{r.currently_playing=}")
-
     r = level_get_model_by_id(level_id)
     if not r["status"]:
         print("err get game")
@@ -293,7 +294,6 @@ def join_level(level_id, username):
 
     msg = json.dumps({
         "source": "join game",
-        "name": level_id,
         "who joined": username,
         "levelId": level_id
     })

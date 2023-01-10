@@ -664,7 +664,6 @@ class TestAuth(unittest.TestCase):
             access_token=access_token
             ,
             base=self.base
-
         )
         self.assertEqual(1, len(r["auth"]))
         self.assertEqual(1, len(r["payload"]))
@@ -676,7 +675,6 @@ class TestAuth(unittest.TestCase):
             username=self.non_existing_username,
             access_token=access_token,
             base=self.base
-
         )
         self.assertEqual(1, len(r["auth"]))
         self.assertEqual(1, len(r["payload"]))
@@ -688,8 +686,8 @@ class TestAuth(unittest.TestCase):
             username=self.non_existing_username,
             password=self.non_existing_password,
             base=self.base
-
         )
+
         self.assertEqual(3, len(r["auth"]))
         self.assertEqual(1, len(r["payload"]))
         self.assertEqual(True, r["auth"]["status"])

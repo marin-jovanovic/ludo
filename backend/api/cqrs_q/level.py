@@ -157,3 +157,21 @@ def is_integrity_rule_ok(level_name):
         "status": not get_level_model().objects.filter(name=level_name,
                                                        is_active=True).exists(),
     }
+
+def level_name_to_level_id(level_name):
+
+    return {
+        "status": True,
+        "payload": get_level_model().objects.get(name=level_name, is_active=True).id
+    }
+
+
+def level_id_to_name(level_id):
+    r = get_level_model().objects.get(id=level_id, is_active=True)
+
+    print(r.name)
+
+    return {
+        "status": True,
+        "payload": r.name
+    }

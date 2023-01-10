@@ -34,23 +34,25 @@ class SettingsView(APIView):
         response = get_auth_ok_response_template(request)
 
         root_dir = pathlib.Path(__file__).parent.parent.parent.parent.resolve()
-        print(f"{root_dir=}")
+        # print(f"{root_dir=}")
 
         p = root_dir / "profile_pic"
 
         try:
             os.makedirs(p)
         except OSError as e:
-            print(f"{e=}")
+            # print(f"{e=}")
             # return
+            pass
 
         p = root_dir / "profile_pic" / request.username
 
         try:
             os.makedirs(p)
         except OSError as e:
-            print(f"{e=}")
+            # print(f"{e=}")
             # return
+            pass
 
         # in_img = data
         # in_img = in_img[22:]
@@ -60,10 +62,8 @@ class SettingsView(APIView):
 
         safe_name =  pathlib.Path(safe_name).name
 
-        print(f"{safe_name=}")
 
         last_n = extract_number(safe_name)
-        print(f"{last_n=}")
         last_n = int(last_n)
         last_img_suf = last_n - 1
 
@@ -76,7 +76,6 @@ class SettingsView(APIView):
                 t = base64.b64encode(t)
                 c = t.decode("utf-8")
 
-                # print(f"{c=}")
 
                 c = "data:image/png;base64," + c
 
@@ -86,31 +85,14 @@ class SettingsView(APIView):
 
             c = None
 
-        # print(f"{t=}")
-
-        # print(t.decode("utf-8"))
-
-
-        # print(f"{c=}")
-
-        # encoded_b2 = "".join([format(n, '08b') for n in t])
-        # print(f"{encoded_b2=}")
-        # last = safe_name - 1
-
-        # last_file_name = safe_create_dir()
-
-        # photo = t
 
         response["payload"] = {
             "status": True,
             "username": request.username,
             "userProfilePhoto": c
-            # "song": 1,
-            # "songPayload": song_data
 
         }
 
-        # return FileResponse(song_path.open("rb"))
 
         return JsonResponse(response)
 
@@ -194,8 +176,7 @@ def create_image(data, username):
 
     print(f"{safe_name=}")
 
-    # check if this is created
-
+    # todo check when created
     with open(safe_name, "wb") as f:
         t = f.write(base64.b64decode(in_img))
         print(f"{t=}")

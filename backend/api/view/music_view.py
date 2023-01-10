@@ -18,29 +18,13 @@ class MusicView(APIView):
 
 
         """
-        response = get_auth_ok_response_template(request)
-
 
         base_dir = pathlib.Path(__file__).parent.parent.parent.parent.resolve()
 
         song_path = base_dir / "resources" / "mp3" / "Corruption.mp3"
 
-        with open(song_path, 'rb') as f:
-            song_data = f.read()
-
-
-
-        # response["payload"] = {
-        #     "status": True,
-        #     "username": request.username,
-        #     # "song": 1,
-        #     # "songPayload": song_data
-        #
-        # }
-
         return FileResponse(song_path.open("rb"))
 
-        # return JsonResponse(response)
 
 
 

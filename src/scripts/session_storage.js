@@ -383,48 +383,48 @@ class LevelSS {
 }
 
 
-class MusicSS {
-    constructor() {
-        this.ssw = new SessionStorageWrapper();
-    }
+// class MusicSS {
+//     constructor() {
+//         this.ssw = new SessionStorageWrapper();
+//     }
 
-    set({
-        value
-    }) {
-        // joinId
+//     set({
+//         value
+//     }) {
+//         // joinId
 
-        if (!
-            this.ssw.set({
-                variable: "music",
-                value: value
-            })
-        ) {
-            console.log("err setting", value)
-        }
+//         if (!
+//             this.ssw.set({
+//                 variable: "music",
+//                 value: value
+//             })
+//         ) {
+//             console.log("err setting", value)
+//         }
 
 
-    }
+//     }
 
-    get() {
-        return {
+//     get() {
+//         return {
 
-            order: this.ssw.get({
-                variable: "music"
-            }).payload,
+//             order: this.ssw.get({
+//                 variable: "music"
+//             }).payload,
 
-        }
+//         }
 
-    }
+//     }
 
-}
+// }
 
 let userMetaSS = new UserMetaSS();
 let levelSessionStorage = new LevelSS();
 
-let musicSS = new MusicSS();
+// let musicSS = new MusicSS();
 
 export {
     userMetaSS,
     levelSessionStorage,
-    musicSS
+    // musicSS
 }

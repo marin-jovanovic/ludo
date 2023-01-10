@@ -43,10 +43,10 @@ async function getSpecificLevel({
 
 
 // todo missing data
-async function leaveGame(gameName) {
+async function leaveGame(levelId) {
     return await apiCalls.handleNewResponse(
         await apiCalls.api.put(
-            `level/${gameName}`,
+            `level/${levelId}`,
             JSON.stringify({
                 "leave": true
             }),
@@ -55,10 +55,10 @@ async function leaveGame(gameName) {
     );
 }
 
-async function joinGame(gameName) {
+async function joinGame(levelId) {
     return await apiCalls.handleNewResponse(
         await apiCalls.api.put(
-            `level/${gameName}`,
+            `level/${levelId}`,
             JSON.stringify({
                 "join": true
             }),

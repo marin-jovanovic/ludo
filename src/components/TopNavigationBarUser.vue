@@ -27,23 +27,15 @@
           aria-expanded="false"
         > -->
 
-        <a
-          href="#"
-          data-bs-toggle="dropdown"
-        > 
-
-
-        <top-navigation-bar-profile-picture></top-navigation-bar-profile-picture>
+        <a href="#" data-bs-toggle="dropdown">
+          <top-navigation-bar-profile-picture></top-navigation-bar-profile-picture>
         </a>
         <ul class="dropdown-menu dropdown-menu-end">
-
-
           <li v-for="i in this.links" :key="i">
-            
-            <router-link class="dropdown-item" :to="i.to">{{i.name}}</router-link>
-            
+            <router-link class="dropdown-item" :to="i.to">{{
+              i.name
+            }}</router-link>
           </li>
-
         </ul>
       </li>
     </ul>
@@ -56,23 +48,21 @@ import TopNavigationBarProfilePicture from "./TopNavigationBarProfilePicture.vue
 import { apiSettings } from "@/scripts/api/settings";
 export default {
   data() {
-    return { username: undefined, profilePhoto: undefined ,
-    
-    links: [
-      {to: "/settings", name : "Settings"},
-      {to: "/logout", name: "Logout"},
-      {to: "/messages", name: "Messages"}
-    ]
+    return {
+      username: undefined,
+      profilePhoto: undefined,
+
+      links: [
+        { to: "/settings", name: "Settings" },
+        { to: "/logout", name: "Logout" },
+        { to: "/messages", name: "Messages" },
+      ],
     };
   },
   async mounted() {
     let r = await apiSettings.getSettings();
 
-    if (r["auth"]["status"]) {
-      let pl = r["payload"];
-
-      this.username = pl["username"];
-    }
+    this.username = r["username"];
   },
   components: {
     TopNavigationBarProfilePicture,

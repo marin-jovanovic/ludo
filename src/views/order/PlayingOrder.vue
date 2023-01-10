@@ -205,22 +205,16 @@ export default {
 
     let res = await apiLevel.getSpecificLevel({ levelId: this.levelId });
 
-    let flag = res["auth"]["status"] && res["payload"]["status"];
-
-    if (!flag) {
-      console.log("err");
-    }
-
     levelSessionStorage.set({
       variable: "Capacity",
-      value: Object.keys(res["payload"]["users"]).length,
+      value: Object.keys(res["users"]).length,
     });
 
     // userMetaSS.se
 
     this.username = userMetaSS.getCredentials()["username"];
 
-    for (const val of Object.values(res["payload"]["users"])) {
+    for (const val of Object.values(res["users"])) {
       // console.log(key, value);
       if (val.username === this.username) {
         levelSessionStorage.set({
@@ -240,7 +234,9 @@ export default {
 
     // this.currentLogEntryIndex = 0;
 
-    let url = "ws://127.0.0.1:8000/acceptanceLogEntryCreated/";
+    let url =
+      "ws://" + process.env.VUE_APP_BACKEND_WS + "/acceptanceLogEntryCreated/";
+
     new wsListeners.WebSocketListener(url, this.wsReceive);
 
     // run condition, what if get then ws vs ws then get
@@ -267,40 +263,6 @@ export default {
 
       router.replace(`/game/${this.levelId}`);
     },
-
-    // check for goes
-    // async bypassGoes(levelId, capacity) {
-    //   // skip first part of the log where order is determined
-    //   let res = await apiLevelLog.getLevelLog(levelId);
-
-    //   if (!(res["auth"]["status"] && res["payload"]["status"])) {
-    //     console.log("err");
-    //     return;
-    //   }
-
-    //   let log = res["payload"]["log"];
-
-    //   let c = 0;
-    //   let logIndex = 0;
-    //   for (const value of Object.values(log)) {
-    //     if (value.action === "goes") {
-    //       c++;
-    //     }
-
-    //     if (capacity === c) {
-    //       break;
-    //     }
-    //     logIndex++;
-    //   }
-
-    //   if (capacity !== c) {
-    //     console.log("err capacity !== c", capacity, c);
-    //   }
-
-    //   return logIndex;
-    // },
-
-    // this is from playing order
 
     addToOrder(orderObj) {
       console.log(orderObj);
@@ -542,48 +504,15 @@ export default {
       await this.tryNextInstruction();
     },
 
-    // async fetchPerformedLogEntryIndexToId() {
-    //   let res = await acceptanceLogApi.getAcceptanceLogForLevel({
-    //     levelId: this.levelId,
-    //   });
-
-    //   let flag = res["auth"]["status"] && res["payload"]["status"];
-
-    //   if (!flag) {
-    //     console.log("err");
-    //   }
-
-    //   // console.log(res["payload"]);
-
-    //   // return {}
-
-    //   // this.globalPerformedLogEntryIndexToId =
-    //   //   res["payload"]["globalPerformedEntries"];
-    //   // this.privatePerformedLogEntryIndexToId =
-    //   //   res["payload"]["performedEntries"];
-
-    //   // console.log(Object.keys(res["payload"]["globalPerformedEntries"]).length);
-
-    //   // console.log(Object.keys(res["payload"]["performedEntries"]).length);
-
-    //   // return res["payload"]["performedEntries"];
-    // },
-
     // if page refreshed
     async loadConfirmationLog() {
       let res = await acceptanceLogApi.getAcceptanceLogForLevel({
         levelId: this.levelId,
       });
 
-      let flag = res["auth"]["status"] && res["payload"]["status"];
-
-      if (!flag) {
-        console.log("err");
-      }
-
-      this.lastExecutedByAll = res["payload"]["lastExecutedByAll"];
-      this.lastExecutedThisUser = res["payload"]["lastExecutedThisUser"];
-      this.lastExecutedByAny = res["payload"]["lastExecutedByAny"];
+      this.lastExecutedByAll = res["lastExecutedByAll"];
+      this.lastExecutedThisUser = res["lastExecutedThisUser"];
+      this.lastExecutedByAny = res["lastExecutedByAny"];
 
       let lastExecuted = {
         status: true,
@@ -824,18 +753,12 @@ export default {
     async sendConfirmation(entryId) {
       console.log("confirmation for", entryId);
 
-      let res = await acceptanceLogApi.addEntryToAcceptanceLog({
+      await acceptanceLogApi.addEntryToAcceptanceLog({
         levelId: this.levelId,
         entryId: entryId,
       });
 
-      let flag = res["auth"]["status"] && res["payload"]["status"];
-
-      if (!flag) {
-        console.log("err", res);
-      }
-
-      return flag;
+      return true;
     },
 
     async rollDice() {
@@ -913,91 +836,12 @@ export default {
       // backend waits for all others to confirm (timeout)
     },
 
-    async userClickedOnToken(username, tokenId) {
-      // no need for additional checks, assumption is that they are run in previous function
-
-      console.log("user clicked on token", username, tokenId);
-
-      if (this.isDone) {
-        console.log("--- done");
-        return;
-      }
-
-      console.log("todo");
-      return;
-
-      // if (
-      //   !(this.currentLogEntryIndex + 1 + 1 in this.log) ||
-      //   !(
-      //     this.currentLogEntryIndex + 1 in
-      //     this.privatePerformedLogEntryIndexToId
-      //   )
-      // ) {
-      //   console.log("test: user needs to decide");
-
-      //   this.isWaitingForUserToChooseToken = true;
-      // } else {
-      //   console.log("test: not used");
-      // }
-
-      // if (!this.isWaitingForUserToChooseToken) {
-      //   console.log("not waiting for this");
-      //   return;
-      // }
-
-      // if (this.username !== username) {
-      //   console.log(
-      //     "not same usernmae, choose your tokens",
-      //     this.username,
-      //     username
-      //   );
-      //   return;
-      // }
-
-      // this.isWaitingForUserToChooseToken = false;
-
-      // // do this step again
-      // let logEntry = this.entrySetup();
-
-      // let t = await apiLevelLog.addToLog(this.levelId, tokenId);
-      // console.log(t);
-
-      // this.entryCleanup(logEntry, {
-      //   instruction: "moveToken",
-      //   username: username,
-      //   tokenId: tokenId,
-      // });
-    },
-
-    // async loadPlayers() {
-    //   let res = await apiLevel.getSpecificLevel({ levelId: this.levelId });
-
-    //   if (!(res["auth"]["status"] && res["payload"]["status"])) {
-    //     console.log("err", res);
-    //     return;
-    //   }
-
-    //   for (const [key, value] of Object.entries(res["payload"]["users"])) {
-    //     // no need for isTurn -> todo remove
-    //     this.players[value.joinId] = {
-    //       username: value.username,
-    //       isTurn: false,
-    //       id: key,
-    //     };
-    //   }
-    // },
-
     async loadLog() {
       let res = await apiLevelLog.getLevelLog(this.levelId);
 
-      if (!(res["auth"]["status"] && res["payload"]["status"])) {
-        console.log("err");
-        return;
-      }
-
       // console.log("log (accepted + 1st unaccepted)", res["payload"]["log"]);
 
-      this.log = res["payload"]["log"];
+      this.log = res["log"];
 
       // for (const [i, logEntry] of Object.entries(res["payload"]["log"])) {
       //   this.log[i] = logEntry;

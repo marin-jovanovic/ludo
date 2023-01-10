@@ -77,16 +77,9 @@ export default {
   async mounted() {
     let res = await apiSettings.getSettings();
 
-    let flag = res["auth"]["status"] && res["payload"]["status"];
-
-    if (!flag) {
-      console.log("err");
-      return;
-    }
-
-    this.profilePhoto = res["payload"]["profilePhoto"];
-    this.originalUsername = res["payload"]["username"];
-    this.username = res["payload"]["username"];
+    this.profilePhoto = res["profilePhoto"];
+    this.originalUsername = res["username"];
+    this.username = res["username"];
 
     this.profilePhoto = userMetaSS.getUserMeta()["userProfilePhoto"];
 
@@ -94,25 +87,17 @@ export default {
 
     let r = await apiSettings.getSettings();
 
-    if (r["auth"]["status"]) {
-      let pl = r["payload"];
+    this.username = r["username"];
 
-      this.username = pl["username"];
-
-      this.profilePhoto = pl["userProfilePhoto"];
-    }
+    this.profilePhoto = r["userProfilePhoto"];
   },
   methods: {
     async deleteAccount() {
       console.log("delete acc");
 
-      let res = await apiSettings.deleteAccount(this.originalUsername);
+      await apiSettings.deleteAccount(this.originalUsername);
 
-      notification.showMessage(
-        res["auth"]["status"] && res["payload"]["status"],
-        `post deleted`,
-        `error deleting post`
-      );
+      notification.showMessage(true, `post deleted`, `error deleting post`);
 
       console.log("remove from session storage user");
 

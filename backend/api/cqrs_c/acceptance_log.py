@@ -8,9 +8,7 @@ from backend.api.model.level_log import get_level_log_model
 from backend.api.model.player_order import get_player_order_model
 from backend.api.model.user import get_user_model
 
-
-def create_entry_if_not_exists(level_id, entry_id, username):
-    # test id
+def check_models_exist(level_id, entry_id, user_id):
     r = get_level_model().objects.filter(id=level_id).exists()
     if not r:
         print(f"[err] {level_id=}")
@@ -25,19 +23,30 @@ def create_entry_if_not_exists(level_id, entry_id, username):
             "status": False
         }
 
-    r = get_user_model().objects.filter(username=username).exists()
+    r = get_user_model().objects.filter(id=user_id).exists()
     if not r:
-        print(f"[err] {username=}")
+        print(f"[err] {user_id=}")
         return {
             "status": False
         }
 
-    user_id = get_user_model().objects.get(username=username)
+    return  {
+        "status": True
+    }
+
+def create_entry_if_not_exists(level_id, entry_id, username):
+
+    user_obj = get_user_model().objects.get(username=username)
+    user_id = user_obj.id
+
+    r = check_models_exist(level_id, entry_id, user_id)
+    if not r["status"]:
+        return r
 
     # skip if entry already in db
     r = get_acceptance_log_model().objects.filter(
         log_entry_id=entry_id,
-        user=user_id,
+        user=user_obj,
     ).exists()
 
     if r:
@@ -63,101 +72,56 @@ def create_entry_if_not_exists(level_id, entry_id, username):
         .get(id=entry_id) \
         .player
 
-    r = level_get_model_by_id(level_id)
-    if not r["status"]:
-        return r
-
     # todo
-    mode = "fast"
-    mode = "slow"
+    #   notify only if choosable
 
-    if mode == "fast":
-        acceptance_log = get_acceptance_log_model()
 
-        e = acceptance_log(
-            level_id=level_id,
-            log_entry_id=entry_id,
-            user=user_id,
-            accepted=True
+    if who_can_create_entry_first == join_index:
+        if not is_first_time:
+            print("err 1 -----------------------------------")
+
+            return {
+                "status": False
+            }
+
+    else:
+        if is_first_time:
+            print("err 2 must no go first")
+
+            return {
+                "status": False
+            }
+
+    acceptance_log = get_acceptance_log_model()
+    e = acceptance_log(
+        level_id=level_id,
+        log_entry_id=entry_id,
+        user=user_obj,
+        accepted=True
+    )
+    e.save()
+
+    if who_can_create_entry_first == join_index:
+
+
+        entry_index = e.log_entry.instruction_id
+
+        notify_first_received(
+            entry_id=entry_id,
+            entry_index=entry_index,
+            user_join_index=None,
+            user_username=username,
+            user_id=None
         )
-        e.save()
-
-        return {
-            "status": True
-        }
 
     else:
 
-        # todo
-        #   notify only if choosable
+        check_all_accepted(entry_id, level_id)
 
-        if who_can_create_entry_first == join_index:
+    return {
+        "status": True
+    }
 
-            if is_first_time:
-
-                acceptance_log = get_acceptance_log_model()
-
-                e = acceptance_log(
-                    level_id=level_id,
-                    log_entry_id=entry_id,
-                    user=user_id,
-                    accepted=True
-                )
-                e.save()
-
-                entry_index = e.log_entry.instruction_id
-
-                # user_id
-                # def notify_first_received(
-                #         entry_id, entry_index, user_join_index=None,
-                #         user_username=None, user_id=None):
-
-
-
-                notify_first_received(
-                    entry_id=entry_id,
-                    entry_index=entry_index,
-                    user_join_index=None,
-                    user_username=username,
-                    user_id=None
-                )
-
-
-                return {
-                    "status": True
-                }
-
-            else:
-                print("err 1 -----------------------------------")
-
-        else:
-            print("must no go first")
-
-            if not is_first_time:
-
-                acceptance_log = get_acceptance_log_model()
-                e = acceptance_log(
-                    level_id=level_id,
-                    log_entry_id=entry_id,
-                    user=user_id,
-                    accepted=True
-                )
-                e.save()
-
-                check_all_accepted(entry_id, level_id)
-
-
-                return {
-                    "status": True
-                }
-
-
-            else:
-                print("err 2 -----------------------------------")
-
-        return {
-            "status": False
-        }
 
 
 def check_all_accepted(entry_id, level_id):

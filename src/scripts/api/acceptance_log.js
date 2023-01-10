@@ -81,8 +81,3 @@ export {
     acceptanceLogApi
 }
 
-// export const apiLevelLog = {
-//     getLevelLog,
-//     updateGame,
-//     actionPerformed,
-// }

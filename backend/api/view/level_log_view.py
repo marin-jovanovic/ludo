@@ -1,11 +1,12 @@
+from django.db import transaction
 from django.http import JsonResponse
 from rest_framework.views import APIView
 
-from backend.api.cqrs_c.game_log import add_entry
+from backend.api.cqrs_q.level import level_id_to_name
+from backend.api.cqrs_q.player_order import join_id_to_username_and_user_id, \
+    username_to_id
 from backend.api.game.main import add_entry_to_log, get_log_api
-from backend.api.model.level import get_level_model
 from backend.api.model.level_log import get_level_log_model
-from backend.api.model.player_order import get_player_order_model
 from backend.api.view.comm import get_auth_ok_response_template
 
 
@@ -55,7 +56,7 @@ class LevelLogView(APIView):
             if not entry["performed"]:
                 break
 
-        opt = get_log_api(log)
+        opt = get_log_api(log, level_id)
 
         if not opt["turn"] and not opt["legalMoves"]:
 
@@ -85,6 +86,7 @@ class LevelLogView(APIView):
 
         return JsonResponse(response)
 
+    @transaction.atomic
     def put(self, request, level_id):
         """add new entry to log"""
 
@@ -98,6 +100,8 @@ class LevelLogView(APIView):
         
         """
 
+        print(f"level log put {request.data=} {request.username=}")
+
         response = get_auth_ok_response_template(request)
 
         # not trusting user which user is performing action
@@ -109,7 +113,7 @@ class LevelLogView(APIView):
 
         r = level_log_get(level_id)
         if not r["status"]:
-            return r
+            return JsonResponse(response)
 
         log = r["payload"]
 
@@ -121,27 +125,33 @@ class LevelLogView(APIView):
 
         if true_last_entry != provided_entry_id:
             # they are not making decision for the last entry
-
-            print(f"{true_last_entry=} {provided_entry_id=}")
-            print(f"not last entry id ")
+            print(f"err not last entry id {true_last_entry=} {provided_entry_id=}")
             return JsonResponse(response)
 
         turn = last_entry["player"]
 
         if turn != player_id:
-            print(80 * "-")
-            print("can not do this, players are not matching")
-            print(f"{turn=} {player_id=}")
-            print(80 * "-")
+            print(f"err can not do this, players are not matching {turn=} {player_id=}")
             return JsonResponse(response)
 
         token_id = request.data["tokenId"]
 
-        r = add_entry_to_log(log, player_id, token_id)
+        # lllllllllllllllllllllllllllllllllllllllllllllllllllll
 
-        log_diff = r["logDiff"]
-        for i in log_diff:
-            print(i)
+        r = add_entry_to_log(log, player_id, token_id, level_id)
+
+        log_diff_as_dict = r["logDiffAsDict"]
+
+        # log_diff = r["logDiff"]
+        # print("log diff (from view function)")
+        # for i in log_diff:
+        #     print(i)
+        # print()
+
+        print("log diff dict (from view function)")
+        for index, entry in log_diff_as_dict.items():
+            print(index, entry)
+        print()
 
         legal_moves = r["legalMoves"]
         t = join_id_to_username_and_user_id(r["turn"], level_id)
@@ -154,13 +164,50 @@ class LevelLogView(APIView):
 
         r = level_id_to_name(level_id)
         if not r["status"]:
-            return r
+            return JsonResponse(response)
 
         level_name = r["payload"]
 
-        for i in log_diff:
-            i["game"] = level_name
-            add_entry(**i)
+        from backend.api.cqrs_q import level
+        r = level.level_get_model(level_name)
+        if not r["status"]:
+            print("get game err")
+            return JsonResponse(response)
+
+        game_o = r["payload"]
+
+        for index, entry in log_diff_as_dict.items():
+            # this should be level_id -> todo in new iters
+            # entry["game"] = level_name
+
+            game_log_model = get_level_log_model()
+
+            r = game_log_model(
+                game=game_o,
+                instruction_id=index,
+                player=entry["player"],
+                token=entry['token'],
+                dice_result=entry['dice_result'],
+                action=entry["action"],
+                performed=False
+            )
+
+            r.save()
+
+            # this is fixup, this is not solution
+            # r = game_log_model.objects.get_or_create(
+            #     game=game_o,
+            #     player=entry["player"],
+            #     token=entry['token'],
+            #     dice_result=entry['dice_result'],
+            #     action=entry["action"],
+            #     performed=False,
+            #     defaults={
+            #         "instruction_id": index,
+            #     }
+            # )
+
+            print(f"get or create {index=} {entry=} {r=}")
 
         response["payload"] = {
             "status": True,
@@ -172,56 +219,3 @@ class LevelLogView(APIView):
         return JsonResponse(response)
 
 
-def level_id_to_name(level_id):
-    r = get_level_model().objects.get(id=level_id, is_active=True)
-
-    print(r.name)
-
-    return {
-        "status": True,
-        "payload": r.name
-    }
-
-
-def join_id_to_username_and_user_id(join_index, level_id):
-    """join index (level index) -> username"""
-
-    t = int(join_index)
-
-    level_exists = get_player_order_model().objects.filter(
-        level_id=level_id).exists()
-
-    player_order = get_player_order_model()
-
-    try:
-
-        r = get_player_order_model().objects.get(
-            level_id=level_id,
-            join_index=t
-        )
-
-    except player_order.DoesNotExist:
-        if level_exists:
-            print("err user not in level")
-        else:
-            print("err uncaught err")
-
-        return {"status": False}
-
-    return {"status": True,
-            "payload": {"userUsername": r.user.username, "userId": r.user.id}}
-
-
-def username_to_id(username, level_id):
-    """
-    username -> player_id ->
-    join_index
-    """
-
-    r = get_player_order_model().objects.get(user__username=username,
-                                             level_id=level_id)
-
-    r = r.join_index
-
-    return {"status": True,
-            "payload": r}

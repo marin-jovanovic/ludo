@@ -23,15 +23,6 @@ def player_order_create_entry(username, level_id):
             # but it is not an error
 
             print("fixme already in add to order")
-
-            # check integrity
-            # r = get_user_model().objects.get(username=username)
-            # if not r.game_role:
-            # r.game_role="fix"
-            # if not r.currently_playing:
-            #     r.currently_playing=g_o
-            # r.save()
-
             return {"status": True}
         max_index += 1
 

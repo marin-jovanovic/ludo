@@ -1,6 +1,9 @@
-def get_config():
-    return {
-        "number of players": 2,
+from backend.api.model.level import get_level_model
+
+
+def get_config(level_id):
+    t = {
+        # "number of players": 2,
         "tokens per player": 4,
         "dice number of sides": 6,
 
@@ -22,3 +25,8 @@ def get_config():
         'flag: tie in order': False,
 
     }
+
+    t["number of players"] = get_level_model().objects.get(
+        id=level_id).capacity
+
+    return t

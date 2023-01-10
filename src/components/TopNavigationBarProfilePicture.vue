@@ -19,17 +19,13 @@ export default {
   async mounted() {
     // this.profilePhoto = userMetaSS.getUserMeta()["userProfilePhoto"];
 
-    console.log(this.profilePhoto);
+    // console.log(this.profilePhoto);
 
     let r = await apiSettings.getSettings();
 
-    if (r["auth"]["status"]) {
-      let pl = r["payload"];
+    this.username = r["username"];
 
-      this.username = pl["username"];
-
-      this.profilePhoto = pl["userProfilePhoto"];
-    }
+    this.profilePhoto = r["userProfilePhoto"];
   },
 };
 </script>
