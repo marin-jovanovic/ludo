@@ -21,7 +21,6 @@ class LevelView(APIView):
 
         if level_id:
 
-
             r = get_player_order_model().objects.filter(level_id=level_id)
 
             id_to_order = {
@@ -44,22 +43,23 @@ class LevelView(APIView):
                 "capacity": capacity
             }
 
-
         else:
 
             r = get_active_levels()
             if not r["status"]:
                 return JsonResponse(response)
 
-            response['payload']["levels"] = r["payload"]
+            active_levels = r["payload"]
 
             r = in_which_level_is_user(request.username)
             if not r["status"]:
                 return JsonResponse(response)
 
-            response["payload"]["inLevel"] = r["payload"]
-
-            response["payload"]["status"] = True
+            response["payload"] = {
+                "status": True,
+                "inLevel": r["payload"],
+                "levels": active_levels,
+            }
 
         return JsonResponse(response)
 

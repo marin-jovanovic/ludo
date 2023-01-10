@@ -1,3 +1,5 @@
+import sys
+
 from backend.api.cqrs_q.level import level_get_model_by_id
 from backend.api.model.acceptance_log import \
     notify_all_received, \
@@ -34,27 +36,76 @@ def check_models_exist(level_id, entry_id, user_id):
         "status": True
     }
 
+
+def get_capacity(level_id):
+    capacity  = get_level_model().objects.get(        id=level_id).capacity
+    return capacity
+
 def create_entry_if_not_exists(level_id, entry_id, username):
 
     user_obj = get_user_model().objects.get(username=username)
     user_id = user_obj.id
 
-    r = check_models_exist(level_id, entry_id, user_id)
-    if not r["status"]:
-        return r
+    level_id = int(level_id)
+    entry_id = int(entry_id)
 
-    # skip if entry already in db
-    r = get_acceptance_log_model().objects.filter(
+    # print(f"{level_id=} {entry_id=} {user_id=}")
+
+    # todo
+    user_join_index =
+
+
+    # r = get_acceptance_log_model().objects.filter(
+    #     level_id=level_id,
+    #     log_entry_id=entry_id,
+    #     user_join_index=user_join_index,
+    # ).values()
+    # r = list(r)
+    #
+    # for i in r:
+    #     print(i)
+
+    r = get_acceptance_log_model().objects.get(
+        level_id=level_id,
         log_entry_id=entry_id,
-        user=user_obj,
-    ).exists()
+        user_join_index=user_join_index,
+    ).accepted
 
     if r:
+
+        """
+        this user accepted this entry
+        no need for adding
+        check if all accepted
+        assumption: notif for first entry was sent
+        """
+
         check_all_accepted(entry_id, level_id)
 
         return {
             "status": True
         }
+
+
+    # return  {
+    #     "status": True
+    # }
+
+    # skip if entry already in db
+    # r = get_acceptance_log_model().objects.filter(
+    #     log_entry_id=entry_id,
+    #     user=user_obj,
+    # ).exists()
+    #
+    # if r:
+    #     check_all_accepted(entry_id, level_id)
+    #
+    #     return {
+    #         "status": True
+    #     }
+
+    # todo
+    sys.exit(-1)
 
     r = get_acceptance_log_model().objects.filter(
         log_entry_id=entry_id,
@@ -74,7 +125,6 @@ def create_entry_if_not_exists(level_id, entry_id, username):
 
     # todo
     #   notify only if choosable
-
 
     if who_can_create_entry_first == join_index:
         if not is_first_time:
@@ -128,21 +178,39 @@ def check_all_accepted(entry_id, level_id):
     # r = get_acceptance_log_model().objects \
     #     .filter(level_id=level_id, log_entry_id=entry_id).count()
 
-    r = get_acceptance_log_model().objects \
-        .filter(level_id=level_id, log_entry_id=entry_id)\
-        .values("user_id").distinct().count()
+    r = get_acceptance_log_model().objects.filter(
+        level_id=level_id,
+        log_entry_id=entry_id,
+        accepted=True
+    ).count()
 
-    capacity = get_level_model().objects.get(id=level_id).capacity
+
+    # r = get_acceptance_log_model().objects.filter(
+    #     log_entry_id=entry_id,
+    #     # user=user_obj,
+    # ).exists()
+
+    # r = get_acceptance_log_model().objects \
+    #     .filter(level_id=level_id, log_entry_id=entry_id)\
+    #     .values("user_id").distinct().count()
+    #
+    # capacity = get_level_model().objects.get(id=level_id).capacity
+
+    capacity = get_capacity(level_id)
     if capacity == r:
 
-        q = get_level_log_model().objects.get(id=entry_id)
-        q.performed = True
-        q.save()
+        r = get_acceptance_log_model().objects.filter(
+            level_id=level_id,
+            log_entry_id=entry_id,
+        )
 
-        notify_all_received(entry_id, q.instruction_id)
-
+        # todo do this in more elegant way (using native first?)
+        for i in r:
+            """just pick first"""
+            notify_all_received(entry_id, i.log_entry.instruction_id)
+            break
     else:
-        print("missing", capacity - 1, "users to confirm this command")
+        print("missing", capacity - r, "users to confirm this command")
 
 
 def is_entry_accepted(level_id: int, entry_id: int) -> bool:
@@ -158,11 +226,8 @@ def is_entry_accepted(level_id: int, entry_id: int) -> bool:
           False otherwise.
     """
 
-    # print(80 * "-")
     capacity = get_level_model().objects.get(id=level_id).capacity
-    # print(f"{capacity=}")
     num_of_entries_for_this_entry = get_acceptance_log_model() \
         .objects.filter(level_id=level_id, log_entry_id=entry_id).count()
-    # print(f"{num_of_entries_for_this_entry=}")
     t = capacity == num_of_entries_for_this_entry
     return t

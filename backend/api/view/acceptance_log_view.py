@@ -5,10 +5,13 @@ from rest_framework.views import APIView
 from backend.api.cqrs_c.acceptance_log import create_entry_if_not_exists
 from backend.api.cqrs_q.level_log import get_last_performed_by_all_users, \
     get_last_performed_by_this_user, get_any
+from backend.api.model.level import get_level_model
 from backend.api.model.user import get_user_model
 from backend.api.view.comm import get_auth_ok_response_template
 
 from backend.api.cqrs_c._cleanup import clean
+from backend.api.model.player_order import get_player_order_model
+
 
 class AcceptanceLogView(APIView):
 
@@ -23,8 +26,6 @@ class AcceptanceLogView(APIView):
         last_e_all = get_last_performed_by_all_users(level_id)
         print(f"{last_e_all=}")
 
-
-        from backend.api.model.player_order import get_player_order_model
         user_join_index = get_player_order_model().objects.get(
             user_id__username=request.username, level_id=level_id
         ).join_index
