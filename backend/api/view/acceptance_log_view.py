@@ -2,7 +2,8 @@ from django.db import transaction
 from django.http import JsonResponse
 from rest_framework.views import APIView
 
-from backend.api.cqrs_c.acceptance_log import create_entry_if_not_exists
+from backend.api.cqrs_c.acceptance_log import create_entry_if_not_exists, \
+    check_all_accepted
 from backend.api.cqrs_q.level_log import get_last_performed_by_all_users, \
     get_last_performed_by_this_user, get_any
 from backend.api.model.user import get_user_model
@@ -21,10 +22,8 @@ class AcceptanceLogView(APIView):
         user_id = get_user_model().objects.get(username=request.username).id
 
         last_e_all = get_last_performed_by_all_users(level_id)
-
         last_e_this = get_last_performed_by_this_user(level_id=level_id,
                                                       user_id=user_id)
-
         last_e_any = get_any(level_id)
 
         response["payload"] = {
@@ -39,6 +38,7 @@ class AcceptanceLogView(APIView):
         print(f"{last_e_any=}")
         return JsonResponse(response)
 
+    # @transaction.non_atomic_requests
     @transaction.atomic
     def post(self, request, level_id, entry_id):
         """add new entry to log"""
@@ -52,4 +52,16 @@ class AcceptanceLogView(APIView):
             "status": True
         }
 
+        # transaction.on_commit(lambda: after_commit(entry_id, level_id, "transaction.on_commit"))
+
+        # transaction.on_commit(lambda: some_celery_task.delay(my_object.pk))
+
         return JsonResponse(response)
+
+def after_commit(entry_id, level_id, user_id):
+    print("after commit")
+    check_all_accepted(entry_id, level_id, user_id)
+
+# @app.task
+# def some_celery_task(object_pk)
+#     my_object = MyObject.objects.get(pk=object_pk)

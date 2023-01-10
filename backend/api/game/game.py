@@ -466,7 +466,7 @@ class Level:
 
         # if log and log[-1]["action"] == "roll":
         if log and log[-1]["action"] == "choose":
-            print("last action is roll. waiting for user to choose. no new entries")
+            # print("last action is roll. waiting for user to choose. no new entries")
 
             player_id = log[-1]["player"]
 

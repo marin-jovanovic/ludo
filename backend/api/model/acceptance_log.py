@@ -19,24 +19,35 @@ class AcceptanceLog(models.Model):
 
     level = models.ForeignKey(
         get_level_model(),
-        on_delete=models.SET_NULL,
-        null=True
+        on_delete=models.CASCADE,
+        # on_delete=models.SET_NULL,
+        # null=True
     )
 
     log_entry = models.ForeignKey(
         get_level_log_model(),
-        on_delete=models.SET_NULL,
-        null=True
+        on_delete=models.CASCADE,
+        # null=True
     )
 
     user = models.ForeignKey(
         get_user_model(),
-        on_delete=models.SET_NULL,
-        null=True
+        on_delete=models.CASCADE,
+        # on_delete=models.SET_NULL,
+        # null=True
     )
+
+    is_first = models.BooleanField(default=False)
 
     accepted = models.BooleanField(default=False)
 
+    class Meta:
+        unique_together = ('level', 'log_entry', 'user')
+
+        constraints = [
+            models.UniqueConstraint(fields=['level', 'log_entry', 'user'],
+                                    name='composite primary key constraint')
+        ]
 
 def get_acceptance_log_model():
     return apps.get_model(get_acceptance_log_model_as_string())

@@ -236,8 +236,8 @@ export default {
 
       trySuccessful: false,
 
-      autoRoll: false,
-      autoChoose: false,
+      autoRoll: true,
+      autoChoose: true,
     };
   },
 

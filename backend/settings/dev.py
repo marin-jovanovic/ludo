@@ -11,6 +11,7 @@ MIDDLEWARE = [
     # "backend.api.middleware.CSRFCheckMiddleware.CSRFCheckMiddleware",
 
     "backend.api.middleware.jumper_middleware.JumperMiddleware",
+    "backend.api.middleware.db_middleware.DbMiddleware",
 
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

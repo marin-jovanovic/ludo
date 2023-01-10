@@ -8,55 +8,73 @@ from backend.api.model.level_log import get_level_log_model
 from backend.api.model.player_order import get_player_order_model
 from backend.api.model.user import get_user_model
 
-def check_models_exist(level_id, entry_id, user_id):
-    r = get_level_model().objects.filter(id=level_id).exists()
-    if not r:
-        print(f"[err] {level_id=}")
-        return {
-            "status": False
-        }
-
-    r = get_level_log_model().objects.filter(id=entry_id).exists()
-    if not r:
-        print(f"[err] {entry_id=}")
-        return {
-            "status": False
-        }
-
-    r = get_user_model().objects.filter(id=user_id).exists()
-    if not r:
-        print(f"[err] {user_id=}")
-        return {
-            "status": False
-        }
-
-    return  {
-        "status": True
-    }
+# def check_models_exist(level_id, entry_id, user_id):
+#     r = get_level_model().objects.filter(id=level_id).exists()
+#     if not r:
+#         print(f"[err] {level_id=}")
+#         return {
+#             "status": False
+#         }
+#
+#     r = get_level_log_model().objects.filter(id=entry_id).exists()
+#     if not r:
+#         print(f"[err] {entry_id=}")
+#         return {
+#             "status": False
+#         }
+#
+#     r = get_user_model().objects.filter(id=user_id).exists()
+#     if not r:
+#         print(f"[err] {user_id=}")
+#         return {
+#             "status": False
+#         }
+#
+#     return  {
+#         "status": True
+#     }
 
 def create_entry_if_not_exists(level_id, entry_id, username):
+    # r = check_models_exist(level_id, entry_id, user_id)
+    # if not r["status"]:
+    #     return r
 
     user_obj = get_user_model().objects.get(username=username)
     user_id = user_obj.id
 
-    r = check_models_exist(level_id, entry_id, user_id)
-    if not r["status"]:
-        return r
+    # obj, created = get_acceptance_log_model().objects.get_or_create(
+    #     level=level_id,
+    #     log_entry_id=entry_id,
+    #     user=user_id,
+    #     defaults={}
+    #     # defaults={'birthday': date(1940, 10, 9)},
+    # )
+    #
+    # if not created:
+    #     """already exists"""
+    #     check_all_accepted(entry_id, level_id, user_id)
+    #
+    #     return {
+    #         "status": True
+    #     }
+
 
     # skip if entry already in db
     r = get_acceptance_log_model().objects.filter(
+        level=level_id,
         log_entry_id=entry_id,
-        user=user_obj,
+        user=user_id,
     ).exists()
 
     if r:
-        check_all_accepted(entry_id, level_id)
+        check_all_accepted(entry_id, level_id, user_id)
 
         return {
             "status": True
         }
 
     r = get_acceptance_log_model().objects.filter(
+        level_id=level_id,
         log_entry_id=entry_id,
     ).exists()
 
@@ -74,7 +92,6 @@ def create_entry_if_not_exists(level_id, entry_id, username):
 
     # todo
     #   notify only if choosable
-
 
     if who_can_create_entry_first == join_index:
         if not is_first_time:
@@ -101,8 +118,9 @@ def create_entry_if_not_exists(level_id, entry_id, username):
     )
     e.save()
 
-    if who_can_create_entry_first == join_index:
+    print(f"{e=}")
 
+    if who_can_create_entry_first == join_index:
 
         entry_index = e.log_entry.instruction_id
 
@@ -116,7 +134,8 @@ def create_entry_if_not_exists(level_id, entry_id, username):
 
     else:
 
-        check_all_accepted(entry_id, level_id)
+        print("not first")
+        check_all_accepted(entry_id, level_id, user_id)
 
     return {
         "status": True
@@ -124,16 +143,42 @@ def create_entry_if_not_exists(level_id, entry_id, username):
 
 
 
-def check_all_accepted(entry_id, level_id):
-    # r = get_acceptance_log_model().objects \
-    #     .filter(level_id=level_id, log_entry_id=entry_id).count()
+def check_all_accepted(entry_id, level_id, user_id):
+
+    # removed distinct
+
+    t = get_acceptance_log_model().objects \
+        .filter(level_id=level_id, log_entry_id=entry_id)\
+        .values("user_id")
+    t = list(t)
+    print(f"acc l {level_id=} {entry_id=} {user_id=}")
+    for e, i in enumerate(t):
+        print(e, i)
 
     r = get_acceptance_log_model().objects \
         .filter(level_id=level_id, log_entry_id=entry_id)\
-        .values("user_id").distinct().count()
+        .values("user_id").count()
 
     capacity = get_level_model().objects.get(id=level_id).capacity
+
+    print(f"testing {capacity=} {r=}")
     if capacity == r:
+        print("setting performed")
+
+        q = get_level_log_model().objects.get(id=entry_id)
+        q.performed = True
+        q.save()
+
+        print(f"{q=}")
+
+        t = get_level_log_model().objects.filter(id=entry_id).values()
+        t = list(t)
+        print(f"{t=}")
+
+        notify_all_received(entry_id, q.instruction_id)
+
+    elif capacity < r:
+        print("autofix capacity < r")
 
         q = get_level_log_model().objects.get(id=entry_id)
         q.performed = True
@@ -142,7 +187,7 @@ def check_all_accepted(entry_id, level_id):
         notify_all_received(entry_id, q.instruction_id)
 
     else:
-        print("missing", capacity - 1, "users to confirm this command")
+        print("missing", capacity - r, "users to confirm this command")
 
 
 def is_entry_accepted(level_id: int, entry_id: int) -> bool:

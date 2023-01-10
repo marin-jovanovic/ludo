@@ -89,10 +89,10 @@ def add_entry_to_log(log, player_id, token_id, level_id):
 
     # todo eating, game won, game lost, ...
 
-    print("staging log")
-    for i in log:
-        print(i)
-    print()
+    # print("staging log")
+    # for i in log:
+    #     print(i)
+    # print()
 
     level = Level(log=log, level_id=level_id)
 
@@ -123,15 +123,15 @@ def add_entry_to_log(log, player_id, token_id, level_id):
 
         log_diff_as_dict[index] = entry
 
-    print("log diff")
-    for index, entry in log_diff_as_dict.items():
-        print(f"{index=} {entry=}")
-    print()
+    # print("log diff")
+    # for index, entry in log_diff_as_dict.items():
+    #     print(f"{index=} {entry=}")
+    # print()
 
     c = 0
     for index,entry in log_diff_as_dict.items():
         if not entry == log_diff[c]:
-            print("mismatch")
+            print("err mismatch")
             print(f"{log_diff_as_dict=}")
             print(f"{log_diff=}")
         c += 1
@@ -174,9 +174,9 @@ def get_log_api(log, level_id):
     to_choose = {**level.start_pool_options, **level.non_start_pool_options}
 
     last_log = level.get_log()[-1]
-    if last_log["action"] != "roll":
-        print("errr last log entry is not roll")
-        return {"turn": None, "legalMoves": []}
+    # if last_log["action"] != "roll":
+    #     print("errr last log entry is not roll")
+    #     return {"turn": None, "legalMoves": []}
 
     # todo this needs to be renamed to user
     player = last_log['player']

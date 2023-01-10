@@ -9,6 +9,13 @@ def get_last_performed_by_all_users(level_id):
     """return entry accepted by all users"""
 
     capacity  = get_level_model().objects.get(        id=level_id).capacity
+    #
+    # r = get_acceptance_log_model().objects.filter(
+    #     level_id=level_id
+    # ).values("log_entry_id").distinct().order_by("log_entry_id")
+    #
+    # for entry_index in r:
+    #     print(f"{entry_index=}")
 
     r = get_level_log_model()\
         .objects \
@@ -19,6 +26,19 @@ def get_last_performed_by_all_users(level_id):
         .order_by("id")
 
     r = list(r)
+
+    # r = get_level_log_model()\
+    #     .objects \
+    #     .filter(game_id=level_id) \
+    #     .values("instruction_id", "id")\
+    #     .order_by("id")
+    #
+    # for entry_index in r:
+    #     print(f"{entry_index=}")
+    #
+    #     #     check if confirmed
+    #
+    # return
 
     if not r:
         print("not is yet accepted (by all)")

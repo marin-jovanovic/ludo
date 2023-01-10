@@ -27,6 +27,7 @@ def level_log_get(level_id):
 
 class LevelLogView(APIView):
 
+    @transaction.atomic
     def get(self, request, level_id):
 
         response = get_auth_ok_response_template(request)
@@ -100,7 +101,7 @@ class LevelLogView(APIView):
         
         """
 
-        print(f"level log put {request.data=} {request.username=}")
+        # print(f"level log put {request.data=} {request.username=}")
 
         response = get_auth_ok_response_template(request)
 
@@ -148,10 +149,10 @@ class LevelLogView(APIView):
         #     print(i)
         # print()
 
-        print("log diff dict (from view function)")
-        for index, entry in log_diff_as_dict.items():
-            print(index, entry)
-        print()
+        # print("log diff dict (from view function)")
+        # for index, entry in log_diff_as_dict.items():
+        #     print(index, entry)
+        # print()
 
         legal_moves = r["legalMoves"]
         t = join_id_to_username_and_user_id(r["turn"], level_id)
