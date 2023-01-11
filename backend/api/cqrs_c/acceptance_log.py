@@ -1,5 +1,7 @@
 import sys
 
+from django.db.models import F
+
 from backend.api.cqrs_q.level import level_get_model_by_id
 from backend.api.model.acceptance_log import \
     notify_all_received, \
@@ -114,8 +116,27 @@ def create_entry_if_not_exists(level_id, entry_id, username):
     if is_master:
         print('can set accepted for this entry')
 
+        r = get_acceptance_log_model().objects.get(
+            log_entry_id=entry_id,
+            user_join_index=user_join_index,
+        )
+        print(f'{r=}')
+        # r.update(accepted=True)
         r.accepted = True
         r.save()
+        r = get_acceptance_log_model().objects.filter(
+            log_entry_id=entry_id,
+            user_join_index=user_join_index,
+        ).values()
+        r = list(r)
+        print(f'{r=}')
+
+        # fixme
+        # get_acceptance_log_model().objects.filter(
+        #     log_entry_id=entry_id,
+        #     user_join_index=user_join_index,
+        #
+        # ).update(value=F('accepted') + 1)
 
         print('set accepted (master)')
 
