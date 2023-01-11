@@ -130,13 +130,14 @@ def create_game(creator_username, level_name, capacity):
 
     for entry in log:
         for player_index in range(capacity):
+            '''assumption is_first = this.user_join_index == log_entry.player'''
 
             q = acceptance_log_model(
                 level_id=level_id,
                 log_entry=entry,
                 user_join_index=player_index,
                 accepted=False,
-                is_first=False,
+                is_first=entry.player==player_index,
             )
             q.save()
 

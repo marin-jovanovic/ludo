@@ -2,6 +2,7 @@ from django.db import transaction
 from django.http import JsonResponse
 from rest_framework.views import APIView
 
+from backend.api.cqrs_q.level_log import get_last_performed_by_all_users
 from backend.api.cqrs_q.level import level_id_to_name
 from backend.api.cqrs_q.player_order import join_id_to_username_and_user_id, \
     username_to_id
@@ -39,9 +40,18 @@ class LevelLogView(APIView):
 
         log = list(log)
 
+        last_e_all = get_last_performed_by_all_users(level_id)
+
+        only_first_entry = not last_e_all['status']
+
+        # if not last_e_all['status']:
+        #     only_first = True
+
         ret_log = {}
 
         for entry in log:
+            print('instruction id get', entry)
+
             ret_log[entry["instruction_id"]] = {
                 "action": entry["action"],
                 "diceResult": entry["dice_result"],
@@ -53,6 +63,9 @@ class LevelLogView(APIView):
                 "userJoinIndex": entry["player"],
                 "tokenId": entry["token"]
             }
+
+            if only_first_entry:
+                break
 
             # if not entry["performed"]:
             #     break

@@ -49,11 +49,16 @@ def create_entry_if_not_exists(level_id, entry_id, username):
     level_id = int(level_id)
     entry_id = int(entry_id)
 
+
+
     # print(f"{level_id=} {entry_id=} {user_id=}")
 
-    # todo
-    user_join_index =
+    user_join_index = get_player_order_model().objects.get(
+        level_id=level_id,
+        user_id=user_id
+    ).join_index
 
+    print(f'{user_join_index=}')
 
     # r = get_acceptance_log_model().objects.filter(
     #     level_id=level_id,
@@ -66,12 +71,14 @@ def create_entry_if_not_exists(level_id, entry_id, username):
     #     print(i)
 
     r = get_acceptance_log_model().objects.get(
-        level_id=level_id,
         log_entry_id=entry_id,
         user_join_index=user_join_index,
     ).accepted
 
+    print(f'is accepted by this user alredy {r=}')
+
     if r:
+        print('already accepted')
 
         """
         this user accepted this entry
@@ -85,6 +92,48 @@ def create_entry_if_not_exists(level_id, entry_id, username):
         return {
             "status": True
         }
+
+    r = get_acceptance_log_model().objects.filter(
+        log_entry_id=entry_id,
+        user_join_index=user_join_index,
+    ).values()
+    r = list(r)
+    print('this acc entry', r)
+
+
+    r = get_acceptance_log_model().objects.get(
+        log_entry_id=entry_id,
+        user_join_index=user_join_index,
+    )
+
+    # r.accepted = True
+    # r.save()
+
+    is_master = r.is_first
+
+    if is_master:
+        print('can set accepted for this entry')
+
+        r.accepted = True
+        r.save()
+
+        print('set accepted (master)')
+
+    else:
+        print('can not set accepted for this entry')
+        print('must wait for master to set accepted for this entry')
+
+        # check if master set accepted
+        r = get_acceptance_log_model().objects.get(
+            log_entry_id=entry_id,
+            is_first=True
+            # user_join_index=user_join_index,
+        ).accepted
+
+        if r:
+            print('master accepted, now i can')
+        else:
+            print('master not accepted, waiting')
 
 
     # return  {
