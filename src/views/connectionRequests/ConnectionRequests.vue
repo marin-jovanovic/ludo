@@ -3,17 +3,59 @@
     <div>
       <div class="container">
         <div class="left-div" style="width: 15%; float: left"></div>
-        <div class="middle-div" style="width: 70%; float: left"></div>
+        <div class="middle-div" style="width: 70%; float: left">
+          <div v-if="Object.keys(this.users).length === 0">no request</div>
+
+          <ui-grid class="demo-grid">
+            <ui-grid-cell
+              style="border: 1px solid"
+              class="demo-cell"
+              columns="3"
+              v-for="(user, index) in users"
+              :key="index"
+            >
+              <ui-card class="demo-card demo-card--photo">
+                <ui-card-content class="demo-card__primary-action">
+                  <ui-card-media
+                    v-bind:style="{
+                      'background-image': 'url(' + user.userProfilePhoto + ')',
+                    }"
+                    square
+                    class="demo-card__media"
+                  >
+                    <ui-card-media-content
+                      class="demo-card__media-content--with-title"
+                    >
+                      <div
+                        :class="[$tt('subtitle2'), 'demo-card__media-title']"
+                      >
+                        {{ user.userUsername }}
+                      </div>
+                    </ui-card-media-content>
+                  </ui-card-media>
+                </ui-card-content>
+                <ui-card-actions>
+                  <ui-card-icons>
+                    <ui-icon-button
+                      :toggle="icon1"
+                      @click="acceptUser(user.userId)"
+                    ></ui-icon-button>
+                  </ui-card-icons>
+                </ui-card-actions>
+              </ui-card>
+            </ui-grid-cell>
+          </ui-grid>
+        </div>
         <div class="right-div" style="width: 15%; float: left"></div>
       </div>
     </div>
   </base-user-template>
 </template>
-          
-        <script>
+        
+      <script>
 import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
 import { userConnectionApi } from "@/scripts/api/user_connection";
-import { userApi } from "@/scripts/api/user";
+// import { userApi } from "@/scripts/api/user";
 import { userProfilePhoto } from "@/scripts/api/user_profile_photo";
 
 export default {
@@ -22,16 +64,8 @@ export default {
       users: [],
       currentPage: 0,
       icon1: {
-        on: "chat_bubble",
-        off: "chat_bubble_outline",
-      },
-      icon2: {
-        on: "add_circle",
-        off: "add_circle_outline",
-      },
-      icon3: {
-        on: "remove_circle",
-        off: "remove_circle_outline",
+        on: "done_outline",
+        off: "done",
       },
     };
   },
@@ -39,29 +73,22 @@ export default {
     await this.fetchUsers();
   },
   methods: {
-    async addUser(userId) {
-      console.log("add user", userId);
-
-      let r = userConnectionApi.sendConnectionRequest({ userId: userId });
-      console.log(r);
+    async acceptUser(userId) {
+      userConnectionApi.sendConnectionRequest({ userId: userId });
     },
 
     async fetchUsers() {
-      let t = await userApi.getAllUsers();
-      console.log(t);
+      let t = await userConnectionApi.getRequests();
 
-      this.users = t.users;
+      this.users = t.userConnections;
 
-      for (const [userId, userMeta] of Object.entries(this.users)) {
-        console.log(userId, userMeta);
-
+      for (const userId of Object.keys(this.users)) {
         let r = await userProfilePhoto.getProfilePhoto({ userId: userId });
 
         this.users[userId]["userProfilePhoto"] = r["userProfilePhoto"];
+
+        console.log("done");
       }
-    },
-    async fetchMoreUsers() {
-      this.fetchUsers();
     },
   },
   components: {
@@ -69,8 +96,8 @@ export default {
   },
 };
 </script>
-     
-  <style>
+   
+<style>
 .container {
   display: flex;
   justify-content: space-between;
@@ -105,4 +132,4 @@ export default {
   color: white;
 }
 </style>  
-    
+  

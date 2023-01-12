@@ -17,6 +17,7 @@ import SetttingsView from '../views/settings/SettingsView.vue';
 import MessagesView from "@/views/messages/MessagesView.vue";
 import FindFriends from "@/views/findFriends/FindFriends.vue";
 import ConnectionRequest from "@/views/connectionRequests/ConnectionRequests.vue";
+import ConnectionsView from "@/views/connections/ConnectionsView.vue";
 
 import {
     store
@@ -95,9 +96,11 @@ export const router = createRouter({
             path: "/connectionRequest",
             name: "connectionRequest",
             component: ConnectionRequest
-
-            
-
+        },
+        {
+            path: "/connections",
+            name: "connections",
+            component: ConnectionsView
         },
         {
             path: '/:pathMatch(.*)*',

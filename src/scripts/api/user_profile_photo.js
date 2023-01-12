@@ -18,15 +18,12 @@ class UserConnectionApi {
         userId
     }) => {
 
-        console.log("get", userId)
-console.log( this.baseUrl + "/" + userId,        )
         return await apiCalls.handleNewResponse(
             await apiCalls.api.get(
-                this.baseUrl + "/" + userId,        
+                this.baseUrl + "/" + userId,
                 apiCalls.getAuthenticationHeader()
             )
         );
-
 
     }
 
@@ -40,4 +37,3 @@ const userProfilePhoto = new UserConnectionApi();
 export {
     userProfilePhoto
 }
-

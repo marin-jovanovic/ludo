@@ -155,7 +155,9 @@ class UserMetaSS {
     }
 
 
-    updateSettings({changes}) {
+    updateSettings({
+        changes
+    }) {
 
         for (const [key, value] of Object.entries(changes)) {
             console.log("updating", key, value)
@@ -164,11 +166,11 @@ class UserMetaSS {
                 this.ssw.set({
                     variable: key,
                     value: value
-                                })
+                })
             ) {
                 console.log("err setting")
             }
-    
+
 
         }
 

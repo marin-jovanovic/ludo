@@ -1,6 +1,6 @@
-
-
-import { apiCalls } from './comm';
+import {
+    apiCalls
+} from './comm';
 
 
 
@@ -37,5 +37,5 @@ async function deleteAccount(username) {
 export const apiSettings = {
     updateSettings,
     getSettings,
-deleteAccount,
+    deleteAccount,
 }

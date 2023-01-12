@@ -9,12 +9,12 @@ import {
 
 async function getMusic() {
     // return await handleNewResponse(
-        await apiCalls.api.get(
-            "music/",
+    await apiCalls.api.get(
+        "music/",
 
-            apiCalls.getAuthenticationHeader()
+        apiCalls.getAuthenticationHeader()
 
-        )
+    )
     // );
 }
 

@@ -13,12 +13,40 @@ class UserConnectionApi {
         return `user/connection/${connectionId}`;
     }
 
-
-    getAllConnections = async () => {
+    getRequests = async () => {
 
         return await apiCalls.handleNewResponse(
             await apiCalls.api.get(
-                this.baseUrl,        
+                "user/connection/requests",
+                apiCalls.getAuthenticationHeader()
+            )
+        );
+
+
+    }
+
+    getAllConnections = async () => {
+
+        console.log("get all con")
+
+        return await apiCalls.handleNewResponse(
+            await apiCalls.api.get(
+                this.baseUrl,
+                apiCalls.getAuthenticationHeader()
+            )
+        );
+
+
+    }
+
+    removeUser =  async ({
+        userId
+    }) => {
+
+        return await apiCalls.handleNewResponse(
+            await apiCalls.api.delete(
+                `user/connection/${userId}`,
+               
                 apiCalls.getAuthenticationHeader()
             )
         );
@@ -55,4 +83,3 @@ const userConnectionApi = new UserConnectionApi();
 export {
     userConnectionApi
 }
-

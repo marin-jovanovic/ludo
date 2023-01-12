@@ -46,7 +46,7 @@ class AcceptanceLogApi {
                     levelId: levelId
                 }),
 
-        
+
                 apiCalls.getAuthenticationHeader()
             )
         );
@@ -64,4 +64,3 @@ const acceptanceLogApi = new AcceptanceLogApi();
 export {
     acceptanceLogApi
 }
-

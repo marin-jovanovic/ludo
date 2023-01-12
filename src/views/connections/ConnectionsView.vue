@@ -36,12 +36,12 @@
                   <ui-card-icons>
                     <ui-icon-button
                       :toggle="icon3"
-                      @click="blockUser(user.userId)"
+                      @click="removeUser(user.userId)"
                     ></ui-icon-button>
-                    <ui-icon-button
+                    <!-- <ui-icon-button
                       :toggle="icon2"
                       @click="addUser(user.userId)"
-                    ></ui-icon-button>
+                    ></ui-icon-button> -->
                     <ui-icon-button
                       :toggle="icon1"
                       @click="messageUser(user.userId)"
@@ -61,11 +61,11 @@
     </div>
   </base-user-template>
 </template>
-        
-      <script>
+          
+        <script>
 import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
 import { userConnectionApi } from "@/scripts/api/user_connection";
-import { userApi } from "@/scripts/api/user";
+// import { userApi } from "@/scripts/api/user";
 import { userProfilePhoto } from "@/scripts/api/user_profile_photo";
 
 export default {
@@ -91,15 +91,19 @@ export default {
     await this.fetchUsers();
   },
   methods: {
+    async removeUser(userId) {
+      userConnectionApi.removeUser({ userId: userId });
+    },
+
     async addUser(userId) {
       userConnectionApi.sendConnectionRequest({ userId: userId });
     },
 
     async fetchUsers() {
-      let t = await userApi.getAllUsers();
+      let t = await userConnectionApi.getAllConnections();
       console.log(t);
 
-      this.users = t.users;
+      this.users = t.userConnections;
 
       for (const userId of Object.keys(this.users)) {
         let r = await userProfilePhoto.getProfilePhoto({ userId: userId });
@@ -116,8 +120,8 @@ export default {
   },
 };
 </script>
-   
-<style>
+     
+  <style>
 .container {
   display: flex;
   justify-content: space-between;
@@ -152,4 +156,4 @@ export default {
   color: white;
 }
 </style>  
-  
+    

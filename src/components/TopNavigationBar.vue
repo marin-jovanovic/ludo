@@ -30,13 +30,6 @@
                 >{{ i.name }}</router-link
               >
             </div>
-
-            <!-- <router-link
-              @click="clicked(i)"
-              class="nav-link"
-              :to="{ name: j }"
-              >{{ i.name }}</router-link
-            > -->
           </li>
         </ul>
       </div>
@@ -58,18 +51,10 @@ export default {
         messages: { name: "Messages", active: false },
         findFriends: { name: "Find Friends", active: false },
         connectionRequest: { name: "Connection requests", active: false },
-        // setting: { name: "Messages", active: false },
-
-        // gameReplay: { name: "gameReplay", active: false },
       },
     };
   },
   mounted() {
-    // console.log(this.$router.currentRoute);
-
-    // console.log(this.$router);
-    // console.log(this.$route);
-
     let currentPath = this.$route.name;
 
     for (const value of Object.values(this.links)) {

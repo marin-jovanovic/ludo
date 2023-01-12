@@ -21,10 +21,10 @@ class UserConnectionApi {
 
         return await apiCalls.handleNewResponse(
             await apiCalls.api.get(
-                "user/page/" + page,  
-                apiCalls.getAuthenticationHeader() 
- 
-       
+                "user/page/" + page,
+                apiCalls.getAuthenticationHeader()
+
+
             )
         );
 
@@ -42,4 +42,3 @@ const userApi = new UserConnectionApi();
 export {
     userApi
 }
-

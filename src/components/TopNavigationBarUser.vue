@@ -56,6 +56,7 @@ export default {
         { to: "/settings", name: "Settings" },
         { to: "/logout", name: "Logout" },
         { to: "/messages", name: "Messages" },
+        { to: "/connections", name: "connections" },
       ],
     };
   },

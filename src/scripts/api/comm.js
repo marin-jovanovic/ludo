@@ -90,17 +90,17 @@ function handleNewResponse(response) {
 
     if (!response.data.payload.status) {
         console.log("[server] internal err")
-    let t = response.data.payload;
-    delete t.status;
-    return t;
+        let t = response.data.payload;
+        delete t.status;
+        return t;
 
     }
 
-        // todo this will never be true, not implemented
-        // if (response.data.status === 401) {
-        //     apiAuth.logout();
-        //     location.reload(true);
-        // }
+    // todo this will never be true, not implemented
+    // if (response.data.status === 401) {
+    //     apiAuth.logout();
+    //     location.reload(true);
+    // }
 
 
 
@@ -114,7 +114,7 @@ function handleNewResponse(response) {
             accessToken: accessToken
         })
 
-    } 
+    }
 
     let t = response.data.payload;
     delete t.status;
