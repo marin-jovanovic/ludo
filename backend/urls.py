@@ -15,6 +15,10 @@ from backend.api.view.settings_view import SettingsView
 from backend.api.view.signup_view import SignUpView
 from backend.api.view.user_view import UserView
 from backend.api.view.music_view import MusicView
+from backend.api.view.user_connection_view import UserConnectionView
+from backend.api.view.user_page_view import UserPageView
+from backend.api.view.user_profile_photo import UserProfilePhotoView
+
 startup_configuration.print_app_logo()
 api_router = routers.DefaultRouter()
 
@@ -40,6 +44,14 @@ urlpatterns = [
 
     path("music/", MusicView.as_view()),
 
+    path("user/page/<str:page_id>", UserPageView.as_view()),
+    path("user/profilePhoto/<str:user_id>", UserProfilePhotoView.as_view()),
+    path("user/connection", UserConnectionView.as_view()),
+
+    # user_id
+    path("user/connection/<str:user_id>", UserConnectionView.as_view()),
+    path("user/connection/<str:connection_id>", UserConnectionView.as_view()),
+    path("user/", UserView.as_view()),
     path("user/<str:user_id>", UserView.as_view()),
 
     path("level/<str:level_id>/acceptanceLog", AcceptanceLogView.as_view()),
@@ -48,7 +60,6 @@ urlpatterns = [
 
     # todo fix this
     path("board/<str:level_id>", BoardView.as_view()),
-
 
 
     #

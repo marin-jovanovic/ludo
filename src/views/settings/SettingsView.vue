@@ -83,7 +83,7 @@ export default {
 
     this.profilePhoto = userMetaSS.getUserMeta()["userProfilePhoto"];
 
-    console.log(this.profilePhoto);
+    // console.log(this.profilePhoto);
 
     let r = await apiSettings.getSettings();
 

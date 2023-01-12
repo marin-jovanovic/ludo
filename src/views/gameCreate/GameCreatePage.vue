@@ -1,60 +1,64 @@
 
 <template>
-  <div v-for="i in this.types" :key="i">
-    {{ i }}
+  <BaseUserTemplate>
+    <div v-for="i in this.types" :key="i">
+      {{ i }}
 
-    id:
-    <input type="text" v-model="i.id" />
+      id:
+      <input type="text" v-model="i.id" />
 
-    colour:
-    <input type="color" id="typeColor" v-model="i.colour" />
-  </div>
+      colour:
+      <input type="color" id="typeColor" v-model="i.colour" />
+    </div>
 
-  <select v-model="selected">
-    <option v-for="item in this.types" v-bind:value="item" :key="item">
-      {{ item.type }}
-    </option>
-  </select>
+    <select v-model="selected">
+      <option v-for="item in this.types" v-bind:value="item" :key="item">
+        {{ item.type }}
+      </option>
+    </select>
 
-  <table ref="table"></table>
+    <table ref="table"></table>
 
-  row count:
-  <input type="number" v-model="rowCount" @change="updateRowCount" />
+    row count:
+    <input type="number" v-model="rowCount" @change="updateRowCount" />
 
-  <br />
+    <br />
 
-  column count:
-  <input type="number" v-model="columnCount" @change="updateColumnChange" />
+    column count:
+    <input type="number" v-model="columnCount" @change="updateColumnChange" />
 
-  <br />
+    <br />
 
-  <button @click="clearTable">clear table</button>
+    <button @click="clearTable">clear table</button>
 
-  <br />
-  <button @click="saveAsMap">save as map</button>
+    <br />
+    <button @click="saveAsMap">save as map</button>
 
-  <br />
-  import
-  <input type="text" v-model="imported" />
-  <button @click="imp">import</button>
+    <br />
+    import
+    <input type="text" v-model="imported" />
+    <button @click="imp">import</button>
 
-  <table>
-    <tr v-for="column in Object.entries(this.table)" :key="column[0]">
-      <td
-        :style="row[1].style"
-        v-for="row in Object.entries(column[1])"
-        :key="row[0]"
-        @click="cellClicked(column[0], row[0])"
-      >
-        {{ row[1].value }}
-      </td>
-    </tr>
-  </table>
+    <table>
+      <tr v-for="column in Object.entries(this.table)" :key="column[0]">
+        <td
+          :style="row[1].style"
+          v-for="row in Object.entries(column[1])"
+          :key="row[0]"
+          @click="cellClicked(column[0], row[0])"
+        >
+          {{ row[1].value }}
+        </td>
+      </tr>
+    </table>
 
-  <button @click="exportTable">export</button>
+    <button @click="exportTable">export</button>
+  </BaseUserTemplate>
 </template>
 
 <script>
+import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
+
 export default {
   data() {
     return {
@@ -975,6 +979,9 @@ export default {
       console.table(logSelected);
       console.log(logSelected);
     },
+  },
+  components: {
+    BaseUserTemplate,
   },
 };
 </script>

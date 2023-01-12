@@ -56,6 +56,8 @@ export default {
         index: { name: "Home", active: true },
         gameCreate: { name: "gameCreate", active: false },
         messages: { name: "Messages", active: false },
+        findFriends: { name: "Find Friends", active: false },
+        connectionRequest: { name: "Connection requests", active: false },
         // setting: { name: "Messages", active: false },
 
         // gameReplay: { name: "gameReplay", active: false },

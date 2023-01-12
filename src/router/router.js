@@ -12,15 +12,15 @@ import GameCreatePage from "@/views/gameCreate/GameCreatePage.vue";
 import NotFound from '../views/notFound/NotFound';
 import waitingRoom from "@/views/waitingRoom/WaitingRoom.vue";
 import playingOrder from "@/views/order/PlayingOrder.vue";
-
 import LogoutPage from '../views/logout/LogoutPage';
 import SetttingsView from '../views/settings/SettingsView.vue';
-
 import MessagesView from "@/views/messages/MessagesView.vue";
+import FindFriends from "@/views/findFriends/FindFriends.vue";
+import ConnectionRequest from "@/views/connectionRequests/ConnectionRequests.vue";
 
 import {
     store
-} from "@/store/store"
+} from "@/store/store";
 
 import TheGame from '../views/game/TheGame.vue';
 
@@ -84,6 +84,20 @@ export const router = createRouter({
             path: "/messages",
             name: "messages",
             component: MessagesView
+        },
+        {
+            path: "/findFriends",
+            name: "findFriends",
+            component: FindFriends
+
+        },
+        {
+            path: "/connectionRequest",
+            name: "connectionRequest",
+            component: ConnectionRequest
+
+            
+
         },
         {
             path: '/:pathMatch(.*)*',

@@ -27,7 +27,6 @@ class AcceptanceLogApi {
 
                 // `${this.baseUrl}/${levelId}/acceptanceLog`,
                 JSON.stringify({
-                    // entryId: entryId,
                     payload: payload
                 }),
                 apiCalls.getAuthenticationHeader()
@@ -47,11 +46,7 @@ class AcceptanceLogApi {
                     levelId: levelId
                 }),
 
-                // `${this.baseUrl}/${levelId}/acceptanceLog`,
-                // JSON.stringify({
-                //     // entryId: entryId,
-                //     // payload: payload
-                // }),
+        
                 apiCalls.getAuthenticationHeader()
             )
         );
@@ -63,17 +58,6 @@ class AcceptanceLogApi {
 }
 
 
-// async function getLevelLog(game) {
-
-//     console.log("get game", game)
-
-//     return await apiCalls.handleNewResponse(
-//         await apiCalls.api.get(
-//             `acceptanceLog/${game}/log`,
-//             apiCalls.getAuthenticationHeader()
-//         )
-//     );
-// }
 
 const acceptanceLogApi = new AcceptanceLogApi();
 

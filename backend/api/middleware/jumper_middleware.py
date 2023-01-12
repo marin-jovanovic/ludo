@@ -108,6 +108,9 @@ class JumperMiddleware:
         request.username = username
         request.access_token = access_token
 
+        from backend.api.cqrs_q.user import username_to_id
+        request.user_id = username_to_id(request.username)
+
         # fixme only for testing
         #
         # request.ip = "todo"
