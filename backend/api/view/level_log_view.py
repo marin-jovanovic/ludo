@@ -44,13 +44,15 @@ class LevelLogView(APIView):
 
         only_first_entry = not last_e_all['status']
 
+        print(f"{last_e_all=}")
+
         # if not last_e_all['status']:
         #     only_first = True
 
         ret_log = {}
 
-        for entry in log:
-            print('instruction id get', entry)
+        for e, entry in enumerate(log):
+            # print('instruction id get', entry)
 
             ret_log[entry["instruction_id"]] = {
                 "action": entry["action"],
@@ -64,7 +66,11 @@ class LevelLogView(APIView):
                 "tokenId": entry["token"]
             }
 
+
             if only_first_entry:
+                break
+
+            if e > last_e_all["entryIndex"]:
                 break
 
             # if not entry["performed"]:
@@ -77,7 +83,7 @@ class LevelLogView(APIView):
             response["payload"] = {
                 "status": True,
                 "log": ret_log,
-                "legalMoves": opt["legalMoves"],
+                "legalMoves": [],
                 "userUsername": None,
                 "userId": None
             }
@@ -197,17 +203,23 @@ class LevelLogView(APIView):
         acceptance_log_model = get_acceptance_log_model()
         capacity = get_level_model().objects.get(id=level_id).capacity
 
-        q = get_player_order_model().objects.filtert(level_id_id=level_id).values()
+        q = get_player_order_model().objects.filter(level_id_id=level_id).values()
         q = list(q)
 
         for i in q:
             print(i)
 
+        # q = get_player_order_model().objects.filter(level_id_id=level_id).values()
+
+
         user_join_index_to_id = {}
-        # for i in q:
 
         for player_index in range(capacity):
-            user_join_index_to_id[player_index] = q.user.id
+            # user_join_index_to_id[player_index] = q.user.id
+            # user_join_index_to_id[player_index] = q.user.id
+            user_join_index_to_id[player_index] = get_player_order_model().objects.get(
+                level_id_id=level_id, join_index=player_index
+            ).user.id
 
         for index, entry in log_diff_as_dict.items():
             # this should be level_id -> todo in new iters
@@ -224,21 +236,21 @@ class LevelLogView(APIView):
                 action=entry["action"],
                 # performed=False
             )
+            r.save()
 
-            for player_index in capacity:
-
-
+            for player_index in range(capacity):
 
                 q = acceptance_log_model(
                     level_id=level_id,
-                    log_entry=entry,
-                    user_id=user_join_index_to_id[player_index],
+                    # log_entry=entry,
+                    log_entry =r,
+                    user_join_index=player_index,
+                    # user_id=user_join_index_to_id[player_index],
                     accepted=False,
-                    is_first=False,
+                    is_first=r.player==player_index,
                 )
                 q.save()
 
-            r.save()
 
 
             print(f"get or create {index=} {entry=} {r=}")

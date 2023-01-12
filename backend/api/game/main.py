@@ -174,9 +174,10 @@ def get_log_api(log, level_id):
     to_choose = {**level.start_pool_options, **level.non_start_pool_options}
 
     last_log = level.get_log()[-1]
-    if last_log["action"] != "roll":
-        print("errr last log entry is not roll")
-        return {"turn": None, "legalMoves": []}
+    # todo roll -> roll + choose
+    # if last_log["action"] != "roll":
+    #     print("errr last log entry is not roll")
+    #     return {"turn": None, "legalMoves": []}
 
     # todo this needs to be renamed to user
     player = last_log['player']

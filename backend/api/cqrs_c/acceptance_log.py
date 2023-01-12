@@ -1,8 +1,3 @@
-import sys
-
-from django.db.models import F
-
-from backend.api.cqrs_q.level import level_get_model_by_id
 from backend.api.model.acceptance_log import \
     notify_all_received, \
     notify_first_received
@@ -12,31 +7,31 @@ from backend.api.model.level_log import get_level_log_model
 from backend.api.model.player_order import get_player_order_model
 from backend.api.model.user import get_user_model
 
-def check_models_exist(level_id, entry_id, user_id):
-    r = get_level_model().objects.filter(id=level_id).exists()
-    if not r:
-        print(f"[err] {level_id=}")
-        return {
-            "status": False
-        }
-
-    r = get_level_log_model().objects.filter(id=entry_id).exists()
-    if not r:
-        print(f"[err] {entry_id=}")
-        return {
-            "status": False
-        }
-
-    r = get_user_model().objects.filter(id=user_id).exists()
-    if not r:
-        print(f"[err] {user_id=}")
-        return {
-            "status": False
-        }
-
-    return  {
-        "status": True
-    }
+# def check_models_exist(level_id, entry_id, user_id):
+#     r = get_level_model().objects.filter(id=level_id).exists()
+#     if not r:
+#         print(f"[err] {level_id=}")
+#         return {
+#             "status": False
+#         }
+#
+#     r = get_level_log_model().objects.filter(id=entry_id).exists()
+#     if not r:
+#         print(f"[err] {entry_id=}")
+#         return {
+#             "status": False
+#         }
+#
+#     r = get_user_model().objects.filter(id=user_id).exists()
+#     if not r:
+#         print(f"[err] {user_id=}")
+#         return {
+#             "status": False
+#         }
+#
+#     return  {
+#         "status": True
+#     }
 
 
 def get_capacity(level_id):
@@ -45,32 +40,20 @@ def get_capacity(level_id):
 
 def create_entry_if_not_exists(level_id, entry_id, username):
 
+    """aggressive assumption: models exist"""
+
     user_obj = get_user_model().objects.get(username=username)
     user_id = user_obj.id
 
     level_id = int(level_id)
     entry_id = int(entry_id)
 
-
-
-    # print(f"{level_id=} {entry_id=} {user_id=}")
-
     user_join_index = get_player_order_model().objects.get(
         level_id=level_id,
         user_id=user_id
     ).join_index
 
-    print(f'{user_join_index=}')
-
-    # r = get_acceptance_log_model().objects.filter(
-    #     level_id=level_id,
-    #     log_entry_id=entry_id,
-    #     user_join_index=user_join_index,
-    # ).values()
-    # r = list(r)
-    #
-    # for i in r:
-    #     print(i)
+    print(f"{level_id=} {entry_id=} {username=} {user_join_index=}")
 
     r = get_acceptance_log_model().objects.get(
         log_entry_id=entry_id,
@@ -102,129 +85,29 @@ def create_entry_if_not_exists(level_id, entry_id, username):
     r = list(r)
     print('this acc entry', r)
 
-
-    r = get_acceptance_log_model().objects.get(
+    my_acceptance_entry = get_acceptance_log_model().objects.get(
         log_entry_id=entry_id,
         user_join_index=user_join_index,
     )
 
-    # r.accepted = True
-    # r.save()
+    is_master = my_acceptance_entry.is_first
 
-    is_master = r.is_first
+    # if master and trying to set acceptance not first -> log err and return
+    # if not master and trying to set acceptance first -> log err and return
 
     if is_master:
-        print('can set accepted for this entry')
+        print("im master")
+        # print('can set accepted for this entry')
 
-        r = get_acceptance_log_model().objects.get(
-            log_entry_id=entry_id,
-            user_join_index=user_join_index,
-        )
-        print(f'{r=}')
-        # r.update(accepted=True)
-        r.accepted = True
-        r.save()
-        r = get_acceptance_log_model().objects.filter(
-            log_entry_id=entry_id,
-            user_join_index=user_join_index,
-        ).values()
-        r = list(r)
-        print(f'{r=}')
+        """no checking if already set or
+        setting after another user set"""
 
-        # fixme
-        # get_acceptance_log_model().objects.filter(
-        #     log_entry_id=entry_id,
-        #     user_join_index=user_join_index,
-        #
-        # ).update(value=F('accepted') + 1)
+        my_acceptance_entry.accepted = True
+        my_acceptance_entry.save()
 
         print('set accepted (master)')
 
-    else:
-        print('can not set accepted for this entry')
-        print('must wait for master to set accepted for this entry')
-
-        # check if master set accepted
-        r = get_acceptance_log_model().objects.get(
-            log_entry_id=entry_id,
-            is_first=True
-            # user_join_index=user_join_index,
-        ).accepted
-
-        if r:
-            print('master accepted, now i can')
-        else:
-            print('master not accepted, waiting')
-
-
-    # return  {
-    #     "status": True
-    # }
-
-    # skip if entry already in db
-    # r = get_acceptance_log_model().objects.filter(
-    #     log_entry_id=entry_id,
-    #     user=user_obj,
-    # ).exists()
-    #
-    # if r:
-    #     check_all_accepted(entry_id, level_id)
-    #
-    #     return {
-    #         "status": True
-    #     }
-
-    # todo
-    sys.exit(-1)
-
-    r = get_acceptance_log_model().objects.filter(
-        log_entry_id=entry_id,
-    ).exists()
-
-    is_first_time = not r
-
-    join_index = get_player_order_model() \
-        .objects \
-        .get(level_id=level_id, user_id=user_id).join_index
-
-    # for this instruction -> player index
-    who_can_create_entry_first = get_level_log_model() \
-        .objects \
-        .get(id=entry_id) \
-        .player
-
-    # todo
-    #   notify only if choosable
-
-    if who_can_create_entry_first == join_index:
-        if not is_first_time:
-            print("err 1 -----------------------------------")
-
-            return {
-                "status": False
-            }
-
-    else:
-        if is_first_time:
-            print("err 2 must no go first")
-
-            return {
-                "status": False
-            }
-
-    acceptance_log = get_acceptance_log_model()
-    e = acceptance_log(
-        level_id=level_id,
-        log_entry_id=entry_id,
-        user=user_obj,
-        accepted=True
-    )
-    e.save()
-
-    if who_can_create_entry_first == join_index:
-
-
-        entry_index = e.log_entry.instruction_id
+        entry_index = my_acceptance_entry.log_entry.instruction_id
 
         notify_first_received(
             entry_id=entry_id,
@@ -235,8 +118,25 @@ def create_entry_if_not_exists(level_id, entry_id, username):
         )
 
     else:
+        print("im slave")
+        # print('can not set accepted for this entry')
 
-        check_all_accepted(entry_id, level_id)
+        # check if master set accepted
+        r = get_acceptance_log_model().objects.get(
+            log_entry_id=entry_id,
+            is_first=True
+            # user_join_index=user_join_index,
+        ).accepted
+
+        if r:
+            print('master accepted, now i can')
+            my_acceptance_entry.accepted = True
+            my_acceptance_entry.save()
+
+            check_all_accepted(entry_id, level_id)
+
+        else:
+            print('err master not accepted, waiting')
 
     return {
         "status": True
@@ -245,32 +145,25 @@ def create_entry_if_not_exists(level_id, entry_id, username):
 
 
 def check_all_accepted(entry_id, level_id):
-    # r = get_acceptance_log_model().objects \
-    #     .filter(level_id=level_id, log_entry_id=entry_id).count()
+    r = get_acceptance_log_model().objects.filter(
+        log_entry_id=entry_id,
+        accepted=True
+    ).values()
+    r = list(r)
+
+    print(f"{entry_id=} {level_id=} {r=}")
 
     r = get_acceptance_log_model().objects.filter(
-        level_id=level_id,
         log_entry_id=entry_id,
         accepted=True
     ).count()
 
 
-    # r = get_acceptance_log_model().objects.filter(
-    #     log_entry_id=entry_id,
-    #     # user=user_obj,
-    # ).exists()
-
-    # r = get_acceptance_log_model().objects \
-    #     .filter(level_id=level_id, log_entry_id=entry_id)\
-    #     .values("user_id").distinct().count()
-    #
-    # capacity = get_level_model().objects.get(id=level_id).capacity
 
     capacity = get_capacity(level_id)
     if capacity == r:
 
         r = get_acceptance_log_model().objects.filter(
-            level_id=level_id,
             log_entry_id=entry_id,
         )
 

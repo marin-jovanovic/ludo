@@ -24,7 +24,7 @@ class AcceptanceLogView(APIView):
         # user_id = get_user_model().objects.get(username=request.username).id
 
         last_e_all = get_last_performed_by_all_users(level_id)
-        print(f"{last_e_all=}")
+        # print(f"{last_e_all=}")
 
         user_join_index = get_player_order_model().objects.get(
             user_id__username=request.username, level_id=level_id
@@ -32,10 +32,10 @@ class AcceptanceLogView(APIView):
 
         last_e_this = get_last_performed_by_this_user(level_id=level_id,
                                                     user_join_index=user_join_index)
-        print(f"{last_e_this=}")
+        # print(f"{last_e_this=}")
 
         last_e_any = get_any(level_id)
-        print(f"{last_e_any=}")
+        # print(f"{last_e_any=}")
 
         response["payload"] = {
             "status": True,
@@ -46,7 +46,8 @@ class AcceptanceLogView(APIView):
 
         return JsonResponse(response)
 
-    @transaction.atomic
+    # @transaction.atomic
+    @transaction.non_atomic_requests
     def post(self, request, level_id, entry_id):
         """add new entry to log"""
         response = get_auth_ok_response_template(request)
