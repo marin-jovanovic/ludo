@@ -1,14 +1,24 @@
 <template>
   <base-user-template>
-    <div class="container">
-      <div class="header">
-        <h1>Messaging App</h1>
-        <div class="header-right">
-          <button id="new-group-btn">New Group</button>
-          <a href="#">Settings</a>
+    <div>
+      <div class="container">
+        <div class="left-div" style="width: 5%; float: left"></div>
+        <div
+          class="middle-div"
+          style="width: 90%; float: left; border: 1px solid"
+        >
+          <slot />
         </div>
+        <div class="right-div" style="width: 5%; float: left"></div>
       </div>
-      <div class="split-screen">
+    </div>
+
+    <!-- <base-middle-container> -->
+
+    <hr />
+    <br />
+    <div style="display: flex">
+      <div style="width: 30%">
         <div class="conversation-list" id="conversation-list-scrollable">
           <form>
             <input
@@ -27,7 +37,8 @@
             </div>
           </div>
         </div>
-
+      </div>
+      <div style="width: 70%">
         <div class="conversation-view">
           <div class="message-list">
             <div class="message message-sent">
@@ -48,12 +59,16 @@
         </div>
       </div>
     </div>
+    <!-- </base-middle-container> -->
   </base-user-template>
 </template>
       
     <script>
 import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
 import { userConnectionApi } from "@/scripts/api/user_connection";
+// import BaseMiddleContainer from "@/components/BaseMiddleContainer.vue";
+
+import { f } from "@/scripts/diffe_helman";
 
 export default {
   data() {
@@ -62,9 +77,17 @@ export default {
       profilePhoto: undefined,
       openDrawer: true,
       userConnections: undefined,
+
+      activeConversation: undefined,
     };
   },
+
   async mounted() {
+    let userId = this.$route.params.userId;
+    console.log("user id", userId);
+
+    f();
+
     let r = await userConnectionApi.getAllConnections();
     console.log(r);
     this.userConnections = r["userConnections"];
@@ -77,6 +100,7 @@ export default {
   },
   components: {
     BaseUserTemplate,
+    // BaseMiddleContainer,
   },
 };
 </script>
@@ -86,47 +110,20 @@ export default {
 
 <style>
 .container {
-  width: 80%;
-  margin: 0 auto;
-}
-.header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  background-color: #0088cc;
-  color: #fff;
 }
-.header-right a {
-  margin-left: 10px;
-  color: #fff;
-  text-decoration: none;
-}
-.conversation-list {
-  height: 300px;
-  overflow-y: scroll;
-}
-.conversation {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  border-bottom: 1px solid #ccc;
-}
-.conversation-info {
-  display: flex;
-  align-items: center;
+.left-div,
+.middle-div,
+.right-div {
+  height: 100%;
 }
 
 .conversation-timestamp {
   font-size: 12px;
   color: #999;
 }
-.conversation-view {
-  border: 1px solid #ccc;
-  padding: 10px;
-  margin-top: 10px;
-}
+
 .message-list {
   height: 300px;
   overflow-y: scroll;
@@ -190,7 +187,6 @@ export default {
   display: flex;
 }
 .conversation-list {
-  width: 20%;
   height: 300px;
   overflow-y: scroll;
 }

@@ -82,10 +82,15 @@ export const router = createRouter({
             component: playingOrder
         },
         {
+            path: "/messages/:userId",
+            name: "messagesSpecific",
+            component: MessagesView
+        },   {
             path: "/messages",
             name: "messages",
             component: MessagesView
         },
+
         {
             path: "/findFriends",
             name: "findFriends",
