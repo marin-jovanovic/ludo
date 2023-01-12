@@ -162,12 +162,6 @@ class LevelLogView(APIView):
 
         log_diff_as_dict = r["logDiffAsDict"]
 
-        # log_diff = r["logDiff"]
-        # print("log diff (from view function)")
-        # for i in log_diff:
-        #     print(i)
-        # print()
-
         print("log diff dict (from view function)")
         for index, entry in log_diff_as_dict.items():
             print(index, entry)
@@ -180,50 +174,13 @@ class LevelLogView(APIView):
 
         ids = t["payload"]
 
-        # add to db log diff
-
-        # r = level_id_to_name(level_id)
-        # if not r["status"]:
-        #     return JsonResponse(response)
-
-        # level_name = r["payload"]
-
-        # from backend.api.cqrs_q import level
-        # r = level.level_get_model(level_name)
-        # if not r["status"]:
-        #     print("get game err")
-        #     return JsonResponse(response)
-
-        # game_o = r["payload"]
-
         from backend.api.model.level import get_level_model
         from backend.api.model.acceptance_log import get_acceptance_log_model
-        from backend.api.model.player_order import get_player_order_model
 
         acceptance_log_model = get_acceptance_log_model()
         capacity = get_level_model().objects.get(id=level_id).capacity
 
-        q = get_player_order_model().objects.filter(level_id_id=level_id).values()
-        q = list(q)
-
-        for i in q:
-            print(i)
-
-        # q = get_player_order_model().objects.filter(level_id_id=level_id).values()
-
-
-        user_join_index_to_id = {}
-
-        for player_index in range(capacity):
-            # user_join_index_to_id[player_index] = q.user.id
-            # user_join_index_to_id[player_index] = q.user.id
-            user_join_index_to_id[player_index] = get_player_order_model().objects.get(
-                level_id_id=level_id, join_index=player_index
-            ).user.id
-
         for index, entry in log_diff_as_dict.items():
-            # this should be level_id -> todo in new iters
-            # entry["game"] = level_name
 
             game_log_model = get_level_log_model()
 
@@ -234,7 +191,6 @@ class LevelLogView(APIView):
                 token=entry['token'],
                 dice_result=entry['dice_result'],
                 action=entry["action"],
-                # performed=False
             )
             r.save()
 
@@ -242,16 +198,12 @@ class LevelLogView(APIView):
 
                 q = acceptance_log_model(
                     level_id=level_id,
-                    # log_entry=entry,
                     log_entry =r,
                     user_join_index=player_index,
-                    # user_id=user_join_index_to_id[player_index],
                     accepted=False,
                     is_first=r.player==player_index,
                 )
                 q.save()
-
-
 
             print(f"get or create {index=} {entry=} {r=}")
 

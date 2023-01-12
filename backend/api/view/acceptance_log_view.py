@@ -47,7 +47,7 @@ class AcceptanceLogView(APIView):
         return JsonResponse(response)
 
     # @transaction.atomic
-    @transaction.non_atomic_requests
+    # @transaction.non_atomic_requests
     def post(self, request, level_id, entry_id):
         """add new entry to log"""
         response = get_auth_ok_response_template(request)
