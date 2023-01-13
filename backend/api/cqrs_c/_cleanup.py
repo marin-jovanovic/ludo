@@ -1,13 +1,7 @@
-import sys
 from collections import defaultdict
 
-from backend.api.cqrs_c.game_log import add_entry
-from backend.api.game.main import try_generating_api
 from backend.api.model.acceptance_log import get_acceptance_log_model
-from backend.api.model.level import get_level_model
 from backend.api.model.level_log import get_level_log_model
-from backend.api.cqrs_q.player_order import join_id_to_username_and_user_id
-from backend.api.cqrs_q.level import level_id_to_name
 
 
 def clean(level_id):
@@ -41,12 +35,12 @@ def fix_5(level_id):
     delete all wrongly generated
     """
 
-    log = get_level_log_model()\
-        .objects\
-        .filter(game_id=level_id)\
+    log = get_level_log_model() \
+        .objects \
+        .filter(game_id=level_id) \
         .values("id",
-                    "action",
-        "performed").order_by(
+                "action",
+                "performed").order_by(
         "-id")
 
     log = list(log)
