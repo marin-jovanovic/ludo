@@ -35,14 +35,15 @@ def add_entry(game, player, token, dice_result, action):
     return {"status": True}
 
 
-def add_entry_safe(game, player, token, dice_result, action,instruction_id, performed=False):
+def add_entry_safe(
+        game, player, token, dice_result, action, instruction_id,
+        performed=False):
     r = level_get_model(game)
     if not r["status"]:
         print("get game err")
         return r
 
     game_o = r["payload"]
-
 
     game_log_model = get_level_log_model()
 
@@ -54,11 +55,11 @@ def add_entry_safe(game, player, token, dice_result, action,instruction_id, perf
         action=action,
         performed=performed,
         defaults={
-            instruction_id : instruction_id,
+            instruction_id: instruction_id,
 
         }
 
-       )
+    )
 
     print("get or create", r)
 
