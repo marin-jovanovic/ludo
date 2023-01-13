@@ -3,7 +3,7 @@ from django.db import models
 
 from backend.api.comm.comm import Notifier
 from backend.api.model.level import get_level_model
-from backend.api.model.user import get_user_model_as_string
+from backend.api.model.user import get_user_model_as_string, get_user_model
 
 # game_created_notifier = Notifier()
 # game_left_notifier = Notifier()
@@ -18,6 +18,13 @@ class Message(models.Model):
 
     game = models.ForeignKey(get_level_model(),
                              on_delete=models.SET_NULL, null=True)
+
+    receiver = models.ForeignKey(
+        get_user_model(),
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='%(class)s_requests_created'
+    )
 
     timestamp = models.DateTimeField(auto_now_add=True)
 
