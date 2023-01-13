@@ -5,19 +5,14 @@ from rest_framework.views import APIView
 from backend.api.cqrs_c.acceptance_log import create_entry_if_not_exists
 from backend.api.cqrs_q.level_log import get_last_performed_by_all_users, \
     get_last_performed_by_this_user, get_any
-from backend.api.model.level import get_level_model
-from backend.api.model.user import get_user_model
-from backend.api.view.comm import get_auth_ok_response_template
-
-from backend.api.cqrs_c._cleanup import clean
 from backend.api.model.player_order import get_player_order_model
+from backend.api.view.comm import get_auth_ok_response_template
 
 
 class AcceptanceLogView(APIView):
 
     @transaction.atomic
     def get(self, request, level_id):
-
         # clean(level_id)
 
         response = get_auth_ok_response_template(request)
@@ -31,7 +26,7 @@ class AcceptanceLogView(APIView):
         ).join_index
 
         last_e_this = get_last_performed_by_this_user(level_id=level_id,
-                                                    user_join_index=user_join_index)
+                                                      user_join_index=user_join_index)
         # print(f"{last_e_this=}")
 
         last_e_any = get_any(level_id)
