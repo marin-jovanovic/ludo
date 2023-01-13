@@ -23,7 +23,6 @@ class AuthBackend(BaseBackend):
             user = create_profile(username, username,
                                   password)
 
-
         user.is_active = True
         user.save()
 
