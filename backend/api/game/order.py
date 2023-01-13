@@ -1,6 +1,5 @@
 import sys
 
-from backend.api.cqrs_q.level_config import get_config
 from backend.api.game.dice import get_dice_result
 from backend.api.game.log import construct_goes, construct_roll, construct_tie
 
@@ -109,6 +108,7 @@ def determine_order(
 
 def find_max(current_iteration_roll_history):
     max_r = max(i['dice_result'] for i in current_iteration_roll_history)
-    max_r_obj = [i for i in current_iteration_roll_history if i['dice_result'] == max_r]
+    max_r_obj = [i for i in current_iteration_roll_history if
+                 i['dice_result'] == max_r]
     is_same_max = len(max_r_obj) > 1
     return is_same_max, max_r_obj[0]
