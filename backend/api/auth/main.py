@@ -123,6 +123,7 @@ def is_pass_ok(password: str):
     #
     # return {"status": flag, "reasons": reasons, "message": ", ".join(reasons)}
 
+
 def t_is_pass_ok():
     # Test password that is too short
     result = is_pass_ok("abc123!")
@@ -161,6 +162,7 @@ def t_is_pass_ok():
     assert result["message"] == ""
 
     print("all ok")
+
 
 if __name__ == '__main__':
     t_is_pass_ok()
