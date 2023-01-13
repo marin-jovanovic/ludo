@@ -4,10 +4,10 @@ from rest_framework.views import APIView
 from backend.api.cqrs_c.level import create_game, leave_level, join_level, \
     get_active_levels, in_which_level_is_user
 from backend.api.model.level import get_level_model
+from backend.api.model.level import notify_join_leave
 from backend.api.model.player_order import get_player_order_model
 from backend.api.model.user import get_user_model
 from backend.api.view.comm import get_auth_ok_response_template
-from backend.api.model.level import notify_join_leave
 
 
 class LevelView(APIView):
