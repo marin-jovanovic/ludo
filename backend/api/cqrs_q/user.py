@@ -5,6 +5,7 @@ import bcrypt
 
 from backend.api.model.user import get_user_model
 
+
 def username_to_id(username):
     return get_user_model().objects.get(username=username).id
 
