@@ -85,7 +85,7 @@ class JumperMiddleware:
         elif auth_type == 'Basic':
 
             username, password = payload.split(":")
-
+            print(f"{username=} {password=}")
             r = auth_user(username, password)
 
             if not r["status"]:
