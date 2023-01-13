@@ -18,7 +18,8 @@ from backend.api.view.music_view import MusicView
 from backend.api.view.user_connection_view import UserConnectionView
 from backend.api.view.user_page_view import UserPageView
 from backend.api.view.user_profile_photo import UserProfilePhotoView
-
+from backend.api.view.user_connection_request_view import UserConnectionRequestView
+from backend.api.view.direct_message_view import DirectMessageView
 startup_configuration.print_app_logo()
 api_router = routers.DefaultRouter()
 
@@ -46,9 +47,12 @@ urlpatterns = [
 
     path("user/page/<str:page_id>", UserPageView.as_view()),
     path("user/profilePhoto/<str:user_id>", UserProfilePhotoView.as_view()),
-    path("user/connection", UserConnectionView.as_view()),
+    # path("user/connection", UserConnectionView.as_view()),
 
     # user_id
+    path("directMessage/<str:user_id>", DirectMessageView.as_view()),
+    path("user/connection", UserConnectionView.as_view()),
+    path("user/connection/requests", UserConnectionRequestView.as_view()),
     path("user/connection/<str:user_id>", UserConnectionView.as_view()),
     path("user/connection/<str:connection_id>", UserConnectionView.as_view()),
     path("user/", UserView.as_view()),
