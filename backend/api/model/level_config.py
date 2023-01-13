@@ -1,8 +1,8 @@
 from django.apps import apps
 from django.db import models
 
-class LevelConfig(models.Model):
 
+class LevelConfig(models.Model):
     number_of_users = models.IntegerField(default=4)
     tokens_per_user = models.IntegerField(default=4)
     dice_number_of_sides = models.IntegerField(default=6)
