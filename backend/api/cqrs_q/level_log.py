@@ -1,19 +1,17 @@
-from django.db.models import Count
-
-from backend.api.model.level import get_level_model
-from backend.api.model.level_log import get_level_log_model
-from backend.api.model.acceptance_log import get_acceptance_log_model
 from collections import defaultdict
+
+from backend.api.model.acceptance_log import get_acceptance_log_model
+from backend.api.model.level import get_level_model
 
 
 def get_last_performed_by_all_users(level_id):
-
     """return entry accepted by all users"""
 
-    capacity  = get_level_model().objects.get(        id=level_id).capacity
+    capacity = get_level_model().objects.get(id=level_id).capacity
 
-    r = get_acceptance_log_model().objects.filter(level_id=level_id, accepted=True).order_by("log_entry_id")
-
+    r = get_acceptance_log_model().objects.filter(level_id=level_id,
+                                                  accepted=True).order_by(
+        "log_entry_id")
 
     entry_index_to_rows = defaultdict(list)
     for i in r:
@@ -60,10 +58,11 @@ def get_last_performed_by_this_user(level_id, user_join_index):
 
     """return entry accepted by all users"""
 
-    capacity  = get_level_model().objects.get(        id=level_id).capacity
+    capacity = get_level_model().objects.get(id=level_id).capacity
 
-    r = get_acceptance_log_model().objects.filter(level_id=level_id, accepted=True).order_by("log_entry_id")
-
+    r = get_acceptance_log_model().objects.filter(level_id=level_id,
+                                                  accepted=True).order_by(
+        "log_entry_id")
 
     entry_index_to_rows = defaultdict(list)
     for i in r:
@@ -82,7 +81,6 @@ def get_last_performed_by_this_user(level_id, user_join_index):
             if i.user_join_index == user_join_index:
                 confirmed_entry_index_to_id[entry_index] = i.log_entry_id
                 break
-
 
     """
     iterate over instruction_id starting from 0
@@ -118,10 +116,11 @@ def get_any(level_id):
 
     """return entry accepted by all users"""
 
-    capacity  = get_level_model().objects.get(        id=level_id).capacity
+    capacity = get_level_model().objects.get(id=level_id).capacity
 
-    r = get_acceptance_log_model().objects.filter(level_id=level_id, accepted=True).order_by("log_entry_id")
-
+    r = get_acceptance_log_model().objects.filter(level_id=level_id,
+                                                  accepted=True).order_by(
+        "log_entry_id")
 
     entry_index_to_rows = defaultdict(list)
     for i in r:
@@ -145,7 +144,6 @@ def get_any(level_id):
         if len(rows) != 0:
             first = rows[0]
             confirmed_entry_index_to_id[entry_index] = first.log_entry_id
-
 
     """
     iterate over instruction_id starting from 0
@@ -214,4 +212,3 @@ def get_any(level_id):
     # return {
     #     "status": False
     # }
-
