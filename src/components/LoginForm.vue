@@ -44,6 +44,8 @@
 <script>
 import { router } from "../router/router";
 import { apiAuth } from "../scripts/api/auth";
+// import { generateHashWrapper } from "@/scripts/hash_";
+
 export default {
   data() {
     return {
@@ -62,13 +64,35 @@ export default {
   methods: {
     async handleSubmit() {
       this.submitted = true;
-      const { username, password } = this;
+      // let { username, password } = this;
+
+      let username = this.username;
+      let password = this.password;
+
       if (!(username && password)) {
         return;
       }
       this.loading = true;
 
+      // let { passwordHash, salt } = await generatePasswordHash(password);
+      // console.log(passwordHash, salt);
+
+      // let t = await verifyPassword(password, passwordHash, salt);
+      // console.log(t);
+
+      // let hashObj = generateHashWrapper(password);
+
+      // if (hashObj.status) {
+
+      //   let r =
+
+      // } else {
+
       let r = await apiAuth.login(username, password);
+
+      // }
+
+      // let r = await apiAuth.login(username, password);
 
       if (r.description) {
         this.error = r.description;

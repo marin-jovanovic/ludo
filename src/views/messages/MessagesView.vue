@@ -6,14 +6,10 @@
         <div
           class="middle-div"
           style="width: 90%; float: left; border: 1px solid"
-        >
-          <slot />
-        </div>
+        ></div>
         <div class="right-div" style="width: 5%; float: left"></div>
       </div>
     </div>
-
-    <!-- <base-middle-container> -->
 
     <hr />
     <br />
@@ -41,34 +37,43 @@
       <div style="width: 70%">
         <div class="conversation-view">
           <div class="message-list">
-            <div class="message message-sent">
-              <p class="message-text">Hello, how are you?</p>
-              <p class="message-timestamp">12:34 PM</p>
-            </div>
-            <div class="message message-received">
-              <p class="message-text">
-                I'm good, thanks for asking! How about you?
-              </p>
-              <p class="message-timestamp">1:00 PM</p>
+            <div v-for="(message, index) in this.messages" :key="index">
+              <div
+                v-if="Number(message.senderId) === Number(this.userId)"
+                class="message message-received"
+              >
+                <p class="message-text">
+                  {{ message.content }}
+                </p>
+                <p class="message-timestamp">
+                  {{ message.timestamp }}
+                </p>
+              </div>
+
+              <div class="message message-sent" v-else>
+                <p class="message-text">{{ message.content }}</p>
+                <p class="message-timestamp">
+                  {{ message.timestamp }}
+                </p>
+              </div>
             </div>
           </div>
-          <form>
-            <input type="text" placeholder="Enter message here" />
-            <button type="submit">Send</button>
-          </form>
+          <input
+            type="text"
+            v-model="message"
+            placeholder="Enter message here"
+          />
+          <button @click="sendMessage">Send</button>
         </div>
       </div>
     </div>
-    <!-- </base-middle-container> -->
   </base-user-template>
 </template>
       
     <script>
 import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
 import { userConnectionApi } from "@/scripts/api/user_connection";
-// import BaseMiddleContainer from "@/components/BaseMiddleContainer.vue";
-
-import { f } from "@/scripts/diffe_helman";
+import { directMessagesApi } from "@/scripts/api/direct_messages";
 
 export default {
   data() {
@@ -79,14 +84,23 @@ export default {
       userConnections: undefined,
 
       activeConversation: undefined,
+
+      message: "",
+      userId: undefined,
+      messages: undefined,
     };
   },
 
   async mounted() {
-    let userId = this.$route.params.userId;
-    console.log("user id", userId);
+    this.userId = this.$route.params.userId;
+    console.log("user id", this.userId);
 
-    f();
+    let messages = await directMessagesApi.getMessages(this.userId);
+
+    console.log("messages");
+    console.log(messages);
+
+    this.messages = messages.messages;
 
     let r = await userConnectionApi.getAllConnections();
     console.log(r);
@@ -97,10 +111,21 @@ export default {
       let r = await userConnectionApi.getAllConnections();
       console.log(r);
     },
+    async sendMessage() {
+      console.log("send", this.message);
+
+      let messages = await directMessagesApi.sendMessage({
+        userId: this.userId,
+        content: this.message,
+      });
+
+      console.log(messages);
+
+      this.message = "";
+    },
   },
   components: {
     BaseUserTemplate,
-    // BaseMiddleContainer,
   },
 };
 </script>

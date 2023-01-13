@@ -5,7 +5,6 @@ from backend.api.model.user import get_user_model_as_string
 
 
 class UserConnection(models.Model):
-
     accepted = models.BooleanField(default=False)
 
     user_1 = models.ForeignKey(
