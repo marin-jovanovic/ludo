@@ -6,8 +6,9 @@ from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from backend.api.model.acceptance_log import \
     acceptance_log_entry_created_notifier
 from backend.api.model.level import games_notifier
-from backend.api.model.message import message_notifier
 from backend.api.model.level import level_join_left_notifier
+from backend.api.model.message import message_notifier
+
 
 class Consumer(AsyncJsonWebsocketConsumer):
 
@@ -68,6 +69,7 @@ class AcceptanceLogEntryCreatedConsumer(Consumer):
 
     async def disconnect(self, code):
         acceptance_log_entry_created_notifier.detach(self)
+
 
 class LevelJoinLeftConsumer(Consumer):
 
