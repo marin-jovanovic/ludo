@@ -19,7 +19,6 @@ def get_player_order(game_name):
 
 
 def get_players(level_id):
-
     from backend.api.model.player_order import get_player_order_model
 
     r = get_player_order_model().objects.filter(level_id=level_id).values()
@@ -45,7 +44,6 @@ def get_players(level_id):
         }
     }
 
-
     for i, val in enumerate(r):
         ret[str(i)] = {
             "colour": t[str(i)]["colour"],
@@ -53,8 +51,6 @@ def get_players(level_id):
             .objects
             .get(level_id=level_id, join_index=val["join_index"]).user.username
         }
-
-
 
     return ret
 
