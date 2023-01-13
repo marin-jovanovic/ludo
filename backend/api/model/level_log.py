@@ -36,6 +36,7 @@ class GameLog(models.Model):
                                     name='game instruction_id pk')
         ]
 
+
 #     class Meta:
 #         constraints = [
 #             models.UniqueConstraint(fields=['game', 'instruction_id'],
