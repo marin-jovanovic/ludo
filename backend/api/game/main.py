@@ -4,7 +4,6 @@ from backend.api.game.log import user_choose
 
 
 def create_level(level_id):
-
     """order is guaranteed of entries in log"""
 
     level = Level(level_id=level_id)
@@ -17,6 +16,7 @@ def create_level(level_id):
         "status": True,
         "payload": log
     }
+
 
 def try_generating_api(log, level_id):
     # log = artificially_remove_choose_entries(log)
@@ -42,7 +42,6 @@ def try_generating_api(log, level_id):
         print("errr last log entry is not roll, i think game is done")
         return
 
-
     # todo this needs to be renamed to user join index
     player = last_entry['player']
 
@@ -54,7 +53,8 @@ def try_generating_api(log, level_id):
         print("err? nothing generated")
 
         if last_entry["action"] == "roll":
-            new_entry = user_choose(player=last_entry["player"], roll=last_entry["dice_result"])
+            new_entry = user_choose(player=last_entry["player"],
+                                    roll=last_entry["dice_result"])
             log_diff.append(new_entry)
 
     return {
@@ -101,7 +101,6 @@ def add_entry_to_log(log, player_id, token_id, level_id):
     # perfrom as much as you can new instructions
     level = Level(log=level.get_log(), level_id=level_id)
 
-
     log_diff = level.get_log()[in_len_log:]
 
     log_diff_as_dict = {}
@@ -113,7 +112,7 @@ def add_entry_to_log(log, player_id, token_id, level_id):
         log_diff_as_dict[index] = entry
 
     c = 0
-    for index,entry in log_diff_as_dict.items():
+    for index, entry in log_diff_as_dict.items():
         if not entry == log_diff[c]:
             print(f"err mismatch {log_diff_as_dict=} {log_diff=}")
         c += 1
@@ -136,7 +135,6 @@ def add_entry_to_log(log, player_id, token_id, level_id):
         "turn": player,
         "legalMoves": list(to_choose.keys())
     }
-
 
 
 def get_log_api(log, level_id):
@@ -168,9 +166,6 @@ def get_log_api(log, level_id):
         "turn": player,
         "legalMoves": list(to_choose.keys())
     }
-
-
-
 
 #     # todo what if user quits mid game, -> need to split log
 #     #   generate without them
