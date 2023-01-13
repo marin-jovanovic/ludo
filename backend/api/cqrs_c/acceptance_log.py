@@ -1,11 +1,11 @@
+from backend.api.model.acceptance_log import get_acceptance_log_model
 from backend.api.model.acceptance_log import \
     notify_all_received, \
     notify_first_received
-from backend.api.model.acceptance_log import get_acceptance_log_model
 from backend.api.model.level import get_level_model
-from backend.api.model.level_log import get_level_log_model
 from backend.api.model.player_order import get_player_order_model
 from backend.api.model.user import get_user_model
+
 
 # def check_models_exist(level_id, entry_id, user_id):
 #     r = get_level_model().objects.filter(id=level_id).exists()
@@ -35,11 +35,11 @@ from backend.api.model.user import get_user_model
 
 
 def get_capacity(level_id):
-    capacity  = get_level_model().objects.get(        id=level_id).capacity
+    capacity = get_level_model().objects.get(id=level_id).capacity
     return capacity
 
-def create_entry_if_not_exists(level_id, entry_id, username):
 
+def create_entry_if_not_exists(level_id, entry_id, username):
     """aggressive assumption: models exist"""
 
     user_obj = get_user_model().objects.get(username=username)
@@ -143,7 +143,6 @@ def create_entry_if_not_exists(level_id, entry_id, username):
     }
 
 
-
 def check_all_accepted(entry_id, level_id):
     r = get_acceptance_log_model().objects.filter(
         log_entry_id=entry_id,
@@ -157,8 +156,6 @@ def check_all_accepted(entry_id, level_id):
         log_entry_id=entry_id,
         accepted=True
     ).count()
-
-
 
     capacity = get_capacity(level_id)
     if capacity == r:
