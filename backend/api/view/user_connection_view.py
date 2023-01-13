@@ -1,14 +1,10 @@
 from django.http import JsonResponse
 from rest_framework.views import APIView
 
-from backend.api.cqrs_c.level import create_game, leave_level, join_level, \
-    get_active_levels, in_which_level_is_user
-from backend.api.model.level import get_level_model
-from backend.api.model.player_order import get_player_order_model
-from backend.api.model.user import get_user_model
-from backend.api.view.comm import get_auth_ok_response_template
+from backend.api.cqrs_c.level import leave_level, join_level
 from backend.api.model.level import notify_join_leave
 from backend.api.model.user_connection import get_user_connection_model
+from backend.api.view.comm import get_auth_ok_response_template
 
 
 class UserConnectionView(APIView):
@@ -18,37 +14,114 @@ class UserConnectionView(APIView):
         response = get_auth_ok_response_template(request)
 
         if connection_id:
-            print("todo")
+            print("not impl yet connection_id")
 
         else:
+            print("get all connections")
 
-            r = get_user_model().objects.all().values("id", "username")
-            r = list(r)
+            connections = {}
 
-            ret = {}
-            for e, i in enumerate(r):
-                i["lastMessageContent"] = "encMsgCont"
-                i["lastMessageTimestamp"] = "12:31"
-                ret[e] = i
+            r = get_user_connection_model().objects.filter(
+                user_1_id=request.user_id,
+                accepted=True
+            )
 
+            for i in r:
+                connections[i.user_2.id] = {
+                    "userId": i.user_2.id,
+                    "userUsername": i.user_2.username,
+                }
 
+            r = get_user_connection_model().objects.filter(
+                user_2_id=request.user_id,
+                accepted=True
+            )
 
+            for i in r:
+                connections[i.user_1.id] = {
+                    "userId": i.user_1.id,
+                    "userUsername": i.user_1.username,
+                }
 
             response["payload"] = {
                 "status": True,
-                "userConnections": ret
+                "userConnections": connections
 
             }
+
+        # if not connection_id:
+        #     """user/connection/requests"""
+        #     print("not connection_id")
+        #     # r = get_user_connection_model().objects.filter(
+        #     #     user_2_id=request.user_id,
+        #     #     accepted=False
+        #     # )
+        #     #
+        #     # ret = {}
+        #     # for i in r:
+        #     #     ret[i.user_1.id] = {
+        #     #         "userId": i.user_1.id,
+        #     #         "userUsername": i.user_1.username,
+        #     #     }
+        #     #
+        #     # response["payload"] = {
+        #     #     "status": True,
+        #     #     "userConnections": ret
+        #     #
+        #     # }
+        #     #
+        #     #
+        #
+        # elif connection_id:
+        #     print("todo")
 
         return JsonResponse(response)
 
     # todo observers
 
-    # maybe level_id=None, level_name=None
-    def post(self, request, user_id):
-        """send connection request / confirm"""
+    def delete(self, request, user_id):
         response = get_auth_ok_response_template(request)
 
+        r = get_user_connection_model().objects.filter(
+            user_1_id=request.user_id,
+            user_2_id=user_id,
+            accepted=True
+        ).exists()
+
+        if r:
+            print("first type")
+
+            get_user_connection_model().objects.get(
+                user_1_id=request.user_id,
+                user_2_id=user_id,
+                accepted=True
+            ).delete()
+
+        r = get_user_connection_model().objects.filter(
+            user_2_id=request.user_id,
+            user_1_id=user_id,
+            accepted=True
+        ).exists()
+
+        if r:
+            print("second type")
+
+            get_user_connection_model().objects.get(
+                user_2_id=request.user_id,
+                user_1_id=user_id,
+                accepted=True
+            ).delete()
+
+        return JsonResponse(response)
+
+    # maybe level_id=None, level_name=None
+    def post(self, request, user_id):
+        """send connection request / confirm
+
+        1 -> sending
+        2 -> accepting
+        """
+        response = get_auth_ok_response_template(request)
 
         l_c = get_user_connection_model().objects.filter(
             user_1_id=user_id,
@@ -58,7 +131,7 @@ class UserConnectionView(APIView):
 
         if l_c:
             print("accepting")
-            r = get_user_connection_model().objects.filter(
+            r = get_user_connection_model().objects.get(
                 user_1_id=user_id,
                 user_2_id=request.user_id,
                 accepted=False
@@ -70,22 +143,14 @@ class UserConnectionView(APIView):
             response["payload"]["status"] = True
             return JsonResponse(response)
 
-        r_c = get_user_connection_model().objects.filter(
+        l_c = get_user_connection_model().objects.filter(
             user_2_id=user_id,
             user_1_id=request.user_id,
             accepted=False
         ).exists()
 
-        if r_c:
-            print("accepting")
-            r = get_user_connection_model().objects.filter(
-                user_2_id=user_id,
-                user_1_id=request.user_id,
-                accepted=False
-            )
-
-            r.accepted = True
-            r.save()
+        if l_c:
+            print("already sent")
 
             response["payload"]["status"] = True
             return JsonResponse(response)
@@ -101,26 +166,6 @@ class UserConnectionView(APIView):
         )
 
         r.save()
-
-        #
-        # r_c = get_user_connection_model().objects.filter(
-        #     user_2_id=user_id,
-        #     user_1_id=request.user_id,
-        #     accepted=False
-        # ).exists()
-        #
-        # if l_c or r_c:
-        #     print("req sent, this is accepting")
-        #
-        # t = get_user_connection_model().
-
-        # level_name = level_id
-        #
-        # capacity = request.data["capacity"]
-        #
-        # response = get_auth_ok_response_template(request)
-        # response["payload"] = create_game(request.username, level_name,
-        #                                   capacity)
 
         response["payload"]["status"] = True
         return JsonResponse(response)
