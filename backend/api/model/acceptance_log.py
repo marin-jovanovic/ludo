@@ -41,6 +41,7 @@ class AcceptanceLog(models.Model):
 
     is_first = models.BooleanField(default=False)
 
+
 def get_acceptance_log_model():
     return apps.get_model(get_acceptance_log_model_as_string())
 
@@ -58,7 +59,9 @@ def notify_all_received(entry_id, entry_index):
     acceptance_log_entry_created_notifier.notify(msg)
 
 
-def notify_first_received(entry_id, entry_index, user_join_index=None, user_username=None, user_id=None):
+def notify_first_received(
+        entry_id, entry_index, user_join_index=None, user_username=None,
+        user_id=None):
     msg = json.dumps({
         "type": "firstReceived",
         "entryIndex": entry_index,
