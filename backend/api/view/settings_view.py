@@ -112,6 +112,7 @@ class SettingsView(APIView):
 import base64
 import os
 
+
 def safe_create(dir_path):
     try:
         os.makedirs(dir_path)
@@ -138,8 +139,6 @@ def create_image(data, user_id):
         f.write(base64.b64decode(in_img))
 
     return True
-
-
 
 
 def safe_create_dir(dir_name):
