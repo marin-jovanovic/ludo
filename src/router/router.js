@@ -102,8 +102,12 @@ export const router = createRouter({
             path: "/statistics",
             name: "statistics",
             component: UserStatistics
-
         },
+
+
+
+
+
         {
             path: "/connectionRequest",
             name: "connectionRequest",

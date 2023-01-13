@@ -59,7 +59,7 @@
               <ui-card-icons>
                 <ui-icon-button
                   :toggle="icon1"
-                  @click="messageUser(user.userId)"
+                  @click="messageUser(index)"
                 ></ui-icon-button>
               </ui-card-icons>
             </ui-card-actions>
@@ -78,6 +78,8 @@ import BaseUserTemplate from "@/components/BaseUserTemplate.vue";
 import BaseMiddleContainer from "@/components/BaseMiddleContainer.vue";
 import BaseChart from "@/components/BaseChart.vue";
 import { statisticsApi } from "@/scripts/api/statistics";
+import { router } from "@/router/router";
+
 export default {
   data() {
     return {
@@ -161,6 +163,10 @@ export default {
   methods: {
     messageUser(levelId) {
       console.log("play level", levelId);
+
+      // gameReplay/:id
+
+      router.push(`gameReplay/${levelId}`);
     },
     // async addUser(userId) {
     //   userConnectionApi.sendConnectionRequest({ userId: userId });
