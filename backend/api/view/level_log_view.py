@@ -3,7 +3,6 @@ from django.http import JsonResponse
 from rest_framework.views import APIView
 
 from backend.api.cqrs_q.level_log import get_last_performed_by_all_users
-from backend.api.cqrs_q.level import level_id_to_name
 from backend.api.cqrs_q.player_order import join_id_to_username_and_user_id, \
     username_to_id
 from backend.api.game.main import add_entry_to_log, get_log_api
@@ -12,10 +11,10 @@ from backend.api.view.comm import get_auth_ok_response_template
 
 
 def level_log_get(level_id):
-    log = get_level_log_model()\
-        .objects\
-        .filter(game_id=level_id)\
-        .order_by("instruction_id")\
+    log = get_level_log_model() \
+        .objects \
+        .filter(game_id=level_id) \
+        .order_by("instruction_id") \
         .values()
 
     log = list(log)
@@ -65,7 +64,6 @@ class LevelLogView(APIView):
                 "userJoinIndex": entry["player"],
                 "tokenId": entry["token"]
             }
-
 
             if only_first_entry:
                 break
@@ -145,13 +143,15 @@ class LevelLogView(APIView):
 
         if true_last_entry != provided_entry_id:
             # they are not making decision for the last entry
-            print(f"err not last entry id {true_last_entry=} {provided_entry_id=}")
+            print(
+                f"err not last entry id {true_last_entry=} {provided_entry_id=}")
             return JsonResponse(response)
 
         turn = last_entry["player"]
 
         if turn != player_id:
-            print(f"err can not do this, players are not matching {turn=} {player_id=}")
+            print(
+                f"err can not do this, players are not matching {turn=} {player_id=}")
             return JsonResponse(response)
 
         token_id = request.data["tokenId"]
@@ -195,13 +195,12 @@ class LevelLogView(APIView):
             r.save()
 
             for player_index in range(capacity):
-
                 q = acceptance_log_model(
                     level_id=level_id,
-                    log_entry =r,
+                    log_entry=r,
                     user_join_index=player_index,
                     accepted=False,
-                    is_first=r.player==player_index,
+                    is_first=r.player == player_index,
                 )
                 q.save()
 
@@ -215,5 +214,3 @@ class LevelLogView(APIView):
         }
 
         return JsonResponse(response)
-
-
