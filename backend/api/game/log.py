@@ -24,6 +24,7 @@ def construct_roll(player, roll):
         "action": "roll"
     }
 
+
 def user_choose(player, roll):
     """
     @player rolled @roll
@@ -36,6 +37,7 @@ def user_choose(player, roll):
         "action": "choose"
     }
 
+
 def construct_tie():
     """
     for determine_order
@@ -46,7 +48,6 @@ def construct_tie():
         "dice_result": None,
         "action": "tie"
     }
-
 
 
 # todo not implemented
