@@ -19,7 +19,7 @@ export default {
       selectedSong: null,
       audioElement: null,
       songs: [
-        { id: 1, title: "Song 1", url: "mp3/Corruption.mp3" },
+        { id: 1, title: "Song Corruption", url: "mp3/Corruption.mp3" },
         { id: 2, title: "Song 2", url: ".mp3" },
         { id: 3, title: "Song 3", url: ".mp3" },
       ],
