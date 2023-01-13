@@ -16,7 +16,8 @@ def artificially_add_choose_row(log: list) -> list:
     last_entry = log[-1]
 
     if last_entry["action"] == "roll":
-        new_entry = user_choose(player=last_entry["player"], roll=last_entry["dice_result"])
+        new_entry = user_choose(player=last_entry["player"],
+                                roll=last_entry["dice_result"])
         log.append(new_entry)
     elif last_entry["action"] == "won":
         pass
@@ -66,7 +67,6 @@ def artificially_add_choose_row(log: list) -> list:
 #         print("err artificially_add_choose_row", last_entry)
 #
 #     return log
-
 
 
 # new_entry = user_choose(player=last_entry["player"],
