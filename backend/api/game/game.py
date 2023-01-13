@@ -495,7 +495,6 @@ class Level:
 
             return
 
-
         """if we have log, and in that log last entry was 6 for this player
             they cen perform again
         """
@@ -565,7 +564,8 @@ class Level:
                         print("1 lost, other won, game done")
                         return
 
-                    roll_result = get_dice_result(game_conf['dice number of sides'])
+                    roll_result = get_dice_result(
+                        game_conf['dice number of sides'])
 
                     can_roll_again = roll_result == self.max_result
 
@@ -609,7 +609,8 @@ class Level:
 
                 while can_roll_again:
 
-                    roll_result = get_dice_result(game_conf['dice number of sides'])
+                    roll_result = get_dice_result(
+                        game_conf['dice number of sides'])
 
                     can_roll_again = roll_result == self.max_result
 
@@ -714,7 +715,6 @@ def choose(board, log, player_id, token_id):
     return {"won": gw}
 
 
-
 def f(playing_order, last, choice):
     while True:
         if playing_order[0] == last:
@@ -736,61 +736,57 @@ if __name__ == '__main__':
     print(f([0, 1, 2, 3], 2, False))  # [3, 0, 1, 2]
     print(f([1, 2, 3, 0], 2, False))  # [3, 0, 1, 2]
 
-    assert f([0,1,2,3], 0, True) == [0,1,2,3]
-    assert f([1,2,3,0], 0, True) == [0,1,2,3]
-    assert f([2,3,0,1], 0, True) == [0,1,2,3]
-    assert f([3,0,1,2], 0, True) == [0,1,2,3]
+    assert f([0, 1, 2, 3], 0, True) == [0, 1, 2, 3]
+    assert f([1, 2, 3, 0], 0, True) == [0, 1, 2, 3]
+    assert f([2, 3, 0, 1], 0, True) == [0, 1, 2, 3]
+    assert f([3, 0, 1, 2], 0, True) == [0, 1, 2, 3]
 
-    assert f([0,1,2,3], 1, True) == [1,2,3,0]
-    assert f([1,2,3,0], 1, True) == [1,2,3,0]
-    assert f([2,3,0,1], 1, True) == [1,2,3,0]
-    assert f([3,0,1,2], 1, True) == [1,2,3,0]
+    assert f([0, 1, 2, 3], 1, True) == [1, 2, 3, 0]
+    assert f([1, 2, 3, 0], 1, True) == [1, 2, 3, 0]
+    assert f([2, 3, 0, 1], 1, True) == [1, 2, 3, 0]
+    assert f([3, 0, 1, 2], 1, True) == [1, 2, 3, 0]
 
-    assert f([0,1,2,3], 2, True) == [2,3,0,1]
-    assert f([1,2,3,0], 2, True) == [2,3,0,1]
-    assert f([2,3,0,1], 2, True) == [2,3,0,1]
-    assert f([3,0,1,2], 2, True) == [2,3,0,1]
+    assert f([0, 1, 2, 3], 2, True) == [2, 3, 0, 1]
+    assert f([1, 2, 3, 0], 2, True) == [2, 3, 0, 1]
+    assert f([2, 3, 0, 1], 2, True) == [2, 3, 0, 1]
+    assert f([3, 0, 1, 2], 2, True) == [2, 3, 0, 1]
 
-    assert f([0,1,2,3], 3, True) == [3,0,1,2]
-    assert f([1,2,3,0], 3, True) == [3,0,1,2]
-    assert f([2,3,0,1], 3, True) == [3,0,1,2]
-    assert f([3,0,1,2], 3, True) == [3,0,1,2]
+    assert f([0, 1, 2, 3], 3, True) == [3, 0, 1, 2]
+    assert f([1, 2, 3, 0], 3, True) == [3, 0, 1, 2]
+    assert f([2, 3, 0, 1], 3, True) == [3, 0, 1, 2]
+    assert f([3, 0, 1, 2], 3, True) == [3, 0, 1, 2]
 
+    assert f([0, 1, 2, 3], 0, False) == [1, 2, 3, 0, ]
+    assert f([1, 2, 3, 0], 0, False) == [1, 2, 3, 0, ]
+    assert f([2, 3, 0, 1], 0, False) == [1, 2, 3, 0, ]
+    assert f([3, 0, 1, 2], 0, False) == [1, 2, 3, 0, ]
 
-    assert f([0,1,2,3], 0, False) == [1,2,3,0,]
-    assert f([1,2,3,0], 0, False) == [1,2,3,0,]
-    assert f([2,3,0,1], 0, False) == [1,2,3,0,]
-    assert f([3,0,1,2], 0, False) == [1,2,3,0,]
+    assert f([0, 1, 2, 3], 1, False) == [2, 3, 0, 1]
+    assert f([1, 2, 3, 0], 1, False) == [2, 3, 0, 1]
+    assert f([2, 3, 0, 1], 1, False) == [2, 3, 0, 1]
+    assert f([3, 0, 1, 2], 1, False) == [2, 3, 0, 1]
 
-    assert f([0,1,2,3], 1, False) == [2,3,0,1]
-    assert f([1,2,3,0], 1, False) == [2,3,0,1]
-    assert f([2,3,0,1], 1, False) == [2,3,0,1]
-    assert f([3,0,1,2], 1, False) == [2,3,0,1]
+    assert f([0, 1, 2, 3], 2, False) == [3, 0, 1, 2]
+    assert f([1, 2, 3, 0], 2, False) == [3, 0, 1, 2]
+    assert f([2, 3, 0, 1], 2, False) == [3, 0, 1, 2]
+    assert f([3, 0, 1, 2], 2, False) == [3, 0, 1, 2]
 
-    assert f([0,1,2,3], 2, False) == [3,0,1,2]
-    assert f([1,2,3,0], 2, False) == [3,0,1,2]
-    assert f([2,3,0,1], 2, False) == [3,0,1,2]
-    assert f([3,0,1,2], 2, False) == [3,0,1,2]
+    assert f([0, 1, 2, 3], 3, False) == [0, 1, 2, 3]
+    assert f([1, 2, 3, 0], 3, False) == [0, 1, 2, 3]
+    assert f([2, 3, 0, 1], 3, False) == [0, 1, 2, 3]
+    assert f([3, 0, 1, 2], 3, False) == [0, 1, 2, 3]
 
-    assert f([0,1,2,3], 3, False) == [0,1,2,3]
-    assert f([1,2,3,0], 3, False) == [0,1,2,3]
-    assert f([2,3,0,1], 3, False) == [0,1,2,3]
-    assert f([3,0,1,2], 3, False) == [0,1,2,3]
+    assert (f([2, 3, 0, 1], 2, True) == [2, 3, 0, 1])
+    assert (f([0, 1, 2, 3], 2, True) == [2, 3, 0, 1])
+    assert (f([1, 2, 3, 0], 2, True) == [2, 3, 0, 1])
 
+    assert (f([2, 3, 0, 1], 2, False) == [3, 0, 1, 2])
+    assert (f([0, 1, 2, 3], 2, False) == [3, 0, 1, 2])
+    assert (f([1, 2, 3, 0], 2, False) == [3, 0, 1, 2])
 
-
-    assert (f([2,3,0,1], 2, True) == [2,3,0,1])
-    assert(f([0, 1, 2, 3], 2, True) == [2, 3, 0, 1])
-    assert(f([1, 2, 3, 0], 2, True) == [2, 3, 0, 1])
-
-    assert(f([2,3,0,1], 2, False) == [3,0,1, 2])
-    assert(f([0, 1, 2, 3], 2, False) == [3, 0, 1, 2])
-    assert(f([1, 2, 3, 0], 2, False) == [3, 0, 1, 2])
-
-    assert(f([2,3,0,1], 0, False) == [1, 2,3,0,])
-    assert(f([0, 1, 2, 3], 0, False) == [1, 2,3,0,])
-    assert(f([1, 2, 3, 0], 0, False) == [1, 2,3,0,])
-
+    assert (f([2, 3, 0, 1], 0, False) == [1, 2, 3, 0, ])
+    assert (f([0, 1, 2, 3], 0, False) == [1, 2, 3, 0, ])
+    assert (f([1, 2, 3, 0], 0, False) == [1, 2, 3, 0, ])
 
     # playing_order = [2, 3, 0, 1]
     #
