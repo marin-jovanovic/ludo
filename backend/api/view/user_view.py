@@ -36,9 +36,9 @@ class UserView(APIView):
         else:
             print("user view")
 
-            print(f"{request.data=}")
-            print(f"{request.body=}")
-            print(f"{request.headers=}")
+            # print(f"{request.data=}")
+            # print(f"{request.body=}")
+            # print(f"{request.headers=}")
 
             return JsonResponse(response)
 

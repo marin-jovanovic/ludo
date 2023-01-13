@@ -97,7 +97,7 @@ export default {
         this.playMusic();
       } else {
         console.log("stop");
-        this.stopMusic();
+        // this.stopMusic();
         this.audioElement = undefined;
       }
     },

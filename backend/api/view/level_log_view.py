@@ -176,11 +176,51 @@ class LevelLogView(APIView):
 
         from backend.api.model.level import get_level_model
         from backend.api.model.acceptance_log import get_acceptance_log_model
-
+        from backend.api.model.player_order import get_player_order_model
         acceptance_log_model = get_acceptance_log_model()
         capacity = get_level_model().objects.get(id=level_id).capacity
 
         for index, entry in log_diff_as_dict.items():
+            # if entry["action"] == "won":
+            #     p = entry["player"]
+            #
+            #     this_user_id = get_player_order_model().objects.get(
+            #             level_id=level_id,
+            #             join_index=int(p)
+            #     )
+            #
+            #     tmp = get_player_order_model().objects.get(
+            #         level_id_id=level_id,
+            #         user_id=this_user_id.user.id
+            #     )
+
+            #     def join_id_to_username_and_user_id(join_index, level_id):
+            #     """join index (level index) -> username"""
+            #
+            #     t = int(join_index)
+            #
+            #     level_exists = get_player_order_model().objects.filter(
+            #         level_id=level_id).exists()
+            #
+            #     player_order = get_player_order_model()
+            #
+            #     try:
+            #
+            #         r = get_player_order_model().objects.get(
+            #             level_id=level_id,
+            #             join_index=t
+            #         )
+            #
+            #     except player_order.DoesNotExist:
+            #         if level_exists:
+            #             print("err user not in level")
+            #         else:
+            #             print("err uncaught err")
+            #
+            #         return {"status": False}
+            #
+            #     return {"status": True,
+            #             "payload": {"userUsername": r.user.username, "userId": r.user.id}}
 
             game_log_model = get_level_log_model()
 

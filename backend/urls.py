@@ -20,6 +20,7 @@ from backend.api.view.user_page_view import UserPageView
 from backend.api.view.user_profile_photo import UserProfilePhotoView
 from backend.api.view.user_connection_request_view import UserConnectionRequestView
 from backend.api.view.direct_message_view import DirectMessageView
+from backend.api.view.statistics_view import StatisticsView
 startup_configuration.print_app_logo()
 api_router = routers.DefaultRouter()
 
@@ -34,7 +35,6 @@ urlpatterns = [
 
     # todo actually this is level_name for post method
     path("level/<str:level_id>", LevelView.as_view()),
-    # path("level/<str:level_id>", LevelView.as_view()),
     path("level/<str:level_id>/log", LevelLogView.as_view()),
 
     path("message/", MessageView.as_view()),
@@ -58,16 +58,14 @@ urlpatterns = [
     path("user/", UserView.as_view()),
     path("user/<str:user_id>", UserView.as_view()),
 
+    path("statistics/", StatisticsView.as_view()),
+    path("statistics/<str:user_id>", StatisticsView.as_view()),
+
     path("level/<str:level_id>/acceptanceLog", AcceptanceLogView.as_view()),
     path("level/<str:level_id>/acceptanceLog/<str:entry_id>",
          AcceptanceLogView.as_view()),
 
     # todo fix this
     path("board/<str:level_id>", BoardView.as_view()),
-
-
-    #
-    # path("game/", GameView.as_view()),
-    # path("game/<str:name>", GameView.as_view()),
 
 ]
