@@ -9,15 +9,15 @@ from backend.api.cqrs_q.level import \
     level_get_model_by_id, is_level_full_when_this_user_will_be_added_by_id, \
     is_integrity_rule_ok
 from backend.api.cqrs_q.user import get_user, get_users_in_level
-# from backend.api.game.main import create_game_api
-
 from backend.api.game.main import create_level
-
 from backend.api.model.level import Level, \
     game_created_notifier, games_notifier, game_left_notifier, \
     game_join_notifier, get_level_model
 from backend.api.model.player_order import get_player_order_model
 from backend.api.model.user import get_user_model
+
+
+# from backend.api.game.main import create_game_api
 
 
 def in_which_level_is_user(username):
@@ -88,7 +88,7 @@ def create_game(creator_username, level_name, capacity):
 
     level_id = game_o.id
 
-    r =  driver_assign_user_currently_playing(creator_username, game_o, level_id)
+    r = driver_assign_user_currently_playing(creator_username, game_o, level_id)
     if not r["status"]:
         return r
 
@@ -127,7 +127,6 @@ def create_game(creator_username, level_name, capacity):
     for i in q:
         print(i)
 
-
     for entry in log:
         for player_index in range(capacity):
             '''assumption is_first = this.user_join_index == log_entry.player'''
@@ -137,13 +136,9 @@ def create_game(creator_username, level_name, capacity):
                 log_entry=entry,
                 user_join_index=player_index,
                 accepted=False,
-                is_first=entry.player==player_index,
+                is_first=entry.player == player_index,
             )
             q.save()
-
-
-
-
 
     msg = json.dumps({
         "source": "game created",
