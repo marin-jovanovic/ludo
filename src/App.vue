@@ -41,10 +41,14 @@ export default {
     this.importScript(
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
     );
-    this.importScript(
-      "https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js"
-    );
+    // this.importScript(
+    //   "https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js"
+    // );
     this.importScript("https://code.jquery.com/jquery-3.5.1.slim.min.js");
+
+    // this.importScript(
+    //   "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"
+    // );
   },
   methods: {
     importScript(path) {

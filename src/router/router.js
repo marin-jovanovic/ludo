@@ -18,6 +18,7 @@ import MessagesView from "@/views/messages/MessagesView.vue";
 import FindFriends from "@/views/findFriends/FindFriends.vue";
 import ConnectionRequest from "@/views/connectionRequests/ConnectionRequests.vue";
 import ConnectionsView from "@/views/connections/ConnectionsView.vue";
+import UserStatistics from "@/views/statistics/UserStatistics.vue";
 
 import {
     store
@@ -95,6 +96,12 @@ export const router = createRouter({
             path: "/findFriends",
             name: "findFriends",
             component: FindFriends
+
+        },
+        {
+            path: "/statistics",
+            name: "statistics",
+            component: UserStatistics
 
         },
         {

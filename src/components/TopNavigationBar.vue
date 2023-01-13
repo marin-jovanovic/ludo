@@ -51,6 +51,7 @@ export default {
         messages: { name: "Messages", active: false },
         findFriends: { name: "Find Friends", active: false },
         connectionRequest: { name: "Connection requests", active: false },
+        statistics: { name: "Statistics", active: false },
       },
     };
   },
